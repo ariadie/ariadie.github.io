@@ -1,4 +1,878 @@
-<h1>Path Planning Codes</h1>
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Repositori referensi disertasi Ariadie Chandra Nugraha: Perencanaan Jalur Multi-Robot dalam Lingkungan Dinamis Menggunakan Multiobjective Genetic Algorithm." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Referensi Disertasi - Ariadie Chandra Nugraha" />
+  <meta property="og:description" content="Daftar referensi interaktif untuk disertasi doktor tentang perencanaan jalur multi-robot berbasis Multiobjective Genetic Algorithm." />
+  <meta property="og:type" content="website" />
+  <title>Referensi Disertasi - Ariadie Chandra Nugraha</title>
 
-<h2><a href="https://atb033.github.io/multi_agent_path_planning/">multi_agent_path_planning</a></h2>
-Python implementation of a bunch of multi-robot path-planning algorithms.
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #3152d4;
+      --primary-2: #0891b2;
+      --accent: #10b981;
+      --warning: #f59e0b;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #818cf8;
+      --primary-2: #22d3ee;
+      --accent: #34d399;
+      --warning: #fbbf24;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(49, 82, 212, 0.20), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(8, 145, 178, 0.18), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.14), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn,
+    .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn {
+      padding: 0.84rem 1.08rem;
+      font-size: 0.95rem;
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      font-size: 1.05rem;
+    }
+
+    .btn:hover,
+    .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero {
+      padding: 66px 0 30px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 4.8vw, 4.6rem);
+      line-height: 0.98;
+      letter-spacing: -0.075em;
+      margin: 22px 0 18px;
+      max-width: 920px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.5vw, 1.18rem);
+      max-width: 760px;
+      margin: 0 0 24px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .mini-note {
+      margin-top: 20px;
+      color: var(--muted-2);
+      font-size: 0.92rem;
+    }
+
+    .side-panel {
+      display: grid;
+      gap: 16px;
+    }
+
+    .profile-card,
+    .stat-card,
+    .info-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      box-shadow: var(--shadow-soft);
+      padding: 22px;
+    }
+
+    .profile-card {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 22px;
+    }
+
+    .profile-top {
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+
+    .avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 20px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--primary-2));
+      color: white;
+      font-size: 1.45rem;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .profile-title {
+      font-weight: 850;
+      font-size: 1.08rem;
+      margin: 0;
+    }
+
+    .profile-meta {
+      color: var(--muted);
+      margin: 4px 0 0;
+      font-size: 0.94rem;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 72%, transparent);
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 750;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 26px 0 0;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      padding: 18px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1.9rem;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .section {
+      padding: 34px 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.55rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 760px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary);
+      margin-bottom: 16px;
+      font-size: 1.22rem;
+    }
+
+    .feature-card h3,
+    .info-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p,
+    .info-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 0.72fr 1.28fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+    }
+
+    .step-title {
+      font-weight: 850;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .step-text {
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .code-box {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      font-size: 0.91rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .preview-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .preview-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 64%, transparent);
+    }
+
+    .traffic {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--line);
+    }
+
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .preview-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 750;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    iframe {
+      width: 100%;
+      height: 720px;
+      border: 0;
+      background: white;
+      display: block;
+    }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-3,
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 34px;
+      }
+
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      iframe {
+        height: 620px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .nav-inner {
+        min-height: 68px;
+      }
+
+      .brand-subtitle {
+        display: none;
+      }
+
+      .nav-actions .btn {
+        display: none;
+      }
+
+      .hero-card {
+        padding: 24px;
+      }
+
+      h1 {
+        letter-spacing: -0.055em;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      iframe {
+        height: 560px;
+      }
+    }
+
+    @media print {
+      .nav, .hero-actions, .preview-card, .footer {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+        color: black;
+      }
+
+      .hero,
+      .two-col,
+      .grid-3 {
+        display: block;
+      }
+
+      .hero-card,
+      .profile-card,
+      .feature-card,
+      .info-card,
+      .code-box {
+        box-shadow: none;
+        break-inside: avoid;
+        margin-bottom: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./" aria-label="Beranda referensi disertasi">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">Referensi Disertasi</span>
+          <span class="brand-subtitle">Ariadie Chandra Nugraha</span>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <a class="btn" href="#unggah">Panduan GitHub</a>
+        <a class="btn btn-primary" href="./referensi_ariadie.html">Buka Referensi</a>
+        <button class="icon-btn" type="button" id="themeToggle" aria-label="Ganti mode gelap atau terang">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <section class="hero" aria-label="Ringkasan halaman">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Repositori Digital Disertasi</span>
+          <h1>Daftar Referensi Interaktif</h1>
+          <p class="lead">
+            Halaman ini menjadi pintu masuk GitHub Pages untuk daftar referensi disertasi
+            <strong>“Perencanaan Jalur Multi-Robot dalam Lingkungan Dinamis Menggunakan Multiobjective Genetic Algorithm.”</strong>
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="./referensi_ariadie.html">📖 Buka Daftar Referensi</a>
+            <a class="btn" href="#preview">👁️ Lihat Preview</a>
+            <a class="btn" href="#unggah">🚀 Cara Unggah</a>
+          </div>
+
+          <p class="mini-note">
+            Simpan file ini sebagai <strong>index.html</strong> dan letakkan satu folder dengan
+            <strong>referensi_ariadie.html</strong> pada repository GitHub Pages.
+          </p>
+
+          <div class="stats" aria-label="Statistik ringkas">
+            <div class="stat">
+              <span class="stat-value">90</span>
+              <span class="stat-label">Referensi</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">5+</span>
+              <span class="stat-label">Bab Disertasi</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">DOI</span>
+              <span class="stat-label">Link Aktif</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel" aria-label="Profil dan metadata">
+        <div class="profile-card">
+          <div class="profile-top">
+            <div class="avatar">A</div>
+            <div>
+              <p class="profile-title">Ariadie Chandra Nugraha</p>
+              <p class="profile-meta">Program Doktor Teknik Elektro<br>Fakultas Teknik, Universitas Gadjah Mada</p>
+            </div>
+          </div>
+
+          <div class="chips">
+            <span class="chip">🤖 Multi-Robot Path Planning</span>
+            <span class="chip">🧬 Multiobjective Genetic Algorithm</span>
+            <span class="chip">📍 NSGA-II + A*</span>
+            <span class="chip">📚 Bibliografi Disertasi</span>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3>Tujuan Halaman</h3>
+          <p>
+            Memudahkan penguji, pembimbing, dan pembaca menelusuri rujukan disertasi secara ringkas,
+            responsif, dan dapat diakses langsung melalui GitHub Pages.
+          </p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" aria-label="Fitur">
+      <div class="section-head">
+        <div>
+          <h2>Fitur Utama</h2>
+          <p class="section-desc">Index ini dirancang sebagai halaman pembuka, sedangkan daftar referensi lengkap tetap berada di file referensi interaktif.</p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">🔎</div>
+          <h3>Akses Cepat</h3>
+          <p>Tombol utama langsung membuka file <strong>referensi_ariadie.html</strong> yang berisi tabel referensi lengkap.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Responsif</h3>
+          <p>Tampilan menyesuaikan layar desktop, tablet, dan ponsel sehingga cocok untuk dibagikan melalui tautan GitHub Pages.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">🌗</div>
+          <h3>Mode Gelap/Terang</h3>
+          <p>Pengunjung dapat mengganti tema tampilan. Pilihan tema disimpan di browser melalui <em>localStorage</em>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="unggah" aria-label="Panduan unggah GitHub Pages">
+      <div class="section-head">
+        <div>
+          <h2>Panduan Struktur File GitHub Pages</h2>
+          <p class="section-desc">Letakkan kedua file berikut di folder yang sama pada branch GitHub Pages.</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="info-card">
+          <h3>Langkah Ringkas</h3>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Unggah index.html</span>
+                <span class="step-text">File ini menjadi halaman utama ketika domain GitHub Pages dibuka.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Unggah referensi_ariadie.html</span>
+                <span class="step-text">File ini berisi daftar referensi lengkap dan dibuka dari tombol pada halaman utama.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Aktifkan GitHub Pages</span>
+                <span class="step-text">Pada repository: Settings → Pages → pilih branch dan folder yang berisi dua file ini.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="code-box" aria-label="Struktur file">
+<pre><code>nama-repository/
+├── index.html
+└── referensi_ariadie.html</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="preview" aria-label="Preview daftar referensi">
+      <div class="section-head">
+        <div>
+          <h2>Preview Daftar Referensi</h2>
+          <p class="section-desc">
+            Preview berikut akan tampil jika <strong>referensi_ariadie.html</strong> berada di folder yang sama dengan <strong>index.html</strong>.
+          </p>
+        </div>
+        <a class="btn btn-primary" href="./referensi_ariadie.html">Buka Full Page</a>
+      </div>
+
+      <div class="preview-card">
+        <div class="preview-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <div class="preview-label">./referensi_ariadie.html</div>
+          <a class="btn" href="./referensi_ariadie.html">Buka</a>
+        </div>
+        <iframe src="./referensi_ariadie.html" title="Preview daftar referensi disertasi"></iframe>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>Referensi Disertasi — Ariadie Chandra Nugraha</strong><br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const savedTheme = localStorage.getItem("theme-index-referensi-ariadie");
+
+    function setTheme(theme) {
+      root.setAttribute("data-theme", theme);
+      toggle.textContent = theme === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-index-referensi-ariadie", theme);
+    }
+
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark");
+    }
+
+    toggle.addEventListener("click", function () {
+      const current = root.getAttribute("data-theme") || "light";
+      setTheme(current === "dark" ? "light" : "dark");
+    });
+  </script>
+</body>
+</html>
