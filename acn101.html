@@ -3,325 +3,439 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ACN101 - Kajian Akademik Optimization, MOO, dan MOEA/MOGA</title>
+  <title>ACN101 - Materi Pembelajaran: Optimization, MOO, dan MOEA/MOGA</title>
   <style>
     :root{
       --bg:#f8fafc;
-      --paper:#ffffff;
+      --card:#ffffff;
       --ink:#0f172a;
       --muted:#475569;
-      --accent:#1d4ed8;
       --line:#e2e8f0;
+      --accent:#1d4ed8;
+      --soft:#eff6ff;
+      --ok:#065f46;
     }
+    *{box-sizing:border-box}
     body{
       margin:0;
       background:var(--bg);
       color:var(--ink);
-      font-family: "Times New Roman", Times, serif;
-      line-height:1.7;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height:1.65;
     }
-    .paper{
-      max-width:900px;
-      margin:2rem auto;
-      background:var(--paper);
-      padding:2.25rem 2.5rem;
+    .container{
+      max-width:1100px;
+      margin:1.5rem auto;
+      padding:0 1rem 2rem;
+    }
+    .hero{
+      background:linear-gradient(135deg,#dbeafe 0%, #eff6ff 40%, #ffffff 100%);
       border:1px solid var(--line);
-      box-shadow:0 8px 24px rgba(15,23,42,.08);
-    }
-    h1,h2,h3{
-      margin-top:1.4rem;
-      margin-bottom:.6rem;
-      line-height:1.3;
+      border-radius:14px;
+      padding:1.25rem 1.25rem 1rem;
+      margin-bottom:1rem;
     }
     h1{
-      font-size:1.7rem;
-      text-align:center;
-      margin-top:0;
+      margin:.1rem 0 .45rem;
+      font-size:1.65rem;
+      line-height:1.25;
     }
-    .meta{
-      text-align:center;
+    .subtitle{
       color:var(--muted);
-      font-size:.98rem;
-      margin-bottom:1.25rem;
+      margin:0;
     }
-    p{
-      text-align:justify;
-      margin:.55rem 0;
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:1rem;
     }
-    .abstract, .keywords{
-      margin:1rem 0;
+    @media(min-width:980px){
+      .grid{
+        grid-template-columns: 260px 1fr;
+      }
     }
-    .abstract-title, .keywords-title{
-      font-weight:bold;
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:1rem;
     }
-    ol, ul{
-      margin:.4rem 0 .8rem 1.4rem;
+    .toc h3, .meta h3{
+      margin:.1rem 0 .6rem;
+      font-size:1rem;
     }
-    li{
-      margin:.35rem 0;
+    .toc ol{
+      margin:.2rem 0 .2rem 1.1rem;
+      padding:0;
     }
-    code{
-      background:#eff6ff;
+    .toc li{ margin:.35rem 0; }
+    .toc a{
+      color:var(--accent);
+      text-decoration:none;
+    }
+    .toc a:hover{text-decoration:underline;}
+    .main section{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:1rem 1rem .9rem;
+      margin-bottom:.9rem;
+    }
+    h2{
+      margin:.2rem 0 .55rem;
+      font-size:1.25rem;
+    }
+    h3{
+      margin:.8rem 0 .4rem;
+      font-size:1.03rem;
+    }
+    p{ margin:.45rem 0; }
+    ul,ol{ margin:.3rem 0 .75rem 1.15rem; }
+    li{ margin:.25rem 0; }
+    .eq{
+      background:var(--soft);
       border:1px solid #dbeafe;
-      padding:.08rem .35rem;
-      border-radius:4px;
-      font-family: "Courier New", monospace;
+      padding:.55rem .7rem;
+      border-radius:8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow-x:auto;
+      margin:.55rem 0;
       font-size:.95rem;
     }
-    .equation{
-      text-align:center;
-      margin:.8rem 0;
-      font-style:italic;
+    .hint{
+      border-left:4px solid #60a5fa;
+      background:#f8fbff;
+      padding:.65rem .75rem;
+      border-radius:8px;
+      margin:.7rem 0;
     }
-    .table-wrap{
-      overflow-x:auto;
-      margin:.8rem 0;
+    .checkpoint{
+      border-left:4px solid #34d399;
+      background:#f0fdf4;
+      padding:.65rem .75rem;
+      border-radius:8px;
+      margin:.7rem 0;
     }
     table{
-      border-collapse:collapse;
       width:100%;
-      font-size:.98rem;
+      border-collapse:collapse;
+      margin:.6rem 0;
+      font-size:.95rem;
     }
-    th, td{
+    th,td{
       border:1px solid var(--line);
-      padding:.55rem .6rem;
+      padding:.5rem .55rem;
       vertical-align:top;
-    }
-    th{
-      background:#f1f5f9;
       text-align:left;
+    }
+    th{ background:#f1f5f9; }
+    .fig{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:.55rem;
+      background:#fff;
+      margin:.65rem 0 .45rem;
+    }
+    .figcap{
+      font-size:.9rem;
+      color:var(--muted);
+      text-align:center;
+      margin-top:.4rem;
     }
     a{
       color:var(--accent);
       text-decoration:none;
       word-break:break-word;
     }
-    a:hover{
-      text-decoration:underline;
-    }
-    .small{
-      color:var(--muted);
-      font-size:.92rem;
-    }
-    hr{
-      border:none;
-      border-top:1px solid var(--line);
-      margin:1.2rem 0;
+    a:hover{ text-decoration:underline; }
+    .refs li{ margin:.4rem 0; }
+    .small{ color:var(--muted); font-size:.9rem; }
+    .badge{
+      display:inline-block;
+      font-size:.78rem;
+      background:#e0ecff;
+      color:#1e3a8a;
+      border:1px solid #bfdbfe;
+      border-radius:999px;
+      padding:.2rem .55rem;
+      margin-right:.35rem;
     }
   </style>
 </head>
 <body>
-  <article class="paper">
-    <h1>Kajian Konsep Dasar Optimization dan Keterkaitannya dengan Multi-Objective Optimization serta MOEA/MOGA</h1>
-    <div class="meta">
-      Dokumen Akademik Ringkas (ACN101) • Bahasa Indonesia
+  <div class="container">
+    <header class="hero">
+      <span class="badge">Materi Kuliah Lanjut</span>
+      <span class="badge">Level Mahasiswa Tingkat Akhir</span>
+      <h1>Optimization → Multi-Objective Optimization (MOO) → MOEA/MOGA</h1>
+      <p class="subtitle">
+        Fokus: pemahaman konsep, alur berpikir, dan implikasi praktis untuk riset/skripsi/proyek rekayasa.
+      </p>
+    </header>
+
+    <div class="grid">
+      <aside class="card toc">
+        <h3>Navigasi Materi</h3>
+        <ol>
+          <li><a href="#tujuan">Tujuan Pembelajaran</a></li>
+          <li><a href="#fondasi">Fondasi Optimization</a></li>
+          <li><a href="#transisi">Transisi ke MOO</a></li>
+          <li><a href="#pareto">Inti Pareto dan Trade-off</a></li>
+          <li><a href="#moea-moga">MOEA/MOGA: Kenapa dan Kapan Dipakai</a></li>
+          <li><a href="#algoritma">Algoritma Penting (NSGA-II, SPEA2, MOEA/D)</a></li>
+          <li><a href="#metrik">Metrik Evaluasi Hasil</a></li>
+          <li><a href="#workflow">Workflow Praktis untuk Proyek Akhir</a></li>
+          <li><a href="#latihan">Pertanyaan Latihan</a></li>
+          <li><a href="#referensi">Referensi Tepercaya</a></li>
+        </ol>
+      </aside>
+
+      <main class="main">
+        <section id="tujuan">
+          <h2>1) Tujuan Pembelajaran</h2>
+          <ul>
+            <li>Memahami perbedaan <strong>single-objective optimization</strong> dan <strong>multi-objective optimization (MOO)</strong>.</li>
+            <li>Memahami konsep <strong>dominasi Pareto</strong> dan <strong>Pareto front</strong>.</li>
+            <li>Memahami mengapa <strong>MOEA/MOGA</strong> efektif untuk masalah kompleks/nonlinear.</li>
+            <li>Mampu menyusun alur eksperimen optimisasi untuk topik skripsi/proyek.</li>
+          </ul>
+        </section>
+
+        <section id="fondasi">
+          <h2>2) Fondasi Optimization</h2>
+          <p>
+            Optimization adalah proses mencari nilai variabel keputusan <code>x</code> agar objektif terbaik tercapai, sambil memenuhi batasan.
+          </p>
+          <div class="eq">min / max f(x), dengan syarat g_i(x) ≤ 0 dan h_j(x) = 0</div>
+          <h3>Komponen utama</h3>
+          <ul>
+            <li><strong>Decision variables</strong>: variabel yang dapat diubah.</li>
+            <li><strong>Objective function</strong>: ukuran kinerja yang dioptimalkan.</li>
+            <li><strong>Constraints</strong>: batasan sistem, fisik, atau regulasi.</li>
+            <li><strong>Feasible region</strong>: ruang solusi yang valid.</li>
+          </ul>
+          <p>
+            Jika problem konveks, solusi global biasanya lebih mudah dijamin secara teori
+            (<a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank" rel="noopener noreferrer">Boyd & Vandenberghe</a>).
+            Jika nonkonveks/kompleks, pendekatan metaheuristik sering lebih relevan
+            (<a href="https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/" target="_blank" rel="noopener noreferrer">Kochenderfer & Wheeler</a>).
+          </p>
+          <div class="checkpoint">
+            <strong>Checkpoint:</strong> sebelum memilih algoritma, selalu petakan dulu jenis variabel, bentuk objektif, dan sifat kendala.
+          </div>
+        </section>
+
+        <section id="transisi">
+          <h2>3) Transisi ke Multi-Objective Optimization (MOO)</h2>
+          <p>
+            Dalam kasus nyata, tujuan sering konflik: contoh klasik <em>biaya vs kualitas</em>, <em>akurasi vs waktu komputasi</em>, <em>kecepatan vs konsumsi energi</em>.
+          </p>
+          <div class="eq">min F(x) = [f1(x), f2(x), ..., fm(x)]^T</div>
+          <p>
+            Karena konflik antar objektif, kita biasanya tidak mendapatkan “satu solusi terbaik mutlak”, melainkan sekumpulan solusi kompromi.
+            Konsep ini dibahas kuat dalam literatur MOO
+            (<a href="https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396" target="_blank" rel="noopener noreferrer">Deb, 2001</a>;
+            <a href="https://link.springer.com/book/10.1007/978-1-4615-5563-6" target="_blank" rel="noopener noreferrer">Miettinen, 1999</a>).
+          </p>
+        </section>
+
+        <section id="pareto">
+          <h2>4) Inti Pareto dan Trade-off</h2>
+          <ul>
+            <li><strong>Dominasi Pareto</strong>: solusi A lebih baik/equivalent di semua objektif dan lebih baik pada minimal satu objektif dibanding B.</li>
+            <li><strong>Pareto-optimal</strong>: solusi yang tidak didominasi solusi feasible lain.</li>
+            <li><strong>Pareto front</strong>: kumpulan nilai objektif dari solusi Pareto-optimal.</li>
+          </ul>
+
+          <div class="fig">
+            <svg viewBox="0 0 760 280" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi Pareto front">
+              <rect x="0" y="0" width="760" height="280" fill="#fff"/>
+              <line x1="70" y1="230" x2="710" y2="230" stroke="#334155" stroke-width="2"/>
+              <line x1="70" y1="230" x2="70" y2="35" stroke="#334155" stroke-width="2"/>
+              <text x="625" y="254" font-size="14" fill="#0f172a">f1 (biaya) ↓</text>
+              <text x="18" y="52" font-size="14" fill="#0f172a" transform="rotate(-90,18,52)">f2 (emisi) ↓</text>
+
+              <polyline points="110,190 170,165 235,147 305,132 380,121 455,113 535,108 620,104"
+                        fill="none" stroke="#2563eb" stroke-width="3"/>
+              <circle cx="110" cy="190" r="4" fill="#2563eb"/>
+              <circle cx="170" cy="165" r="4" fill="#2563eb"/>
+              <circle cx="235" cy="147" r="4" fill="#2563eb"/>
+              <circle cx="305" cy="132" r="4" fill="#2563eb"/>
+              <circle cx="380" cy="121" r="4" fill="#2563eb"/>
+              <circle cx="455" cy="113" r="4" fill="#2563eb"/>
+              <circle cx="535" cy="108" r="4" fill="#2563eb"/>
+              <circle cx="620" cy="104" r="4" fill="#2563eb"/>
+
+              <circle cx="300" cy="170" r="5" fill="#94a3b8"/>
+              <circle cx="410" cy="165" r="5" fill="#94a3b8"/>
+              <circle cx="520" cy="155" r="5" fill="#94a3b8"/>
+              <text x="465" y="92" font-size="13" fill="#1d4ed8">Pareto front</text>
+              <text x="510" y="170" font-size="12" fill="#64748b">solusi terdominasi</text>
+            </svg>
+            <div class="figcap">Ilustrasi: titik biru = solusi Pareto-optimal, titik abu-abu = solusi terdominasi.</div>
+          </div>
+
+          <div class="hint">
+            <strong>Poin penting:</strong> memilih satu titik dari Pareto front adalah tahap <em>decision making</em>, bukan murni optimisasi.
+          </div>
+        </section>
+
+        <section id="moea-moga">
+          <h2>5) MOEA/MOGA: Kenapa dan Kapan Dipakai</h2>
+          <p>
+            <strong>MOEA</strong> (Multi-Objective Evolutionary Algorithm) adalah keluarga algoritma evolusioner untuk MOO.
+            <strong>MOGA</strong> adalah MOEA berbasis operator genetika (seleksi, crossover, mutasi).
+          </p>
+          <h3>Kelebihan utama</h3>
+          <ul>
+            <li>Mencari banyak solusi Pareto dalam satu proses (population-based).</li>
+            <li>Tidak wajib informasi gradien.</li>
+            <li>Robust untuk objektif nonlinier, nonkonveks, bahkan noisy.</li>
+            <li>Fleksibel untuk kendala dan variabel campuran.</li>
+          </ul>
+          <h3>Kapan tepat dipakai?</h3>
+          <ul>
+            <li>Saat ada ≥2 objektif yang saling konflik.</li>
+            <li>Saat metode deterministik sulit diterapkan atau sangat mahal.</li>
+            <li>Saat butuh peta trade-off untuk dasar keputusan manajerial/teknis.</li>
+          </ul>
+          <p>
+            Referensi dasar: Deb (2001) dan Coello dkk. (2007)
+            (<a href="https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396" target="_blank" rel="noopener noreferrer">Wiley</a>,
+            <a href="https://link.springer.com/book/10.1007/978-0-387-36797-2" target="_blank" rel="noopener noreferrer">Springer</a>).
+          </p>
+        </section>
+
+        <section id="algoritma">
+          <h2>6) Algoritma Penting: NSGA-II, SPEA2, MOEA/D</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Algoritma</th>
+                <th>Gagasan inti</th>
+                <th>Kekuatan</th>
+                <th>Referensi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>NSGA-II</strong></td>
+                <td>Fast non-dominated sorting + crowding distance + elitism</td>
+                <td>Seimbang antara konvergensi dan diversitas; sangat populer</td>
+                <td><a href="https://doi.org/10.1109/4235.996017" target="_blank" rel="noopener noreferrer">Deb et al., 2002</a></td>
+              </tr>
+              <tr>
+                <td><strong>SPEA2</strong></td>
+                <td>Strength assignment + density estimation + external archive</td>
+                <td>Seleksi elit stabil; kualitas ranking dominasi baik</td>
+                <td><a href="https://tik-old.ee.ethz.ch/db/public/tik/?db=publications&form=report_single_publication&publication_id=1287" target="_blank" rel="noopener noreferrer">Zitzler et al., 2001</a></td>
+              </tr>
+              <tr>
+                <td><strong>MOEA/D</strong></td>
+                <td>Dekomposisi MOO menjadi subproblem skalar bertetangga</td>
+                <td>Efisien pada banyak skenario many-objective</td>
+                <td><a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank" rel="noopener noreferrer">Zhang & Li, 2007</a></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="small">
+            Dalam praktik tugas akhir, NSGA-II sering jadi baseline pertama karena dukungan literatur dan implementasi yang luas.
+          </p>
+        </section>
+
+        <section id="metrik">
+          <h2>7) Metrik Evaluasi Hasil MOEA/MOGA</h2>
+          <p>Evaluasi tidak cukup hanya “nilai objektif terbaik”. Perlu metrik front:</p>
+          <ul>
+            <li><strong>Hypervolume (HV)</strong>: semakin besar biasanya semakin baik.</li>
+            <li><strong>GD / IGD</strong>: mengukur kedekatan dan cakupan terhadap front referensi.</li>
+            <li><strong>Spread (Δ)</strong>: mengukur pemerataan distribusi solusi.</li>
+          </ul>
+          <p>
+            Lihat tinjauan evaluasi optimizer multiobjektif:
+            <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank" rel="noopener noreferrer">Zitzler et al., 2003</a>.
+          </p>
+        </section>
+
+        <section id="workflow">
+          <h2>8) Workflow Praktis untuk Proyek Akhir</h2>
+          <ol>
+            <li><strong>Definisikan objektif & kendala</strong> dari kasus nyata (jelas dan terukur).</li>
+            <li><strong>Tentukan representasi solusi</strong> (real, integer, binary, atau campuran).</li>
+            <li><strong>Pilih baseline algoritma</strong> (mis. NSGA-II).</li>
+            <li><strong>Tetapkan budget eksperimen</strong> (jumlah evaluasi, ukuran populasi, jumlah run).</li>
+            <li><strong>Lakukan multi-run</strong> dengan seed berbeda (untuk reliabilitas statistik).</li>
+            <li><strong>Evaluasi dengan beberapa metrik</strong> (HV + IGD/Spread).</li>
+            <li><strong>Interpretasi trade-off</strong> bersama konteks domain (teknis & biaya).</li>
+          </ol>
+          <div class="hint">
+            Untuk implementasi cepat dan reproducible, gunakan framework:
+            <a href="https://pymoo.org/" target="_blank" rel="noopener noreferrer">pymoo</a>.
+          </div>
+        </section>
+
+        <section id="latihan">
+          <h2>9) Pertanyaan Latihan (Untuk Diskusi Kelas)</h2>
+          <ol>
+            <li>Mengapa weighted-sum bisa gagal menangkap Pareto front nonkonveks?</li>
+            <li>Jika dua solusi sama-sama non-dominated, bagaimana memilih satu solusi final?</li>
+            <li>Dalam kasus Anda, metrik apa yang paling penting: HV, IGD, atau Spread? Mengapa?</li>
+            <li>Kapan MOEA/D lebih cocok dibanding NSGA-II?</li>
+          </ol>
+        </section>
+
+        <section id="referensi">
+          <h2>10) Referensi Tepercaya</h2>
+          <ol class="refs">
+            <li>
+              Boyd, S., & Vandenberghe, L. (2004). <em>Convex Optimization</em>. Cambridge University Press.
+              <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank" rel="noopener noreferrer">https://web.stanford.edu/~boyd/cvxbook/</a>
+            </li>
+            <li>
+              Kochenderfer, M. J., & Wheeler, T. A. (2019). <em>Algorithms for Optimization</em>. MIT Press.
+              <a href="https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/" target="_blank" rel="noopener noreferrer">https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/</a>
+            </li>
+            <li>
+              Miettinen, K. (1999). <em>Nonlinear Multiobjective Optimization</em>. Springer.
+              <a href="https://link.springer.com/book/10.1007/978-1-4615-5563-6" target="_blank" rel="noopener noreferrer">https://link.springer.com/book/10.1007/978-1-4615-5563-6</a>
+            </li>
+            <li>
+              Deb, K. (2001). <em>Multi-Objective Optimization Using Evolutionary Algorithms</em>. Wiley.
+              <a href="https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396" target="_blank" rel="noopener noreferrer">https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396</a>
+            </li>
+            <li>
+              Deb, K., Pratap, A., Agarwal, S., & Meyarivan, T. (2002). NSGA-II. IEEE TEC.
+              DOI:
+              <a href="https://doi.org/10.1109/4235.996017" target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/4235.996017</a>
+            </li>
+            <li>
+              Zitzler, E., Laumanns, M., & Thiele, L. (2001). SPEA2, ETH Zürich TIK-Report 103.
+              <a href="https://tik-old.ee.ethz.ch/db/public/tik/?db=publications&form=report_single_publication&publication_id=1287" target="_blank" rel="noopener noreferrer">https://tik-old.ee.ethz.ch/db/public/tik/?db=publications&form=report_single_publication&publication_id=1287</a>
+            </li>
+            <li>
+              Zhang, Q., & Li, H. (2007). MOEA/D. IEEE TEC.
+              DOI:
+              <a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/TEVC.2007.892759</a>
+            </li>
+            <li>
+              Zitzler, E., et al. (2003). Performance Assessment of Multiobjective Optimizers. IEEE TEC.
+              DOI:
+              <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/TEVC.2003.810758</a>
+            </li>
+            <li>
+              Coello Coello, C. A., Lamont, G. B., & Van Veldhuizen, D. A. (2007).
+              <em>Evolutionary Algorithms for Solving Multi-Objective Problems</em>. Springer.
+              <a href="https://link.springer.com/book/10.1007/978-0-387-36797-2" target="_blank" rel="noopener noreferrer">https://link.springer.com/book/10.1007/978-0-387-36797-2</a>
+            </li>
+            <li>
+              Dokumentasi resmi pymoo:
+              <a href="https://pymoo.org/" target="_blank" rel="noopener noreferrer">https://pymoo.org/</a>
+            </li>
+          </ol>
+          <p class="small">Tip: gunakan DOI saat sitasi skripsi agar sumber mudah diverifikasi.</p>
+        </section>
+      </main>
     </div>
-
-    <section class="abstract">
-      <p><span class="abstract-title">Abstrak—</span>
-        Optimization merupakan disiplin fundamental dalam pengambilan keputusan kuantitatif, dengan tujuan memperoleh solusi terbaik terhadap suatu fungsi objektif di bawah kendala tertentu. Dalam praktik rekayasa dan manajemen sistem, masalah sering kali melibatkan lebih dari satu objektif yang saling bertentangan, sehingga memerlukan kerangka <em>Multi-Objective Optimization</em> (MOO). Berbeda dari kasus objektif tunggal yang menargetkan satu optimum global, MOO menghasilkan himpunan solusi kompromi yang dikenal sebagai solusi Pareto-optimal. Artikel ini mengkaji fondasi konseptual optimization, transisi ke MOO, serta relevansi <em>Multi-Objective Evolutionary Algorithms</em> (MOEA), khususnya <em>Multi-Objective Genetic Algorithms</em> (MOGA), sebagai pendekatan komputasional yang efektif untuk mengaproksimasi Pareto front pada masalah nonlinier, nonkonveks, dan berdimensi tinggi. Kajian menekankan hubungan teoritis-metodologis dari optimization klasik menuju pendekatan evolusioner multiobjektif, beserta tantangan praktis implementasinya.
-      </p>
-    </section>
-
-    <section class="keywords">
-      <p><span class="keywords-title">Kata Kunci—</span>
-        optimization, multi-objective optimization, Pareto optimality, MOEA, MOGA, NSGA-II, SPEA2, MOEA/D.
-      </p>
-    </section>
-
-    <hr />
-
-    <section>
-      <h2>1. Pendahuluan</h2>
-      <p>
-        Optimization berperan sentral dalam berbagai domain, seperti desain teknik, logistik, energi, keuangan, dan kecerdasan artifisial. Secara klasik, persoalan optimization diformulasikan sebagai minimisasi atau maksimisasi satu fungsi objektif dengan memperhatikan kendala kesetaraan maupun ketaksamaan. Namun, persoalan dunia nyata jarang bersifat mono-kriteria; pengambil keputusan hampir selalu menghadapi trade-off, misalnya antara biaya dan kualitas, kecepatan dan konsumsi energi, atau akurasi dan kompleksitas model. Kondisi ini mendorong perlunya kerangka MOO yang tidak mengejar satu solusi tunggal, melainkan sekumpulan solusi efisien secara Pareto.
-      </p>
-      <p>
-        Dalam konteks ini, MOEA/MOGA berkembang sebagai paradigma penting karena mampu mengeksplorasi banyak kandidat solusi secara simultan, sehingga cocok untuk membangun aproksimasi Pareto front dalam satu proses optimisasi.
-      </p>
-    </section>
-
-    <section>
-      <h2>2. Konsep Dasar Optimization</h2>
-      <p>
-        Secara umum, optimization dapat dinyatakan sebagai:
-      </p>
-      <div class="equation">
-        minimisasi/maksimisasi &nbsp; <code>f(x)</code>, &nbsp; dengan syarat &nbsp; <code>g<sub>i</sub>(x) ≤ 0</code>, <code>h<sub>j</sub>(x) = 0</code>.
-      </div>
-      <p>
-        Di sini, <code>x</code> adalah vektor variabel keputusan, <code>f(x)</code> adalah fungsi objektif, sedangkan <code>g<sub>i</sub></code> dan <code>h<sub>j</sub></code> adalah kendala. Konsep penting meliputi:
-      </p>
-      <ul>
-        <li><strong>Feasible set</strong>: himpunan solusi yang memenuhi semua kendala.</li>
-        <li><strong>Local optimum</strong> vs <strong>global optimum</strong>: perbedaan ruang pencarian lokal dan keseluruhan domain.</li>
-        <li><strong>Sifat masalah</strong>: linear/nonlinear, konveks/nonkonveks, kontinu/diskret, deterministik/stokastik.</li>
-      </ul>
-      <p>
-        Pada problem konveks, jaminan teoritis terhadap optimum global lebih kuat; sebaliknya, pada problem nonkonveks sering diperlukan pendekatan heuristik atau metaheuristik.
-      </p>
-    </section>
-
-    <section>
-      <h2>3. Multi-Objective Optimization (MOO)</h2>
-      <p>
-        MOO memformulasikan beberapa fungsi objektif sekaligus:
-      </p>
-      <div class="equation">
-        minimisasi &nbsp; <code>F(x) = [f<sub>1</sub>(x), f<sub>2</sub>(x), ..., f<sub>m</sub>(x)]<sup>T</sup></code>,
-        &nbsp; dengan kendala yang relevan.
-      </div>
-      <p>
-        Karena objektif dapat saling konflik, konsep “solusi terbaik tunggal” digantikan oleh optimalitas Pareto:
-      </p>
-      <ul>
-        <li><strong>Dominasi Pareto</strong>: solusi A mendominasi B jika A tidak lebih buruk pada semua objektif dan lebih baik pada sedikitnya satu objektif.</li>
-        <li><strong>Pareto-optimal</strong>: solusi yang tidak didominasi solusi feasible lainnya.</li>
-        <li><strong>Pareto set</strong>: himpunan solusi Pareto-optimal di ruang keputusan.</li>
-        <li><strong>Pareto front</strong>: citra Pareto set di ruang objektif.</li>
-      </ul>
-      <p>
-        Dengan demikian, keluaran MOO adalah himpunan kompromi. Pemilihan solusi akhir memerlukan preferensi pengambil keputusan, misalnya berbasis bobot, batas aspirasi, atau metode pengambilan keputusan multikriteria lanjutan.
-      </p>
-    </section>
-
-    <section>
-      <h2>4. Keterkaitan MOO dengan MOEA/MOGA</h2>
-      <p>
-        Metode klasik MOO (mis. weighted-sum) sering efektif pada kondisi tertentu, tetapi dapat kesulitan menangkap keseluruhan Pareto front, terutama jika front nonkonveks. MOEA hadir sebagai solusi karena:
-      </p>
-      <ul>
-        <li>berbasis populasi (menghasilkan banyak solusi sekaligus),</li>
-        <li>fleksibel terhadap bentuk fungsi objektif dan kendala kompleks,</li>
-        <li>tidak mensyaratkan informasi gradien,</li>
-        <li>cukup robust pada lanskap pencarian yang multimodal.</li>
-      </ul>
-      <p>
-        MOGA adalah implementasi MOEA berbasis algoritma genetika. Proses umumnya mencakup inisialisasi populasi, evaluasi multiobjektif, seleksi berbasis dominasi/indikator, rekombinasi (crossover), mutasi, dan strategi pemeliharaan keragaman.
-      </p>
-    </section>
-
-    <section>
-      <h2>5. Algoritma Representatif dan Karakteristiknya</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Algoritma</th>
-              <th>Karakteristik Utama</th>
-              <th>Kontribusi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>NSGA-II</strong></td>
-              <td>Fast non-dominated sorting, elitism, crowding distance</td>
-              <td>Standar de facto untuk MOGA karena keseimbangan kualitas solusi dan efisiensi komputasi.</td>
-            </tr>
-            <tr>
-              <td><strong>SPEA2</strong></td>
-              <td>External archive, strength assignment, density estimation</td>
-              <td>Meningkatkan kualitas seleksi Pareto melalui mekanisme strength dan arsip elit.</td>
-            </tr>
-            <tr>
-              <td><strong>MOEA/D</strong></td>
-              <td>Dekomposisi MOO ke submasalah skalar yang saling bertetangga</td>
-              <td>Efektif untuk skenario objektif banyak dan struktur problem yang sesuai dekomposisi.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="small">
-        Catatan: NSGA-II dan SPEA2 sering dikategorikan sebagai MOGA (karena berbasis operator GA), sedangkan MOEA/D berada dalam keluarga MOEA yang lebih umum.
-      </p>
-    </section>
-
-    <section>
-      <h2>6. Implikasi Praktis dan Tantangan Riset</h2>
-      <ul>
-        <li><strong>Konvergensi–diversitas</strong>: algoritma harus mendekati Pareto front sekaligus menjaga sebaran solusi.</li>
-        <li><strong>Biaya evaluasi</strong>: pada simulasi mahal, evaluasi objektif mendominasi waktu komputasi.</li>
-        <li><strong>Penanganan kendala</strong>: strategi penalti, repair, atau feasibility rules memengaruhi performa secara signifikan.</li>
-        <li><strong>Many-objective optimization</strong>: ketika jumlah objektif meningkat, tekanan seleksi berbasis dominasi melemah.</li>
-        <li><strong>Post-optimization decision making</strong>: diperlukan integrasi dengan metode preferensi keputusan.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>7. Kesimpulan</h2>
-      <p>
-        Optimization menyediakan fondasi matematis untuk pencarian solusi optimal di bawah kendala. MOO memperluas fondasi tersebut ke situasi multi-kriteria yang konflik, sehingga hasil optimisasi berupa himpunan solusi Pareto-optimal alih-alih satu solusi tunggal. Dalam lanskap problem modern yang kompleks dan nonlinier, MOEA/MOGA menjadi pendekatan komputasional yang relevan dan kuat karena mampu mengaproksimasi Pareto front secara efektif. Oleh karena itu, relasi antara optimization, MOO, dan MOEA/MOGA bersifat kontinu: dari teori dasar, ke generalisasi multiobjektif, hingga implementasi algoritmik praktis.
-      </p>
-    </section>
-
-    <section>
-      <h2>Daftar Referensi (Terpercaya)</h2>
-      <ol>
-        <li>
-          Deb, K., Pratap, A., Agarwal, S., & Meyarivan, T. (2002).
-          <em>A Fast and Elitist Multiobjective Genetic Algorithm: NSGA-II</em>.
-          IEEE Transactions on Evolutionary Computation, 6(2), 182–197.
-          DOI:
-          <a href="https://doi.org/10.1109/4235.996017" target="_blank" rel="noopener noreferrer">
-            https://doi.org/10.1109/4235.996017
-          </a>
-        </li>
-        <li>
-          Zitzler, E., Laumanns, M., & Thiele, L. (2001).
-          <em>SPEA2: Improving the Strength Pareto Evolutionary Algorithm</em>.
-          TIK-Report 103, ETH Zürich.
-          Link:
-          <a href="https://tik-old.ee.ethz.ch/db/public/tik/?db=publications&form=report_single_publication&publication_id=1287" target="_blank" rel="noopener noreferrer">
-            https://tik-old.ee.ethz.ch/db/public/tik/?db=publications&form=report_single_publication&publication_id=1287
-          </a>
-        </li>
-        <li>
-          Zhang, Q., & Li, H. (2007).
-          <em>MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition</em>.
-          IEEE Transactions on Evolutionary Computation, 11(6), 712–731.
-          DOI:
-          <a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank" rel="noopener noreferrer">
-            https://doi.org/10.1109/TEVC.2007.892759
-          </a>
-        </li>
-        <li>
-          Deb, K. (2001).
-          <em>Multi-Objective Optimization Using Evolutionary Algorithms</em>.
-          Wiley.
-          Link:
-          <a href="https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396" target="_blank" rel="noopener noreferrer">
-            https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396
-          </a>
-        </li>
-        <li>
-          Boyd, S., & Vandenberghe, L. (2004).
-          <em>Convex Optimization</em>. Cambridge University Press.
-          Materi resmi:
-          <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank" rel="noopener noreferrer">
-            https://web.stanford.edu/~boyd/cvxbook/
-          </a>
-        </li>
-        <li>
-          Kochenderfer, M. J., & Wheeler, T. A. (2019).
-          <em>Algorithms for Optimization</em>. MIT Press.
-          Link:
-          <a href="https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/" target="_blank" rel="noopener noreferrer">
-            https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/
-          </a>
-        </li>
-        <li>
-          Blank, J., & Deb, K. (dkk., dokumentasi proyek).
-          <em>pymoo: Multi-objective Optimization in Python</em>.
-          Link resmi:
-          <a href="https://pymoo.org/" target="_blank" rel="noopener noreferrer">
-            https://pymoo.org/
-          </a>
-        </li>
-      </ol>
-      <p class="small">
-        Seluruh tautan di atas mengarah ke DOI resmi, penerbit akademik, institusi riset, atau dokumentasi proyek yang luas dipakai komunitas ilmiah.
-      </p>
-    </section>
-  </article>
+  </div>
 </body>
 </html>
