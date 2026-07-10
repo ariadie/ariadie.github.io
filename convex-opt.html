@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif Convex Optimization — teori, contoh, dan visualisasi berbasis referensi Boyd & Vandenberghe." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Convex Optimization — Convexitas dalam Optimasi" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan convex optimization: convex sets, convex functions, dan aplikasinya." />
+  <meta property="og:type" content="website" />
+  <title>Convex Optimization — Convexitas dalam Optimasi</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #dc2626;
+      --primary-2: #ef4444;
+      --accent: #f59e0b;
+      --accent-2: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #f87171;
+      --primary-2: #fca5a5;
+      --accent: #fbbf24;
+      --accent-2: #34d399;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(220, 38, 38, 0.12), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(239, 68, 68, 0.10), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 20;
+      min-width: 180px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card-solid);
+      box-shadow: var(--shadow-soft);
+      padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero {
+      padding: 50px 0 30px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 8%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px;
+      margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card, .info-card, .algo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary);
+      margin-bottom: 14px;
+      font-size: 1.22rem;
+    }
+
+    .feature-card h3, .info-card h3, .algo-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p, .info-card p, .algo-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .algo-card.highlight {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+    }
+
+    .code-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      font-size: 0.91rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .sim-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sim-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 64%, transparent);
+    }
+
+    .traffic {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--line);
+    }
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .sim-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 750;
+    }
+
+    .sim-body { padding: 20px; }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 480px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: color-mix(in srgb, var(--bg-soft) 60%, var(--card-solid));
+    }
+
+    .canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .sim-controls .btn { font-size: 0.85rem; padding: 0.55rem 1rem; }
+    .btn-accent {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent-2), #059669);
+      color: #fff;
+    }
+    .btn-danger {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: #fff;
+    }
+
+    .sim-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .sim-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sim-stat-value {
+      font-weight: 900;
+      font-size: 1.3rem;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+    }
+
+    .sim-stat-label {
+      color: var(--muted-2);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      width: 38px; height: 38px;
+      border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+    }
+
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    .ref-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+    }
+
+    .ref-authors { font-weight: 700; color: var(--text); }
+    .ref-title { font-style: italic; color: var(--muted); }
+    .ref-source { color: var(--muted-2); font-size: 0.9rem; }
+    .ref-doi a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+    .legend-swatch {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      flex: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--line);
+      color: var(--muted-2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    .math { font-style: italic; }
+    .highlight-box {
+      padding: 18px;
+      border-left: 4px solid var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 12px 0;
+    }
+    .highlight-box p { margin: 0; color: var(--text); }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .hero { padding-top: 24px; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .hero-card { padding: 24px; }
+      h1 { letter-spacing: -0.055em; }
+    }
+    @media print {
+      .nav, .sim-card, .footer { display: none !important; }
+      body { background: white; color: black; }
+      .hero, .grid-2, .grid-3 { display: block; }
+      .feature-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 14px; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">Convex Optimization</span>
+          <span class="brand-subtitle">Boyd &amp; Vandenberghe</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#simulasi">Simulasi</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <a class="btn" href="./moo.html">MOO</a>
+        <div class="dropdown">
+          <button class="btn dd-btn" type="button">Algoritma <span class="dd-arrow">▼</span></button>
+          <div class="dropdown-menu">
+            <a href="./moea-moga.html">MOEA/MOGA</a>
+            <a href="./nsga2.html">NSGA-II</a>
+            <a href="./nsga3.html">NSGA-III</a>
+            <a href="./spea2.html">SPEA2</a>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar Convex Optimization">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Fondasi Optimasi Matematis</span>
+          <h1>Convex Optimization</h1>
+          <p class="lead">
+            <strong>Convex optimization</strong> adalah kelas masalah optimasi di mana fungsi tujuan dan
+            kendala adalah <em>convex</em>. Keunggulan utamanya: setiap optimum lokal adalah optimum
+            global, dan solusi dapat ditemukan secara efisien bahkan untuk masalah berdimensi ribuan.
+            Buku teks standar oleh <strong>Boyd &amp; Vandenberghe (2004)</strong> menjadikan bidang ini
+            aksesibel bagi para insinyur dan ilmuwan.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
+            <a class="btn" href="#penjelasan">Pelajari Teori</a>
+            <a class="btn" href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank">Buku Boyd →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN -->
+    <section class="section" id="ringkasan" aria-label="Ringkasan">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">📐</div>
+          <h3>Convex Set</h3>
+          <p>Himpunan \(C\) disebut <em>convex</em> jika untuk setiap \(x_1, x_2 \in C\) dan \(\theta \in [0,1]\), berlaku \(\theta x_1 + (1-\theta)x_2 \in C\).</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📈</div>
+          <h3>Convex Function</h3>
+          <p>Fungsi \(f\) disebut <em>convex</em> jika domainnya convex dan \(f(\theta x + (1-\theta)y) \le \theta f(x) + (1-\theta)f(y)\). Epigrafnya adalah convex set.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🏆</div>
+          <h3>Global Optimum</h3>
+          <p>Setiap titik stasioner (gradien = 0) dari fungsi convex adalah <strong>optimum global</strong>. Tidak ada local optimum yang menyesatkan.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PENJELASAN -->
+    <section class="section" id="penjelasan" aria-label="Penjelasan">
+      <div class="section-head">
+        <div>
+          <h2>Konsep Fundamental</h2>
+          <p class="section-desc">Convex optimization menggabungkan tiga elemen: convex set, convex function, dan formulasi masalah standar.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Convex Set</span>
+                <span class="step-text">Himpunan \(C \subseteq \mathbb{R}^n\) convex jika ruas garis antara dua titik sembarang di \(C\) seluruhnya berada di \(C\). Contoh: hyperplane, halfspace, bola Euclidean, polyhedron, cone.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Convex Function</span>
+                <span class="step-text">\(f: \mathbb{R}^n \to \mathbb{R}\) convex jika \(\text{dom } f\) convex dan \(f(\theta x + (1-\theta)y) \le \theta f(x) + (1-\theta)f(y)\) untuk semua \(x, y \in \text{dom } f\), \(\theta \in [0,1]\). Fungsi convex kontinu di seluruh domain relatif interiornya.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Masalah Convex Optimization</span>
+                <span class="step-text">Bentuk standar:
+                \[\begin{aligned}
+                &\min_{x} f_0(x) \\
+                &\text{s.t. } f_i(x) \le 0,\; i=1,\dots,m \\
+                &\qquad a_j^\top x = b_j,\; j=1,\dots,p
+                \end{aligned}\]
+                dengan \(f_0, \dots, f_m\) convex dan kendala persamaan linear/affine.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Dualitas &amp; KKT</span>
+                <span class="step-text">Dual Lagrange memberikan <em>lower bound</em> pada nilai optimal. KKT conditions adalah syarat perlu dan cukup untuk optimum pada masalah convex dengan constraint qualification yang terpenuhi (mis. Slater's condition).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Metode Solusi</span>
+                <span class="step-text">Algoritma seperti <em>gradient descent</em>, <em>Newton's method</em>, <em>interior-point methods</em>, dan <em>subgradient methods</em> dapat digunakan. Untuk kelas khusus (LP, QP, SOCP, SDP), solver yang sangat efisien telah tersedia.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="algo-card highlight" style="margin-bottom: 16px;">
+            <h3>Mengapa Convex?</h3>
+            <div class="highlight-box">
+              <p><strong>Teorema:</strong> Untuk masalah convex optimization, setiap <em>local optimum</em> adalah <em>global optimum</em>.</p>
+            </div>
+            <div class="highlight-box" style="margin-top: 8px; border-left-color: var(--accent-2);">
+              <p><strong>Akibat:</strong> Tidak diperlukan <em>multi-start</em> atau mekanisme diversitas. Cukup temukan satu titik yang memenuhi KKT.</p>
+            </div>
+            <table style="margin-top: 16px;">
+              <tr><th>Kelas</th><th>Fungsi Tujuan</th><th>Kendala</th></tr>
+              <tr><td>LP</td><td>Linear</td><td>Linear</td></tr>
+              <tr><td>QP</td><td>Quadratic convex</td><td>Linear</td></tr>
+              <tr><td>SOCP</td><td>Linear</td><td>Cone orde-2</td></tr>
+              <tr><td>SDP</td><td>Linear</td><td>PSD cone</td></tr>
+              <tr><td>GP</td><td>Posynomial (log-convex)</td><td>Monial/Posynomial</td></tr>
+            </table>
+          </div>
+
+          <div class="algo-card">
+            <h3>Bentuk Standar</h3>
+            <div class="code-box" style="margin-top: 10px;">
+<pre>minimize    f₀(x)
+subject to  fᵢ(x) ≤ 0,   i = 1,...,m
+            Ax = b</pre>
+            </div>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: var(--muted);">
+              dengan \(f_0, \dots, f_m\) convex. Himpunan feasible adalah irisan domain fungsi dan
+              polyhedron \(\{x \mid Ax = b\}\) → convex.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section class="section" id="simulasi" aria-label="Simulasi interaktif">
+      <div class="section-head">
+        <div>
+          <h2>Simulasi Interaktif</h2>
+          <p class="section-desc">Bandingkan fungsi convex (\(x^2\), \(e^x\)) vs non-convex (\(\sin x\), \(x^3\)). Jalankan <em>gradient descent</em> untuk melihat bagaimana titik awal yang berbeda konvergen ke <strong>global optimum</strong> untuk fungsi convex, atau terperangkap di <strong>local optimum</strong> untuk fungsi non-convex.</p>
+        </div>
+      </div>
+
+      <div class="sim-card">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">gradient_descent.js</div>
+          <div class="sim-label" id="iterDisplay">Iterasi: 0</div>
+        </div>
+
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="simCanvas" width="600" height="600"></canvas>
+            </div>
+
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background: #2563eb;"></span> Fungsi</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #dc2626;"></span> Titik awal</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #10b981;"></span> Iterasi GD</div>
+                <div class="legend-item"><span class="legend-swatch" style="border-radius: 0; width: 20px; height: 3px; background: #f59e0b;"></span> Gradien</div>
+              </div>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0;">
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; font-weight: 700;">
+                  Fungsi:
+                  <select id="funcSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 10px; font-weight: 600;">
+                    <option value="convex1">\(f(x)=x^2\) (convex)</option>
+                    <option value="convex2">\(f(x)=e^x\) (convex)</option>
+                    <option value="convex3">\(f(x)=x^4 + x^2\) (convex)</option>
+                    <option value="nonconvex1">\(f(x)=\sin x\) (non-convex)</option>
+                    <option value="nonconvex2">\(f(x)=x^3 - 6x\) (non-convex)</option>
+                    <option value="nonconvex3">\(f(x)=x^4 - 10x^2 + 2x\) (non-convex)</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="sim-controls">
+                <button class="btn btn-primary" id="btnStart">▶ Start</button>
+                <button class="btn" id="btnPause" disabled>⏸ Pause</button>
+                <button class="btn btn-accent" id="btnReset">↻ Reset</button>
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; font-weight: 700;">
+                  Speed:
+                  <select id="speedSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 10px; font-weight: 600;">
+                    <option value="200">Lambat</option>
+                    <option value="80" selected>Normal</option>
+                    <option value="20">Cepat</option>
+                  </select>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; font-weight: 700;">
+                  Step size:
+                  <select id="stepSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 10px; font-weight: 600;">
+                    <option value="0.1">0.1</option>
+                    <option value="0.05" selected>0.05</option>
+                    <option value="0.01">0.01</option>
+                    <option value="0.005">0.005</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="sim-stats">
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statIter">0</span>
+                  <span class="sim-stat-label">Iterasi</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statX">0.00</span>
+                  <span class="sim-stat-label">x</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statFX">0.00</span>
+                  <span class="sim-stat-label">f(x)</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statGrad">0.00</span>
+                  <span class="sim-stat-label">|∇f|</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi utama">
+      <div class="section-head">
+        <div>
+          <h2>Referensi Utama</h2>
+          <p class="section-desc">Buku dan paper fundamental dalam convex optimization.</p>
+        </div>
+      </div>
+
+      <ul class="ref-list">
+        <li>
+          <div class="ref-authors">Boyd, S., &amp; Vandenberghe, L.</div>
+          <div class="ref-title">Convex Optimization</div>
+          <div class="ref-source">Cambridge University Press, 2004. ISBN: 978-0-521-83378-3</div>
+          <div class="ref-doi"><a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank">web.stanford.edu/~boyd/cvxbook/</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Rockafellar, R. T.</div>
+          <div class="ref-title">Convex Analysis</div>
+          <div class="ref-source">Princeton University Press, 1970. ISBN: 978-0-691-01586-6</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1515/9781400873173" target="_blank">https://doi.org/10.1515/9781400873173</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Nesterov, Y.</div>
+          <div class="ref-title">Introductory Lectures on Convex Optimization: A Basic Course</div>
+          <div class="ref-source">Springer, 2004. ISBN: 978-1-4613-4691-3</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-1-4419-8853-9" target="_blank">https://doi.org/10.1007/978-1-4419-8853-9</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Boyd, S., Parikh, N., Chu, E., Peleato, B., &amp; Eckstein, J.</div>
+          <div class="ref-title">Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers</div>
+          <div class="ref-source">Foundations and Trends in Machine Learning, 3(1), 1–122, 2011.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1561/2200000016" target="_blank">https://doi.org/10.1561/2200000016</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Grant, M., &amp; Boyd, S.</div>
+          <div class="ref-title">Graph implementations for nonsmooth convex programs</div>
+          <div class="ref-source">In: Recent Advances in Learning and Control, Springer, 2008, 95–110.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-1-84800-986-6_7" target="_blank">https://doi.org/10.1007/978-1-84800-986-6_7</a></div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>Convex Optimization Interactive Guide</strong> — Berdasarkan Boyd &amp; Vandenberghe (2004)<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-convex");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-convex", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Dropdown toggle (click/tap)
+    document.querySelectorAll(".dropdown").forEach(function(dd) {
+      var btn = dd.querySelector(".dd-btn");
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", function() {
+      document.querySelectorAll(".dropdown.show").forEach(function(dd) {
+        dd.classList.remove("show");
+      });
+    });
+
+    // --- Gradient Descent Simulation ---
+    const canvas = document.getElementById("simCanvas");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const pad = 50;
+    const plotW = W - 2 * pad;
+    const plotH = H - 2 * pad;
+
+    // Function definitions
+    const functions = {
+      convex1: {
+        label: "x²",
+        f: x => x * x,
+        df: x => 2 * x,
+        ddf: x => 2,
+        xRange: [-3, 3],
+        isConvex: true
+      },
+      convex2: {
+        label: "e^x",
+        f: x => Math.exp(x),
+        df: x => Math.exp(x),
+        ddf: x => Math.exp(x),
+        xRange: [-2, 2],
+        isConvex: true
+      },
+      convex3: {
+        label: "x⁴ + x²",
+        f: x => Math.pow(x, 4) + x * x,
+        df: x => 4 * Math.pow(x, 3) + 2 * x,
+        ddf: x => 12 * Math.pow(x, 2) + 2,
+        xRange: [-2, 2],
+        isConvex: true
+      },
+      nonconvex1: {
+        label: "sin x",
+        f: x => Math.sin(x),
+        df: x => Math.cos(x),
+        ddf: x => -Math.sin(x),
+        xRange: [-5, 5],
+        isConvex: false
+      },
+      nonconvex2: {
+        label: "x³ - 6x",
+        f: x => Math.pow(x, 3) - 6 * x,
+        df: x => 3 * Math.pow(x, 2) - 6,
+        ddf: x => 6 * x,
+        xRange: [-3.5, 3.5],
+        isConvex: false
+      },
+      nonconvex3: {
+        label: "x⁴ - 10x² + 2x",
+        f: x => Math.pow(x, 4) - 10 * x * x + 2 * x,
+        df: x => 4 * Math.pow(x, 3) - 20 * x + 2,
+        ddf: x => 12 * Math.pow(x, 2) - 20,
+        xRange: [-3.2, 3.2],
+        isConvex: false
+      }
+    };
+
+    let currentFunc = "convex1";
+    let fn = functions[currentFunc];
+    let x0 = -2;
+    let x = x0;
+    let iteration = 0;
+    const maxIter = 500;
+    let history = [{ x: x, fx: fn.f(x) }];
+    let running = false;
+    let timer = null;
+
+    function toCanvas(valX, valY) {
+      const [xMin, xMax] = fn.xRange;
+      const yVals = [];
+      for (let i = 0; i <= 300; i++) {
+        const t = xMin + (xMax - xMin) * i / 300;
+        yVals.push(fn.f(t));
+      }
+      const yMin = Math.min(...yVals);
+      const yMax = Math.max(...yVals);
+      const yPad = (yMax - yMin) * 0.15 || 0.5;
+      const px = pad + ((valX - xMin) / (xMax - xMin)) * plotW;
+      const py = H - pad - ((valY - (yMin - yPad)) / ((yMax + yPad) - (yMin - yPad))) * plotH;
+      return [px, py, yMin - yPad, yMax + yPad];
+    }
+
+    function getYRange() {
+      const [xMin, xMax] = fn.xRange;
+      let yMin = Infinity, yMax = -Infinity;
+      for (let i = 0; i <= 300; i++) {
+        const t = xMin + (xMax - xMin) * i / 300;
+        const v = fn.f(t);
+        if (v < yMin) yMin = v;
+        if (v > yMax) yMax = v;
+      }
+      const yPad = (yMax - yMin) * 0.15 || 0.5;
+      return [yMin - yPad, yMax + yPad];
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      const [xMin, xMax] = fn.xRange;
+      const [yLo, yHi] = getYRange();
+
+      function toC(vx, vy) {
+        return [pad + ((vx - xMin) / (xMax - xMin)) * plotW, H - pad - ((vy - yLo) / (yHi - yLo)) * plotH];
+      }
+
+      // Grid
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--line").trim();
+      ctx.lineWidth = 0.5;
+      for (let t = 0; t <= 10; t++) {
+        const frac = t / 10;
+        const gx = pad + frac * plotW;
+        ctx.beginPath(); ctx.moveTo(gx, pad); ctx.lineTo(gx, H - pad); ctx.stroke();
+        const gy = pad + frac * plotH;
+        ctx.beginPath(); ctx.moveTo(pad, gy); ctx.lineTo(W - pad, gy); ctx.stroke();
+      }
+
+      // Axes
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      ctx.lineWidth = 1;
+      // x-axis at y=0
+      const [_, y0] = toC(0, 0);
+      if (y0 >= pad && y0 <= H - pad) {
+        ctx.beginPath(); ctx.moveTo(pad, y0); ctx.lineTo(W - pad, y0); ctx.stroke();
+      }
+      // y-axis at x=0
+      const [x0c, _1] = toC(0, 0);
+      if (x0c >= pad && x0c <= W - pad) {
+        ctx.beginPath(); ctx.moveTo(x0c, pad); ctx.lineTo(x0c, H - pad); ctx.stroke();
+      }
+
+      // Function curve
+      ctx.beginPath();
+      for (let i = 0; i <= 300; i++) {
+        const t = xMin + (xMax - xMin) * i / 300;
+        const [px, py] = toC(t, fn.f(t));
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = "#2563eb";
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Convexity annotation
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      ctx.font = "11px Inter, sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(fn.isConvex ? "✓ Convex" : "✗ Non-convex", pad + 8, pad + 18);
+
+      // Gradient descent trace
+      for (let i = 1; i < history.length; i++) {
+        const [px1, py1] = toC(history[i - 1].x, history[i - 1].fx);
+        const [px2, py2] = toC(history[i].x, history[i].fx);
+        ctx.beginPath();
+        ctx.moveTo(px1, py1);
+        ctx.lineTo(px2, py2);
+        ctx.strokeStyle = i === history.length - 1 ? "rgba(16, 185, 129, 0.9)" : "rgba(16, 185, 129, 0.4)";
+        ctx.lineWidth = i === history.length - 1 ? 3 : 1.5;
+        ctx.stroke();
+      }
+
+      // History points
+      for (let i = 0; i < history.length; i++) {
+        const [px, py] = toC(history[i].x, history[i].fx);
+        ctx.beginPath();
+        ctx.arc(px, py, i === history.length - 1 ? 6 : 3, 0, Math.PI * 2);
+        ctx.fillStyle = i === history.length - 1 ? "rgba(16, 185, 129, 1)" : "rgba(16, 185, 129, 0.3)";
+        ctx.fill();
+        ctx.strokeStyle = i === history.length - 1 ? "#059669" : "transparent";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Start point highlight
+      if (history.length > 0) {
+        const [px, py] = toC(history[0].x, history[0].fx);
+        ctx.beginPath();
+        ctx.arc(px, py, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(220, 38, 38, 0.8)";
+        ctx.fill();
+      }
+
+      // Gradient arrow at current point
+      if (history.length > 0) {
+        const last = history[history.length - 1];
+        const g = fn.df(last.x);
+        const scale = 0.3 / (Math.abs(g) + 0.01);
+        const [px, py] = toC(last.x, last.fx);
+        const [gx, gy] = toC(last.x - g * scale, fn.f(last.x - g * scale));
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(gx, gy);
+        ctx.strokeStyle = "#f59e0b";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        // Arrowhead
+        const angle = Math.atan2(gy - py, gx - px);
+        const headLen = 8;
+        ctx.beginPath();
+        ctx.moveTo(gx, gy);
+        ctx.lineTo(gx - headLen * Math.cos(angle - 0.4), gy - headLen * Math.sin(angle - 0.4));
+        ctx.moveTo(gx, gy);
+        ctx.lineTo(gx - headLen * Math.cos(angle + 0.4), gy - headLen * Math.sin(angle + 0.4));
+        ctx.stroke();
+        ctx.fillStyle = "#f59e0b";
+        ctx.beginPath();
+        ctx.arc(gx, gy, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Axis labels
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted").trim();
+      ctx.font = "11px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("x", W - pad + 4, H - pad + 4);
+      ctx.save();
+      ctx.translate(12, pad);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("f(x)", 0, 0);
+      ctx.restore();
+
+      // X ticks
+      ctx.font = "10px Inter, sans-serif";
+      ctx.textAlign = "center";
+      const nTicks = 5;
+      for (let i = 0; i <= nTicks; i++) {
+        const t = xMin + (xMax - xMin) * i / nTicks;
+        const [px, _] = toC(t, 0);
+        ctx.fillText(t.toFixed(1), px, H - pad + 18);
+      }
+    }
+
+    function updateStats() {
+      const last = history[history.length - 1];
+      document.getElementById("statIter").textContent = iteration;
+      document.getElementById("statX").textContent = last.x.toFixed(4);
+      document.getElementById("statFX").textContent = last.fx.toFixed(4);
+      document.getElementById("statGrad").textContent = Math.abs(fn.df(last.x)).toFixed(4);
+      document.getElementById("iterDisplay").textContent = "Iterasi: " + iteration;
+    }
+
+    function resetSim() {
+      stopSim();
+      const [xMin, xMax] = fn.xRange;
+      // Random start within range
+      x0 = xMin + Math.random() * (xMax - xMin);
+      // biased toward edges for interesting behavior
+      if (Math.random() > 0.5) x0 = xMin + (xMax - xMin) * (Math.random() * 0.3);
+      else x0 = xMax - (xMax - xMin) * (Math.random() * 0.3);
+      x = x0;
+      iteration = 0;
+      history = [{ x: x, fx: fn.f(x) }];
+      draw();
+      updateStats();
+    }
+
+    function stepGD() {
+      if (iteration >= maxIter) { stopSim(); return; }
+      const alpha = parseFloat(document.getElementById("stepSelect").value);
+      const g = fn.df(x);
+      x = x - alpha * g;
+      // Keep in range
+      const [xMin, xMax] = fn.xRange;
+      if (x < xMin) x = xMin;
+      if (x > xMax) x = xMax;
+      iteration++;
+      history.push({ x: x, fx: fn.f(x) });
+      draw();
+      updateStats();
+    }
+
+    function startSim() {
+      if (iteration >= maxIter) resetSim();
+      running = true;
+      document.getElementById("btnStart").disabled = true;
+      document.getElementById("btnPause").disabled = false;
+      const speed = parseInt(document.getElementById("speedSelect").value);
+      timer = setInterval(stepGD, speed);
+    }
+
+    function stopSim() {
+      running = false;
+      if (timer) { clearInterval(timer); timer = null; }
+      document.getElementById("btnStart").disabled = false;
+      document.getElementById("btnPause").disabled = true;
+    }
+
+    function changeFunc() {
+      stopSim();
+      currentFunc = document.getElementById("funcSelect").value;
+      fn = functions[currentFunc];
+      resetSim();
+    }
+
+    // Event listeners
+    document.getElementById("funcSelect").addEventListener("change", changeFunc);
+    document.getElementById("btnStart").addEventListener("click", startSim);
+    document.getElementById("btnPause").addEventListener("click", stopSim);
+    document.getElementById("btnReset").addEventListener("click", resetSim);
+    document.getElementById("speedSelect").addEventListener("change", () => { if (running) { stopSim(); startSim(); } });
+    document.getElementById("stepSelect").addEventListener("change", () => { if (running) { stopSim(); startSim(); } });
+
+    // Init
+    fn = functions[currentFunc];
+    resetSim();
+  </script>
+
+</body>
+</html>
