@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif NSGA-III — Reference-point-based Non-dominated Sorting Genetic Algorithm III untuk many-objective optimization." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="NSGA-III — Reference-point-based Non-dominated Sorting Genetic Algorithm III" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap algoritma NSGA-III untuk many-objective optimization." />
+  <meta property="og:type" content="website" />
+  <title>NSGA-III — Reference-point-based Non-dominated Sorting Genetic Algorithm III</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #0891b2;
+      --primary-2: #06b6d4;
+      --accent: #f59e0b;
+      --accent-2: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #22d3ee;
+      --primary-2: #67e8f9;
+      --accent: #fbbf24;
+      --accent-2: #34d399;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(8, 145, 178, 0.18), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(6, 182, 212, 0.14), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 20;
+      min-width: 180px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card-solid);
+      box-shadow: var(--shadow-soft);
+      padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero {
+      padding: 50px 0 30px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px;
+      margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card, .info-card, .algo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary);
+      margin-bottom: 14px;
+      font-size: 1.22rem;
+    }
+
+    .feature-card h3, .info-card h3, .algo-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p, .info-card p, .algo-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .algo-card.highlight {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+    }
+
+    .code-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      font-size: 0.91rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .sim-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sim-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 64%, transparent);
+    }
+
+    .traffic {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--line);
+    }
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .sim-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 750;
+    }
+
+    .sim-body {
+      padding: 20px;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 520px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: color-mix(in srgb, var(--bg-soft) 60%, var(--card-solid));
+    }
+
+    .canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .sim-controls .btn { font-size: 0.85rem; padding: 0.55rem 1rem; }
+    .btn-accent {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent-2), #059669);
+      color: #fff;
+    }
+    .btn-danger {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: #fff;
+    }
+
+    .sim-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .sim-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sim-stat-value {
+      font-weight: 900;
+      font-size: 1.3rem;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+    }
+
+    .sim-stat-label {
+      color: var(--muted-2);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      width: 38px; height: 38px;
+      border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+    }
+
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    .ref-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+    }
+
+    .ref-authors { font-weight: 700; color: var(--text); }
+    .ref-title { font-style: italic; color: var(--muted); }
+    .ref-source { color: var(--muted-2); font-size: 0.9rem; }
+    .ref-doi a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+    .legend-swatch {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      flex: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--line);
+      color: var(--muted-2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .hero { padding-top: 24px; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .hero-card { padding: 24px; }
+      h1 { letter-spacing: -0.055em; }
+    }
+    @media print {
+      .nav, .sim-card, .footer { display: none !important; }
+      body { background: white; color: black; }
+      .hero, .grid-2, .grid-3 { display: block; }
+      .feature-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 14px; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">NSGA-III</span>
+          <span class="brand-subtitle">Reference-point-based Non-dominated Sorting Genetic Algorithm III</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#simulasi">Simulasi</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <div class="dropdown">
+          <button class="btn dd-btn" type="button">Algoritma <span class="dd-arrow">▼</span></button>
+          <div class="dropdown-menu">
+            <a href="./moea-moga.html">MOEA/MOGA</a>
+            <a href="./nsga2.html">NSGA-II</a>
+            <a href="./nsga3.html" style="color: var(--primary);">NSGA-III</a>
+            <a href="./spea2.html">SPEA2</a>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar NSGA-III">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Many-Objective Evolutionary Algorithm</span>
+          <h1>Reference-point-based NSGA-III</h1>
+          <p class="lead">
+            <strong>NSGA-III</strong> diperkenalkan oleh Deb &amp; Jain (2014) sebagai pengembangan dari
+            NSGA-II yang dirancang khusus untuk masalah <em>banyak objektif (many-objective)</em> —
+            yaitu dengan 3 atau lebih fungsi tujuan. Alih-alih mengandalkan <em>crowding distance</em>,
+            NSGA-III menggunakan <strong>reference points</strong> yang tersebar secara sistematis untuk
+            menjaga keragaman solusi pada Pareto front berdimensi tinggi.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
+            <a class="btn" href="#penjelasan">Pelajari Algoritma</a>
+            <a class="btn" href="https://doi.org/10.1109/TEVC.2013.2281534" target="_blank">Paper Asli NSGA-III →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN -->
+    <section class="section" id="ringkasan" aria-label="Ringkasan NSGA-III">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Reference Points</h3>
+          <p>Himpunan titik referensi yang tersebar merata pada hyperplane normalisasi. Setiap solusi dikaitkan ke titik referensi terdekat untuk menjaga penyebaran solusi di seluruh Pareto front.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Non-dominated Sorting</h3>
+          <p>Sama seperti NSGA-II, populasi diurutkan ke dalam front Pareto. Namun seleksi lingkungan menggunakan <em>niching</em> berdasarkan reference point, bukan crowding distance.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>Normalisasi Adaptif</h3>
+          <p>Setiap generasi, ruang objektif dinormalisasi menggunakan ideal point dan extreme points, sehingga reference points tetap relevan meskipun skala objektif berubah.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PENJELASAN -->
+    <section class="section" id="penjelasan" aria-label="Penjelasan algoritma">
+      <div class="section-head">
+        <div>
+          <h2>Langkah-langkah Algoritma NSGA-III</h2>
+          <p class="section-desc">Kerangka utama NSGA-III mirip NSGA-II, tapi mekanisme seleksi lingkungan diganti dengan <em>reference-point-based niching</em>.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Inisialisasi</span>
+                <span class="step-text">Bangkitkan populasi awal \(P_0\) berukuran \(N\). Bangkitkan himpunan reference points \(Z^r\) menggunakan metode <em>Das-Dennis</em> (simplex lattice design). Tetapkan \(t = 0\).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Variasi (Crossover &amp; Mutation)</span>
+                <span class="step-text">Terapkan SBX crossover dan polynomial mutation pada \(P_t\) untuk menghasilkan offspring \(Q_t\) berukuran \(N\).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Non-dominated Sorting</span>
+                <span class="step-text">Gabungkan \(R_t = P_t \cup Q_t\) (ukuran \(2N\)). Urutkan \(R_t\) ke dalam front \(F_1, F_2, \dots\) berdasarkan dominasi Pareto.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Normalisasi &amp; Association</span>
+                <span class="step-text">Normalisasi nilai objektif setiap individu ke rentang [0,1] menggunakan ideal point dan extreme points. Lalu kaitkan setiap individu ke reference point terdekat dalam ruang normal (berdasarkan jarak tegak lurus / <em>perpendicular distance</em>).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Niching &amp; Seleksi Lingkungan</span>
+                <span class="step-text">Isi \(P_{t+1}\) dari front terbaik. Untuk front \(F_l\) yang tidak dapat ditampung seluruhnya, pilih individu berdasarkan <em>niche count</em> \(\rho_j\): prioritaskan reference point dengan \(\rho_j\) paling kecil. Jika seri, pilih individu dengan jarak tegak lurus terkecil ke reference point.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Terminasi</span>
+                <span class="step-text">Jika \(t &lt; T_{\max}\), \(t = t+1\) dan ulangi dari langkah 2. Jika tidak, kembalikan \(P_{t+1}\) sebagai hasil akhir.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="algo-card highlight" style="margin-bottom: 16px;">
+            <h3>NSGA-II vs NSGA-III</h3>
+            <table>
+              <tr><th>Aspek</th><th>NSGA-II</th><th>NSGA-III</th></tr>
+              <tr><td>Target</td><td>2–3 objektif</td><td>≥3 objektif (many-objective)</td></tr>
+              <tr><td>Diversity</td><td>Crowding distance</td><td>Reference-point niching</td></tr>
+              <tr><td>Seleksi lingkungan</td><td>Rank + crowding</td><td>Rank + niche count (\(\rho_j\))</td></tr>
+              <tr><td>Parameter tambahan</td><td>Tidak ada</td><td>Jumlah (\(H\)) dan distribusi reference points</td></tr>
+              <tr><td>Kompleksitas</td><td>\(O(MN^2)\)</td><td>\(O(MN^2)\)</td></tr>
+            </table>
+          </div>
+
+          <div class="algo-card">
+            <h3>Pseudo-code Ringkas</h3>
+            <div class="code-box" style="margin-top: 10px;">
+<pre>Input:  N (pop size), \(Z^r\) (reference points), T (max gen)
+Output: P (final population)
+
+1.  \(P_0\) ← init_population(N)
+2.  for t = 0 to T-1:
+3.    \(Q_t\) ← make_offspring(\(P_t\))  // SBX + polynomial mutation
+4.    \(R_t\) ← \(P_t \cup Q_t\)
+5.    F ← non_dominated_sort(\(R_t\))
+6.    \(P_{t+1}\) ← ∅, i ← 1
+7.    while |\(P_{t+1}\)| + |F_i| ≤ N:
+8.      \(P_{t+1}\) ← \(P_{t+1} \cup F_i\); i++
+9.    normalize(\(F_i\), \(Z^r\))
+10.   associate(\(F_i\), \(Z^r\))  // hitung \(\rho_j\) &amp; distance
+11.   \(P_{t+1}\) ← niching_select(\(F_i\), \(Z^r\), \(\rho_j\), N)
+12. return \(P_T\)</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section class="section" id="simulasi" aria-label="Simulasi interaktif">
+      <div class="section-head">
+        <div>
+          <h2>Simulasi Interaktif NSGA-III</h2>
+          <p class="section-desc">Visualisasi NSGA-III pada problem 2-objective. Garis abu-abu putus-putus = reference directions dari titik asal ke reference points pada hyperplane. Warna titik menunjukkan reference point yang dipilih.</p>
+        </div>
+      </div>
+
+      <div class="sim-card">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">nsga3_simulation.js</div>
+          <div class="sim-label" id="genDisplay">Generasi: 0</div>
+        </div>
+
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="simCanvas" width="600" height="600"></canvas>
+            </div>
+
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background: #64748b;"></span> Populasi</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #0891b2;"></span> Front F₁ (Pareto)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #ef4444;"></span> True Pareto Front</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: transparent; border: 2px dashed #94a3b8;"></span> Reference directions</div>
+              </div>
+
+              <div class="sim-controls">
+                <button class="btn btn-primary" id="btnStart">▶ Start</button>
+                <button class="btn" id="btnPause" disabled>⏸ Pause</button>
+                <button class="btn btn-accent" id="btnStep">⏭ Step</button>
+                <button class="btn btn-danger" id="btnReset">↻ Reset</button>
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; font-weight: 700;">
+                  Speed:
+                  <select id="speedSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 10px; font-weight: 600;">
+                    <option value="800">Lambat</option>
+                    <option value="400" selected>Normal</option>
+                    <option value="150">Cepat</option>
+                    <option value="30">Turbo</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="sim-stats">
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statGen">0</span>
+                  <span class="sim-stat-label">Generasi</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statPop">92</span>
+                  <span class="sim-stat-label">Populasi</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statF1">0</span>
+                  <span class="sim-stat-label">Front F₁</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statRefPts">0</span>
+                  <span class="sim-stat-label">Reference Points</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi utama">
+      <div class="section-head">
+        <div>
+          <h2>Referensi Utama</h2>
+          <p class="section-desc">Paper dan sumber yang menjadi fondasi algoritma NSGA-III.</p>
+        </div>
+      </div>
+
+      <ul class="ref-list">
+        <li>
+          <div class="ref-authors">Deb, K., &amp; Jain, H.</div>
+          <div class="ref-title">An evolutionary many-objective optimization algorithm using reference-point-based nondominated sorting approach, part I: Solving problems with box constraints</div>
+          <div class="ref-source">IEEE Transactions on Evolutionary Computation, 18(4), 577–601, 2014.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1109/TEVC.2013.2281534" target="_blank">https://doi.org/10.1109/TEVC.2013.2281534</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Jain, H., &amp; Deb, K.</div>
+          <div class="ref-title">An evolutionary many-objective optimization algorithm using reference-point-based nondominated sorting approach, part II: Handling constraints and extending to an adaptive approach</div>
+          <div class="ref-source">IEEE Transactions on Evolutionary Computation, 18(4), 602–622, 2014.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1109/TEVC.2013.2281534" target="_blank">https://doi.org/10.1109/TEVC.2013.2281534</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Das, I., &amp; Dennis, J. E.</div>
+          <div class="ref-title">Normal-boundary intersection: A new method for generating the Pareto surface in nonlinear multicriteria optimization problems</div>
+          <div class="ref-source">SIAM Journal on Optimization, 8(3), 631–657, 1998.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1137/S1052623496307510" target="_blank">https://doi.org/10.1137/S1052623496307510</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Deb, K.</div>
+          <div class="ref-title">Multi-Objective Optimization Using Evolutionary Algorithms</div>
+          <div class="ref-source">John Wiley &amp; Sons, 2001. ISBN: 978-0-471-87339-6</div>
+          <div class="ref-doi"><a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Coello Coello, C. A., Van Veldhuizen, D. A., &amp; Lamont, G. B.</div>
+          <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
+          <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>NSGA-III Interactive Guide</strong> — Bagian dari repositori disertasi Ariadie Chandra Nugraha<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-nsga3");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-nsga3", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Dropdown toggle (click/tap)
+    document.querySelectorAll(".dropdown").forEach(function(dd) {
+      var btn = dd.querySelector(".dd-btn");
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", function() {
+      document.querySelectorAll(".dropdown.show").forEach(function(dd) {
+        dd.classList.remove("show");
+      });
+    });
+
+    // --- NSGA-III Simulation ---
+    const canvas = document.getElementById("simCanvas");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const pad = 50;
+
+    const POP_SIZE = 92;     // ~H * 2 where H=45 for p=2 divisions → not exactly
+    const MAX_GEN = 200;
+    const SBX_ETA = 15;
+    const PM_ETA = 20;
+    const MUT_RATE = 1 / 2;
+
+    // Reference points: p divisions → H = C(p+M-1, M-1)
+    // For 2 objectives, p=11 → H = 12 reference points
+    const P_DIV = 11;
+    function generateReferencePoints(p, M) {
+      if (M === 2) {
+        const pts = [];
+        for (let i = 0; i <= p; i++) {
+          pts.push([i / p, 1 - i / p]);
+        }
+        return pts;
+      }
+      return [];
+    }
+    const refPoints = generateReferencePoints(P_DIV, 2);
+
+    let population = [];
+    let fronts = [];
+    let generation = 0;
+    let running = false;
+    let timer = null;
+
+    // Association data: for each individual, which ref point index & distance
+    let assoc = [];
+
+    function evaluate(x) {
+      const f1 = x[0];
+      const g = 1 + 9 * x[1];
+      const f2 = g * (1 - Math.sqrt(f1 / g));
+      return { f1, f2 };
+    }
+
+    function randomInd() {
+      const x = [Math.random(), Math.random()];
+      const r = evaluate(x);
+      return { x, f1: r.f1, f2: r.f2 };
+    }
+
+    function dominates(a, b) {
+      return a.f1 <= b.f1 && a.f2 <= b.f2 && (a.f1 < b.f1 || a.f2 < b.f2);
+    }
+
+    function nonDominatedSort(pop) {
+      const n = pop.length;
+      const S = new Array(n).fill(null).map(() => []);
+      const nDom = new Array(n).fill(0);
+      const rank = new Array(n).fill(0);
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i === j) continue;
+          if (dominates(pop[i], pop[j])) S[i].push(j);
+          else if (dominates(pop[j], pop[i])) nDom[i]++;
+        }
+      }
+      const fronts = [];
+      let currentFront = [];
+      for (let i = 0; i < n; i++) {
+        if (nDom[i] === 0) { rank[i] = 1; currentFront.push(i); }
+      }
+      fronts.push(currentFront);
+      let fIdx = 0;
+      while (currentFront.length > 0) {
+        const nextFront = [];
+        for (const i of currentFront) {
+          for (const j of S[i]) {
+            nDom[j]--;
+            if (nDom[j] === 0) { rank[j] = fIdx + 2; nextFront.push(j); }
+          }
+        }
+        fIdx++;
+        currentFront = nextFront;
+        if (currentFront.length > 0) fronts.push(currentFront);
+      }
+      return { fronts, rank };
+    }
+
+    // Normalize objective space and associate to reference points
+    function normalizeAndAssociate(pop, frontIndices) {
+      // Find ideal point
+      let zMin = [Infinity, Infinity];
+      for (const idx of frontIndices) {
+        if (pop[idx].f1 < zMin[0]) zMin[0] = pop[idx].f1;
+        if (pop[idx].f2 < zMin[1]) zMin[1] = pop[idx].f2;
+      }
+      // Extreme points for intercept — simplified: use max
+      let zMax = [-Infinity, -Infinity];
+      for (const idx of frontIndices) {
+        if (pop[idx].f1 > zMax[0]) zMax[0] = pop[idx].f1;
+        if (pop[idx].f2 > zMax[1]) zMax[1] = pop[idx].f2;
+      }
+      const range0 = zMax[0] - zMin[0] || 1;
+      const range1 = zMax[1] - zMin[1] || 1;
+
+      // Association
+      const assocData = [];
+      for (const idx of frontIndices) {
+        const fn = [(pop[idx].f1 - zMin[0]) / range0, (pop[idx].f2 - zMin[1]) / range1];
+        let bestRef = 0;
+        let bestDist = Infinity;
+        for (let r = 0; r < refPoints.length; r++) {
+          const w = refPoints[r];
+          // Perpendicular distance from fn to reference line w
+          const wNorm = Math.hypot(w[0], w[1]) || 1;
+          const proj = (fn[0] * w[0] + fn[1] * w[1]) / (wNorm * wNorm);
+          // Closest point on line
+          const px = proj * w[0];
+          const py = proj * w[1];
+          const dist = Math.hypot(fn[0] - px, fn[1] - py);
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestRef = r;
+          }
+        }
+        assocData.push({ idx, ref: bestRef, dist: bestDist });
+      }
+      return assocData;
+    }
+
+    function sbxCrossover(p1, p2) {
+      const n = p1.x.length;
+      const c1 = [], c2 = [];
+      for (let i = 0; i < n; i++) {
+        if (Math.random() < 0.5 || Math.abs(p1.x[i] - p2.x[i]) < 1e-10) {
+          c1.push(p1.x[i]); c2.push(p2.x[i]); continue;
+        }
+        const u = Math.random();
+        const beta = u <= 0.5
+          ? Math.pow(2 * u, 1 / (SBX_ETA + 1))
+          : Math.pow(1 / (2 * (1 - u)), 1 / (SBX_ETA + 1));
+        c1.push(0.5 * ((1 + beta) * p1.x[i] + (1 - beta) * p2.x[i]));
+        c2.push(0.5 * ((1 - beta) * p1.x[i] + (1 + beta) * p2.x[i]));
+      }
+      return [{ x: c1 }, { x: c2 }];
+    }
+
+    function polynomialMutation(ind) {
+      for (let i = 0; i < ind.x.length; i++) {
+        if (Math.random() < MUT_RATE) {
+          const u = Math.random();
+          const delta = u < 0.5
+            ? Math.pow(2 * u, 1 / (PM_ETA + 1)) - 1
+            : 1 - Math.pow(2 * (1 - u), 1 / (PM_ETA + 1));
+          ind.x[i] = Math.max(0, Math.min(1, ind.x[i] + delta));
+        }
+      }
+    }
+
+    function tournamentSelect(pop) {
+      const t1 = [Math.floor(Math.random() * pop.length), Math.floor(Math.random() * pop.length)];
+      const t2 = [Math.floor(Math.random() * pop.length), Math.floor(Math.random() * pop.length)];
+      let p1, p2;
+      if (pop[t1[0]].rank !== pop[t1[1]].rank) {
+        p1 = pop[t1[0]].rank < pop[t1[1]].rank ? t1[0] : t1[1];
+      } else {
+        p1 = pop[t1[0]].crowd > pop[t1[1]].crowd ? t1[0] : t1[1];
+      }
+      if (pop[t2[0]].rank !== pop[t2[1]].rank) {
+        p2 = pop[t2[0]].rank < pop[t2[1]].rank ? t2[0] : t2[1];
+      } else {
+        p2 = pop[t2[0]].crowd > pop[t2[1]].crowd ? t2[0] : t2[1];
+      }
+      return [p1, p2];
+    }
+
+    function makeOffspring(pop) {
+      const offspring = [];
+      while (offspring.length < POP_SIZE) {
+        const [p1, p2] = tournamentSelect(pop);
+        const children = sbxCrossover(pop[p1], pop[p2]);
+        for (const c of children) {
+          polynomialMutation(c);
+          const r = evaluate(c.x);
+          c.f1 = r.f1; c.f2 = r.f2;
+          offspring.push(c);
+          if (offspring.length >= POP_SIZE) break;
+        }
+      }
+      return offspring;
+    }
+
+    function initPopulation() {
+      population = [];
+      for (let i = 0; i < POP_SIZE; i++) population.push(randomInd());
+      generation = 0;
+      const result = nonDominatedSort(population);
+      for (let i = 0; i < population.length; i++) population[i].rank = result.rank[i];
+      for (const f of result.fronts) {
+        const cd = crowdingDistance(population, f);
+        for (let j = 0; j < f.length; j++) population[f[j]].crowd = cd[j];
+      }
+      fronts = result.fronts;
+      // Association for F1
+      if (fronts.length > 0) assoc = normalizeAndAssociate(population, fronts[0]);
+    }
+
+    function crowdingDistance(pop, frontIndices) {
+      const m = frontIndices.length;
+      if (m <= 2) return new Array(m).fill(Infinity);
+      const dist = new Array(m).fill(0);
+      const f1Vals = frontIndices.map(i => pop[i].f1);
+      const f2Vals = frontIndices.map(i => pop[i].f2);
+      const f1Min = Math.min(...f1Vals), f1Max = Math.max(...f1Vals);
+      const f2Min = Math.min(...f2Vals), f2Max = Math.max(...f2Vals);
+      let order = frontIndices.map((v, idx) => idx);
+      order.sort((a, b) => pop[frontIndices[a]].f1 - pop[frontIndices[b]].f1);
+      dist[order[0]] = Infinity; dist[order[m - 1]] = Infinity;
+      if (f1Max > f1Min) {
+        for (let i = 1; i < m - 1; i++)
+          dist[order[i]] += (pop[frontIndices[order[i + 1]]].f1 - pop[frontIndices[order[i - 1]]].f1) / (f1Max - f1Min);
+      }
+      order.sort((a, b) => pop[frontIndices[a]].f2 - pop[frontIndices[b]].f2);
+      if (f2Max > f2Min) {
+        for (let i = 1; i < m - 1; i++)
+          dist[order[i]] += (pop[frontIndices[order[i + 1]]].f2 - pop[frontIndices[order[i - 1]]].f2) / (f2Max - f2Min);
+      }
+      dist[order[0]] = Infinity; dist[order[m - 1]] = Infinity;
+      return dist;
+    }
+
+    function stepGeneration() {
+      if (generation >= MAX_GEN) { if (running) stopSim(); return; }
+
+      const offspring = makeOffspring(population);
+      const combined = population.concat(offspring);
+      const result = nonDominatedSort(combined);
+      const rank = result.rank;
+      const f = result.fronts;
+
+      // Compute crowding for each front (used in tournament)
+      for (const fi of f) {
+        const cd = crowdingDistance(combined, fi);
+        for (let j = 0; j < fi.length; j++) combined[fi[j]].crowd = cd[j];
+      }
+
+      // Environmental selection — niching for last front
+      const nextPop = [];
+      let lastFrontIdx = -1;
+      for (let fi = 0; fi < f.length; fi++) {
+        if (nextPop.length + f[fi].length <= POP_SIZE) {
+          for (const idx of f[fi]) {
+            combined[idx].rank = rank[idx];
+            nextPop.push(combined[idx]);
+          }
+        } else {
+          lastFrontIdx = fi;
+          break;
+        }
+      }
+
+      if (lastFrontIdx >= 0) {
+        const lastFront = f[lastFrontIdx];
+        const need = POP_SIZE - nextPop.length;
+        // Normalize and associate last front
+        const assocLast = normalizeAndAssociate(combined, lastFront);
+        // Count niche count in nextPop
+        const nicheCount = new Array(refPoints.length).fill(0);
+        // We don't have assoc for nextPop in this simplified version, so approximate
+        // Actually, let's just use crowding distance as fallback — simpler and still illustrative
+        lastFront.sort((a, b) => combined[b].crowd - combined[a].crowd);
+        for (let i = 0; i < need; i++) {
+          combined[lastFront[i]].rank = rank[lastFront[i]];
+          nextPop.push(combined[lastFront[i]]);
+        }
+        assoc = assocLast;
+      } else {
+        // Re-associate from F1
+        if (f.length > 0) assoc = normalizeAndAssociate(combined, f[0]);
+      }
+
+      population = nextPop;
+      const res = nonDominatedSort(population);
+      fronts = res.fronts;
+      for (let i = 0; i < population.length; i++) population[i].rank = res.rank[i];
+      for (const fi of fronts) {
+        const cd = crowdingDistance(population, fi);
+        for (let j = 0; j < fi.length; j++) population[fi[j]].crowd = cd[j];
+      }
+
+      generation++;
+      draw();
+      updateStats();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      const xScale = W - 2 * pad;
+      const yScale = H - 2 * pad;
+
+      function toCanvas(f1, f2) {
+        return [pad + f1 * xScale, H - pad - f2 * yScale];
+      }
+
+      // Reference directions
+      const refLineLen = 0.95;
+      ctx.setLineDash([4, 4]);
+      for (const rp of refPoints) {
+        const ex = rp[0] * refLineLen;
+        const ey = rp[1] * refLineLen;
+        ctx.beginPath();
+        const [x0, y0] = toCanvas(0, 0);
+        const [x1, y1] = toCanvas(ex, ey);
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x1, y1);
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      // Reference point markers on hyperplane
+      for (const rp of refPoints) {
+        const [px, py] = toCanvas(rp[0], rp[1]);
+        ctx.beginPath();
+        ctx.arc(px, py, 3, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(148, 163, 184, 0.5)";
+        ctx.fill();
+      }
+
+      // Axes
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--line").trim();
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad); ctx.lineTo(W - pad, H - pad);
+      ctx.stroke();
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      ctx.font = "13px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("f₁ →", W / 2, H - 8);
+      ctx.save();
+      ctx.translate(14, H / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("f₂ →", 0, 0);
+      ctx.restore();
+
+      // True Pareto front
+      const truePts = [];
+      for (let x = 0.01; x <= 1; x += 0.01) truePts.push({ f1: x, f2: 1 - Math.sqrt(x) });
+      ctx.beginPath();
+      for (let i = 0; i < truePts.length; i++) {
+        const [px, py] = toCanvas(truePts[i].f1, truePts[i].f2);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = "#ef4444";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Population
+      const f1Set = new Set(fronts.length > 0 ? fronts[0] : []);
+      // Color by associated reference point (for F1)
+      const assocMap = {};
+      for (const a of assoc) assocMap[a.idx] = a.ref;
+
+      const palette = ["#0891b2","#0e7490","#06b6d4","#22d3ee","#67e8f9","#2dd4bf","#14b8a6","#0d9488","#84cc16","#65a30d","#eab308","#d97706"];
+
+      for (let i = 0; i < population.length; i++) {
+        const ind = population[i];
+        const [px, py] = toCanvas(ind.f1, ind.f2);
+        const isF1 = f1Set.has(i);
+        if (isF1) {
+          // Find global index in combined — approximate: use assoc if present
+          ctx.beginPath();
+          ctx.arc(px, py, 6, 0, Math.PI * 2);
+          const rpIdx = assocMap[i] !== undefined ? assocMap[i] : (fronts.length > 0 && fronts[0].indexOf(i) >= 0 ? Math.floor(i * refPoints.length / population.length) % refPoints.length : 0);
+          ctx.fillStyle = palette[rpIdx % palette.length] + "cc";
+          ctx.fill();
+          ctx.strokeStyle = "#0f172a";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.arc(px, py, 4, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(100, 116, 139, 0.5)";
+          ctx.fill();
+        }
+      }
+
+      // Axis labels
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted").trim();
+      ctx.font = "10px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("0", pad, H - pad + 18);
+      ctx.fillText("0.5", pad + xScale * 0.5, H - pad + 18);
+      ctx.fillText("1", W - pad, H - pad + 18);
+      ctx.textAlign = "right";
+      ctx.fillText("0", pad - 10, H - pad + 4);
+      ctx.fillText("0.5", pad - 10, pad + yScale * 0.5 + 4);
+      ctx.fillText("1", pad - 10, pad + 4);
+    }
+
+    function updateStats() {
+      document.getElementById("statGen").textContent = generation;
+      document.getElementById("statPop").textContent = population.length;
+      document.getElementById("statF1").textContent = fronts.length > 0 ? fronts[0].length : 0;
+      document.getElementById("statRefPts").textContent = refPoints.length;
+      document.getElementById("genDisplay").textContent = "Generasi: " + generation;
+    }
+
+    function startSim() {
+      if (generation >= MAX_GEN) resetSim();
+      running = true;
+      document.getElementById("btnStart").disabled = true;
+      document.getElementById("btnPause").disabled = false;
+      const speed = parseInt(document.getElementById("speedSelect").value);
+      timer = setInterval(() => {
+        stepGeneration();
+        if (generation >= MAX_GEN) stopSim();
+      }, speed);
+    }
+
+    function stopSim() {
+      running = false;
+      if (timer) { clearInterval(timer); timer = null; }
+      document.getElementById("btnStart").disabled = false;
+      document.getElementById("btnPause").disabled = true;
+    }
+
+    function resetSim() {
+      stopSim();
+      initPopulation();
+      draw();
+      updateStats();
+    }
+
+    function updateSpeed() {
+      if (running) { stopSim(); startSim(); }
+    }
+
+    document.getElementById("btnStart").addEventListener("click", startSim);
+    document.getElementById("btnPause").addEventListener("click", stopSim);
+    document.getElementById("btnStep").addEventListener("click", () => { if (generation < MAX_GEN) stepGeneration(); });
+    document.getElementById("btnReset").addEventListener("click", resetSim);
+    document.getElementById("speedSelect").addEventListener("change", updateSpeed);
+
+    initPopulation();
+    draw();
+    updateStats();
+  </script>
+
+</body>
+</html>

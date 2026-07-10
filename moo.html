@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif Multi-objective Optimization (MOO) — konsep Pareto, metode solusi, dan kaitannya dengan convex optimization." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Multi-objective Optimization — MOO" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap multi-objective optimization, metode scalarization, dan evolutionary MOO." />
+  <meta property="og:type" content="website" />
+  <title>Multi-objective Optimization — MOO</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #0d9488;
+      --primary-2: #14b8a6;
+      --accent: #f59e0b;
+      --accent-2: #8b5cf6;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #2dd4bf;
+      --primary-2: #5eead4;
+      --accent: #fbbf24;
+      --accent-2: #a78bfa;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(13, 148, 136, 0.14), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(20, 184, 166, 0.12), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 20;
+      min-width: 180px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card-solid);
+      box-shadow: var(--shadow-soft);
+      padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero {
+      padding: 50px 0 30px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent-2) 14%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px;
+      margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card, .info-card, .algo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary);
+      margin-bottom: 14px;
+      font-size: 1.22rem;
+    }
+
+    .feature-card h3, .info-card h3, .algo-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p, .info-card p, .algo-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .algo-card.highlight {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+    }
+
+    .code-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      font-size: 0.91rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+
+    .sim-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sim-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 64%, transparent);
+    }
+
+    .traffic { display: flex; gap: 7px; align-items: center; }
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%; display: inline-block;
+      background: var(--line);
+    }
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .sim-label { color: var(--muted); font-size: 0.88rem; font-weight: 750; }
+    .sim-body { padding: 20px; }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 520px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: color-mix(in srgb, var(--bg-soft) 60%, var(--card-solid));
+    }
+
+    .canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .sim-controls .btn { font-size: 0.85rem; padding: 0.55rem 1rem; }
+    .btn-accent {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent-2), #7c3aed);
+      color: #fff;
+    }
+    .btn-danger {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: #fff;
+    }
+
+    .sim-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .sim-stat { display: flex; flex-direction: column; }
+    .sim-stat-value {
+      font-weight: 900;
+      font-size: 1.3rem;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+    }
+    .sim-stat-label { color: var(--muted-2); font-size: 0.8rem; font-weight: 700; }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      width: 38px; height: 38px;
+      border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+    }
+
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    .ref-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+    }
+
+    .ref-authors { font-weight: 700; color: var(--text); }
+    .ref-title { font-style: italic; color: var(--muted); }
+    .ref-source { color: var(--muted-2); font-size: 0.9rem; }
+    .ref-doi a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+    .legend-swatch {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      flex: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--line);
+      color: var(--muted-2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    .highlight-box {
+      padding: 16px;
+      border-left: 4px solid var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 12px 0;
+    }
+    .highlight-box p { margin: 0; color: var(--text); }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .hero { padding-top: 24px; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .hero-card { padding: 24px; }
+      h1 { letter-spacing: -0.055em; }
+    }
+    @media print {
+      .nav, .sim-card, .footer { display: none !important; }
+      body { background: white; color: black; }
+      .hero, .grid-2, .grid-3, .grid-4 { display: block; }
+      .feature-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 14px; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">Multi-objective Optimization</span>
+          <span class="brand-subtitle">MOO — Pareto &amp; Metode Solusi</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#metode">Metode</a>
+        <a class="btn" href="#simulasi">Simulasi</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <a class="btn" href="./convex-opt.html">Convex Opt</a>
+        <div class="dropdown">
+          <button class="btn dd-btn" type="button">Algoritma <span class="dd-arrow">▼</span></button>
+          <div class="dropdown-menu">
+            <a href="./moea-moga.html">MOEA/MOGA</a>
+            <a href="./nsga2.html">NSGA-II</a>
+            <a href="./nsga3.html">NSGA-III</a>
+            <a href="./spea2.html">SPEA2</a>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar MOO">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Optimasi dengan Banyak Tujuan</span>
+          <h1>Multi-objective Optimization</h1>
+          <p class="lead">
+            <strong>Multi-objective Optimization (MOO)</strong> adalah cabang optimasi yang menangani
+            masalah dengan dua atau lebih fungsi tujuan yang saling bertentangan (<em>conflicting</em>).
+            Tidak ada solusi tunggal yang meminimalkan semua tujuan sekaligus — melainkan terdapat
+            sekumpulan solusi <em>Pareto-optimal</em> yang merepresentasikan <em>trade-off</em> terbaik
+            antar tujuan. Teori <strong>convex optimization</strong> (Boyd &amp; Vandenberghe) menjadi
+            fondasi penting untuk metode scalarization klasik.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
+            <a class="btn" href="#penjelasan">Pelajari MOO</a>
+            <a class="btn" href="#metode">Metode Solusi</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN -->
+    <section class="section" id="ringkasan" aria-label="Ringkasan">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Pareto Dominasi</h3>
+          <p>Solusi \(x\) mendominasi \(y\) jika \(f_i(x) \le f_i(y)\) untuk semua \(i\) dan \(f_j(x) &lt; f_j(y)\) untuk minimal satu \(j\). Solusi nondominated disebut <em>Pareto-optimal</em>.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📐</div>
+          <h3>Koneksi ke Convex Opt</h3>
+          <p>Metode scalarization (seperti <em>weighted sum</em>) mengubah MOO menjadi masalah convex optimization jika fungsi tujuan dan kendala convex. Lihat <a href="./convex-opt.html" style="color: var(--primary); font-weight: 700;">Convex Opt →</a></p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🧬</div>
+          <h3>Evolutionary MOO</h3>
+          <p>Algoritma seperti NSGA-II, NSGA-III, dan SPEA2 menggunakan populasi untuk menemukan banyak solusi Pareto dalam sekali jalan — tanpa perlu asumsi convexitas.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PENJELASAN -->
+    <section class="section" id="penjelasan" aria-label="Konsep MOO">
+      <div class="section-head">
+        <div>
+          <h2>Konsep Dasar MOO</h2>
+          <p class="section-desc">Definisi masalah, Pareto optimality, dan klasifikasi metode solusi.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Definisi Masalah</span>
+                <span class="step-text">\[\min_{x \in \mathcal{X}} \big(f_1(x), f_2(x), \dots, f_M(x)\big)\] dengan \(\mathcal{X} \subseteq \mathbb{R}^n\) adalah himpunan feasible (bisa convex atau tidak) dan \(f_i: \mathbb{R}^n \to \mathbb{R}\) adalah fungsi tujuan.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Pareto Front &amp; Trade-off</span>
+                <span class="step-text">Himpunan semua solusi Pareto-optimal dalam ruang objektif disebut <em>Pareto front</em>. Setiap titik di Pareto front mewakili <em>trade-off</em>: memperbaiki satu tujuan akan memperburuk setidaknya satu tujuan lain.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Ideal &amp; Nadir Point</span>
+                <span class="step-text"><em>Ideal point</em> \(z^*\) terdiri dari nilai optimal masing-masing tujuan secara terpisah: \(z_i^* = \min f_i(x)\). <em>Nadir point</em> \(z^{\text{nad}}\) adalah batas bawah Pareto front: \(z_i^{\text{nad}} = \max\) dari nilai \(f_i\) pada Pareto front.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Metrik Kinerja</span>
+                <span class="step-text">Hypervolume (HV) mengukur volume ruang objektif yang didominasi oleh solusi. Inverted Generational Distance (IGD) mengukur jarak ke Pareto front sejati. Keduanya digunakan untuk membandingkan algoritma MOO.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="algo-card highlight">
+            <h3>Klasifikasi Metode MOO</h3>
+            <table>
+              <tr><th>Kategori</th><th>Metode</th></tr>
+              <tr><td rowspan="4"><strong>Scalarization</strong><br>(prioritas)</td><td>Weighted Sum</td></tr>
+              <tr><td>ε-Constraint</td></tr>
+              <tr><td>Weighted Chebyshev</td></tr>
+              <tr><td>Goal Programming</td></tr>
+              <tr><td rowspan="3"><strong>Population-based</strong><br>(non-prioritas)</td><td>NSGA-II (nondominated sorting)</td></tr>
+              <tr><td>NSGA-III (reference points)</td></tr>
+              <tr><td>SPEA2 (strength + density)</td></tr>
+              <tr><td><strong>Decomposition</strong></td><td>MOEA/D (subproblem)</td></tr>
+              <tr><td><strong>Hybrid</strong></td><td>Memetic MOO, surrogate-assisted</td></tr>
+            </table>
+          </div>
+
+          <div class="algo-card" style="margin-top: 14px;">
+            <h3>Hubungan dengan Convex Optimization</h3>
+            <p style="margin-top: 8px;">
+              Jika \(f_1, \dots, f_M\) dan \(\mathcal{X}\) convex, maka:
+            </p>
+            <ul style="color: var(--muted); font-size: 0.9rem; padding-left: 18px;">
+              <li>Weighted sum dengan \(w_i &gt; 0\) menghasilkan solusi Pareto-optimal.</li>
+              <li>Setiap solusi Pareto-optimal dapat ditemukan dengan weighted sum jika konfigurasi bobot tepat (untuk masalah convex).</li>
+              <li>Untuk masalah non-convex, diperlukan metode lain (ε-constraint, Chebyshev, atau EMO).</li>
+            </ul>
+            <div class="highlight-box" style="margin-top: 8px;">
+              <p>📐 Lihat pembahasan convexitas dan gradient descent di <a href="./convex-opt.html" style="color: var(--primary); font-weight: 700;">halaman Convex Optimization</a>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METODE -->
+    <section class="section" id="metode" aria-label="Metode solusi MOO">
+      <div class="section-head">
+        <div>
+          <h2>Metode Solusi MOO</h2>
+          <p class="section-desc">Setiap metode memiliki pendekatan berbeda menangani trade-off antar tujuan.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="algo-card">
+          <div class="feature-icon" style="margin-bottom: 10px;">⚖️</div>
+          <h3>Weighted Sum</h3>
+          <p style="margin: 8px 0;">\[\min_x \sum_{i=1}^M w_i f_i(x),\quad w_i \ge 0,\; \sum w_i = 1\]</p>
+          <p>Metode scalarization paling sederhana. Memberi bobot pada setiap tujuan dan menjumlahkannya. Masalah ini tetap convex jika fungsi tujuan convex. Kelemahan: tidak dapat menemukan solusi di bagian non-convex dari Pareto front.</p>
+        </div>
+
+        <div class="algo-card">
+          <div class="feature-icon" style="margin-bottom: 10px;">🎯</div>
+          <h3>ε-Constraint</h3>
+          <p style="margin: 8px 0;">\[\min_x f_k(x),\quad \text{s.t. } f_i(x) \le \varepsilon_i,\; i\neq k\]</p>
+          <p>Meminimalkan satu tujuan sementara tujuan lain dikendalikan sebagai batasan atas. Dapat menemukan solusi di bagian non-convex Pareto front. Pemilihan nilai \(\varepsilon_i\) yang tepat adalah tantangan utama.</p>
+        </div>
+
+        <div class="algo-card">
+          <div class="feature-icon" style="margin-bottom: 10px;">📏</div>
+          <h3>Weighted Chebyshev</h3>
+          <p style="margin: 8px 0;">\[\min_x \max_i \big(w_i |f_i(x) - z_i^*|\big)\]</p>
+          <p>Meminimalkan jarak Chebyshev (maksimum weighted deviation) dari ideal point. Dapat menemukan seluruh Pareto front termasuk bagian non-convex. Membutuhkan \(z^*\) (ideal point) yang diketahui.</p>
+        </div>
+
+        <div class="algo-card">
+          <div class="feature-icon" style="margin-bottom: 10px;">📋</div>
+          <h3>Goal Programming</h3>
+          <p style="margin: 8px 0;">\[\min_x \sum_{i=1}^M |f_i(x) - g_i|^p\]</p>
+          <p>Menetapkan target (goal) \(g_i\) untuk setiap tujuan dan meminimalkan deviasi agregat. Populer dalam aplikasi engineering dan manajemen. Variasi: weighted goal programming, lexicographic goal programming.</p>
+        </div>
+
+        <div class="algo-card">
+          <div class="feature-icon" style="margin-bottom: 10px;">🧬</div>
+          <h3>NSGA-II / NSGA-III</h3>
+          <p style="margin: 8px 0;">Algoritma evolusioner berbasis <em>nondominated sorting</em>. NSGA-II menggunakan crowding distance untuk diversity; NSGA-III menggunakan reference points untuk many-objective. Lihat halaman <a href="./nsga2.html" style="color: var(--primary); font-weight: 700;">NSGA-II</a> dan <a href="./nsga3.html" style="color: var(--primary); font-weight: 700;">NSGA-III</a>.</p>
+        </div>
+
+        <div class="algo-card">
+          <div class="feature-icon" style="margin-bottom: 10px;">🧬</div>
+          <h3>SPEA2</h3>
+          <p style="margin: 8px 0;"><em>Strength Pareto Evolutionary Algorithm 2</em> — menggunakan strength value dan density estimation (k-NN) untuk fitness assignment. Archive truncation mempertahankan boundary solutions. Lihat halaman <a href="./spea2.html" style="color: var(--primary); font-weight: 700;">SPEA2</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section class="section" id="simulasi" aria-label="Simulasi interaktif">
+      <div class="section-head">
+        <div>
+          <h2>Simulasi Interaktif MOO</h2>
+          <p class="section-desc">Visualisasi metode scalarization untuk problem 2-objective minimization. Bandingkan <strong>Weighted Sum</strong>, <strong>ε-Constraint</strong>, dan <strong>Weighted Chebyshev</strong>. Garis merah = Pareto front sejati (convex).</p>
+        </div>
+      </div>
+
+      <div class="sim-card">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">moo_scalarization.js</div>
+          <div class="sim-label" id="methodDisplay">Weighted Sum</div>
+        </div>
+
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="simCanvas" width="600" height="600"></canvas>
+            </div>
+
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background: #ef4444;"></span> Pareto Front</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #0d9488;"></span> Solusi terpilih</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #f59e0b; border-radius: 0; width: 20px; height: 3px;"></span> Arah optimasi</div>
+              </div>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0;">
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; font-weight: 700;">
+                  Metode:
+                  <select id="methodSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 10px; font-weight: 600;">
+                    <option value="ws">Weighted Sum</option>
+                    <option value="eps">ε-Constraint (f₁ ≤ ε)</option>
+                    <option value="cheb">Weighted Chebyshev</option>
+                  </select>
+                </label>
+              </div>
+
+              <div id="paramControls" style="display: flex; flex-wrap: wrap; gap: 12px; padding: 12px; background: color-mix(in srgb, var(--bg-soft) 60%, var(--card)); border-radius: var(--radius-md);">
+                <!-- Dynamic sliders -->
+              </div>
+
+              <div class="sim-stats">
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statF1">0.00</span>
+                  <span class="sim-stat-label">f₁(x)</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statF2">0.00</span>
+                  <span class="sim-stat-label">f₂(x)</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statPareto">✓</span>
+                  <span class="sim-stat-label">Pareto optimal</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 12px; color: var(--muted); font-size: 0.88rem; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-md);">
+                <p id="methodDesc" style="margin: 0;"><strong>Bobot:</strong> slider untuk mengubah \(w_1\) (bobot f₁). Solusi optimal bergeser sepanjang Pareto front.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi utama">
+      <div class="section-head">
+        <div>
+          <h2>Referensi Utama</h2>
+          <p class="section-desc">Buku dan paper fundamental multi-objective optimization.</p>
+        </div>
+      </div>
+
+      <ul class="ref-list">
+        <li>
+          <div class="ref-authors">Miettinen, K.</div>
+          <div class="ref-title">Nonlinear Multiobjective Optimization</div>
+          <div class="ref-source">Springer, 1999. ISBN: 978-0-7923-8278-2</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-1-4615-5563-6" target="_blank">https://doi.org/10.1007/978-1-4615-5563-6</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Deb, K.</div>
+          <div class="ref-title">Multi-Objective Optimization Using Evolutionary Algorithms</div>
+          <div class="ref-source">John Wiley &amp; Sons, 2001. ISBN: 978-0-471-87339-6</div>
+          <div class="ref-doi"><a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Coello Coello, C. A., Van Veldhuizen, D. A., &amp; Lamont, G. B.</div>
+          <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
+          <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Pareto, V.</div>
+          <div class="ref-title">Cours d'Économie Politique</div>
+          <div class="ref-source">F. Rouge, Lausanne, 1896.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1017/S0770451800009348" target="_blank">https://doi.org/10.1017/S0770451800009348</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Hwang, C. L., &amp; Masud, A. S. M.</div>
+          <div class="ref-title">Multiple Objective Decision Making — Methods and Applications</div>
+          <div class="ref-source">Springer, 1979. ISBN: 978-0-387-09311-6</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-3-642-45511-7" target="_blank">https://doi.org/10.1007/978-3-642-45511-7</a></div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>Multi-objective Optimization Interactive Guide</strong> — Berdasarkan Miettinen (1999), Deb (2001)<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-moo");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-moo", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Dropdown toggle (click/tap)
+    document.querySelectorAll(".dropdown").forEach(function(dd) {
+      var btn = dd.querySelector(".dd-btn");
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", function() {
+      document.querySelectorAll(".dropdown.show").forEach(function(dd) {
+        dd.classList.remove("show");
+      });
+    });
+
+    // --- MOO Visualization ---
+    const canvas = document.getElementById("simCanvas");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const pad = 50;
+    const plotW = W - 2 * pad;
+    const plotH = H - 2 * pad;
+
+    // Problem: ZDT1-like convex Pareto front
+    // Pareto front: f2 = (1 - sqrt(f1)) for f1 in [0,1]
+    // Feasible region approximation
+    function paretoF2(f1) { return 1 - Math.sqrt(f1); }
+
+    // Weighted Sum solver: min w1*f1 + w2*f2 subject to f2 >= paretoF2(f1), f1,f2 >=0
+    // For convex Pareto, the optimal lies on the front where the line is tangent
+    // w1 + w2 * df2/df1 = 0 => w1 + w2 * (-1/(2*sqrt(f1))) = 0 => 2*w1*sqrt(f1) = w2 => sqrt(f1) = w2/(2*w1)
+    // f1 = (w2/(2*w1))^2, f2 = 1 - w2/(2*w1)  [for w1>0]
+    function solveWeightedSum(w1) {
+      const w2 = 1 - w1;
+      if (w1 <= 0) return { f1: 1, f2: 0, pareto: true };
+      if (w2 <= 0) return { f1: 0, f2: 1, pareto: true };
+      const sf = w2 / (2 * w1);
+      if (sf >= 1) return { f1: 1, f2: 0, pareto: sf <= 1 };
+      const f1 = sf * sf;
+      const f2 = 1 - sf;
+      return { f1, f2, pareto: true };
+    }
+
+    // ε-Constraint: minimize f2 s.t. f1 <= eps, f2 >= paretoF2(f1)
+    // Optimal: f1 = eps, f2 = paretoF2(eps) if eps within [0,1]
+    function solveEpsConstraint(eps) {
+      const f1 = Math.max(0, Math.min(1, eps));
+      const f2 = paretoF2(f1);
+      return { f1, f2, pareto: eps >= 0 && eps <= 1 };
+    }
+
+    // Weighted Chebyshev: min max(w1*|f1-0|, w2*|f2-0|) = min t s.t. w1*f1 <= t, w2*f2 <= t, f2 >= paretoF2(f1)
+    // Along Pareto front: w1*f1 = w2*f2 = t => f2 = (w1/w2)*f1
+    // Intersection: (w1/w2)*f1 = 1 - sqrt(f1) => solve
+    function solveChebyshev(w1) {
+      const w2 = 1 - w1;
+      if (w1 <= 0) return { f1: 1, f2: 0, pareto: true };
+      if (w2 <= 0) return { f1: 0, f2: 1, pareto: true };
+      // Solve: (w1/w2)*f1 + sqrt(f1) - 1 = 0
+      // Let u = sqrt(f1): (w1/w2)*u^2 + u - 1 = 0
+      const a = w1 / w2;
+      const u = (-1 + Math.sqrt(1 + 4 * a)) / (2 * a);
+      if (u < 0 || u > 1) return { f1: 1, f2: 0, pareto: false };
+      const f1 = u * u;
+      const f2 = 1 - u;
+      return { f1, f2, pareto: true };
+    }
+
+    let method = "ws";
+    let param = 0.5; // w1 for ws/cheb, eps for eps
+
+    function getSolution() {
+      switch (method) {
+        case "ws": return solveWeightedSum(param);
+        case "eps": return solveEpsConstraint(param);
+        case "cheb": return solveChebyshev(param);
+        default: return { f1: 0.5, f2: 0.5, pareto: true };
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      const xScale = plotW;
+      const yScale = plotH;
+
+      function toC(f1, f2) {
+        return [pad + f1 * xScale, H - pad - f2 * yScale];
+      }
+
+      // Grid
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--line").trim();
+      ctx.lineWidth = 0.5;
+      for (let t = 0; t <= 10; t++) {
+        const frac = t / 10;
+        const gx = pad + frac * plotW;
+        ctx.beginPath(); ctx.moveTo(gx, pad); ctx.lineTo(gx, H - pad); ctx.stroke();
+        const gy = pad + frac * plotH;
+        ctx.beginPath(); ctx.moveTo(pad, gy); ctx.lineTo(W - pad, gy); ctx.stroke();
+      }
+
+      // Feasible region shading (above Pareto front)
+      // We approximate with polygon
+      ctx.beginPath();
+      ctx.moveTo(pad, H - pad); // (0,0) in canvas = (0,0) in obj space - actually bottom-left
+      const [x0, y0] = toC(0, 1);
+      ctx.lineTo(x0, y0);
+      for (let i = 0; i <= 100; i++) {
+        const f1 = i / 100;
+        const f2 = paretoF2(f1);
+        const [px, py] = toC(f1, f2);
+        ctx.lineTo(px, py);
+      }
+      const [x1, y1] = toC(1, 0);
+      ctx.lineTo(x1, y1);
+      ctx.closePath();
+      ctx.fillStyle = colorMix("--primary", "0.06");
+      ctx.fill();
+
+      // Pareto front
+      ctx.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const f1 = i / 100;
+        const f2 = paretoF2(f1);
+        const [px, py] = toC(f1, f2);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = "#ef4444";
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Axes
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad); ctx.lineTo(W - pad, H - pad);
+      ctx.stroke();
+
+      // Solution
+      const sol = getSolution();
+      const [sx, sy] = toC(sol.f1, sol.f2);
+      ctx.beginPath();
+      ctx.arc(sx, sy, 8, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(13, 148, 136, 0.85)";
+      ctx.fill();
+      ctx.strokeStyle = "#0f766e";
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(sx, sy, 13, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(13, 148, 136, 0.3)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Direction/constraint visualization based on method
+      ctx.setLineDash([5, 4]);
+      ctx.lineWidth = 1.5;
+      if (method === "ws") {
+        // Weighted sum: contour line w1*f1 + w2*f2 = constant
+        const c = sol.f1 * param + sol.f2 * (1 - param);
+        const [x1c, y1c] = toC(0, c / (1 - param || 1));
+        const [x2c, y2c] = toC(c / (param || 1), 0);
+        ctx.beginPath();
+        ctx.moveTo(Math.max(pad, Math.min(W - pad, x1c)), Math.max(pad, Math.min(H - pad, y1c)));
+        ctx.lineTo(Math.max(pad, Math.min(W - pad, x2c)), Math.max(pad, Math.min(H - pad, y2c)));
+        ctx.strokeStyle = "rgba(245, 158, 11, 0.5)";
+        ctx.stroke();
+      } else if (method === "eps") {
+        // ε-Constraint: vertical line at f1 = eps
+        const [ex, _] = toC(param, 0);
+        ctx.beginPath();
+        ctx.moveTo(ex, pad);
+        ctx.lineTo(ex, H - pad);
+        ctx.strokeStyle = "rgba(245, 158, 11, 0.5)";
+        ctx.stroke();
+        // Label
+        ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+        ctx.font = "11px Inter, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("ε = " + param.toFixed(2), ex, pad - 6);
+      } else if (method === "cheb") {
+        // Chebyshev: lines from ideal point (0,0)
+        const w2 = 1 - param;
+        const [ix, iy] = toC(0, 0);
+        const t = Math.max(param * sol.f1, w2 * sol.f2);
+        if (param > 0) {
+          const [dx, dy] = toC(t / param, 0);
+          ctx.beginPath();
+          ctx.moveTo(ix, iy);
+          ctx.lineTo(Math.min(W - pad, dx), iy);
+          ctx.strokeStyle = "rgba(245, 158, 11, 0.35)";
+          ctx.stroke();
+        }
+        if (w2 > 0) {
+          const [dx, dy] = toC(0, t / w2);
+          ctx.beginPath();
+          ctx.moveTo(ix, iy);
+          ctx.lineTo(ix, Math.max(pad, dy));
+          ctx.strokeStyle = "rgba(245, 158, 11, 0.35)";
+          ctx.stroke();
+        }
+      }
+      ctx.setLineDash([]);
+
+      // Axis labels
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      ctx.font = "13px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("f₁ →", W / 2, H - 8);
+      ctx.save();
+      ctx.translate(14, H / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("f₂ →", 0, 0);
+      ctx.restore();
+
+      // Ticks
+      ctx.font = "10px Inter, sans-serif";
+      ctx.textAlign = "center";
+      const nTicks = 5;
+      for (let i = 0; i <= nTicks; i++) {
+        const v = i / nTicks;
+        const [px, py] = toC(v, 0);
+        ctx.fillText(v.toFixed(1), px, H - pad + 18);
+      }
+      ctx.textAlign = "right";
+      for (let i = 0; i <= nTicks; i++) {
+        const v = i / nTicks;
+        const [px, py] = toC(0, v);
+        ctx.fillText(v.toFixed(1), pad - 10, py + 4);
+      }
+
+      // Ideal point marker
+      ctx.fillStyle = "rgba(100, 116, 139, 0.4)";
+      ctx.font = "10px Inter, sans-serif";
+      ctx.textAlign = "left";
+      const [izx, izy] = toC(0, 0);
+      ctx.fillText("z*", izx + 4, izy - 4);
+      ctx.beginPath();
+      ctx.arc(izx, izy, 3, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(100, 116, 139, 0.5)";
+      ctx.fill();
+
+      // Update stats
+      document.getElementById("statF1").textContent = sol.f1.toFixed(4);
+      document.getElementById("statF2").textContent = sol.f2.toFixed(4);
+      document.getElementById("statPareto").textContent = sol.pareto ? "✓" : "✗";
+      document.getElementById("statPareto").style.color = sol.pareto ? "var(--accent-2)" : "var(--danger)";
+    }
+
+    function colorMix(varName, opacity) {
+      return getComputedStyle(root).getPropertyValue(varName).trim();
+    }
+
+    function updateParams() {
+      const container = document.getElementById("paramControls");
+      const desc = document.getElementById("methodDesc");
+      const methodName = document.getElementById("methodSelect").value;
+      method = methodName;
+      document.getElementById("methodDisplay").textContent = document.getElementById("methodSelect").options[document.getElementById("methodSelect").selectedIndex].text;
+
+      if (method === "ws") {
+        container.innerHTML = `
+          <label style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--muted);">Bobot \(w_1\) (f₁)</span>
+            <input type="range" id="paramSlider" min="0.01" max="0.99" step="0.01" value="${param}" style="width: 100%; accent-color: var(--primary);">
+            <span style="font-size: 0.85rem; color: var(--text); font-weight: 700;" id="paramValue">\(w_1 = ${param.toFixed(2)}, w_2 = ${(1-param).toFixed(2)}\)</span>
+          </label>
+        `;
+        desc.innerHTML = '<strong>Weighted Sum:</strong> mengubah bobot \(w_1\) menggeser solusi sepanjang Pareto front. Solusi optimal adalah titik singgung antara contour line dan Pareto front. Untuk masalah convex, semua solusi Pareto dapat ditemukan.';
+      } else if (method === "eps") {
+        container.innerHTML = `
+          <label style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--muted);">ε (batas atas f₁)</span>
+            <input type="range" id="paramSlider" min="0" max="1" step="0.01" value="${param}" style="width: 100%; accent-color: var(--primary);">
+            <span style="font-size: 0.85rem; color: var(--text); font-weight: 700;" id="paramValue">ε = ${param.toFixed(2)}</span>
+          </label>
+        `;
+        desc.innerHTML = '<strong>ε-Constraint:</strong> meminimalkan \(f_2\) dengan kendala \(f_1 \le \varepsilon\). Garis vertikal menunjukkan batas ε. Metode ini dapat menemukan solusi di bagian non-convex Pareto front.';
+      } else if (method === "cheb") {
+        container.innerHTML = `
+          <label style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--muted);">Bobot \(w_1\) (Chebyshev)</span>
+            <input type="range" id="paramSlider" min="0.01" max="0.99" step="0.01" value="${param}" style="width: 100%; accent-color: var(--primary);">
+            <span style="font-size: 0.85rem; color: var(--text); font-weight: 700;" id="paramValue">\(w_1 = ${param.toFixed(2)}, w_2 = ${(1-param).toFixed(2)}\)</span>
+          </label>
+        `;
+        desc.innerHTML = '<strong>Weighted Chebyshev:</strong> meminimalkan jarak Chebyshev (maksimum weighted deviasi) dari ideal point \(z^*\). Dapat menjangkau seluruh Pareto front termasuk bagian non-convex.';
+      }
+
+      const slider = document.getElementById("paramSlider");
+      if (slider) {
+        slider.addEventListener("input", function() {
+          param = parseFloat(this.value);
+          updateParamDisplay();
+          draw();
+        });
+      }
+      updateParamDisplay();
+    }
+
+    function updateParamDisplay() {
+      const val = document.getElementById("paramValue");
+      if (!val) return;
+      if (method === "ws" || method === "cheb") {
+        val.textContent = "w₁ = " + param.toFixed(2) + ", w₂ = " + (1 - param).toFixed(2);
+      } else {
+        val.textContent = "ε = " + param.toFixed(2);
+      }
+    }
+
+    document.getElementById("methodSelect").addEventListener("change", () => {
+      param = 0.5;
+      updateParams();
+      draw();
+    });
+
+    // Init
+    updateParams();
+    draw();
+  </script>
+
+</body>
+</html>

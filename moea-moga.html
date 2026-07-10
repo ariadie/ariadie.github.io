@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif MOEA/MOGA — Multi-Objective Evolutionary Algorithm / Multi-Objective Genetic Algorithm." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="MOEA/MOGA — Multi-Objective Evolutionary Algorithm" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap MOEA/MOGA untuk multi-objective optimization." />
+  <meta property="og:type" content="website" />
+  <title>MOEA/MOGA — Multi-Objective Evolutionary Algorithm</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #d97706;
+      --primary-2: #f59e0b;
+      --accent: #f59e0b;
+      --accent-2: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #fbbf24;
+      --primary-2: #fcd34d;
+      --accent: #fbbf24;
+      --accent-2: #34d399;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(217, 119, 6, 0.14), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(245, 158, 11, 0.12), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text { display: flex; flex-direction: column; min-width: 0; }
+    .brand-title { font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand-subtitle { color: var(--muted-2); font-size: 0.86rem; margin-top: -2px; }
+
+    .nav-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+
+    .btn, .icon-btn, .dd-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .icon-btn { width: 42px; height: 42px; padding: 0; font-size: 1rem; }
+
+    .btn:hover, .icon-btn:hover, .dd-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    /* Dropdown */
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 20;
+      min-width: 180px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card-solid);
+      box-shadow: var(--shadow-soft);
+      padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .hero {
+      padding: 50px 0 30px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px;
+      border-radius: 999px; border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary); font-size: 0.82rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05; letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+
+    .lead {
+      color: var(--muted); font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px; margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    h2 { margin: 0; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.15; letter-spacing: -0.045em; }
+    .section-desc { color: var(--muted); margin: 8px 0 0; max-width: 760px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    .feature-card, .info-card, .algo-card {
+      border: 1px solid var(--line); border-radius: var(--radius-lg);
+      background: var(--card); padding: 24px; box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary); margin-bottom: 14px; font-size: 1.22rem;
+    }
+
+    .feature-card h3, .info-card h3, .algo-card h3 { margin: 0 0 8px; font-size: 1.05rem; letter-spacing: -0.02em; }
+    .feature-card p, .info-card p, .algo-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .algo-card.highlight { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, var(--card)); }
+
+    .code-box {
+      overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px; box-shadow: var(--shadow-soft);
+    }
+
+    pre { margin: 0; overflow-x: auto; font-size: 0.91rem; line-height: 1.7; color: var(--muted); }
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+
+    .sim-card { border: 1px solid var(--line); border-radius: var(--radius-xl); background: var(--card); box-shadow: var(--shadow); overflow: hidden; }
+    .sim-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--card-solid) 64%, transparent); }
+    .traffic { display: flex; gap: 7px; align-items: center; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: var(--line); }
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+    .sim-label { color: var(--muted); font-size: 0.88rem; font-weight: 750; }
+    .sim-body { padding: 20px; }
+
+    .canvas-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; max-height: 540px; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; background: color-mix(in srgb, var(--bg-soft) 60%, var(--card-solid)); }
+    .canvas-wrap canvas { width: 100%; height: 100%; display: block; }
+
+    .sim-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+    .sim-controls .btn { font-size: 0.82rem; padding: 0.5rem 0.9rem; }
+    .btn-accent { border-color: transparent; background: linear-gradient(135deg, var(--accent-2), #059669); color: #fff; }
+    .btn-danger { border-color: transparent; background: linear-gradient(135deg, var(--danger), #dc2626); color: #fff; }
+
+    .sim-stats { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+    .sim-stat { display: flex; flex-direction: column; }
+    .sim-stat-value { font-weight: 900; font-size: 1.2rem; letter-spacing: -0.03em; color: var(--primary); }
+    .sim-stat-label { color: var(--muted-2); font-size: 0.78rem; font-weight: 700; }
+
+    .steps { counter-reset: step; display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+    .steps li { counter-increment: step; display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: start; padding: 16px; border: 1px solid var(--line); background: color-mix(in srgb, var(--card-solid) 74%, transparent); border-radius: 16px; }
+    .steps li::before { content: counter(step); width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; font-weight: 900; }
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    .ref-list { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+    .ref-list li { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius-md); background: color-mix(in srgb, var(--card-solid) 74%, transparent); }
+    .ref-authors { font-weight: 700; color: var(--text); }
+    .ref-title { font-style: italic; color: var(--muted); }
+    .ref-source { color: var(--muted-2); font-size: 0.9rem; }
+    .ref-doi a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.83rem; color: var(--muted); }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--line); flex: none; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th { text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--line); color: var(--muted-2); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--muted); }
+
+    .footer { padding: 44px 0 54px; color: var(--muted-2); text-align: center; font-size: 0.92rem; }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    .highlight-box { padding: 16px; border-left: 4px solid var(--primary); background: color-mix(in srgb, var(--primary) 6%, var(--card)); border-radius: 0 var(--radius-md) var(--radius-md) 0; margin: 12px 0; }
+    .highlight-box p { margin: 0; color: var(--text); }
+
+    @media (max-width: 980px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .hero { padding-top: 24px; } }
+    @media (max-width: 680px) { .nav-inner { min-height: 68px; } .brand-subtitle { display: none; } .hero-card { padding: 24px; } h1 { letter-spacing: -0.055em; } .nav-actions .btn, .nav-actions .dd-btn { display: none; } .nav-actions .icon-btn { display: inline-flex; } }
+    @media print { .nav, .sim-card, .footer { display: none !important; } body { background: white; color: black; } .hero, .grid-2, .grid-3, .grid-4 { display: block; } .feature-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 14px; } }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">MOEA / MOGA</span>
+          <span class="brand-subtitle">Evolutionary Multi-Objective Optimization</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#simulasi">Simulasi</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <a class="btn" href="./moo.html">MOO</a>
+        <div class="dropdown">
+          <button class="btn dd-btn" type="button">Algoritma <span class="dd-arrow">▼</span></button>
+          <div class="dropdown-menu">
+            <a href="./moea-moga.html" style="color: var(--primary);">MOEA/MOGA</a>
+            <a href="./nsga2.html">NSGA-II</a>
+            <a href="./nsga3.html">NSGA-III</a>
+            <a href="./spea2.html">SPEA2</a>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar MOEA/MOGA">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Evolusi Buatan untuk MOO</span>
+          <h1>Multi-Objective Evolutionary Algorithm</h1>
+          <p class="lead">
+            <strong>Multi-Objective Evolutionary Algorithm (MOEA)</strong>, juga dikenal sebagai
+            <strong>Multi-Objective Genetic Algorithm (MOGA)</strong>, adalah kelas algoritma yang
+            menggunakan prinsip evolusi Darwin — seleksi, crossover, dan mutasi — untuk menyelesaikan
+            masalah optimasi multi-objective. Tidak seperti metode scalarization klasik, MOEA bekerja
+            dengan <em>populasi</em> solusi sehingga dapat menemukan banyak titik Pareto-optimal dalam
+            satu kali proses evolusi, tanpa memerlukan asumsi convexitas (bandingkan dengan
+            <a href="./convex-opt.html" style="color: var(--primary); font-weight: 700;">Convex Opt</a>).
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
+            <a class="btn" href="#penjelasan">Pelajari MOEA</a>
+            <a class="btn" href="#referensi">Referensi</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN -->
+    <section class="section" id="ringkasan" aria-label="Ringkasan">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">🧬</div>
+          <h3>Populasi Solusi</h3>
+          <p>MOEA memelihara populasi kromosom yang berevolusi. Setiap individu merepresentasikan satu solusi kandidat. Populasi memungkinkan eksplorasi banyak trade-off secara simultan.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">⚖️</div>
+          <h3>Fitness Multi-Objective</h3>
+          <p>Tidak seperti optimasi tujuan tunggal, MOEA memerlukan mekanisme fitness khusus: <em>Pareto ranking</em>, <em>niche count</em>, <em>crowding distance</em>, atau <em>indicator-based selection</em>.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🔗</div>
+          <h3>Kaitan dengan MOO</h3>
+          <p>MOEA adalah salah satu pilar utama <a href="./moo.html" style="color: var(--primary); font-weight: 700;">Multi-objective Optimization</a>. Perbedaan utama dengan scalarization: MOEA tidak memerlukan pengetahuan prioritas, bobot, atau target.
+        </article>
+      </div>
+    </section>
+
+    <!-- PENJELASAN -->
+    <section class="section" id="penjelasan" aria-label="Penjelasan">
+      <div class="section-head">
+        <div>
+          <h2>Kerja MOEA</h2>
+          <p class="section-desc">Kerangka umum algoritma evolusioner multi-objective, dari inisialisasi hingga terminasi.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Inisialisasi Populasi</span>
+                <span class="step-text">Bangkitkan \(N\) individu secara acak dalam ruang keputusan \(\mathcal{X}\). Setiap individu adalah kromosom (vektor keputusan \(x\)). Evaluasi vektor tujuan \(f(x)\) untuk setiap individu.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Fitness Assignment</span>
+                <span class="step-text">Berbeda dengan GA tujuan tunggal, MOEA menetapkan fitness berdasarkan nondominasi dan keragaman. Pendekatan: Pareto ranking (Fonseca-Fleming), strength (SPEA2), nondominated sort (NSGA-II), atau scalarizing (MOEA/D).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Seleksi (Mating Selection)</span>
+                <span class="step-text">Pilih individu-individu yang akan menjadi orangtua. Metode: binary tournament (pilih yang lebih baik berdasarkan fitness), roulette wheel, atau stochastic universal sampling. Individu dengan fitness lebih baik punya peluang lebih besar.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Variasi (Crossover &amp; Mutation)</span>
+                <span class="step-text">Terapkan operator variasi pada pasangan orangtua untuk menghasilkan offspring. Crossover (SBX, uniform, partial path swap) mengeksploitasi, mutation (polynomial, insert/delete, swap) mengeksplorasi.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Evaluasi &amp; Seleksi Lingkungan</span>
+                <span class="step-text">Evaluasi offspring, lalu gabungkan dengan populasi induk. Seleksi lingkungan menentukan individu mana yang bertahan ke generasi berikutnya — biasanya mempertahankan solusi nondominated terbaik dan menjaga keragaman.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Terminasi</span>
+                <span class="step-text">Ulangi langkah 2–5 hingga kriteria berhenti terpenuhi (generasi maksimum, evaluasi budget, atau konvergensi). Kembalikan populasi akhir (terutama solusi nondominated).</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="algo-card highlight">
+            <h3>Taksonomi MOEA</h3>
+            <table>
+              <tr><th>Kategori</th><th>Algoritma</th><th>Mekanisme Fitness</th></tr>
+              <tr><td><strong>Pareto-based</strong></td><td>NSGA-II, NSGA-III, SPEA2, PAES</td><td>Dominasi ranking + density</td></tr>
+              <tr><td><strong>Indicator-based</strong></td><td>IBEA, SMS-EMOA, HypE</td><td>Hypervolume contribution</td></tr>
+              <tr><td><strong>Decomposition</strong></td><td>MOEA/D, MOEA/D-DE</td><td>Scalarizing subproblems</td></tr>
+              <tr><td><strong>Hybrid</strong></td><td>Memetic MOEA, Surrogate-assisted</td><td>Local search + surrogate</td></tr>
+            </table>
+          </div>
+
+          <div class="algo-card" style="margin-top: 14px;">
+            <h3>Pseudo-code MOEA Generik</h3>
+            <div class="code-box" style="margin-top: 10px;">
+<pre>Input:  N (pop size), T (max gen)
+Output: A (Pareto front approximation)
+
+1.  \(P\) ← init_population(N)
+2.  evaluate(\(P\))
+3.  for gen = 1 to T:
+4.    \(F\) ← fitness_assignment(\(P\))
+5.    \(M\) ← mating_selection(\(P\), \(F\))
+6.    \(Q\) ← variation(\(M\))  // crossover + mutation
+7.    evaluate(\(Q\))
+8.    \(P\) ← environmental_selection(\(P \cup Q\), N)
+9.    if converged: break
+10. return nondominated(\(P\))</pre>
+            </div>
+          </div>
+
+          <div class="algo-card" style="margin-top: 14px;">
+            <h3>Sejarah Perkembangan</h3>
+            <table>
+              <tr><th>Tahun</th><th>Algoritma</th><th>Pelopor</th></tr>
+              <tr><td>1985</td><td>VEGA</td><td>Schaffer</td></tr>
+              <tr><td>1993</td><td>MOGA</td><td>Fonseca &amp; Fleming</td></tr>
+              <tr><td>1994</td><td>NPGA</td><td>Horn, Nafpliotis &amp; Goldberg</td></tr>
+              <tr><td>1999</td><td>SPEA</td><td>Zitzler &amp; Thiele</td></tr>
+              <tr><td>2001</td><td>SPEA2</td><td>Zitzler, Laumanns &amp; Thiele</td></tr>
+              <tr><td>2002</td><td>NSGA-II</td><td>Deb et al.</td></tr>
+              <tr><td>2007</td><td>MOEA/D</td><td>Zhang &amp; Li</td></tr>
+              <tr><td>2014</td><td>NSGA-III</td><td>Deb &amp; Jain</td></tr>
+            </table>
+            <p style="margin-top: 10px; color: var(--muted); font-size: 0.9rem;">Lihat halaman masing-masing algoritma: <a href="./nsga2.html" style="font-weight: 700;">NSGA-II</a> · <a href="./nsga3.html" style="font-weight: 700;">NSGA-III</a> · <a href="./spea2.html" style="font-weight: 700;">SPEA2</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section class="section" id="simulasi" aria-label="Simulasi interaktif">
+      <div class="section-head">
+        <div>
+          <h2>Simulasi Interaktif MOEA</h2>
+          <p class="section-desc">Generational GA sederhana untuk problem 2-objective. Saksikan populasi berevolusi menuju Pareto front. Pilih strategi fitness assignment dan lihat dampaknya pada konvergensi dan keragaman.</p>
+        </div>
+      </div>
+
+      <div class="sim-card">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">moea_simulation.js</div>
+          <div class="sim-label" id="genDisplay">Generasi: 0</div>
+        </div>
+
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="simCanvas" width="600" height="600"></canvas>
+            </div>
+
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background: #94a3b8;"></span> Populasi</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #d97706; border-color: #b45309;"></span> Pareto front</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #ef4444;"></span> True Pareto</div>
+              </div>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;">
+                <label style="display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.82rem; font-weight: 700;">
+                  Fitness:
+                  <select id="fitSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 5px 8px; font-weight: 600; font-size: 0.82rem;">
+                    <option value="nsga2">Non-dominated sort + crowding</option>
+                    <option value="rank">Pareto rank (Fonseca-Fleming)</option>
+                    <option value="sum">Weighted sum scalarization</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="sim-controls">
+                <button class="btn btn-primary" id="btnStart">▶ Start</button>
+                <button class="btn" id="btnPause" disabled>⏸ Pause</button>
+                <button class="btn btn-accent" id="btnStep">⏭ Step</button>
+                <button class="btn btn-danger" id="btnReset">↻ Reset</button>
+                <label style="display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.82rem; font-weight: 700;">
+                  Speed:
+                  <select id="speedSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 5px 8px; font-weight: 600; font-size: 0.82rem;">
+                    <option value="500">Lambat</option>
+                    <option value="200" selected>Normal</option>
+                    <option value="60">Cepat</option>
+                    <option value="10">Turbo</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="sim-stats">
+                <div class="sim-stat"><span class="sim-stat-value" id="statGen">0</span><span class="sim-stat-label">Generasi</span></div>
+                <div class="sim-stat"><span class="sim-stat-value" id="statPop">50</span><span class="sim-stat-label">Populasi</span></div>
+                <div class="sim-stat"><span class="sim-stat-value" id="statPareto">0</span><span class="sim-stat-label">Front F₁</span></div>
+                <div class="sim-stat"><span class="sim-stat-value" id="statHV">0.00</span><span class="sim-stat-label">Hypervolume</span></div>
+              </div>
+
+              <div style="margin-top: 10px; color: var(--muted); font-size: 0.85rem; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius-md);">
+                <strong>HV reference point:</strong> (1.1, 1.1). Hypervolume mengukur volume ruang yang didominasi solusi Pareto. Semakin besar, semakin baik.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi utama">
+      <div class="section-head">
+        <div>
+          <h2>Referensi Utama</h2>
+          <p class="section-desc">Paper dan buku fundamental MOEA/MOGA.</p>
+        </div>
+      </div>
+
+      <ul class="ref-list">
+        <li>
+          <div class="ref-authors">Fonseca, C. M., &amp; Fleming, P. J.</div>
+          <div class="ref-title">Genetic algorithms for multiobjective optimization: Formulation, discussion and generalization</div>
+          <div class="ref-source">In: Proceedings of the 5th International Conference on Genetic Algorithms (ICGA), pp. 416–423, 1993.</div>
+          <div class="ref-doi"><a href="https://dl.acm.org/doi/10.5555/645513.657737" target="_blank">ACM Digital Library</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Horn, J., Nafpliotis, N., &amp; Goldberg, D. E.</div>
+          <div class="ref-title">A niched Pareto genetic algorithm for multiobjective optimization</div>
+          <div class="ref-source">In: Proceedings of the First IEEE Conference on Evolutionary Computation, pp. 82–87, 1994.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1109/ICEC.1994.350037" target="_blank">https://doi.org/10.1109/ICEC.1994.350037</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Coello Coello, C. A., Van Veldhuizen, D. A., &amp; Lamont, G. B.</div>
+          <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
+          <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Deb, K.</div>
+          <div class="ref-title">Multi-Objective Optimization Using Evolutionary Algorithms</div>
+          <div class="ref-source">John Wiley &amp; Sons, 2001. ISBN: 978-0-471-87339-6</div>
+          <div class="ref-doi"><a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Zhang, Q., &amp; Li, H.</div>
+          <div class="ref-title">MOEA/D: A multiobjective evolutionary algorithm based on decomposition</div>
+          <div class="ref-source">IEEE Transactions on Evolutionary Computation, 11(6), 712–731, 2007.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank">https://doi.org/10.1109/TEVC.2007.892759</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Goldberg, D. E.</div>
+          <div class="ref-title">Genetic Algorithms in Search, Optimization, and Machine Learning</div>
+          <div class="ref-source">Addison-Wesley, 1989. ISBN: 978-0-201-15767-3</div>
+          <div class="ref-doi"><a href="https://dl.acm.org/doi/10.5555/534133" target="_blank">ACM Digital Library</a></div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>MOEA/MOGA Interactive Guide</strong> — Bagian dari repositori disertasi Ariadie Chandra Nugraha<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-moea");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-moea", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Dropdown toggle (click/tap)
+    document.querySelectorAll(".dropdown").forEach(function(dd) {
+      var btn = dd.querySelector(".dd-btn");
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", function() {
+      document.querySelectorAll(".dropdown.show").forEach(function(dd) {
+        dd.classList.remove("show");
+      });
+    });
+
+    // --- MOEA Simulation ---
+    const canvas = document.getElementById("simCanvas");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const pad = 50;
+    const xScale = W - 2 * pad;
+    const yScale = H - 2 * pad;
+    const refPoint = [1.1, 1.1];
+
+    const POP_SIZE = 50;
+    const MAX_GEN = 150;
+    const MUT_RATE = 0.2;
+    const CROSS_RATE = 0.9;
+
+    let population = [];
+    let generation = 0;
+    let running = false;
+    let timer = null;
+
+    // ZDT1: f1 = x1, f2 = g*(1 - sqrt(x1/g)), g = 1+9*x2
+    function evaluate(x) {
+      const f1 = x[0];
+      const g = 1 + 9 * x[1];
+      const f2 = g * (1 - Math.sqrt(f1 / g));
+      return { f1, f2 };
+    }
+
+    function randomInd() {
+      const x = [Math.random(), Math.random()];
+      const r = evaluate(x);
+      return { x, f1: r.f1, f2: r.f2 };
+    }
+
+    function dominates(a, b) {
+      return a.f1 <= b.f1 && a.f2 <= b.f2 && (a.f1 < b.f1 || a.f2 < b.f2);
+    }
+
+    // Non-dominated sorting
+    function nonDominatedSort(pop) {
+      const n = pop.length;
+      const S = new Array(n).fill(null).map(() => []);
+      const nDom = new Array(n).fill(0);
+      const rank = new Array(n).fill(0);
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i === j) continue;
+          if (dominates(pop[i], pop[j])) S[i].push(j);
+          else if (dominates(pop[j], pop[i])) nDom[i]++;
+        }
+      }
+      const fronts = [];
+      let current = [];
+      for (let i = 0; i < n; i++) { if (nDom[i] === 0) { rank[i] = 1; current.push(i); } }
+      fronts.push(current);
+      let fIdx = 0;
+      while (current.length > 0) {
+        const next = [];
+        for (const i of current) { for (const j of S[i]) { nDom[j]--; if (nDom[j] === 0) { rank[j] = fIdx + 2; next.push(j); } } }
+        fIdx++; current = next;
+        if (current.length > 0) fronts.push(current);
+      }
+      return { fronts, rank };
+    }
+
+    function crowdingDist(pop, idxs) {
+      const m = idxs.length;
+      if (m <= 2) return new Array(m).fill(Infinity);
+      const d = new Array(m).fill(0);
+      const f1 = idxs.map(i => pop[i].f1);
+      const f2 = idxs.map(i => pop[i].f2);
+      const mn1 = Math.min(...f1), mx1 = Math.max(...f1);
+      const mn2 = Math.min(...f2), mx2 = Math.max(...f2);
+      let o = idxs.map((_, i) => i);
+      o.sort((a, b) => f1[a] - f1[b]);
+      d[o[0]] = d[o[m-1]] = Infinity;
+      if (mx1 > mn1) for (let i = 1; i < m-1; i++) d[o[i]] += (f1[o[i+1]] - f1[o[i-1]]) / (mx1 - mn1);
+      o.sort((a, b) => f2[a] - f2[b]);
+      if (mx2 > mn2) for (let i = 1; i < m-1; i++) d[o[i]] += (f2[o[i+1]] - f2[o[i-1]]) / (mx2 - mn2);
+      d[o[0]] = d[o[m-1]] = Infinity;
+      return d;
+    }
+
+    // Pareto rank (Fonseca-Fleming): rank(i) = 1 + number of individuals that dominate i
+    function paretoRank(pop) {
+      const n = pop.length;
+      const rank = new Array(n);
+      for (let i = 0; i < n; i++) {
+        let count = 0;
+        for (let j = 0; j < n; j++) { if (i !== j && dominates(pop[j], pop[i])) count++; }
+        rank[i] = 1 + count;
+      }
+      return rank;
+    }
+
+    function simpleCrossover(a, b) {
+      const c = []; const d = [];
+      for (let i = 0; i < a.x.length; i++) {
+        if (Math.random() < 0.5) { c.push(a.x[i]); d.push(b.x[i]); }
+        else { c.push(b.x[i]); d.push(a.x[i]); }
+      }
+      return [{ x: c }, { x: d }];
+    }
+
+    function mutate(ind) {
+      for (let i = 0; i < ind.x.length; i++) {
+        if (Math.random() < MUT_RATE) ind.x[i] = Math.max(0, Math.min(1, ind.x[i] + (Math.random() - 0.5) * 0.2));
+      }
+    }
+
+    function getF1Indices(pop) {
+      if (pop.length === 0) return [];
+      const r = nonDominatedSort(pop);
+      return r.fronts[0] || [];
+    }
+
+    function computeHV(pop) {
+      const f1 = getF1Indices(pop);
+      if (f1.length === 0) return 0;
+      // Sort by f1 ascending
+      const sols = f1.map(i => ({ f1: pop[i].f1, f2: pop[i].f2 }));
+      sols.sort((a, b) => a.f1 - b.f1);
+      let hv = 0;
+      let prevF1 = 0;
+      for (const s of sols) {
+        if (s.f2 > refPoint[1]) continue;
+        hv += (Math.min(s.f1, refPoint[0]) - prevF1) * (refPoint[1] - s.f2);
+        prevF1 = Math.max(prevF1, Math.min(s.f1, refPoint[0]));
+        if (prevF1 >= refPoint[0]) break;
+      }
+      return hv;
+    }
+
+    function initPopulation() {
+      population = [];
+      for (let i = 0; i < POP_SIZE; i++) population.push(randomInd());
+      generation = 0;
+    }
+
+    function stepGeneration() {
+      if (generation >= MAX_GEN) { if (running) stopSim(); return; }
+      const method = document.getElementById("fitSelect").value;
+
+      // Fitness assignment
+      let ranks, cd;
+      if (method === "nsga2") {
+        const r = nonDominatedSort(population);
+        ranks = r.rank;
+        cd = new Array(population.length).fill(0);
+        for (const f of r.fronts) {
+          const d = crowdingDist(population, f);
+          for (let j = 0; j < f.length; j++) cd[f[j]] = d[j];
+        }
+      } else if (method === "rank") {
+        ranks = paretoRank(population);
+        cd = null;
+      } else { // sum
+        const total = population.reduce((s, ind) => s + ind.f1 + ind.f2, 0);
+        ranks = population.map(ind => ind.f1 + ind.f2);
+        cd = null;
+      }
+
+      // Tournament selection
+      const parents = [];
+      while (parents.length < POP_SIZE) {
+        const t1 = [Math.floor(Math.random() * POP_SIZE), Math.floor(Math.random() * POP_SIZE)];
+        const t2 = [Math.floor(Math.random() * POP_SIZE), Math.floor(Math.random() * POP_SIZE)];
+        function better(a, b) {
+          if (ranks[a] !== ranks[b]) return ranks[a] < ranks[b] ? a : b;
+          if (cd !== null && cd[a] !== cd[b]) return cd[a] > cd[b] ? a : b;
+          return a;
+        }
+        parents.push(better(t1[0], t1[1]));
+        parents.push(better(t2[0], t2[1]));
+      }
+
+      // Crossover + mutation
+      const offspring = [];
+      for (let i = 0; i < parents.length; i += 2) {
+        if (i + 1 >= parents.length) break;
+        const a = population[parents[i]], b = population[parents[i + 1]];
+        const [c1, c2] = Math.random() < CROSS_RATE ? simpleCrossover(a, b) : [{ x: [...a.x] }, { x: [...b.x] }];
+        mutate(c1); mutate(c2);
+        const r1 = evaluate(c1.x), r2 = evaluate(c2.x);
+        c1.f1 = r1.f1; c1.f2 = r1.f2;
+        c2.f1 = r2.f1; c2.f2 = r2.f2;
+        offspring.push(c1, c2);
+      }
+
+      // Environmental selection: combine + NSGA-II style (μ+λ)
+      const combined = population.concat(offspring);
+      const r2 = nonDominatedSort(combined);
+      const newRanks = r2.rank;
+      const newPop = [];
+      for (const fi of r2.fronts) {
+        if (newPop.length + fi.length <= POP_SIZE) {
+          for (const idx of fi) newPop.push(combined[idx]);
+        } else {
+          const d = crowdingDist(combined, fi);
+          fi.sort((a, b) => d[fi.indexOf(b)] - d[fi.indexOf(a)]);
+          const need = POP_SIZE - newPop.length;
+          for (let i = 0; i < need; i++) newPop.push(combined[fi[i]]);
+          break;
+        }
+      }
+      population = newPop;
+      generation++;
+      draw();
+      updateStats();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      function toC(f1, f2) { return [pad + f1 * xScale, H - pad - f2 * yScale]; }
+
+      // Grid
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--line").trim();
+      ctx.lineWidth = 0.5;
+      for (let t = 0; t <= 10; t++) { const f = t/10; const gx = pad + f * xScale; ctx.beginPath(); ctx.moveTo(gx, pad); ctx.lineTo(gx, H - pad); ctx.stroke(); const gy = pad + f * yScale; ctx.beginPath(); ctx.moveTo(pad, gy); ctx.lineTo(W - pad, gy); ctx.stroke(); }
+
+      // True Pareto
+      ctx.beginPath();
+      for (let i = 0; i <= 100; i++) { const f1 = i/100; const f2 = 1 - Math.sqrt(f1); const [px,py] = toC(f1,f2); if (i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py); }
+      ctx.strokeStyle = "#ef4444"; ctx.lineWidth = 2; ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
+
+      // Axes
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad,pad); ctx.lineTo(pad,H-pad); ctx.lineTo(W-pad,H-pad); ctx.stroke();
+
+      // Population
+      const f1Set = new Set(getF1Indices(population));
+      for (let i = 0; i < population.length; i++) {
+        const ind = population[i];
+        const [px, py] = toC(ind.f1, ind.f2);
+        if (f1Set.has(i)) {
+          ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI*2);
+          ctx.fillStyle = "rgba(217, 119, 6, 0.8)"; ctx.fill();
+          ctx.strokeStyle = "#b45309"; ctx.lineWidth = 2; ctx.stroke();
+        } else {
+          ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2);
+          ctx.fillStyle = "rgba(148, 163, 184, 0.5)"; ctx.fill();
+        }
+      }
+
+      // HV reference
+      const [rx, ry] = toC(refPoint[0], refPoint[1]);
+      ctx.fillStyle = "rgba(100, 116, 139, 0.3)"; ctx.font = "9px Inter, sans-serif"; ctx.textAlign = "left";
+      ctx.fillText("HV ref", rx - 30, ry - 4);
+      ctx.beginPath(); ctx.arc(rx, ry, 3, 0, Math.PI*2); ctx.fillStyle = "rgba(100, 116, 139, 0.5)"; ctx.fill();
+
+      // Labels
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted").trim();
+      ctx.font = "10px Inter, sans-serif"; ctx.textAlign = "center";
+      for (let i = 0; i <= 5; i++) { const v = i/5; const [px,_] = toC(v,0); ctx.fillText(v.toFixed(1), px, H - pad + 18); }
+      ctx.textAlign = "right";
+      for (let i = 0; i <= 5; i++) { const v = i/5; const [_,py] = toC(0,v); ctx.fillText(v.toFixed(1), pad - 10, py + 4); }
+      ctx.font = "12px Inter, sans-serif"; ctx.textAlign = "center"; ctx.fillText("f₁ →", W/2, H - 6);
+      ctx.save(); ctx.translate(12, H/2); ctx.rotate(-Math.PI/2); ctx.fillText("f₂ →", 0, 0); ctx.restore();
+    }
+
+    function updateStats() {
+      document.getElementById("statGen").textContent = generation;
+      document.getElementById("statPop").textContent = population.length;
+      document.getElementById("statPareto").textContent = getF1Indices(population).length;
+      document.getElementById("statHV").textContent = computeHV(population).toFixed(4);
+      document.getElementById("genDisplay").textContent = "Generasi: " + generation;
+    }
+
+    function startSim() {
+      if (generation >= MAX_GEN) resetSim();
+      running = true;
+      document.getElementById("btnStart").disabled = true;
+      document.getElementById("btnPause").disabled = false;
+      timer = setInterval(() => { stepGeneration(); if (generation >= MAX_GEN) stopSim(); }, parseInt(document.getElementById("speedSelect").value));
+    }
+
+    function stopSim() {
+      running = false; if (timer) { clearInterval(timer); timer = null; }
+      document.getElementById("btnStart").disabled = false; document.getElementById("btnPause").disabled = true;
+    }
+
+    function resetSim() { stopSim(); initPopulation(); draw(); updateStats(); }
+
+    document.getElementById("fitSelect").addEventListener("change", resetSim);
+    document.getElementById("btnStart").addEventListener("click", startSim);
+    document.getElementById("btnPause").addEventListener("click", stopSim);
+    document.getElementById("btnStep").addEventListener("click", () => { if (generation < MAX_GEN) stepGeneration(); });
+    document.getElementById("btnReset").addEventListener("click", resetSim);
+    document.getElementById("speedSelect").addEventListener("change", function() { if (running) { stopSim(); startSim(); } });
+
+    initPopulation();
+    draw();
+    updateStats();
+  </script>
+
+</body>
+</html>

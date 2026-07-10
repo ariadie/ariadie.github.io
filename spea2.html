@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif SPEA2 — Strength Pareto Evolutionary Algorithm 2 untuk optimasi multiobjective." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="SPEA2 — Strength Pareto Evolutionary Algorithm 2" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap algoritma SPEA2 untuk multi-objective optimization." />
+  <meta property="og:type" content="website" />
+  <title>SPEA2 — Strength Pareto Evolutionary Algorithm 2</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #7c3aed;
+      --primary-2: #a855f7;
+      --accent: #f59e0b;
+      --accent-2: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #a78bfa;
+      --primary-2: #c084fc;
+      --accent: #fbbf24;
+      --accent-2: #34d399;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124, 58, 237, 0.18), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(168, 85, 247, 0.14), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 20;
+      min-width: 180px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card-solid);
+      box-shadow: var(--shadow-soft);
+      padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero {
+      padding: 50px 0 30px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px;
+      margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card, .info-card, .algo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary);
+      margin-bottom: 14px;
+      font-size: 1.22rem;
+    }
+
+    .feature-card h3, .info-card h3, .algo-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p, .info-card p, .algo-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .algo-card.highlight {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+    }
+
+    .code-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      font-size: 0.91rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .sim-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sim-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 64%, transparent);
+    }
+
+    .traffic {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--line);
+    }
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .sim-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 750;
+    }
+
+    .sim-body {
+      padding: 20px;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 520px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: color-mix(in srgb, var(--bg-soft) 60%, var(--card-solid));
+    }
+
+    .canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .sim-controls .btn { font-size: 0.85rem; padding: 0.55rem 1rem; }
+    .btn-accent {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent-2), #059669);
+      color: #fff;
+    }
+    .btn-danger {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: #fff;
+    }
+
+    .sim-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .sim-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sim-stat-value {
+      font-weight: 900;
+      font-size: 1.3rem;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+    }
+
+    .sim-stat-label {
+      color: var(--muted-2);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      width: 38px; height: 38px;
+      border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+    }
+
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    .ref-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+    }
+
+    .ref-authors {
+      font-weight: 700;
+      color: var(--text);
+    }
+    .ref-title {
+      font-style: italic;
+      color: var(--muted);
+    }
+    .ref-source {
+      color: var(--muted-2);
+      font-size: 0.9rem;
+    }
+    .ref-doi a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+    .legend-swatch {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      flex: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--line);
+      color: var(--muted-2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .hero { padding-top: 24px; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .hero-card { padding: 24px; }
+      h1 { letter-spacing: -0.055em; }
+    }
+    @media print {
+      .nav, .sim-card, .hero-actions, .footer { display: none !important; }
+      body { background: white; color: black; }
+      .hero, .grid-2, .grid-3, .grid-4 { display: block; }
+      .feature-card, .info-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 14px; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">SPEA2</span>
+          <span class="brand-subtitle">Strength Pareto Evolutionary Algorithm 2</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#simulasi">Simulasi</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <div class="dropdown">
+          <button class="btn dd-btn" type="button">Algoritma <span class="dd-arrow">▼</span></button>
+          <div class="dropdown-menu">
+            <a href="./moea-moga.html">MOEA/MOGA</a>
+            <a href="./nsga2.html">NSGA-II</a>
+            <a href="./nsga3.html">NSGA-III</a>
+            <a href="./spea2.html" style="color: var(--primary);">SPEA2</a>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar SPEA2">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Multiobjective Evolutionary Algorithm</span>
+          <h1>Strength Pareto Evolutionary Algorithm 2</h1>
+          <p class="lead">
+            <strong>SPEA2</strong> adalah algoritma evolusioner multiobjective yang diperkenalkan oleh 
+            Zitzler, Laumanns, and Thiele (2001) sebagai penyempurnaan dari SPEA (Zitzler &amp; Thiele, 1999).
+            SPEA2 mengintegrasikan <em>fine-grained fitness assignment</em>, <em>density estimation</em>,
+            dan <em>archive truncation</em> untuk menemukan solusi Pareto-optimal secara efisien.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
+            <a class="btn" href="#penjelasan">Pelajari Algoritma</a>
+            <a class="btn" href="https://doi.org/10.1109/TEVC.1999.781198" target="_blank">Paper Asli SPEA →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN -->
+    <section class="section" id="ringkasan" aria-label="Ringkasan SPEA2">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Fitness Assignment</h3>
+          <p>Setiap individu diberi <em>strength</em> berdasarkan jumlah individu yang didominasinya. Nilai <em>raw fitness</em> dihitung dari kekuatan para pendominasinya.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📏</div>
+          <h3>Density Estimation</h3>
+          <p>Mengestimasi kepadatan menggunakan jarak ke tetangga terdekat (<em>k-th nearest neighbor</em>) untuk membedakan individu dengan <em>raw fitness</em> sama.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🗂️</div>
+          <h3>Archive Truncation</h3>
+          <p>Ketika arsip melebihi kapasitas, individu dengan jarak terdekat dihapus secara iteratif untuk mempertahankan keragaman dan penyebaran Pareto front.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PENJELASAN -->
+    <section class="section" id="penjelasan" aria-label="Penjelasan algoritma">
+      <div class="section-head">
+        <div>
+          <h2>Langkah-langkah Algoritma SPEA2</h2>
+          <p class="section-desc">SPEA2 bekerja pada populasi dan arsip (archive) yang terpisah. Berikut adalah langkah utama dalam satu generasi.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Inisialisasi</span>
+                <span class="step-text">Bangkitkan populasi awal \(P_0\) berukuran \(N\) dan arsip kosong \(A_0 = \emptyset\). Tetapkan \(t = 0\).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Fitness Assignment</span>
+                <span class="step-text">Untuk setiap individu dalam \(A_t \cup P_t\), hitung <em>strength</em> \(S(i)\) = jumlah individu yang didominasi \(i\). <em>Raw fitness</em> \(R(i) = \sum_{j \succ i} S(j)\). Semakin kecil \(R(i)\), semakin baik.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Density Estimation</span>
+                <span class="step-text">Terapkan <em>k-th nearest neighbor</em> dengan \(k = \sqrt{N + \overline{N}}\). Density \(D(i) = 1 / (\sigma_i^k + 2)\). Nilai fitness akhir \(F(i) = R(i) + D(i)\).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Environmental Selection</span>
+                <span class="step-text">Salin semua individu nondominated dari \(A_t \cup P_t\) ke \(A_{t+1}\). Jika \(|A_{t+1}| > \overline{N}\), gunakan <em>archive truncation</em>; jika \(|A_{t+1}| < \overline{N}\), isi dengan individu dominated terbaik.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Mating Selection &amp; Variasi</span>
+                <span class="step-text">Terapkan seleksi biner (<em>tournament</em>) pada \(A_{t+1}\), lalu gunakan operator <em>crossover</em> dan <em>mutation</em> untuk menghasilkan populasi baru \(P_{t+1}\).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Terminasi</span>
+                <span class="step-text">Jika kriteria berhenti terpenuhi (mis. generasi maksimum), kembalikan \(A_{t+1}\) sebagai hasil. Jika tidak, \(t = t + 1\) dan ulangi dari langkah 2.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="algo-card highlight" style="margin-bottom: 16px;">
+            <h3>Perbedaan SPEA → SPEA2</h3>
+            <table>
+              <tr><th>Aspek</th><th>SPEA</th><th>SPEA2</th></tr>
+              <tr><td>Fitness</td><td>Strength saja</td><td>Raw + density</td></tr>
+              <tr><td>Density</td><td>Tidak ada</td><td>k-NN distance</td></tr>
+              <tr><td>Truncation</td><td>Cluster-based</td><td>Nearest-neighbor</td></tr>
+              <tr><td>Archive size</td><td>Variabel</td><td>Fixed \(\overline{N}\)</td></tr>
+              <tr><td>Boundary handling</td><td>Kurang terjaga</td><td>Terjaga</td></tr>
+            </table>
+          </div>
+
+          <div class="algo-card">
+            <h3>Pseudo-code Ringkas</h3>
+            <div class="code-box" style="margin-top: 10px;">
+<pre>Input:  N (pop size), \(\overline{N}\) (archive size), T (max gen)
+Output: A (final archive)
+
+1.  \(P_0\) ← init_population(N)
+2.  \(A_0\) ← ∅
+3.  for t = 0 to T-1:
+4.    F ← fitness_assignment(\(P_t \cup A_t\))
+5.    \(A_{t+1}\) ← environmental_selection(\(P_t \cup A_t\), F, \(\overline{N}\))
+6.    if |\(A_{t+1}\)| > \(\overline{N}\): truncate(\(A_{t+1}\))
+7.    \(P_{t+1}\) ← variation(\(A_{t+1}\), N)
+8.  return \(A_T\)</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section class="section" id="simulasi" aria-label="Simulasi interaktif">
+      <div class="section-head">
+        <div>
+          <h2>Simulasi Interaktif SPEA2</h2>
+          <p class="section-desc">Visualisasi real-time algoritma SPEA2 pada problem 2-objective minimization. Titik biru = populasi, titik ungu = archive (Pareto front approximation).</p>
+        </div>
+      </div>
+
+      <div class="sim-card">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">spea2_simulation.js</div>
+          <div class="sim-label" id="genDisplay">Generasi: 0</div>
+        </div>
+
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="simCanvas" width="600" height="600"></canvas>
+            </div>
+
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background: #6366f1;"></span> Populasi</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #a855f7; border-color: #7c3aed;"></span> Archive (Pareto)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #ef4444;"></span> True Pareto Front</div>
+              </div>
+
+              <div class="sim-controls">
+                <button class="btn btn-primary" id="btnStart">▶ Start</button>
+                <button class="btn" id="btnPause" disabled>⏸ Pause</button>
+                <button class="btn btn-accent" id="btnStep">⏭ Step</button>
+                <button class="btn btn-danger" id="btnReset">↻ Reset</button>
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; font-weight: 700;">
+                  Speed:
+                  <select id="speedSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 10px; font-weight: 600;">
+                    <option value="800">Lambat</option>
+                    <option value="400" selected>Normal</option>
+                    <option value="150">Cepat</option>
+                    <option value="30">Turbo</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="sim-stats">
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statGen">0</span>
+                  <span class="sim-stat-label">Generasi</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statPop">100</span>
+                  <span class="sim-stat-label">Populasi</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statArchive">0</span>
+                  <span class="sim-stat-label">Archive</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statPareto">0</span>
+                  <span class="sim-stat-label">Pareto Optimal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi utama">
+      <div class="section-head">
+        <div>
+          <h2>Referensi Utama</h2>
+          <p class="section-desc">Paper dan sumber yang menjadi fondasi algoritma SPEA2.</p>
+        </div>
+      </div>
+
+      <ul class="ref-list">
+        <li>
+          <div class="ref-authors">Zitzler, E., Laumanns, M., &amp; Thiele, L.</div>
+          <div class="ref-title">SPEA2: Improving the Strength Pareto Evolutionary Algorithm</div>
+          <div class="ref-source">TIK-Report 103, Computer Engineering and Networks Laboratory (TIK), ETH Zurich, 2001.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank">https://doi.org/10.3929/ethz-a-004284029</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Zitzler, E., &amp; Thiele, L.</div>
+          <div class="ref-title">Multiobjective evolutionary algorithms: A comparative case study and the strength Pareto approach</div>
+          <div class="ref-source">IEEE Transactions on Evolutionary Computation, 3(4), 257–271, 1999.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1109/TEVC.1999.781198" target="_blank">https://doi.org/10.1109/TEVC.1999.781198</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Zitzler, E., &amp; Thiele, L.</div>
+          <div class="ref-title">An evolutionary algorithm for multiobjective optimization: The strength Pareto approach</div>
+          <div class="ref-source">TIK-Report 43, Computer Engineering and Networks Laboratory (TIK), ETH Zurich, 1998.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.3929/ethz-a-001985436" target="_blank">https://doi.org/10.3929/ethz-a-001985436</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Deb, K.</div>
+          <div class="ref-title">Multi-Objective Optimization Using Evolutionary Algorithms</div>
+          <div class="ref-source">John Wiley &amp; Sons, 2001. ISBN: 978-0-471-87339-6</div>
+          <div class="ref-doi"><a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Coello Coello, C. A., Van Veldhuizen, D. A., &amp; Lamont, G. B.</div>
+          <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
+          <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>SPEA2 Interactive Guide</strong> — Bagian dari repositori disertasi Ariadie Chandra Nugraha<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-spea2");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-spea2", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Dropdown toggle (click/tap)
+    document.querySelectorAll(".dropdown").forEach(function(dd) {
+      var btn = dd.querySelector(".dd-btn");
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", function() {
+      document.querySelectorAll(".dropdown.show").forEach(function(dd) {
+        dd.classList.remove("show");
+      });
+    });
+
+    // --- SPEA2 Simulation ---
+    const canvas = document.getElementById("simCanvas");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const pad = 50;
+
+    // True Pareto front for ZDT1-like problem
+    // We'll simulate a 2-objective minimization problem
+    // f1 in [0,1], f2 = 1 - sqrt(f1) + noise (ZDT1-like)
+
+    function truePareto() {
+      const pts = [];
+      for (let x = 0.01; x <= 1; x += 0.01) {
+        pts.push({ f1: x, f2: 1 - Math.sqrt(x) });
+      }
+      return pts;
+    }
+
+    const POP_SIZE = 100;
+    const ARCHIVE_SIZE = 50;
+    const MAX_GEN = 200;
+
+    let population = [];
+    let archive = [];
+    let generation = 0;
+    let running = false;
+    let timer = null;
+
+    // Problem: ZDT1-like minimization
+    // f1(x) = x1, f2(x) = g(x) * (1 - sqrt(x1/g(x))), g(x) = 1 + 9/(n-1) * sum(xi)
+    // For simplicity, we use 2 variables
+    function evaluate(x) {
+      const f1 = x[0];
+      const g = 1 + 9 * x[1];
+      const f2 = g * (1 - Math.sqrt(f1 / g));
+      // Scale to nice display range
+      return { f1, f2 };
+    }
+
+    function randomInd() {
+      return { x: [Math.random(), Math.random()], f1: 0, f2: 0 };
+    }
+
+    function evalInd(ind) {
+      const r = evaluate(ind.x);
+      ind.f1 = r.f1;
+      ind.f2 = r.f2;
+    }
+
+    function dominates(a, b) {
+      return a.f1 <= b.f1 && a.f2 <= b.f2 && (a.f1 < b.f1 || a.f2 < b.f2);
+    }
+
+    function spea2Fitness(pop, arch) {
+      const combined = pop.concat(arch);
+      const n = combined.length;
+      // Strength S[i] = number of individuals dominated by i
+      const S = new Array(n).fill(0);
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i !== j && dominates(combined[i], combined[j])) S[i]++;
+        }
+      }
+      // Raw fitness R[i] = sum of strengths of dominators
+      const R = new Array(n).fill(0);
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i !== j && dominates(combined[j], combined[i])) R[i] += S[j];
+        }
+      }
+      // Density D[i] = 1 / (sigma_i^k + 2)
+      const k = Math.floor(Math.sqrt(n));
+      const dist = new Array(n);
+      for (let i = 0; i < n; i++) {
+        dist[i] = [];
+        for (let j = 0; j < n; j++) {
+          if (i === j) continue;
+          const d = Math.hypot(combined[i].f1 - combined[j].f1, combined[i].f2 - combined[j].f2);
+          dist[i].push(d);
+        }
+        dist[i].sort((a, b) => a - b);
+      }
+      const D = new Array(n);
+      for (let i = 0; i < n; i++) {
+        const sigma = dist[i][Math.min(k, dist[i].length - 1)] || 0;
+        D[i] = 1 / (sigma + 2);
+      }
+      // Final fitness F[i] = R[i] + D[i]
+      const F = new Array(n);
+      for (let i = 0; i < n; i++) F[i] = { idx: i, fitness: R[i] + D[i], ind: combined[i] };
+      return F;
+    }
+
+    function environmentalSelection(pop, arch) {
+      const F = spea2Fitness(pop, arch);
+      // Nondominated: fitness < 1 (raw fitness = 0 means nondominated)
+      // Actually in SPEA2, nondominated if R(i) = 0
+      const combined = pop.concat(arch);
+      // Recompute raw fitness only
+      const n = combined.length;
+      const S = new Array(n).fill(0);
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i !== j && dominates(combined[i], combined[j])) S[i]++;
+        }
+      }
+      const R = new Array(n).fill(0);
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i !== j && dominates(combined[j], combined[i])) R[i] += S[j];
+        }
+      }
+      // Nondominated: R[i] === 0
+      const nondominated = [];
+      for (let i = 0; i < n; i++) {
+        if (R[i] === 0) nondominated.push({ ind: combined[i], idx: i, R: R[i] });
+      }
+      // Fill archive
+      let newArch = nondominated.map(x => x.ind);
+      if (newArch.length === ARCHIVE_SIZE) return newArch;
+      if (newArch.length < ARCHIVE_SIZE) {
+        // Fill with best dominated
+        const dominated = [];
+        for (let i = 0; i < n; i++) {
+          if (R[i] > 0) dominated.push({ ind: combined[i], fitness: F[i].fitness, idx: i });
+        }
+        dominated.sort((a, b) => a.fitness - b.fitness);
+        for (const d of dominated) {
+          if (newArch.length >= ARCHIVE_SIZE) break;
+          newArch.push(d.ind);
+        }
+        return newArch;
+      }
+      // Truncation: remove closest neighbors iteratively
+      while (newArch.length > ARCHIVE_SIZE) {
+        let minDist = Infinity;
+        let toRemove = -1;
+        for (let i = 0; i < newArch.length; i++) {
+          let minD = Infinity;
+          for (let j = 0; j < newArch.length; j++) {
+            if (i === j) continue;
+            const d = Math.hypot(newArch[i].f1 - newArch[j].f1, newArch[i].f2 - newArch[j].f2);
+            if (d < minD) minD = d;
+          }
+          if (minD < minDist) {
+            minDist = minD;
+            toRemove = i;
+          }
+        }
+        if (toRemove >= 0) newArch.splice(toRemove, 1);
+        else break;
+      }
+      return newArch;
+    }
+
+    function crossover(a, b) {
+      const n = a.x.length;
+      const c1 = [], c2 = [];
+      for (let i = 0; i < n; i++) {
+        if (Math.random() < 0.5) {
+          c1.push(a.x[i]);
+          c2.push(b.x[i]);
+        } else {
+          c1.push(b.x[i]);
+          c2.push(a.x[i]);
+        }
+      }
+      return [{ x: c1 }, { x: c2 }];
+    }
+
+    function mutate(ind, rate) {
+      const n = ind.x.length;
+      for (let i = 0; i < n; i++) {
+        if (Math.random() < rate) {
+          ind.x[i] = Math.max(0, Math.min(1, ind.x[i] + (Math.random() - 0.5) * 0.2));
+        }
+      }
+    }
+
+    function initPopulation() {
+      population = [];
+      for (let i = 0; i < POP_SIZE; i++) {
+        const ind = randomInd();
+        evalInd(ind);
+        population.push(ind);
+      }
+      archive = [];
+      generation = 0;
+    }
+
+    function stepGeneration() {
+      if (generation >= MAX_GEN) {
+        if (running) stopSim();
+        return;
+      }
+      // Environmental selection
+      archive = environmentalSelection(population, archive);
+      // Mating + variation
+      const newPop = [];
+      while (newPop.length < POP_SIZE) {
+        // Tournament selection from archive
+        const a1 = archive[Math.floor(Math.random() * archive.length)];
+        const a2 = archive[Math.floor(Math.random() * archive.length)];
+        const b1 = archive[Math.floor(Math.random() * archive.length)];
+        const b2 = archive[Math.floor(Math.random() * archive.length)];
+        const p1 = a1.f1 + a1.f2 < a2.f1 + a2.f2 ? a1 : a2;
+        const p2 = b1.f1 + b1.f2 < b2.f1 + b2.f2 ? b1 : b2;
+        const children = crossover(p1, p2);
+        for (const c of children) {
+          mutate(c, 0.1);
+          evalInd(c);
+          newPop.push(c);
+          if (newPop.length >= POP_SIZE) break;
+        }
+      }
+      population = newPop;
+      generation++;
+      draw();
+      updateStats();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Background
+      ctx.fillStyle = colorMix("--bg-soft", "0.5");
+      ctx.fillRect(0, 0, W, H);
+
+      // Axes
+      const xScale = W - 2 * pad;
+      const yScale = H - 2 * pad;
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--line").trim();
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad); ctx.lineTo(W - pad, H - pad);
+      ctx.stroke();
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      ctx.font = "13px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("f₁ →", W / 2, H - 8);
+      ctx.save();
+      ctx.translate(14, H / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("f₂ →", 0, 0);
+      ctx.restore();
+
+      function toCanvas(f1, f2) {
+        return [pad + f1 * xScale, H - pad - f2 * yScale];
+      }
+
+      // True Pareto front
+      const truePts = truePareto();
+      ctx.beginPath();
+      for (let i = 0; i < truePts.length; i++) {
+        const [px, py] = toCanvas(truePts[i].f1, truePts[i].f2);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = "#ef4444";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Population
+      for (const ind of population) {
+        const [px, py] = toCanvas(ind.f1, ind.f2);
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(99, 102, 241, 0.6)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(99, 102, 241, 0.9)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // Archive (Pareto front approximation)
+      for (const ind of archive) {
+        const [px, py] = toCanvas(ind.f1, ind.f2);
+        ctx.beginPath();
+        ctx.arc(px, py, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(168, 85, 247, 0.7)";
+        ctx.fill();
+        ctx.strokeStyle = "#7c3aed";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Labels
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted").trim();
+      ctx.font = "11px Inter, sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("0", pad - 8, H - pad + 18);
+      ctx.textAlign = "right";
+      ctx.fillText("1", pad - 8, pad + 4);
+      ctx.textAlign = "center";
+      ctx.fillText("1", W - pad + 2, H - pad + 18);
+
+      // Axis ticks
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted").trim();
+      ctx.font = "10px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("0", pad, H - pad + 18);
+      ctx.fillText("0.5", pad + xScale * 0.5, H - pad + 18);
+      ctx.fillText("1", W - pad, H - pad + 18);
+      ctx.textAlign = "right";
+      ctx.fillText("0", pad - 10, H - pad + 4);
+      ctx.fillText("0.5", pad - 10, pad + yScale * 0.5 + 4);
+      ctx.fillText("1", pad - 10, pad + 4);
+    }
+
+    function colorMix(varName, opacity) {
+      // Simple fallback
+      return getComputedStyle(root).getPropertyValue(varName).trim();
+    }
+
+    function updateStats() {
+      document.getElementById("statGen").textContent = generation;
+      document.getElementById("statPop").textContent = population.length;
+      document.getElementById("statArchive").textContent = archive.length;
+      // Count true Pareto-optimal among archive
+      let paretoCount = 0;
+      const truePts = truePareto();
+      for (const a of archive) {
+        let isPareto = true;
+        for (const t of truePts) {
+          if (t.f1 <= a.f1 && t.f2 <= a.f2 && (t.f1 < a.f1 || t.f2 < a.f2)) {
+            isPareto = false;
+            break;
+          }
+        }
+        if (isPareto) paretoCount++;
+      }
+      document.getElementById("statPareto").textContent = paretoCount;
+      document.getElementById("genDisplay").textContent = "Generasi: " + generation;
+    }
+
+    // Controls
+    function startSim() {
+      if (generation >= MAX_GEN) { resetSim(); }
+      running = true;
+      document.getElementById("btnStart").disabled = true;
+      document.getElementById("btnPause").disabled = false;
+      const speed = parseInt(document.getElementById("speedSelect").value);
+      timer = setInterval(() => {
+        stepGeneration();
+        if (generation >= MAX_GEN) stopSim();
+      }, speed);
+    }
+
+    function stopSim() {
+      running = false;
+      if (timer) { clearInterval(timer); timer = null; }
+      document.getElementById("btnStart").disabled = false;
+      document.getElementById("btnPause").disabled = true;
+    }
+
+    function pauseSim() {
+      stopSim();
+    }
+
+    function stepOne() {
+      if (generation >= MAX_GEN) return;
+      stepGeneration();
+    }
+
+    function resetSim() {
+      stopSim();
+      initPopulation();
+      draw();
+      updateStats();
+    }
+
+    function updateSpeed() {
+      if (running) {
+        stopSim();
+        startSim();
+      }
+    }
+
+    // Event listeners
+    document.getElementById("btnStart").addEventListener("click", startSim);
+    document.getElementById("btnPause").addEventListener("click", pauseSim);
+    document.getElementById("btnStep").addEventListener("click", stepOne);
+    document.getElementById("btnReset").addEventListener("click", resetSim);
+    document.getElementById("speedSelect").addEventListener("change", updateSpeed);
+
+    // Init
+    initPopulation();
+    draw();
+    updateStats();
+  </script>
+
+</body>
+</html>

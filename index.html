@@ -509,59 +509,6 @@
       font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
     }
 
-    .preview-card {
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-xl);
-      background: var(--card);
-      box-shadow: var(--shadow);
-    }
-
-    .preview-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-      background: color-mix(in srgb, var(--card-solid) 64%, transparent);
-    }
-
-    .traffic {
-      display: flex;
-      gap: 7px;
-      align-items: center;
-    }
-
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      display: inline-block;
-      background: var(--line);
-    }
-
-    .dot:nth-child(1) { background: #ef4444; }
-    .dot:nth-child(2) { background: #f59e0b; }
-    .dot:nth-child(3) { background: #22c55e; }
-
-    .preview-label {
-      color: var(--muted);
-      font-size: 0.88rem;
-      font-weight: 750;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    iframe {
-      width: 100%;
-      height: 720px;
-      border: 0;
-      background: white;
-      display: block;
-    }
-
     .footer {
       padding: 44px 0 54px;
       color: var(--muted-2);
@@ -598,10 +545,6 @@
         align-items: start;
         flex-direction: column;
       }
-
-      iframe {
-        height: 620px;
-      }
     }
 
     @media (max-width: 680px) {
@@ -628,14 +571,10 @@
       .btn {
         width: 100%;
       }
-
-      iframe {
-        height: 560px;
-      }
     }
 
     @media print {
-      .nav, .hero-actions, .preview-card, .footer {
+      .nav, .hero-actions, .footer {
         display: none !important;
       }
 
@@ -653,8 +592,7 @@
       .hero-card,
       .profile-card,
       .feature-card,
-      .info-card,
-      .code-box {
+      .info-card {
         box-shadow: none;
         break-inside: avoid;
         margin-bottom: 14px;
@@ -666,7 +604,7 @@
 <body>
   <nav class="nav" aria-label="Navigasi utama">
     <div class="nav-inner">
-      <a class="brand" href="./" aria-label="Beranda referensi disertasi">
+      <a class="brand" href="./index.html" aria-label="Beranda referensi disertasi">
         <div class="brand-mark">ACN</div>
         <div class="brand-text">
           <span class="brand-title">Referensi Disertasi</span>
@@ -690,14 +628,13 @@
 
           <div class="hero-actions">
             <a class="btn btn-primary" href="./referensi_ariadie.html">📖 Buka Daftar Referensi</a>
-            <a class="btn" href="#preview">👁️ Lihat Preview</a>
-            <a class="btn" href="#unggah">🚀 Cara Unggah</a>
+            <a class="btn" href="./nsga2.html">🧬 NSGA-II</a>
+            <a class="btn" href="./nsga3.html">🧬 NSGA-III</a>
+            <a class="btn" href="./spea2.html">🧬 SPEA2</a>
+            <a class="btn" href="./moea-moga.html">🧬 MOEA/MOGA</a>
+            <a class="btn" href="./convex-opt.html">📐 Convex Opt</a>
+            <a class="btn" href="./moo.html">🎯 MOO</a>
           </div>
-
-          <p class="mini-note">
-            Simpan file ini sebagai <strong>index.html</strong> dan letakkan satu folder dengan
-            <strong>referensi_ariadie.html</strong> pada repository GitHub Pages.
-          </p>
 
           <div class="stats" aria-label="Statistik ringkas">
             <div class="stat">
@@ -774,30 +711,7 @@
     </section>
 
    
-    <section class="section" id="preview" aria-label="Preview daftar referensi">
-      <div class="section-head">
-        <div>
-          <h2>Preview Daftar Referensi</h2>
-          <p class="section-desc">
-            Preview berikut akan tampil jika <strong>referensi_ariadie.html</strong> berada di folder yang sama dengan <strong>index.html</strong>.
-          </p>
-        </div>
-        <a class="btn btn-primary" href="./referensi_ariadie.html">Buka Full Page</a>
-      </div>
 
-      <div class="preview-card">
-        <div class="preview-topbar">
-          <div class="traffic" aria-hidden="true">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-          <div class="preview-label">./referensi_ariadie.html</div>
-          <a class="btn" href="./referensi_ariadie.html">Buka</a>
-        </div>
-        <iframe src="./referensi_ariadie.html" title="Preview daftar referensi disertasi"></iframe>
-      </div>
-    </section>
   </main>
 
   <footer class="footer">

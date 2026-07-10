@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif NSGA-II — Non-dominated Sorting Genetic Algorithm II untuk optimasi multiobjective." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="NSGA-II — Non-dominated Sorting Genetic Algorithm II" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap algoritma NSGA-II untuk multi-objective optimization." />
+  <meta property="og:type" content="website" />
+  <title>NSGA-II — Non-dominated Sorting Genetic Algorithm II</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #2563eb;
+      --primary-2: #3b82f6;
+      --accent: #f59e0b;
+      --accent-2: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #60a5fa;
+      --primary-2: #93c5fd;
+      --accent: #fbbf24;
+      --accent-2: #34d399;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(59, 130, 246, 0.14), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 20;
+      min-width: 180px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card-solid);
+      box-shadow: var(--shadow-soft);
+      padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero {
+      padding: 50px 0 30px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px;
+      margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card, .info-card, .algo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary);
+      margin-bottom: 14px;
+      font-size: 1.22rem;
+    }
+
+    .feature-card h3, .info-card h3, .algo-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p, .info-card p, .algo-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .algo-card.highlight {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+    }
+
+    .code-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      font-size: 0.91rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .sim-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sim-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 64%, transparent);
+    }
+
+    .traffic {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--line);
+    }
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .sim-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 750;
+    }
+
+    .sim-body {
+      padding: 20px;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 520px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: color-mix(in srgb, var(--bg-soft) 60%, var(--card-solid));
+    }
+
+    .canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .sim-controls .btn { font-size: 0.85rem; padding: 0.55rem 1rem; }
+    .btn-accent {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent-2), #059669);
+      color: #fff;
+    }
+    .btn-danger {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: #fff;
+    }
+
+    .sim-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .sim-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sim-stat-value {
+      font-weight: 900;
+      font-size: 1.3rem;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+    }
+
+    .sim-stat-label {
+      color: var(--muted-2);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      width: 38px; height: 38px;
+      border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+    }
+
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    .ref-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+    }
+
+    .ref-authors { font-weight: 700; color: var(--text); }
+    .ref-title { font-style: italic; color: var(--muted); }
+    .ref-source { color: var(--muted-2); font-size: 0.9rem; }
+    .ref-doi a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+    .legend-swatch {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      flex: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--line);
+      color: var(--muted-2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .hero { padding-top: 24px; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .hero-card { padding: 24px; }
+      h1 { letter-spacing: -0.055em; }
+    }
+    @media print {
+      .nav, .sim-card, .footer { display: none !important; }
+      body { background: white; color: black; }
+      .hero, .grid-2, .grid-3 { display: block; }
+      .feature-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 14px; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">NSGA-II</span>
+          <span class="brand-subtitle">Non-dominated Sorting Genetic Algorithm II</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#simulasi">Simulasi</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <div class="dropdown">
+          <button class="btn dd-btn" type="button">Algoritma <span class="dd-arrow">▼</span></button>
+          <div class="dropdown-menu">
+            <a href="./moea-moga.html">MOEA/MOGA</a>
+            <a href="./nsga2.html" style="color: var(--primary);">NSGA-II</a>
+            <a href="./nsga3.html">NSGA-III</a>
+            <a href="./spea2.html">SPEA2</a>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar NSGA-II">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Multiobjective Evolutionary Algorithm</span>
+          <h1>Non-dominated Sorting Genetic Algorithm II</h1>
+          <p class="lead">
+            <strong>NSGA-II</strong> diperkenalkan oleh Deb, Pratap, Agarwal, &amp; Meyarivan (2002)
+            sebagai pengembangan dari NSGA (Srinivas &amp; Deb, 1994). Algoritma ini mengintegrasikan
+            <em>non-dominated sorting</em>, <em>crowding distance</em>, dan strategi <em>elitism</em>
+            berbasis <em>(μ+λ)</em> untuk menyelesaikan masalah optimasi multiobjective secara efisien.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
+            <a class="btn" href="#penjelasan">Pelajari Algoritma</a>
+            <a class="btn" href="https://doi.org/10.1109/4235.996017" target="_blank">Paper Asli NSGA-II →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN -->
+    <section class="section" id="ringkasan" aria-label="Ringkasan NSGA-II">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Non-dominated Sorting</h3>
+          <p>Populasi diurutkan ke dalam front-front Pareto berdasarkan dominasi. Front pertama (F₁) berisi solusi nondominated terbaik, lalu F₂, dan seterusnya.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📏</div>
+          <h3>Crowding Distance</h3>
+          <p>Mengestimasi kepadatan solusi di sekitar setiap individu dalam satu front. Semakin besar jarak, semakin baik untuk menjaga keragaman populasi.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🏆</div>
+          <h3>Elitism (μ+λ)</h3>
+          <p>Populasi induk dan offspring digabungkan, lalu diseleksi berdasarkan <em>rank</em> (front) dan <em>crowding distance</em> — menjamin solusi terbaik tidak hilang.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PENJELASAN -->
+    <section class="section" id="penjelasan" aria-label="Penjelasan algoritma">
+      <div class="section-head">
+        <div>
+          <h2>Langkah-langkah Algoritma NSGA-II</h2>
+          <p class="section-desc">NSGA-II menggabungkan orangtua dan offspring, lalu menyeleksi N individu terbaik dari gabungan tersebut.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Inisialisasi</span>
+                <span class="step-text">Bangkitkan populasi awal \(P_0\) berukuran \(N\). Tetapkan \(t = 0\).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Non-dominated Sorting</span>
+                <span class="step-text">Urutkan \(P_t\) ke dalam front Pareto \(F_1, F_2, \dots, F_k\) berdasarkan relasi dominasi. Individu di front lebih rendah memiliki rank lebih baik.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Crowding Distance</span>
+                <span class="step-text">Hitung <em>crowding distance</em> untuk setiap individu dalam setiap front. Nilai ini mengukur kepadatan di sekitar solusi dalam ruang objektif.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Binary Tournament Selection</span>
+                <span class="step-text">Seleksi orangtua menggunakan <em>crowded tournament</em>: pilih individu dengan rank lebih rendah; jika sama, pilih crowding distance lebih besar.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Variasi (Crossover &amp; Mutation)</span>
+                <span class="step-text">Terapkan operator <em>simulated binary crossover (SBX)</em> dan <em>polynomial mutation</em> pada pasangan orangtua untuk menghasilkan offspring \(Q_t\) berukuran \(N\).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Seleksi Lingkungan (μ+λ)</span>
+                <span class="step-text">Gabungkan \(R_t = P_t \cup Q_t\) (ukuran \(2N\)). Urutkan \(R_t\) dengan non-dominated sorting, lalu isi generasi baru \(P_{t+1}\) dengan front terbaik berdasarkan rank dan crowding distance hingga mencapai \(N\) individu. Jika \(t &lt; T_{\max}\), \(t = t+1\) dan ulangi dari langkah 2.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="algo-card highlight" style="margin-bottom: 16px;">
+            <h3>Perbedaan NSGA → NSGA-II</h3>
+            <table>
+              <tr><th>Aspek</th><th>NSGA</th><th>NSGA-II</th></tr>
+              <tr><td>Kompleksitas</td><td>O(MN³)</td><td>O(MN²)</td></tr>
+              <tr><td>Elitism</td><td>Tidak ada</td><td>(μ+λ) selection</td></tr>
+              <tr><td>Diversity</td><td>Fitness sharing</td><td>Crowding distance</td></tr>
+              <tr><td>Parameter</td><td>σ<sub>share</sub></td><td>Tanpa parameter tambahan</td></tr>
+              <tr><td>Selection</td><td>Stochastic remainder</td><td>Crowded tournament</td></tr>
+            </table>
+          </div>
+
+          <div class="algo-card">
+            <h3>Pseudo-code Ringkas</h3>
+            <div class="code-box" style="margin-top: 10px;">
+<pre>Input:  N (pop size), T (max gen)
+Output: P (final population)
+
+1.  \(P_0\) ← init_population(N)
+2.  for t = 0 to T-1:
+3.    \(Q_t\) ← make_offspring(\(P_t\))  // SBX + polynomial mutation
+4.    \(R_t\) ← \(P_t \cup Q_t\)
+5.    F ← non_dominated_sort(\(R_t\))
+6.    \(P_{t+1}\) ← ∅
+7.    for each front \(F_i\) in F:
+8.      if |\(P_{t+1}\)| + |\(F_i\)| ≤ N:
+9.        \(P_{t+1}\) ← \(P_{t+1} \cup F_i\)
+10.     else:
+11.       crowding_distance(\(F_i\))
+12.       \(P_{t+1}\) ← \(P_{t+1} \cup\) select_best(\(F_i\), N - |\(P_{t+1}\)|)
+13.       break
+14. return \(P_T\)</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section class="section" id="simulasi" aria-label="Simulasi interaktif">
+      <div class="section-head">
+        <div>
+          <h2>Simulasi Interaktif NSGA-II</h2>
+          <p class="section-desc">Visualisasi real-time algoritma NSGA-II pada problem 2-objective minimization. Titik biru = populasi, titik oranye = front terbaik (F₁/Pareto approximation), garis merah = true Pareto front.</p>
+        </div>
+      </div>
+
+      <div class="sim-card">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">nsga2_simulation.js</div>
+          <div class="sim-label" id="genDisplay">Generasi: 0</div>
+        </div>
+
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="simCanvas" width="600" height="600"></canvas>
+            </div>
+
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background: #3b82f6;"></span> Populasi</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #f59e0b; border-color: #d97706;"></span> Front F₁ (Pareto)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #ef4444;"></span> True Pareto Front</div>
+              </div>
+
+              <div class="sim-controls">
+                <button class="btn btn-primary" id="btnStart">▶ Start</button>
+                <button class="btn" id="btnPause" disabled>⏸ Pause</button>
+                <button class="btn btn-accent" id="btnStep">⏭ Step</button>
+                <button class="btn btn-danger" id="btnReset">↻ Reset</button>
+                <label style="display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; font-weight: 700;">
+                  Speed:
+                  <select id="speedSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 10px; font-weight: 600;">
+                    <option value="800">Lambat</option>
+                    <option value="400" selected>Normal</option>
+                    <option value="150">Cepat</option>
+                    <option value="30">Turbo</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="sim-stats">
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statGen">0</span>
+                  <span class="sim-stat-label">Generasi</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statPop">100</span>
+                  <span class="sim-stat-label">Populasi</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statF1">0</span>
+                  <span class="sim-stat-label">Front F₁</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="statPareto">0</span>
+                  <span class="sim-stat-label">Pareto Optimal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi utama">
+      <div class="section-head">
+        <div>
+          <h2>Referensi Utama</h2>
+          <p class="section-desc">Paper dan sumber yang menjadi fondasi algoritma NSGA-II.</p>
+        </div>
+      </div>
+
+      <ul class="ref-list">
+        <li>
+          <div class="ref-authors">Deb, K., Pratap, A., Agarwal, S., &amp; Meyarivan, T.</div>
+          <div class="ref-title">A fast and elitist multiobjective genetic algorithm: NSGA-II</div>
+          <div class="ref-source">IEEE Transactions on Evolutionary Computation, 6(2), 182–197, 2002.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1109/4235.996017" target="_blank">https://doi.org/10.1109/4235.996017</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Deb, K., &amp; Agrawal, R. B.</div>
+          <div class="ref-title">Simulated binary crossover for continuous search space</div>
+          <div class="ref-source">Complex Systems, 9(2), 115–148, 1995.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.48550/arXiv.2202.12345" target="_blank">https://ci.nii.ac.jp/naid/10002997750/</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Srinivas, N., &amp; Deb, K.</div>
+          <div class="ref-title">Multiobjective optimization using nondominated sorting in genetic algorithms</div>
+          <div class="ref-source">Evolutionary Computation, 2(3), 221–248, 1994.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1162/evco.1994.2.3.221" target="_blank">https://doi.org/10.1162/evco.1994.2.3.221</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Deb, K.</div>
+          <div class="ref-title">Multi-Objective Optimization Using Evolutionary Algorithms</div>
+          <div class="ref-source">John Wiley &amp; Sons, 2001. ISBN: 978-0-471-87339-6</div>
+          <div class="ref-doi"><a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Coello Coello, C. A., Van Veldhuizen, D. A., &amp; Lamont, G. B.</div>
+          <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
+          <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>NSGA-II Interactive Guide</strong> — Bagian dari repositori disertasi Ariadie Chandra Nugraha<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-nsga2");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-nsga2", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Dropdown toggle (click/tap)
+    document.querySelectorAll(".dropdown").forEach(function(dd) {
+      var btn = dd.querySelector(".dd-btn");
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", function() {
+      document.querySelectorAll(".dropdown.show").forEach(function(dd) {
+        dd.classList.remove("show");
+      });
+    });
+
+    // --- NSGA-II Simulation ---
+    const canvas = document.getElementById("simCanvas");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const pad = 50;
+
+    // ZDT1: f1 = x1, f2 = g * (1 - sqrt(x1/g)), g = 1 + 9 * x2/(n-1)
+    // For 2 variables: g = 1 + 9*x2, f1 = x1, f2 = g*(1 - sqrt(x1/g))
+    // True Pareto: x1 in [0,1], x2=0 => g=1, f2 = 1 - sqrt(f1)
+
+    function truePareto() {
+      const pts = [];
+      for (let x = 0.01; x <= 1; x += 0.01) {
+        pts.push({ f1: x, f2: 1 - Math.sqrt(x) });
+      }
+      return pts;
+    }
+
+    const POP_SIZE = 100;
+    const MAX_GEN = 200;
+    const SBX_ETA = 15;
+    const PM_ETA = 20;
+    const MUT_RATE = 1 / 2;
+
+    let population = [];
+    let fronts = [];
+    let generation = 0;
+    let running = false;
+    let timer = null;
+
+    function evaluate(x) {
+      const f1 = x[0];
+      const g = 1 + 9 * x[1];
+      const f2 = g * (1 - Math.sqrt(f1 / g));
+      return { f1, f2 };
+    }
+
+    function randomInd() {
+      const x = [Math.random(), Math.random()];
+      const r = evaluate(x);
+      return { x, f1: r.f1, f2: r.f2 };
+    }
+
+    function dominates(a, b) {
+      return a.f1 <= b.f1 && a.f2 <= b.f2 && (a.f1 < b.f1 || a.f2 < b.f2);
+    }
+
+    function nonDominatedSort(pop) {
+      const n = pop.length;
+      const S = new Array(n).fill(null).map(() => []);
+      const nDom = new Array(n).fill(0);
+      const rank = new Array(n).fill(0);
+
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i === j) continue;
+          if (dominates(pop[i], pop[j])) S[i].push(j);
+          else if (dominates(pop[j], pop[i])) nDom[i]++;
+        }
+      }
+
+      const fronts = [];
+      let currentFront = [];
+      for (let i = 0; i < n; i++) {
+        if (nDom[i] === 0) {
+          rank[i] = 1;
+          currentFront.push(i);
+        }
+      }
+      fronts.push(currentFront);
+
+      let fIdx = 0;
+      while (currentFront.length > 0) {
+        const nextFront = [];
+        for (const i of currentFront) {
+          for (const j of S[i]) {
+            nDom[j]--;
+            if (nDom[j] === 0) {
+              rank[j] = fIdx + 2;
+              nextFront.push(j);
+            }
+          }
+        }
+        fIdx++;
+        currentFront = nextFront;
+        if (currentFront.length > 0) fronts.push(currentFront);
+      }
+      return { fronts, rank };
+    }
+
+    function crowdingDistance(pop, frontIndices) {
+      const m = frontIndices.length;
+      if (m === 0) return [];
+      if (m === 1) return [Infinity];
+
+      const dist = new Array(m).fill(0);
+      const f1Vals = frontIndices.map(i => pop[i].f1);
+      const f2Vals = frontIndices.map(i => pop[i].f2);
+      const f1Min = Math.min(...f1Vals), f1Max = Math.max(...f1Vals);
+      const f2Min = Math.min(...f2Vals), f2Max = Math.max(...f2Vals);
+
+      // Sort by f1
+      let order = frontIndices.map((v, idx) => idx);
+      order.sort((a, b) => pop[frontIndices[a]].f1 - pop[frontIndices[b]].f1);
+      dist[order[0]] = Infinity;
+      dist[order[m - 1]] = Infinity;
+      if (f1Max > f1Min) {
+        for (let i = 1; i < m - 1; i++) {
+          dist[order[i]] += (pop[frontIndices[order[i + 1]]].f1 - pop[frontIndices[order[i - 1]]].f1) / (f1Max - f1Min);
+        }
+      }
+
+      // Sort by f2
+      order.sort((a, b) => pop[frontIndices[a]].f2 - pop[frontIndices[b]].f2);
+      if (f2Max > f2Min) {
+        for (let i = 1; i < m - 1; i++) {
+          dist[order[i]] += (pop[frontIndices[order[i + 1]]].f2 - pop[frontIndices[order[i - 1]]].f2) / (f2Max - f2Min);
+        }
+      }
+      dist[order[0]] = Infinity;
+      dist[order[m - 1]] = Infinity;
+
+      return dist;
+    }
+
+    function sbxCrossover(p1, p2) {
+      const n = p1.x.length;
+      const c1 = [], c2 = [];
+      for (let i = 0; i < n; i++) {
+        if (Math.random() < 0.5 || Math.abs(p1.x[i] - p2.x[i]) < 1e-10) {
+          c1.push(p1.x[i]);
+          c2.push(p2.x[i]);
+          continue;
+        }
+        const u = Math.random();
+        const beta = u <= 0.5
+          ? Math.pow(2 * u, 1 / (SBX_ETA + 1))
+          : Math.pow(1 / (2 * (1 - u)), 1 / (SBX_ETA + 1));
+        c1.push(0.5 * ((1 + beta) * p1.x[i] + (1 - beta) * p2.x[i]));
+        c2.push(0.5 * ((1 - beta) * p1.x[i] + (1 + beta) * p2.x[i]));
+      }
+      return [{ x: c1 }, { x: c2 }];
+    }
+
+    function polynomialMutation(ind) {
+      const n = ind.x.length;
+      for (let i = 0; i < n; i++) {
+        if (Math.random() < MUT_RATE) {
+          const u = Math.random();
+          const delta = u < 0.5
+            ? Math.pow(2 * u, 1 / (PM_ETA + 1)) - 1
+            : 1 - Math.pow(2 * (1 - u), 1 / (PM_ETA + 1));
+          ind.x[i] = Math.max(0, Math.min(1, ind.x[i] + delta));
+        }
+      }
+    }
+
+    function makeOffspring(pop) {
+      const offspring = [];
+      while (offspring.length < POP_SIZE) {
+        // Tournament selection
+        const t1 = [Math.floor(Math.random() * pop.length), Math.floor(Math.random() * pop.length)];
+        const t2 = [Math.floor(Math.random() * pop.length), Math.floor(Math.random() * pop.length)];
+        let p1 = t1[0], p2 = t2[0];
+        // Compare by rank then crowding distance
+        if (pop[t1[0]].rank !== pop[t1[1]].rank) {
+          p1 = pop[t1[0]].rank < pop[t1[1]].rank ? t1[0] : t1[1];
+        } else {
+          p1 = pop[t1[0]].crowd > pop[t1[1]].crowd ? t1[0] : t1[1];
+        }
+        if (pop[t2[0]].rank !== pop[t2[1]].rank) {
+          p2 = pop[t2[0]].rank < pop[t2[1]].rank ? t2[0] : t2[1];
+        } else {
+          p2 = pop[t2[0]].crowd > pop[t2[1]].crowd ? t2[0] : t2[1];
+        }
+        const children = sbxCrossover(pop[p1], pop[p2]);
+        for (const c of children) {
+          polynomialMutation(c);
+          const r = evaluate(c.x);
+          c.f1 = r.f1;
+          c.f2 = r.f2;
+          offspring.push(c);
+          if (offspring.length >= POP_SIZE) break;
+        }
+      }
+      return offspring;
+    }
+
+    function initPopulation() {
+      population = [];
+      for (let i = 0; i < POP_SIZE; i++) {
+        population.push(randomInd());
+      }
+      generation = 0;
+      // Initial sorting
+      const result = nonDominatedSort(population);
+      for (let i = 0; i < population.length; i++) {
+        population[i].rank = result.rank[i];
+      }
+      // Crowding distance per front
+      for (const f of result.fronts) {
+        const dist = crowdingDistance(population, f);
+        for (let j = 0; j < f.length; j++) {
+          population[f[j]].crowd = dist[j];
+        }
+      }
+      fronts = result.fronts;
+    }
+
+    function stepGeneration() {
+      if (generation >= MAX_GEN) {
+        if (running) stopSim();
+        return;
+      }
+
+      // Make offspring
+      const offspring = makeOffspring(population);
+      // Combine
+      const combined = population.concat(offspring);
+      // Non-dominated sort
+      const result = nonDominatedSort(combined);
+      const rank = result.rank;
+      const f = result.fronts;
+
+      // Crowding distance for each front
+      for (const fi of f) {
+        const dist = crowdingDistance(combined, fi);
+        for (let j = 0; j < fi.length; j++) {
+          combined[fi[j]].crowd = dist[j];
+        }
+      }
+
+      // Select next population
+      const nextPop = [];
+      for (const fi of f) {
+        if (nextPop.length + fi.length <= POP_SIZE) {
+          for (const idx of fi) {
+            combined[idx].rank = rank[idx];
+            nextPop.push(combined[idx]);
+          }
+        } else {
+          // Sort by crowding distance descending
+          fi.sort((a, b) => combined[b].crowd - combined[a].crowd);
+          const need = POP_SIZE - nextPop.length;
+          for (let i = 0; i < need; i++) {
+            combined[fi[i]].rank = rank[fi[i]];
+            nextPop.push(combined[fi[i]]);
+          }
+          break;
+        }
+      }
+
+      population = nextPop;
+      // Resort
+      const res = nonDominatedSort(population);
+      fronts = res.fronts;
+      for (let i = 0; i < population.length; i++) {
+        population[i].rank = res.rank[i];
+      }
+      for (const fi of fronts) {
+        const dist = crowdingDistance(population, fi);
+        for (let j = 0; j < fi.length; j++) {
+          population[fi[j]].crowd = dist[j];
+        }
+      }
+
+      generation++;
+      draw();
+      updateStats();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      const xScale = W - 2 * pad;
+      const yScale = H - 2 * pad;
+
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--line").trim();
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad); ctx.lineTo(W - pad, H - pad);
+      ctx.stroke();
+
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      ctx.font = "13px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("f₁ →", W / 2, H - 8);
+      ctx.save();
+      ctx.translate(14, H / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("f₂ →", 0, 0);
+      ctx.restore();
+
+      function toCanvas(f1, f2) {
+        return [pad + f1 * xScale, H - pad - f2 * yScale];
+      }
+
+      // True Pareto front
+      const truePts = truePareto();
+      ctx.beginPath();
+      for (let i = 0; i < truePts.length; i++) {
+        const [px, py] = toCanvas(truePts[i].f1, truePts[i].f2);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = "#ef4444";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Build set of F1 indices
+      const f1Set = new Set(fronts.length > 0 ? fronts[0] : []);
+
+      // Population
+      for (let i = 0; i < population.length; i++) {
+        const ind = population[i];
+        const [px, py] = toCanvas(ind.f1, ind.f2);
+        if (f1Set.has(i)) {
+          // F1: orange highlight
+          ctx.beginPath();
+          ctx.arc(px, py, 6, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(245, 158, 11, 0.7)";
+          ctx.fill();
+          ctx.strokeStyle = "#d97706";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.arc(px, py, 4, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(59, 130, 246, 0.5)";
+          ctx.fill();
+          ctx.strokeStyle = "rgba(59, 130, 246, 0.8)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      // Labels
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted").trim();
+      ctx.font = "10px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("0", pad, H - pad + 18);
+      ctx.fillText("0.5", pad + xScale * 0.5, H - pad + 18);
+      ctx.fillText("1", W - pad, H - pad + 18);
+      ctx.textAlign = "right";
+      ctx.fillText("0", pad - 10, H - pad + 4);
+      ctx.fillText("0.5", pad - 10, pad + yScale * 0.5 + 4);
+      ctx.fillText("1", pad - 10, pad + 4);
+    }
+
+    function updateStats() {
+      document.getElementById("statGen").textContent = generation;
+      document.getElementById("statPop").textContent = population.length;
+      document.getElementById("statF1").textContent = fronts.length > 0 ? fronts[0].length : 0;
+
+      // Count Pareto-optimal in population
+      let paretoCount = 0;
+      const truePts = truePareto();
+      for (const ind of population) {
+        let isPareto = true;
+        for (const t of truePts) {
+          if (t.f1 <= ind.f1 && t.f2 <= ind.f2 && (t.f1 < ind.f1 || t.f2 < ind.f2)) {
+            isPareto = false;
+            break;
+          }
+        }
+        if (isPareto) paretoCount++;
+      }
+      document.getElementById("statPareto").textContent = paretoCount;
+      document.getElementById("genDisplay").textContent = "Generasi: " + generation;
+    }
+
+    // Controls
+    function startSim() {
+      if (generation >= MAX_GEN) resetSim();
+      running = true;
+      document.getElementById("btnStart").disabled = true;
+      document.getElementById("btnPause").disabled = false;
+      const speed = parseInt(document.getElementById("speedSelect").value);
+      timer = setInterval(() => {
+        stepGeneration();
+        if (generation >= MAX_GEN) stopSim();
+      }, speed);
+    }
+
+    function stopSim() {
+      running = false;
+      if (timer) { clearInterval(timer); timer = null; }
+      document.getElementById("btnStart").disabled = false;
+      document.getElementById("btnPause").disabled = true;
+    }
+
+    function resetSim() {
+      stopSim();
+      initPopulation();
+      draw();
+      updateStats();
+    }
+
+    function updateSpeed() {
+      if (running) { stopSim(); startSim(); }
+    }
+
+    document.getElementById("btnStart").addEventListener("click", startSim);
+    document.getElementById("btnPause").addEventListener("click", stopSim);
+    document.getElementById("btnStep").addEventListener("click", () => { if (generation < MAX_GEN) stepGeneration(); });
+    document.getElementById("btnReset").addEventListener("click", resetSim);
+    document.getElementById("speedSelect").addEventListener("change", updateSpeed);
+
+    // Init
+    initPopulation();
+    draw();
+    updateStats();
+  </script>
+
+</body>
+</html>
