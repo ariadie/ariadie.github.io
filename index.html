@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Repositori referensi disertasi Ariadie Chandra Nugraha: Perencanaan Jalur Multi-Robot dalam Lingkungan Dinamis Menggunakan Multiobjective Genetic Algorithm." />
+  <meta name="description" content="Kumpulan materi interaktif tentang Optimasi Multiobjective, Algoritma Evolusioner, Sistem Kendali, dan Uji Statistik Nonparametrik." />
   <meta name="author" content="Ariadie Chandra Nugraha" />
-  <meta property="og:title" content="Referensi Disertasi - Ariadie Chandra Nugraha" />
-  <meta property="og:description" content="Daftar referensi interaktif untuk disertasi doktor tentang perencanaan jalur multi-robot berbasis Multiobjective Genetic Algorithm." />
+  <meta property="og:title" content="Pembelajaran Interaktif — Optimasi, Kontrol &amp; Statistika" />
+  <meta property="og:description" content="Materi interaktif tentang Optimasi Multiobjective, Algoritma MOEA, Sistem Kendali, dan Uji Statistik Nonparametrik." />
   <meta property="og:type" content="website" />
-  <title>Referensi Disertasi - Ariadie Chandra Nugraha</title>
+  <title>Pembelajaran Interaktif — Optimasi, Kontrol &amp; Statistika</title>
 
   <style>
     :root {
@@ -148,6 +148,71 @@
       gap: 10px;
       flex: none;
     }
+
+    /* ─── Hamburger drawer ─── */
+    .ham-btn {
+      width: 44px; height: 44px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 750;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .ham-btn:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--primary) 46%, var(--line)); }
+
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; z-index: 210;
+      width: min(300px, 82vw); height: 100%;
+      background: var(--card-solid);
+      border-left: 1px solid var(--line);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; border-bottom: 1px solid var(--line);
+    }
+    .drawer-header strong { font-size: 1rem; letter-spacing: -0.02em; }
+    .drawer-close {
+      width: 36px; height: 36px; border: none; background: transparent;
+      cursor: pointer; font-size: 1.3rem; color: var(--muted);
+      display: grid; place-items: center; border-radius: 50%;
+    }
+    .drawer-close:hover { background: color-mix(in srgb, var(--line) 40%, transparent); }
+
+    .drawer-body { padding: 10px 0; flex: 1; }
+    .drawer-section { padding: 4px 20px 10px; }
+    .drawer-section-label {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted-2); font-weight: 800; margin-bottom: 6px;
+    }
+    .drawer-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      color: var(--text); text-decoration: none;
+      font-size: 0.9rem; font-weight: 700;
+      transition: background .15s ease;
+    }
+    .drawer-link:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
 
     .btn,
     .icon-btn {
@@ -556,9 +621,7 @@
         display: none;
       }
 
-      .nav-actions .btn {
-        display: none;
-      }
+      .drawer { width: 82vw; }
 
       .hero-card {
         padding: 24px;
@@ -604,119 +667,179 @@
 <body>
   <nav class="nav" aria-label="Navigasi utama">
     <div class="nav-inner">
-      <a class="brand" href="./index.html" aria-label="Beranda referensi disertasi">
+      <a class="brand" href="./index.html" aria-label="Beranda">
         <div class="brand-mark">ACN</div>
         <div class="brand-text">
-          <span class="brand-title">Referensi Disertasi</span>
-          <span class="brand-subtitle">Ariadie Chandra Nugraha</span>
+          <span class="brand-title">Pembelajaran Interaktif</span>
+          <span class="brand-subtitle">Optimasi · Kontrol · Statistika</span>
         </div>
       </a>
-
+      <div class="nav-actions">
+        <button class="ham-btn" id="hamBtn" aria-label="Buka menu navigasi">☰</button>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
     </div>
   </nav>
 
+  <!-- Drawer overlay + panel -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigasi halaman">
+    <div class="drawer-header">
+      <strong>Navigasi</strong>
+      <button class="drawer-close" id="drawerClose" aria-label="Tutup menu">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-section">
+        <div class="drawer-section-label">Optimasi &amp; Algoritma</div>
+        <a class="drawer-link" href="./nsga2.html">🧬 NSGA-II</a>
+        <a class="drawer-link" href="./nsga3.html">🧬 NSGA-III</a>
+        <a class="drawer-link" href="./spea2.html">🧬 SPEA2</a>
+        <a class="drawer-link" href="./moea-moga.html">🧬 MOEA/MOGA</a>
+        <a class="drawer-link" href="./convex-opt.html">📐 Convex Opt</a>
+        <a class="drawer-link" href="./moo.html">🎯 MOO</a>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-label">Statistika</div>
+        <a class="drawer-link" href="./stat-tests.html">📊 Uji Statistik</a>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-label">Materi Ajar</div>
+        <a class="drawer-link" href="./acn101.html">📖 ACN101 (S1)</a>
+        <a class="drawer-link" href="./acn102.html">📖 ACN102 (S2)</a>
+        <a class="drawer-link" href="./acn103.html">📖 ACN103 (S3)</a>
+      </div>
+    </div>
+  </aside>
+
   <main class="page">
-    <section class="hero" aria-label="Ringkasan halaman">
+    <section class="hero" aria-label="Pembuka">
       <div class="hero-card">
         <div class="hero-content">
-          <span class="eyebrow">Repositori Digital Disertasi</span>
-          <h1>Daftar Referensi Interaktif</h1>
+          <span class="eyebrow">Pembelajaran Interaktif</span>
+          <h1>Materi Optimasi, Kontrol &amp; Statistika</h1>
           <p class="lead">
-            Halaman ini menjadi pintu masuk GitHub Pages untuk daftar referensi disertasi
-            <strong>“Perencanaan Jalur Multi-Robot dalam Lingkungan Dinamis Menggunakan Multiobjective Genetic Algorithm.”</strong>
+            Kumpulan halaman interaktif yang mencakup <strong>Multiobjective Optimization</strong>,
+            <strong>Algoritma Evolusioner</strong>, <strong>Sistem Kendali</strong>, dan
+            <strong>Uji Statistik Nonparametrik</strong> — dilengkapi simulasi berbasis JavaScript.
           </p>
 
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="./referensi_ariadie.html">📖 Buka Daftar Referensi</a>
-            <a class="btn" href="./nsga2.html">🧬 NSGA-II</a>
-            <a class="btn" href="./nsga3.html">🧬 NSGA-III</a>
-            <a class="btn" href="./spea2.html">🧬 SPEA2</a>
-            <a class="btn" href="./moea-moga.html">🧬 MOEA/MOGA</a>
-            <a class="btn" href="./convex-opt.html">📐 Convex Opt</a>
-            <a class="btn" href="./moo.html">🎯 MOO</a>
-          </div>
-
-          <div class="stats" aria-label="Statistik ringkas">
+          <div class="stats" aria-label="Ringkasan konten">
             <div class="stat">
-              <span class="stat-value">90</span>
-              <span class="stat-label">Referensi</span>
+              <span class="stat-value">10</span>
+              <span class="stat-label">Topik</span>
             </div>
             <div class="stat">
-              <span class="stat-value">5+</span>
-              <span class="stat-label">Bab Disertasi</span>
+              <span class="stat-value">Simulasi</span>
+              <span class="stat-label">Interaktif JS</span>
             </div>
             <div class="stat">
-              <span class="stat-value">DOI</span>
-              <span class="stat-label">Link Aktif</span>
+              <span class="stat-value">KaTeX</span>
+              <span class="stat-label">Rumus Matematis</span>
             </div>
           </div>
         </div>
       </div>
 
-      <aside class="side-panel" aria-label="Profil dan metadata">
+      <aside class="side-panel" aria-label="Kategori">
         <div class="profile-card">
           <div class="profile-top">
             <div class="avatar">A</div>
             <div>
               <p class="profile-title">Ariadie Chandra Nugraha</p>
-              <p class="profile-meta">Program Doktor Teknik Elektro<br>Fakultas Teknik, Universitas Gadjah Mada</p>
+              <p class="profile-meta">Dosen Departemen Pendidikan Teknik Elektro<br>Universitas Negeri Yogyakarta</p>
+              <p class="profile-meta" style="font-size:0.82rem;margin-top:6px;">Program Doktor Teknik Elektro<br>Fakultas Teknik, Universitas Gadjah Mada</p>
             </div>
           </div>
 
           <div class="chips">
+            <span class="chip">🧬 Multiobjective Optimization</span>
             <span class="chip">🤖 Multi-Robot Path Planning</span>
-            <span class="chip">🧬 Multiobjective Genetic Algorithm</span>
-            <span class="chip">📍 NSGA-II + A*</span>
-            <span class="chip">📚 Bibliografi Disertasi</span>
+            <span class="chip">⚙️ Control Systems</span>
+            <span class="chip">📊 Nonparametric Statistics</span>
           </div>
         </div>
 
         <div class="info-card">
-          <h3>Tujuan Halaman</h3>
+          <h3>Tentang Halaman Ini</h3>
           <p>
-            Memudahkan penguji, pembimbing, dan pembaca menelusuri rujukan disertasi secara ringkas,
-            responsif, dan dapat diakses langsung melalui GitHub Pages.
+            Setiap topik disertai penjelasan konsep, rumus matematika (KaTeX), dan simulasi
+            interaktif untuk membantu pemahaman visual. Dibangun murni dengan HTML/CSS/JS.
           </p>
         </div>
       </aside>
     </section>
 
-    <section class="section" aria-label="Fitur">
+    <section class="section" aria-label="Topik">
       <div class="section-head">
         <div>
-          <h2>Fitur Utama</h2>
-          <p class="section-desc">Index ini dirancang sebagai halaman pembuka, sedangkan daftar referensi lengkap tetap berada di file referensi interaktif.</p>
+          <h2>Optimasi Multiobjective &amp; Algoritma Evolusioner</h2>
+          <p class="section-desc">Algoritma, teori, dan visualisasi untuk menyelesaikan masalah optimasi dengan banyak tujuan.</p>
         </div>
       </div>
 
       <div class="grid-3">
         <article class="feature-card">
-          <div class="feature-icon">🔎</div>
-          <h3>Akses Cepat</h3>
-          <p>Tombol utama langsung membuka file <strong>referensi_ariadie.html</strong> yang berisi tabel referensi lengkap.</p>
+          <div class="feature-icon">🧬</div>
+          <h3><a href="./nsga2.html" style="text-decoration:none;">NSGA-II</a></h3>
+          <p><em>Non-dominated Sorting Genetic Algorithm II</em> — algoritma MOEA paling populer dengan non-dominated sorting dan crowding distance.</p>
+          <a class="btn" href="./nsga2.html" style="margin-top:12px;">Buka →</a>
         </article>
-
         <article class="feature-card">
-          <div class="feature-icon">📱</div>
-          <h3>Responsif</h3>
-          <p>Tampilan menyesuaikan layar desktop, tablet, dan ponsel sehingga cocok untuk dibagikan melalui tautan GitHub Pages.</p>
+          <div class="feature-icon">🧬</div>
+          <h3><a href="./nsga3.html" style="text-decoration:none;">NSGA-III</a></h3>
+          <p>Penyempurnaan NSGA-II dengan referensi point-based selection untuk masalah many-objective (3+ tujuan).</p>
+          <a class="btn" href="./nsga3.html" style="margin-top:12px;">Buka →</a>
         </article>
-
         <article class="feature-card">
-          <div class="feature-icon">🌗</div>
-          <h3>Mode Gelap/Terang</h3>
-          <p>Pengunjung dapat mengganti tema tampilan. Pilihan tema disimpan di browser melalui <em>localStorage</em>.</p>
+          <div class="feature-icon">🧬</div>
+          <h3><a href="./spea2.html" style="text-decoration:none;">SPEA2</a></h3>
+          <p><em>Strength Pareto Evolutionary Algorithm 2</em> — pendekatan berbasis archive dan fine-grained fitness assignment.</p>
+          <a class="btn" href="./spea2.html" style="margin-top:12px;">Buka →</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🧬</div>
+          <h3><a href="./moea-moga.html" style="text-decoration:none;">MOEA/MOGA</a></h3>
+          <p>Keluarga algoritma Multiobjective Evolutionary Algorithm dan Multiobjective Genetic Algorithm.</p>
+          <a class="btn" href="./moea-moga.html" style="margin-top:12px;">Buka →</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📐</div>
+          <h3><a href="./convex-opt.html" style="text-decoration:none;">Convex Optimization</a></h3>
+          <p>Dasar-dasar optimasi konveks, fungsi cembung/cekung, dan aplikasinya dalam masalah optimasi.</p>
+          <a class="btn" href="./convex-opt.html" style="margin-top:12px;">Buka →</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3><a href="./moo.html" style="text-decoration:none;">Multiobjective Optimization</a></h3>
+          <p>Konsep fundamental MOO: dominasi Pareto, front Pareto, hypervolume, dan metrik evaluasi.</p>
+          <a class="btn" href="./moo.html" style="margin-top:12px;">Buka →</a>
         </article>
       </div>
     </section>
 
-   
+    <section class="section" aria-label="Uji Statistik">
+      <div class="section-head">
+        <div>
+          <h2>Uji Statistik</h2>
+          <p class="section-desc">Metode nonparametrik dan koreksi multiple comparisons.</p>
+        </div>
+      </div>
+      <article class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3><a href="./stat-tests.html" style="text-decoration:none;">Kruskal-Wallis, Mann-Whitney U &amp; Holm-Bonferroni</a></h3>
+        <p>Uji peringkat nonparametrik untuk membandingkan kelompok dan prosedur step-down untuk mengontrol FWER.</p>
+        <a class="btn" href="./stat-tests.html" style="margin-top:10px;">Buka →</a>
+      </article>
+    </section>
+
+
 
   </main>
 
   <footer class="footer">
     <div class="page">
-      <strong>Referensi Disertasi — Ariadie Chandra Nugraha</strong><br>
+      <strong>Pembelajaran Interaktif — Ariadie Chandra Nugraha</strong><br>
       Dibuat untuk publikasi pendukung di GitHub Pages • 2026
     </div>
   </footer>
@@ -724,12 +847,12 @@
   <script>
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
-    const savedTheme = localStorage.getItem("theme-index-referensi-ariadie");
+    const savedTheme = localStorage.getItem("theme-index-site");
 
     function setTheme(theme) {
       root.setAttribute("data-theme", theme);
       toggle.textContent = theme === "dark" ? "☀️" : "🌙";
-      localStorage.setItem("theme-index-referensi-ariadie", theme);
+      localStorage.setItem("theme-index-site", theme);
     }
 
     if (savedTheme) {
@@ -742,6 +865,19 @@
       const current = root.getAttribute("data-theme") || "light";
       setTheme(current === "dark" ? "light" : "dark");
     });
+
+    // Hamburger drawer
+    const hamBtn = document.getElementById("hamBtn");
+    const drawer = document.getElementById("drawer");
+    const overlay = document.getElementById("drawerOverlay");
+    const drawerClose = document.getElementById("drawerClose");
+
+    function openDrawer() { drawer.classList.add("open"); overlay.classList.add("open"); document.body.style.overflow = "hidden"; }
+    function closeDrawer() { drawer.classList.remove("open"); overlay.classList.remove("open"); document.body.style.overflow = ""; }
+
+    hamBtn.addEventListener("click", openDrawer);
+    drawerClose.addEventListener("click", closeDrawer);
+    overlay.addEventListener("click", closeDrawer);
   </script>
 </body>
 </html>
