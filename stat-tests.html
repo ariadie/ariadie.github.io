@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif uji statistik nonparametrik — Kruskal-Wallis, Mann-Whitney U, dan koreksi Holm-Bonferroni." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Uji Statistik Nonparametrik — Kruskal-Wallis, Mann-Whitney U, Holm-Bonferroni" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap uji statistik nonparametrik dan koreksi multiple comparisons." />
+  <meta property="og:type" content="website" />
+  <title>Uji Statistik Nonparametrik — Kruskal-Wallis, Mann-Whitney U, Holm-Bonferroni</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #2563eb;
+      --primary-2: #0891b2;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --max: 1180px;
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #60a5fa;
+      --primary-2: #22d3ee;
+      --accent: #34d399;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(8, 145, 178, 0.14), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto; min-height: 76px;
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px; min-width: 0; text-decoration: none;
+    }
+    .brand-mark {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white; font-weight: 900; box-shadow: var(--shadow-soft); flex: none;
+    }
+    .brand-text { display: flex; flex-direction: column; min-width: 0; }
+    .brand-title { font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand-subtitle { color: var(--muted-2); font-size: 0.86rem; margin-top: -2px; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex: none; }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card); color: var(--text);
+      border-radius: 999px; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute; top: calc(100% + 6px); right: 0;
+      z-index: 20; min-width: 180px;
+      border: 1px solid var(--line); border-radius: var(--radius-md);
+      background: var(--card-solid); box-shadow: var(--shadow-soft); padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px; border-radius: 8px; color: var(--text);
+      text-decoration: none; font-size: 0.85rem; font-weight: 700; white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff; box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+    .btn-accent {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent), #059669);
+      color: #fff; box-shadow: 0 16px 30px color-mix(in srgb, var(--accent) 24%, transparent);
+    }
+
+    .hero { padding: 50px 0 30px; text-align: center; }
+    .hero-card {
+      position: relative; overflow: hidden;
+      border: 1px solid var(--line); border-radius: var(--radius-xl);
+      background: var(--card); box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+    .hero-card::before {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 12px; border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary); font-size: 0.82rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05; letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+    .lead {
+      color: var(--muted); font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px; margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    h2 { margin: 0; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.15; letter-spacing: -0.045em; }
+    .section-desc { color: var(--muted); margin: 8px 0 0; max-width: 760px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+    .feature-card, .info-card {
+      border: 1px solid var(--line); border-radius: var(--radius-lg);
+      background: var(--card); padding: 24px; box-shadow: var(--shadow-soft);
+    }
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary); margin-bottom: 16px; font-size: 1.22rem;
+    }
+    .feature-card h3, .info-card h3 { margin: 0 0 8px; font-size: 1.05rem; letter-spacing: -0.02em; }
+    .feature-card p, .info-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    .steps {
+      counter-reset: step; display: grid; gap: 12px;
+      margin: 0; padding: 0; list-style: none;
+    }
+    .steps li {
+      counter-increment: step;
+      display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: start;
+      padding: 16px; border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+    .steps li::before {
+      content: counter(step); width: 38px; height: 38px; border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white; font-weight: 900;
+    }
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    .formula-box {
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 14px 18px; margin: 12px 0; overflow-x: auto;
+    }
+
+    .sim-card {
+      border: 1px solid var(--line); border-radius: var(--radius-lg);
+      background: var(--card); padding: 24px; box-shadow: var(--shadow-soft);
+    }
+    .sim-card h3 { margin: 0 0 14px; font-size: 1.05rem; letter-spacing: -0.02em; }
+    .sim-label {
+      font-size: 0.72rem; color: var(--muted-2);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      font-weight: 700; margin-bottom: 8px;
+    }
+
+    .control-row {
+      display: flex; flex-wrap: wrap; gap: 14px 22px;
+      align-items: center; margin-bottom: 14px;
+    }
+    .control-group { display: flex; flex-direction: column; gap: 3px; }
+    .control-group label { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+    .control-group textarea {
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      background: var(--card-solid); color: var(--text);
+      padding: 10px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem; resize: vertical; min-height: 70px; width: 100%;
+    }
+    .control-group textarea:focus { outline: none; border-color: var(--primary); }
+    .control-group select {
+      padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+      background: var(--card-solid); color: var(--text); font-weight: 700;
+      font-size: 0.85rem; cursor: pointer;
+    }
+    .control-group input[type="text"] {
+      padding: 7px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line);
+      background: var(--card-solid); color: var(--text); font-size: 0.85rem; width: 100%;
+    }
+    .control-group input[type="text"]:focus { outline: none; border-color: var(--primary); }
+
+    .inline-data-table {
+      width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.85rem;
+    }
+    .inline-data-table th, .inline-data-table td {
+      padding: 6px 10px; border: 1px solid var(--line); text-align: center;
+    }
+    .inline-data-table th { background: color-mix(in srgb, var(--primary) 8%, transparent); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    canvas {
+      display: block; width: 100%; border-radius: var(--radius-sm);
+      background: var(--card-solid); border: 1px solid var(--line);
+    }
+
+    .stat-block {
+      margin: 10px 0; padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: color-mix(in srgb, var(--bg-soft) 90%, var(--card-solid));
+      border: 1px solid var(--line);
+    }
+    .stat-block strong { font-size: 1.05rem; }
+    .stat-block .sig { color: var(--danger); font-weight: 900; }
+    .stat-block .ns { color: var(--muted-2); }
+    .stat-block .corrected { color: var(--accent); font-weight: 900; }
+
+    .ref-list { padding-left: 0; list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+    .ref-list li:last-child { border-bottom: none; }
+
+    .footer { padding: 44px 0 54px; color: var(--muted-2); text-align: center; font-size: 0.92rem; }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .section-head { flex-direction: column; align-items: start; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .nav-actions .btn:not(.dd-btn) { display: none; }
+    }
+    @media print {
+      .nav, .hero-actions, .footer { display: none !important; }
+      body { background: white; color: black; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','pre','code','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">Uji Statistik</span>
+          <span class="brand-subtitle">Nonparametrik &amp; Multiple Comparisons</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#kruskal">Kruskal-Wallis</a>
+        <a class="btn" href="#mannwhitney">Mann-Whitney U</a>
+        <a class="btn" href="#holm">Holm-Bonferroni</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <div class="dropdown">
+          <button class="btn dd-btn" type="button">Materi <span class="dd-arrow">▼</span></button>
+          <div class="dropdown-menu">
+            <a href="./nsga2.html">NSGA-II</a>
+            <a href="./nsga3.html">NSGA-III</a>
+            <a href="./spea2.html">SPEA2</a>
+            <a href="./moea-moga.html">MOEA/MOGA</a>
+            <a href="./convex-opt.html">Convex Opt</a>
+            <a href="./moo.html">MOO</a>
+            <a href="./stat-tests.html" style="color: var(--primary);">Uji Statistik</a>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Nonparametric Statistics &amp; Multiple Testing</span>
+          <h1>Uji Statistik Nonparametrik</h1>
+          <p class="lead">
+            <strong>Kruskal-Wallis</strong>, <strong>Mann-Whitney U</strong>, dan koreksi <strong>Holm-Bonferroni</strong>
+            — tiga alat statistik yang esensial untuk membandingkan algoritma optimasi ketika asumsi normalitas
+            dan homogenitas varians tidak terpenuhi.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#kruskal">Kruskal-Wallis</a>
+            <a class="btn btn-accent" href="#mannwhitney">Mann-Whitney U</a>
+            <a class="btn" href="#holm">Holm-Bonferroni</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN 3 KOLOM -->
+    <section class="section" aria-label="Ringkasan">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Kruskal-Wallis H Test</h3>
+          <p>Uji peringkat satu arah nonparametrik untuk membandingkan \(k \ge 2\) kelompok independen. Alternatif dari <em>one-way ANOVA</em> tanpa asumsi normalitas.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🔬</div>
+          <h3>Mann-Whitney U Test</h3>
+          <p>Uji nonparametrik untuk membandingkan dua kelompok independen berdasarkan peringkat. Alternatif dari <em>independent t-test</em>.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Holm-Bonferroni Correction</h3>
+          <p>Prosedur <em>step-down</em> untuk mengontrol <em>family-wise error rate</em> (FWER) ketika melakukan banyak uji hipotesis secara simultan.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- KRUSKAL-WALLIS -->
+    <!-- ============================================================ -->
+    <section class="section" id="kruskal" aria-label="Kruskal-Wallis">
+      <div class="section-head">
+        <div>
+          <h2>Uji Kruskal-Wallis (H Test)</h2>
+          <p class="section-desc">Dikembangkan oleh Kruskal &amp; Wallis (1952) — uji peringkat satu arah untuk membandingkan tiga atau lebih kelompok independen.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="info-card">
+            <h3>Konsep Dasar</h3>
+            <p>Semua data dari \(k\) kelompok digabungkan, diurutkan, dan diberi peringkat (rank). Statistik uji \(H\) dihitung berdasarkan jumlah peringkat setiap kelompok.</p>
+
+            <h3>Hipotesis</h3>
+            <ul style="color: var(--muted); font-size: 0.95rem;">
+              <li>\(H_0\): Semua kelompok berasal dari distribusi yang sama (median sama).</li>
+              <li>\(H_1\): Paling tidak satu kelompok berasal dari distribusi yang berbeda.</li>
+            </ul>
+
+            <h3>Statistik Uji</h3>
+            <div class="formula-box">
+              \[
+              H = \frac{12}{N(N+1)} \sum_{i=1}^{k} \frac{R_i^2}{n_i} - 3(N+1)
+              \]
+            </div>
+            <p style="font-size: 0.9rem; color: var(--muted);">
+              dengan \(R_i\) = jumlah peringkat kelompok \(i\), \(n_i\) = ukuran sampel kelompok \(i\),
+              \(N = \sum n_i\) = total sampel. Untuk \(n_i \ge 5\), \(H\) mengikuti distribusi \(\chi^2\) dengan \(df = k-1\).
+            </p>
+          </div>
+        </div>
+        <div>
+          <div class="sim-card">
+            <div class="sim-label">Simulasi Kruskal-Wallis</div>
+            <p style="font-size: 0.85rem; color: var(--muted); margin: 0 0 12px;">Masukkan data setiap kelompok (pisahkan dengan koma).</p>
+
+            <div class="grid-2" style="gap:10px;">
+              <div class="control-group">
+                <label for="kwA">Kelompok A</label>
+                <textarea id="kwA" rows="2">2.1, 3.4, 1.8, 4.2, 2.9</textarea>
+              </div>
+              <div class="control-group">
+                <label for="kwB">Kelompok B</label>
+                <textarea id="kwB" rows="2">5.3, 6.1, 4.8, 5.9, 6.7</textarea>
+              </div>
+              <div class="control-group">
+                <label for="kwC">Kelompok C</label>
+                <textarea id="kwC" rows="2">8.2, 7.5, 9.1, 6.8, 8.9</textarea>
+              </div>
+              <div class="control-group">
+                <label for="kwD">Kelompok D (opsional)</label>
+                <textarea id="kwD" rows="2"></textarea>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;">
+              <button class="btn btn-primary" id="kwRun">Hitung H</button>
+              <button class="btn" id="kwReset">Reset Contoh</button>
+            </div>
+
+            <div id="kwResult" class="stat-block">
+              <strong>H</strong> = <span id="kwH">—</span> &nbsp;
+              <strong>p</strong> = <span id="kwP">—</span> &nbsp;
+              <strong>df</strong> = <span id="kwDf">—</span><br>
+              <span id="kwConclusion">Tekan <em>Hitung H</em> untuk menjalankan uji.</span>
+            </div>
+
+            <canvas id="kwCanvas" width="500" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- MANN-WHITNEY U -->
+    <!-- ============================================================ -->
+    <section class="section" id="mannwhitney" aria-label="Mann-Whitney U">
+      <div class="section-head">
+        <div>
+          <h2>Uji Mann-Whitney U (Wilcoxon Rank-Sum)</h2>
+          <p class="section-desc">Dikembangkan oleh Mann &amp; Whitney (1947) — uji nonparametrik untuk membandingkan dua kelompok independen berdasarkan peringkat.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="info-card">
+            <h3>Konsep Dasar</h3>
+            <p>Semua data dari dua kelompok digabungkan dan diurutkan. Statistik \(U\) dihitung sebagai jumlah pasangan di mana nilai kelompok 1 mendahului nilai kelompok 2.</p>
+
+            <h3>Hipotesis</h3>
+            <ul style="color: var(--muted); font-size: 0.95rem;">
+              <li>\(H_0\): Kedua kelompok berasal dari distribusi yang sama.</li>
+              <li>\(H_1\): Kelompok 1 cenderung memiliki nilai yang lebih besar (atau lebih kecil) daripada kelompok 2.</li>
+            </ul>
+
+            <h3>Statistik Uji</h3>
+            <div class="formula-box">
+              \[
+              U_1 = R_1 - \frac{n_1(n_1+1)}{2}, \quad
+              U_2 = R_2 - \frac{n_2(n_2+1)}{2}
+              \]
+            </div>
+            <p style="font-size: 0.9rem; color: var(--muted);">
+              dengan \(R_1, R_2\) = jumlah peringkat masing-masing kelompok. \(U = \min(U_1, U_2)\).
+              Untuk \(n \ge 20\), distribusi sampling \(U\) mendekati normal.
+            </p>
+          </div>
+        </div>
+        <div>
+          <div class="sim-card">
+            <div class="sim-label">Simulasi Mann-Whitney U</div>
+            <p style="font-size: 0.85rem; color: var(--muted); margin: 0 0 12px;">Masukkan data dua kelompok (pisahkan dengan koma).</p>
+
+            <div class="grid-2" style="gap:10px;">
+              <div class="control-group">
+                <label for="mwA">Kelompok 1</label>
+                <textarea id="mwA" rows="2">3.2, 4.1, 2.8, 3.9, 4.5, 3.6</textarea>
+              </div>
+              <div class="control-group">
+                <label for="mwB">Kelompok 2</label>
+                <textarea id="mwB" rows="2">6.1, 5.3, 7.2, 5.8, 6.9, 7.8</textarea>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;">
+              <button class="btn btn-accent" id="mwRun">Hitung U</button>
+              <button class="btn" id="mwReset">Reset Contoh</button>
+            </div>
+
+            <div id="mwResult" class="stat-block">
+              <strong>U</strong> = <span id="mwU">—</span> &nbsp;
+              <strong>z</strong> = <span id="mwZ">—</span> &nbsp;
+              <strong>p</strong> = <span id="mwP">—</span><br>
+              <span id="mwConclusion">Tekan <em>Hitung U</em> untuk menjalankan uji.</span>
+            </div>
+
+            <canvas id="mwCanvas" width="500" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- HOLM-BONFERRONI -->
+    <!-- ============================================================ -->
+    <section class="section" id="holm" aria-label="Holm-Bonferroni">
+      <div class="section-head">
+        <div>
+          <h2>Koreksi Holm-Bonferroni</h2>
+          <p class="section-desc">Dikembangkan oleh Holm (1979) — prosedur <em>step-down</em> yang lebih powerful daripada koreksi Bonferroni standar untuk mengontrol FWER.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="info-card">
+            <h3>Prosedur</h3>
+            <ol class="steps" style="counter-reset: step;">
+              <li>
+                <div>
+                  <span class="step-title">Urutkan p-value</span>
+                  <span class="step-text">Urutkan \(m\) p-value dari yang terkecil ke terbesar: \(p_{(1)} \le p_{(2)} \le \cdots \le p_{(m)}\).</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Bandingkan dengan \(\alpha\) disesuaikan</span>
+                  <span class="step-text">Untuk setiap \(i = 1, 2, \dots, m\), tolak \(H_{(i)}\) jika 
+                    \[
+                    p_{(i)} \le \frac{\alpha}{m - i + 1}
+                    \]
+                    Setelah satu hipotesis ditolak, lanjutkan ke \(i+1\); jika gagal tolak, hentikan.
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Kesimpulan</span>
+                  <span class="step-text">Semua hipotesis dengan \(p_{(i)}\) lebih kecil dari ambang pada langkah sebelumnya ditolak. Prosedur ini menjamin FWER \(\le \alpha\).</span>
+                </div>
+              </li>
+            </ol>
+
+            <h3 style="margin-top:18px;">Perbandingan dengan Bonferroni</h3>
+            <p style="font-size:0.92rem;color:var(--muted);">
+              Bonferroni standar: tolak \(H_i\) jika \(p_i \le \alpha/m\) (seragam untuk semua).
+              Holm-Bonferroni menggunakan ambang yang meningkat (\(\alpha/(m), \alpha/(m-1), \dots\)),
+              sehingga lebih powerful. Holm-Bonferroni <strong>selalu</strong> menolak setidaknya semua
+              hipotesis yang ditolak oleh Bonferroni standar.
+            </p>
+          </div>
+        </div>
+        <div>
+          <div class="sim-card">
+            <div class="sim-label">Simulasi Holm-Bonferroni</div>
+            <p style="font-size: 0.85rem; color: var(--muted); margin: 0 0 12px;">Masukkan p-value (pisahkan dengan koma) dan \(\alpha\).</p>
+
+            <div class="control-row">
+              <div class="control-group" style="flex:3;">
+                <label for="hbPvals">p-value</label>
+                <input type="text" id="hbPvals" value="0.008, 0.015, 0.032, 0.044, 0.210, 0.450" style="width:100%;">
+              </div>
+              <div class="control-group">
+                <label for="hbAlpha">\(\alpha\)</label>
+                <select id="hbAlpha">
+                  <option value="0.01">0.01</option>
+                  <option value="0.05" selected>0.05</option>
+                  <option value="0.10">0.10</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;">
+              <button class="btn btn-primary" id="hbRun">Terapkan Koreksi</button>
+              <button class="btn" id="hbReset">Reset Contoh</button>
+            </div>
+
+            <div id="hbResult" class="stat-block" style="overflow-x:auto;">
+              <table class="inline-data-table" id="hbTable">
+                <thead>
+                  <tr>
+                    <th>\(i\)</th>
+                    <th>\(p_{(i)}\)</th>
+                    <th>\(\alpha / (m-i+1)\)</th>
+                    <th>Tolak \(H_0\)?</th>
+                  </tr>
+                </thead>
+                <tbody id="hbBody">
+                  <tr><td colspan="4">Tekan <em>Terapkan Koreksi</em>.</td></tr>
+                </tbody>
+              </table>
+              <p id="hbSummary" style="margin:8px 0 0;font-size:0.9rem;">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi">
+      <div class="hero-card">
+        <h2>Referensi Utama</h2>
+        <ul class="ref-list">
+          <li>Kruskal, W. H., &amp; Wallis, W. A. (1952). Use of Ranks in One-Criterion Variance Analysis. <em>Journal of the American Statistical Association</em>, 47(260), 583–621. <a href="https://doi.org/10.2307/2280779" target="_blank" style="font-weight:700;">doi:10.2307/2280779</a></li>
+          <li>Mann, H. B., &amp; Whitney, D. R. (1947). On a Test of Whether one of Two Random Variables is Stochastically Larger than the Other. <em>Annals of Mathematical Statistics</em>, 18(1), 50–60. <a href="https://doi.org/10.1214/aoms/1177730491" target="_blank" style="font-weight:700;">doi:10.1214/aoms/1177730491</a></li>
+          <li>Holm, S. (1979). A Simple Sequentially Rejective Multiple Test Procedure. <em>Scandinavian Journal of Statistics</em>, 6(2), 65–70. <a href="https://www.jstor.org/stable/4615733" target="_blank" style="font-weight:700;">JSTOR</a></li>
+          <li>Wilcoxon, F. (1945). Individual Comparisons by Ranking Methods. <em>Biometrics Bulletin</em>, 1(6), 80–83.</li>
+          <li>Conover, W. J. (1999). <em>Practical Nonparametric Statistics</em> (3rd ed.). Wiley.</li>
+          <li>Shaffer, J. P. (1995). Multiple Hypothesis Testing. <em>Annual Review of Psychology</em>, 46, 561–584.</li>
+        </ul>
+        <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);">
+          Kembali ke <a href="./index.html" style="font-weight:700;">Beranda Referensi Disertasi</a>
+        </p>
+      </div>
+    </section>
+
+    <div class="footer">
+      &copy; 2026 Ariadie Chandra Nugraha — Uji Statistik Nonparametrik
+    </div>
+
+  </main>
+
+  <script>
+    // ─── Theme ───────────────────────────────────────────────────
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-stat-tests");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-stat-tests", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // ─── Dropdown toggle ─────────────────────────────────────────
+    document.querySelectorAll(".dropdown .dd-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const dd = btn.closest(".dropdown");
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".dropdown.show").forEach(d => d.classList.remove("show"));
+    });
+
+    // ─── Helper: parse CSV ───────────────────────────────────────
+    function parseCSV(str) {
+      return str.split(",").map(s => parseFloat(s.trim())).filter(v => !isNaN(v));
+    }
+
+    // ─── Helper: rank array (tie-aware) ──────────────────────────
+    function rankValues(arr) {
+      const indexed = arr.map((v, i) => ({ v, i }));
+      indexed.sort((a, b) => a.v - b.v);
+      const ranks = new Array(arr.length);
+      let i = 0;
+      while (i < indexed.length) {
+        let j = i;
+        while (j < indexed.length && indexed[j].v === indexed[i].v) j++;
+        const avgRank = (i + 1 + j) / 2; // 1-based rank
+        for (let k = i; k < j; k++) ranks[indexed[k].i] = avgRank;
+        i = j;
+      }
+      return ranks;
+    }
+
+    // ─── Helper: get CSS color ───────────────────────────────────
+    function getCSS(v) { return getComputedStyle(root).getPropertyValue(v).trim(); }
+
+    // ─── Chi-square CDF (regularized gamma) ──────────────────────
+    function chi2CDF(x, k) {
+      if (x <= 0) return 0;
+      return regularizedGamma(k / 2, x / 2);
+    }
+    function regularizedGamma(a, x) {
+      // Series expansion for lower incomplete gamma P(a, x)
+      if (x < 0 || a <= 0) return 0;
+      const g = Math.log(Math.abs(lanczosGamma(a)));
+      return ser(a, x, g);
+    }
+    function lanczosGamma(z) {
+      // Lanczos approximation for log-gamma
+      return Math.exp(lanczosLogGamma(z));
+    }
+    function lanczosLogGamma(z) {
+      const g = 7;
+      const cof = [0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+                   771.32342877765313, -176.61502916214059, 12.507343278686905,
+                   -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+      if (z < 0.5) { return Math.log(Math.PI / Math.sin(Math.PI * z)) - lanczosLogGamma(1 - z); }
+      z -= 1;
+      let x = cof[0];
+      for (let i = 1; i < g + 2; i++) x += cof[i] / (z + i);
+      const t = z + g + 0.5;
+      return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+    }
+    function ser(a, x, gln) {
+      if (x < 0) return 0;
+      if (x === 0) return 0;
+      let ap = a, sum = 1 / a, del = sum;
+      const nMax = 200;
+      for (let n = 1; n <= nMax; n++) {
+        ap += 1;
+        del *= x / ap;
+        sum += del;
+        if (Math.abs(del) < Math.abs(sum) * 1e-14) break;
+      }
+      return sum * Math.exp(-x + a * Math.log(x) - gln);
+    }
+
+    // ─── Normal CDF (Abramowitz & Stegun) ────────────────────────
+    function normCDF(x) {
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+      const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      const sign = x < 0 ? -1 : 1;
+      x = Math.abs(x);
+      const t = 1 / (1 + p * x);
+      const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+      return 0.5 * (1 + sign * y);
+    }
+
+    // ─── Draw box-like dot plot ───────────────────────────────────
+    function drawGroupedPlot(canvas, groups, colors) {
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width, H = canvas.height;
+      const padL = 50, padR = 16, padT = 20, padB = 28;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = getCSS("--card-solid");
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid
+      ctx.strokeStyle = getCSS("--line"); ctx.lineWidth = 0.5;
+      for (let i = 0; i <= 4; i++) {
+        const gy = padT + (i / 4) * plotH;
+        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(W - padR, gy); ctx.stroke();
+      }
+
+      const all = groups.flat();
+      if (all.length === 0) return;
+      const min = Math.min(...all), max = Math.max(...all);
+      const range = max - min || 1;
+      const nGroups = groups.length;
+      const bandW = plotW / (nGroups + 1);
+
+      groups.forEach((g, gi) => {
+        const cx = padL + (gi + 1) * bandW;
+        const color = colors[gi % colors.length];
+        g.forEach(v => {
+          const y = padT + (1 - (v - min) / range) * plotH;
+          ctx.beginPath();
+          ctx.arc(cx, y, 4, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+          ctx.strokeStyle = getCSS("--card-solid");
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        });
+        // median
+        const sorted = [...g].sort((a, b) => a - b);
+        const med = sorted.length % 2 === 0
+          ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+          : sorted[Math.floor(sorted.length / 2)];
+        const my = padT + (1 - (med - min) / range) * plotH;
+        ctx.strokeStyle = color; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(cx - 10, my); ctx.lineTo(cx + 10, my); ctx.stroke();
+
+        ctx.fillStyle = getCSS("--muted"); ctx.font = "10px Inter";
+        ctx.textAlign = "center";
+        const label = String.fromCharCode(65 + gi);
+        ctx.fillText(label, cx, H - 6);
+      });
+
+      // Y axis labels
+      ctx.fillStyle = getCSS("--muted"); ctx.font = "9px Inter";
+      ctx.textAlign = "right";
+      for (let i = 0; i <= 4; i++) {
+        const v = min + (i / 4) * range;
+        ctx.fillText(v.toFixed(1), padL - 6, padT + (1 - i / 4) * plotH + 3);
+      }
+      ctx.textAlign = "center"; ctx.font = "10px Inter";
+      ctx.fillText("Kelompok", W / 2, H - 6);
+    }
+
+    function drawTwoGroupPlot(canvas, g1, g2, colors) {
+      drawGroupedPlot(canvas, [g1, g2], colors);
+    }
+
+    // ─── ─── KRUSKAL-WALLIS ─── ──────────────────────────────────
+    const COLORS = ["#ef4444", "#2563eb", "#10b981", "#f59e0b"];
+
+    function runKruskalWallis() {
+      const groups = ["kwA", "kwB", "kwC", "kwD"].map(id => parseCSV(document.getElementById(id).value));
+      const valid = groups.filter(g => g.length > 0);
+      if (valid.length < 2) {
+        document.getElementById("kwH").textContent = "—";
+        document.getElementById("kwP").textContent = "—";
+        document.getElementById("kwDf").textContent = "—";
+        document.getElementById("kwConclusion").textContent = "Minimal 2 kelompok dengan data diperlukan.";
+        return;
+      }
+
+      const all = valid.flat();
+      const ranks = rankValues(all);
+      let offset = 0;
+      const R = valid.map(g => {
+        const sum = ranks.slice(offset, offset + g.length).reduce((a, b) => a + b, 0);
+        offset += g.length;
+        return { n: g.length, sum };
+      });
+
+      const N = all.length;
+      const H = (12 / (N * (N + 1))) * R.reduce((s, r) => s + r.sum * r.sum / r.n, 0) - 3 * (N + 1);
+      const df = valid.length - 1;
+      // Correction for ties
+      const tieCorr = (() => {
+        const sorted = [...all].sort((a, b) => a - b);
+        let sumT3 = 0;
+        let i = 0;
+        while (i < sorted.length) {
+          let j = i;
+          while (j < sorted.length && sorted[j] === sorted[i]) j++;
+          const t = j - i;
+          sumT3 += t * t * t - t;
+          i = j;
+        }
+        const denom = N * N * N - N;
+        return denom > 0 ? 1 - sumT3 / denom : 1;
+      })();
+      const Hc = H / tieCorr;
+      const p = 1 - chi2CDF(Hc, df);
+
+      document.getElementById("kwH").textContent = Hc.toFixed(4);
+      document.getElementById("kwP").textContent = p.toFixed(4);
+      document.getElementById("kwDf").textContent = df;
+
+      const alpha = 0.05;
+      const sig = p < alpha;
+      document.getElementById("kwConclusion").innerHTML =
+        (sig ? "<span class='sig'>Tolak H₀</span>" : "<span class='ns'>Gagal tolak H₀</span>")
+        + " — " + (sig ? "Terdapat perbedaan signifikan antar kelompok (p &lt; " + alpha + ")."
+                        : "Tidak cukup bukti adanya perbedaan (p ≥ " + alpha + ").");
+
+      drawGroupedPlot(document.getElementById("kwCanvas"), valid, COLORS);
+    }
+
+    document.getElementById("kwRun").addEventListener("click", runKruskalWallis);
+    document.getElementById("kwReset").addEventListener("click", () => {
+      document.getElementById("kwA").value = "2.1, 3.4, 1.8, 4.2, 2.9";
+      document.getElementById("kwB").value = "5.3, 6.1, 4.8, 5.9, 6.7";
+      document.getElementById("kwC").value = "8.2, 7.5, 9.1, 6.8, 8.9";
+      document.getElementById("kwD").value = "";
+      runKruskalWallis();
+    });
+
+    // ─── ─── MANN-WHITNEY U ─── ──────────────────────────────────
+    function runMannWhitney() {
+      const g1 = parseCSV(document.getElementById("mwA").value);
+      const g2 = parseCSV(document.getElementById("mwB").value);
+      if (g1.length === 0 || g2.length === 0) {
+        document.getElementById("mwU").textContent = "—";
+        document.getElementById("mwZ").textContent = "—";
+        document.getElementById("mwP").textContent = "—";
+        document.getElementById("mwConclusion").textContent = "Kedua kelompok harus memiliki data.";
+        return;
+      }
+
+      const all = [...g1, ...g2];
+      const ranks = rankValues(all);
+      const R1 = ranks.slice(0, g1.length).reduce((a, b) => a + b, 0);
+      const R2 = ranks.slice(g1.length).reduce((a, b) => a + b, 0);
+      const n1 = g1.length, n2 = g2.length;
+      const U1 = R1 - n1 * (n1 + 1) / 2;
+      const U2 = R2 - n2 * (n2 + 1) / 2;
+      const U = Math.min(U1, U2);
+
+      // Normal approximation for z
+      const mu = n1 * n2 / 2;
+      // Tie correction
+      const sorted = [...all].sort((a, b) => a - b);
+      let sumT3 = 0;
+      let i = 0;
+      while (i < sorted.length) {
+        let j = i;
+        while (j < sorted.length && sorted[j] === sorted[i]) j++;
+        const t = j - i;
+        sumT3 += t * t * t - t;
+        i = j;
+      }
+      const N = all.length;
+      const sigma = Math.sqrt((n1 * n2 / 12) * ((N + 1) - sumT3 / (N * (N - 1))));
+      const z = sigma > 0 ? (U - mu) / sigma : 0;
+      const p = 2 * normCDF(-Math.abs(z));
+
+      document.getElementById("mwU").textContent = U.toFixed(2);
+      document.getElementById("mwZ").textContent = z.toFixed(4);
+      document.getElementById("mwP").textContent = p.toFixed(4);
+
+      const alpha = 0.05;
+      const sig = p < alpha;
+      document.getElementById("mwConclusion").innerHTML =
+        (sig ? "<span class='sig'>Tolak H₀</span>" : "<span class='ns'>Gagal tolak H₀</span>")
+        + " — " + (sig ? "Kedua kelompok berbeda signifikan (p &lt; " + alpha + ")."
+                        : "Tidak cukup bukti perbedaan signifikan (p ≥ " + alpha + ").");
+
+      drawTwoGroupPlot(document.getElementById("mwCanvas"), g1, g2, ["#ef4444", "#2563eb"]);
+    }
+
+    document.getElementById("mwRun").addEventListener("click", runMannWhitney);
+    document.getElementById("mwReset").addEventListener("click", () => {
+      document.getElementById("mwA").value = "3.2, 4.1, 2.8, 3.9, 4.5, 3.6";
+      document.getElementById("mwB").value = "6.1, 5.3, 7.2, 5.8, 6.9, 7.8";
+      runMannWhitney();
+    });
+
+    // ─── ─── HOLM-BONFERRONI ─── ────────────────────────────────
+    function runHolmBonferroni() {
+      const raw = document.getElementById("hbPvals").value;
+      const alpha = parseFloat(document.getElementById("hbAlpha").value);
+      const pvals = raw.split(",").map(s => parseFloat(s.trim())).filter(v => !isNaN(v) && v > 0 && v <= 1);
+
+      if (pvals.length === 0) {
+        document.getElementById("hbBody").innerHTML = "<tr><td colspan='4'>Masukkan p-value yang valid.</td></tr>";
+        document.getElementById("hbSummary").textContent = "—";
+        return;
+      }
+
+      const m = pvals.length;
+      // Sort with original indices
+      const indexed = pvals.map((p, i) => ({ p, i }));
+      indexed.sort((a, b) => a.p - b.p);
+
+      let html = "";
+      let rejected = 0;
+      let stop = false;
+
+      for (let i = 0; i < m; i++) {
+        const idx = i + 1;
+        const p = indexed[i].p;
+        const threshold = alpha / (m - i);
+        let reject = false;
+        if (!stop && p <= threshold) {
+          reject = true;
+          rejected++;
+        } else {
+          stop = true;
+        }
+
+        const cls = reject ? "sig" : "ns";
+        html += `<tr>
+          <td>${idx}</td>
+          <td>${p.toFixed(4)}</td>
+          <td>${threshold.toFixed(4)}</td>
+          <td class="${cls}">${reject ? "✅ Tolak" : "—"}</td>
+        </tr>`;
+      }
+
+      document.getElementById("hbBody").innerHTML = html;
+      document.getElementById("hbSummary").innerHTML =
+        `<strong>Kesimpulan:</strong> ${rejected} dari ${m} hipotesis ditolak pada α = ${alpha}.`
+        + (rejected > 0 ? " Prosedur Holm-Bonferroni menjamin FWER ≤ α." : "");
+
+      // Bonferroni comparison
+      const bonfRejected = pvals.filter(p => p <= alpha / m).length;
+      document.getElementById("hbSummary").innerHTML +=
+        `<br><span style="font-size:0.85rem;color:var(--muted-2);">Bonferroni standar: ${bonfRejected} ditolak (α/m = ${(alpha/m).toFixed(4)}).</span>`;
+    }
+
+    document.getElementById("hbRun").addEventListener("click", runHolmBonferroni);
+    document.getElementById("hbReset").addEventListener("click", () => {
+      document.getElementById("hbPvals").value = "0.008, 0.015, 0.032, 0.044, 0.210, 0.450";
+      document.getElementById("hbAlpha").value = "0.05";
+      runHolmBonferroni();
+    });
+
+    // ─── Init ─────────────────────────────────────────────────────
+    runKruskalWallis();
+    runMannWhitney();
+    runHolmBonferroni();
+  </script>
+</body>
+</html>
