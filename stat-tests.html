@@ -395,8 +395,8 @@
 
             <h3>Hipotesis</h3>
             <ul style="color: var(--muted); font-size: 0.95rem;">
-              <li>\(H_0\): Semua kelompok berasal dari distribusi yang sama (median sama).</li>
-              <li>\(H_1\): Paling tidak satu kelompok berasal dari distribusi yang berbeda.</li>
+              <li>\(H_0\): Semua kelompok berasal dari distribusi yang sama.</li>
+              <li>\(H_1\): Paling tidak satu kelompok berasal dari distribusi yang berbeda (secara stokastik cenderung lebih besar/kecil).</li>
             </ul>
 
             <h3>Statistik Uji</h3>
@@ -408,6 +408,9 @@
             <p style="font-size: 0.9rem; color: var(--muted);">
               dengan \(R_i\) = jumlah peringkat kelompok \(i\), \(n_i\) = ukuran sampel kelompok \(i\),
               \(N = \sum n_i\) = total sampel. Untuk \(n_i \ge 5\), \(H\) mengikuti distribusi \(\chi^2\) dengan \(df = k-1\).
+              Catatan: interpretasi "median berbeda" hanya tepat bila bentuk distribusi antar kelompok serupa;
+              secara umum KW menguji kesamaan distribusi. P-value pada simulasi dihitung dengan aproksimasi
+              \(\chi^2\) numerik, sehingga untuk sampel sangat kecil dapat sedikit berbeda dari uji eksak.
             </p>
           </div>
         </div>
@@ -485,7 +488,9 @@
             </div>
             <p style="font-size: 0.9rem; color: var(--muted);">
               dengan \(R_1, R_2\) = jumlah peringkat masing-masing kelompok. \(U = \min(U_1, U_2)\).
-              Untuk \(n \ge 20\), distribusi sampling \(U\) mendekati normal.
+              Untuk \(n \ge 20\), distribusi sampling \(U\) mendekati normal. Untuk sampel kecil sebaiknya
+              gunakan uji eksak — simulasi di bawah tetap memakai aproksimasi normal (tanpa <em>continuity
+              correction</em>), sehingga p-value dapat sedikit berbeda dari paket statistik.
             </p>
           </div>
         </div>
@@ -624,7 +629,7 @@
       <div class="hero-card">
         <h2>Referensi Utama</h2>
         <ul class="ref-list">
-          <li>Kruskal, W. H., &amp; Wallis, W. A. (1952). Use of Ranks in One-Criterion Variance Analysis. <em>Journal of the American Statistical Association</em>, 47(260), 583–621. <a href="https://doi.org/10.2307/2280779" target="_blank" style="font-weight:700;">doi:10.2307/2280779</a></li>
+          <li>Kruskal, W. H., &amp; Wallis, W. A. (1952). Use of Ranks in One-Criterion Variance Analysis. <em>Journal of the American Statistical Association</em>, 47(260), 583–621. <a href="https://doi.org/10.1080/01621459.1952.10483441" target="_blank" style="font-weight:700;">doi:10.1080/01621459.1952.10483441</a></li>
           <li>Mann, H. B., &amp; Whitney, D. R. (1947). On a Test of Whether one of Two Random Variables is Stochastically Larger than the Other. <em>Annals of Mathematical Statistics</em>, 18(1), 50–60. <a href="https://doi.org/10.1214/aoms/1177730491" target="_blank" style="font-weight:700;">doi:10.1214/aoms/1177730491</a></li>
           <li>Holm, S. (1979). A Simple Sequentially Rejective Multiple Test Procedure. <em>Scandinavian Journal of Statistics</em>, 6(2), 65–70. <a href="https://www.jstor.org/stable/4615733" target="_blank" style="font-weight:700;">JSTOR</a></li>
           <li>Wilcoxon, F. (1945). Individual Comparisons by Ranking Methods. <em>Biometrics Bulletin</em>, 1(6), 80–83.</li>
@@ -632,7 +637,7 @@
           <li>Shaffer, J. P. (1995). Multiple Hypothesis Testing. <em>Annual Review of Psychology</em>, 46, 561–584.</li>
         </ul>
         <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);">
-          Kembali ke <a href="./index.html" style="font-weight:700;">Beranda Referensi Disertasi</a>
+          Kembali ke <a href="./index.html" style="font-weight:700;">Beranda</a>
         </p>
       </div>
     </section>

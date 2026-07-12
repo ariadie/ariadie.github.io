@@ -734,7 +734,7 @@ Output: P (final population)
       <div class="section-head">
         <div>
           <h2>Simulasi Interaktif NSGA-II</h2>
-          <p class="section-desc">Visualisasi real-time algoritma NSGA-II pada problem 2-objective minimization. Titik biru = populasi, titik oranye = front terbaik (F₁/Pareto approximation), garis merah = true Pareto front.</p>
+          <p class="section-desc">Visualisasi real-time algoritma NSGA-II pada problem 2-objective minimization. Titik biru = populasi, titik oranye = front terbaik (F₁/Pareto approximation), garis merah = true Pareto front. Statistik "Dekat Front Sejati" dihitung terhadap sampling front sejati — aproksimasi, bukan bukti optimalitas eksak.</p>
         </div>
       </div>
 
@@ -791,7 +791,7 @@ Output: P (final population)
                 </div>
                 <div class="sim-stat">
                   <span class="sim-stat-value" id="statPareto">0</span>
-                  <span class="sim-stat-label">Pareto Optimal</span>
+                  <span class="sim-stat-label">Dekat Front Sejati</span>
                 </div>
               </div>
             </div>
@@ -820,7 +820,7 @@ Output: P (final population)
           <div class="ref-authors">Deb, K., &amp; Agrawal, R. B.</div>
           <div class="ref-title">Simulated binary crossover for continuous search space</div>
           <div class="ref-source">Complex Systems, 9(2), 115–148, 1995.</div>
-          <div class="ref-doi"><a href="https://doi.org/10.48550/arXiv.2202.12345" target="_blank">https://ci.nii.ac.jp/naid/10002997750/</a></div>
+          <div class="ref-doi"><a href="https://www.complex-systems.com/abstracts/v09_i02_a02/" target="_blank">https://www.complex-systems.com/abstracts/v09_i02_a02/</a></div>
         </li>
         <li>
           <div class="ref-authors">Srinivas, N., &amp; Deb, K.</div>
@@ -835,7 +835,7 @@ Output: P (final population)
           <div class="ref-doi"><a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640</a></div>
         </li>
         <li>
-          <div class="ref-authors">Coello Coello, C. A., Van Veldhuizen, D. A., &amp; Lamont, G. B.</div>
+          <div class="ref-authors">Coello Coello, C. A., Lamont, G. B., &amp; Van Veldhuizen, D. A.</div>
           <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
           <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
           <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
@@ -1018,8 +1018,9 @@ Output: P (final population)
         const beta = u <= 0.5
           ? Math.pow(2 * u, 1 / (SBX_ETA + 1))
           : Math.pow(1 / (2 * (1 - u)), 1 / (SBX_ETA + 1));
-        c1.push(0.5 * ((1 + beta) * p1.x[i] + (1 - beta) * p2.x[i]));
-        c2.push(0.5 * ((1 - beta) * p1.x[i] + (1 + beta) * p2.x[i]));
+        // Clamp ke [0,1] agar ZDT1 tetap terdefinisi (sqrt argumen non-negatif)
+        c1.push(Math.max(0, Math.min(1, 0.5 * ((1 + beta) * p1.x[i] + (1 - beta) * p2.x[i]))));
+        c2.push(Math.max(0, Math.min(1, 0.5 * ((1 - beta) * p1.x[i] + (1 + beta) * p2.x[i]))));
       }
       return [{ x: c1 }, { x: c2 }];
     }

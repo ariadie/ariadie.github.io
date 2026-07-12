@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Contoh masalah klasik Multi-objective Optimization: ZDT1, Cantilever Beam Design, dan Conductor Sizing — dilengkapi simulasi interaktif." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Contoh Masalah MOO Klasik — ZDT1, Cantilever, Conductor Sizing" />
+  <meta property="og:description" content="Visualisasi interaktif tiga masalah benchmark multi-objective optimization dengan Pareto front analitik." />
+  <meta property="og:type" content="website" />
+  <title>Contoh Masalah MOO Klasik</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #0d9488;
+      --primary-2: #14b8a6;
+      --accent: #f59e0b;
+      --accent-2: #8b5cf6;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #2dd4bf;
+      --primary-2: #5eead4;
+      --accent: #fbbf24;
+      --accent-2: #a78bfa;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(13, 148, 136, 0.14), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(20, 184, 166, 0.12), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .ham-btn {
+      width: 44px; height: 44px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 750;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .ham-btn:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--primary) 46%, var(--line)); }
+
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; z-index: 210;
+      width: min(300px, 82vw); height: 100%;
+      background: var(--card-solid);
+      border-left: 1px solid var(--line);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; border-bottom: 1px solid var(--line);
+    }
+    .drawer-header strong { font-size: 1rem; letter-spacing: -0.02em; }
+    .drawer-close {
+      width: 36px; height: 36px; border: none; background: transparent;
+      cursor: pointer; font-size: 1.3rem; color: var(--muted);
+      display: grid; place-items: center; border-radius: 50%;
+    }
+    .drawer-close:hover { background: color-mix(in srgb, var(--line) 40%, transparent); }
+
+    .drawer-body { padding: 10px 0; flex: 1; }
+    .drawer-section { padding: 4px 20px 10px; }
+    .drawer-section-label {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted-2); font-weight: 800; margin-bottom: 6px;
+    }
+    .drawer-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      color: var(--text); text-decoration: none;
+      font-size: 0.9rem; font-weight: 700;
+      transition: background .15s ease;
+    }
+    .drawer-link:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero {
+      padding: 40px 0 24px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent-2) 14%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 3.6vw, 3.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.065em;
+      margin: 18px 0 14px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+      max-width: 800px;
+      margin: 0 auto 20px;
+    }
+
+    /* Tab navigation */
+    .tab-nav {
+      display: flex;
+      gap: 6px;
+      margin: 18px 0;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted-2);
+      font-size: 0.9rem;
+      font-weight: 750;
+      padding: 10px 16px;
+      cursor: pointer;
+      position: relative;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+      transition: color .2s ease, background .15s ease;
+      font-family: inherit;
+    }
+
+    .tab-btn:hover { color: var(--text); background: color-mix(in srgb, var(--line) 30%, transparent); }
+    .tab-btn.active {
+      color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 8%, transparent);
+      box-shadow: inset 0 -2px 0 var(--primary);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .section { padding: 24px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.3rem, 1.8vw, 1.8rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 6px 0 0;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .info-card, .algo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 22px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .info-card h3, .algo-card h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .info-card p, .algo-card p {
+      margin: 6px 0;
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    .code-box {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 14px 16px;
+      margin: 10px 0;
+      overflow-x: auto;
+    }
+
+    .code-box pre {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .sim-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .sim-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 64%, transparent);
+    }
+
+    .traffic { display: flex; gap: 7px; align-items: center; }
+    .dot {
+      width: 11px; height: 11px;
+      border-radius: 50%; display: inline-block;
+      background: var(--line);
+    }
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .sim-label { color: var(--muted); font-size: 0.85rem; font-weight: 750; }
+    .sim-body { padding: 16px; }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 480px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: color-mix(in srgb, var(--bg-soft) 60%, var(--card-solid));
+    }
+
+    .canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .sim-controls label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .sim-controls .label-text {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .sim-controls input[type="range"] {
+      width: 100%;
+      accent-color: var(--primary);
+    }
+
+    .sim-controls .value-text {
+      font-size: 0.85rem;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .sim-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .sim-stat { display: flex; flex-direction: column; }
+    .sim-stat-value {
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+    }
+    .sim-stat-label { color: var(--muted-2); font-size: 0.78rem; font-weight: 700; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); }
+    .legend-swatch {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      flex: none;
+    }
+
+    .highlight-box {
+      padding: 14px;
+      border-left: 4px solid var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 10px 0;
+    }
+
+    .ref-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+    }
+
+    .ref-authors { font-weight: 700; color: var(--text); }
+    .ref-title { font-style: italic; color: var(--muted); }
+    .ref-source { color: var(--muted-2); font-size: 0.88rem; }
+    .ref-doi a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.88rem; }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .footer {
+      padding: 40px 0 48px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 980px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .hero { padding-top: 20px; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .hero-card { padding: 20px; }
+      h1 { letter-spacing: -0.055em; }
+    }
+    @media print {
+      .nav, .sim-card, .footer { display: none !important; }
+      body { background: white; color: black; }
+      .grid-2 { display: block; }
+      .info-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 12px; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">Contoh Masalah MOO</span>
+          <span class="brand-subtitle">ZDT1 · Cantilever · Conductor Sizing</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <button class="ham-btn" id="hamBtn" aria-label="Buka menu navigasi">☰</button>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigasi halaman">
+    <div class="drawer-header">
+      <strong>Navigasi</strong>
+      <button class="drawer-close" id="drawerClose" aria-label="Tutup menu">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-section">
+        <div class="drawer-section-label">Halaman Ini</div>
+        <a class="drawer-link" href="#" onclick="switchTab('zdt1'); return false;">📈 ZDT1</a>
+        <a class="drawer-link" href="#" onclick="switchTab('cantilever'); return false;">🏗️ Cantilever Beam</a>
+        <a class="drawer-link" href="#" onclick="switchTab('conductor'); return false;">⚡ Conductor Sizing</a>
+        <a class="drawer-link" href="#" onclick="switchTab('referensi'); return false;">📎 Referensi</a>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-label">Optimasi &amp; Algoritma</div>
+        <a class="drawer-link" href="./moo.html">🎯 MOO</a>
+        <a class="drawer-link" href="./nsga2.html">🧬 NSGA-II</a>
+        <a class="drawer-link" href="./nsga3.html">🧬 NSGA-III</a>
+        <a class="drawer-link" href="./spea2.html">🧬 SPEA2</a>
+        <a class="drawer-link" href="./moea-moga.html">🧬 MOEA/MOGA</a>
+        <a class="drawer-link" href="./convex-opt.html">📐 Convex Opt</a>
+        <a class="drawer-link" href="./stat-tests.html">📊 Uji Statistik</a>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-label">Materi Ajar</div>
+        <a class="drawer-link" href="./acn101.html">📖 ACN101 (S1/S2/S3)</a>
+      </div>
+      <div class="drawer-section">
+        <a class="drawer-link" href="./index.html" style="color:var(--muted);font-size:0.82rem;">🏠 Beranda</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Contoh Masalah Benchmark</span>
+          <h1>Masalah Klasik Multi-objective Optimization</h1>
+          <p class="lead">
+            Tiga masalah benchmark dengan Pareto front yang diketahui secara analitik:
+            <strong>ZDT1</strong> (Zitzler–Deb–Thiele), <strong>Cantilever Beam Design</strong>,
+            dan <strong>Conductor Sizing</strong> untuk saluran transmisi/distribusi.
+            Masing-masing dilengkapi simulasi interaktif untuk mengeksplorasi trade-off antar tujuan.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px;">
+            <a class="btn btn-primary" href="#" onclick="switchTab('zdt1'); return false;">ZDT1</a>
+            <a class="btn" href="#" onclick="switchTab('cantilever'); return false;">Cantilever Beam</a>
+            <a class="btn" href="#" onclick="switchTab('conductor'); return false;">Conductor Sizing</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB NAVIGATION -->
+    <div class="tab-nav" id="tabNav">
+      <button class="tab-btn active" data-tab="zdt1" onclick="switchTab('zdt1')">📈 ZDT1</button>
+      <button class="tab-btn" data-tab="cantilever" onclick="switchTab('cantilever')">🏗️ Cantilever Beam</button>
+      <button class="tab-btn" data-tab="conductor" onclick="switchTab('conductor')">⚡ Conductor Sizing</button>
+      <button class="tab-btn" data-tab="referensi" onclick="switchTab('referensi')">📎 Referensi</button>
+    </div>
+
+    <!-- ============ TAB ZDT1 ============ -->
+    <div class="tab-content active" id="tab-zdt1">
+      <section class="section" aria-label="Penjelasan ZDT1">
+        <div class="section-head">
+          <div>
+            <h2>ZDT1 — Zitzler–Deb–Thiele's First Function</h2>
+            <p class="section-desc">Masalah benchmark 2-objektif dengan Pareto front cembung yang diketahui secara analitik.</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="info-card">
+            <h3>Formulasi Matematis</h3>
+            <p>\[
+              \min \; \big(f_1(\mathbf{x}), f_2(\mathbf{x})\big)
+            \]</p>
+            <p>\[
+              f_1(\mathbf{x}) = x_1
+            \]</p>
+            <p>\[
+              g(\mathbf{x}) = 1 + \frac{9}{n-1} \sum_{i=2}^{n} x_i
+            \]</p>
+            <p>\[
+              h(f_1, g) = 1 - \sqrt{\frac{f_1}{g}}
+            \]</p>
+            <p>\[
+              f_2(\mathbf{x}) = g(\mathbf{x}) \cdot h(f_1, g)
+            \]</p>
+            <p>\(n = 30\) variabel, \(x_i \in [0, 1]\) untuk semua \(i\).</p>
+            <div class="highlight-box">
+              <p><strong>Pareto front analitik:</strong> Ketika \(x_2 = \dots = x_n = 0\), maka \(g = 1\).<br>
+              \[
+                f_2 = 1 - \sqrt{f_1}, \quad f_1 \in [0, 1]
+              \]</p>
+            </div>
+          </div>
+          <div class="info-card">
+            <h3>Karakteristik</h3>
+            <p>• Pareto front cembung (<em>convex</em>) — cocok untuk weighted sum.</p>
+            <p>• Semua variabel kedua hingga ke-n dapat diatur ke 0 untuk mencapai front optimal.</p>
+            <p>• Parameter \(g(x)\) mengontrol seberapa jauh solusi dari Pareto front (semakin besar \(g\), semakin buruk \(f_2\)).</p>
+            <p>• Digunakan secara luas di literatur MOO sebagai benchmark pertama karena kesederhanaan dan front yang diketahui.</p>
+            <p>• Sering dipasangkan dengan ZDT2 (front non-convex), ZDT3 (front terputus), dan ZDT4/ZDT6 (variasi multimodal).</p>
+            <p style="margin-top:10px;">🔗 Lihat juga: <a href="./moo.html" style="color:var(--primary);font-weight:700;">Halaman MOO</a> — scalarization methods.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SIMULASI ZDT1 -->
+      <div class="sim-card" id="sim-zdt1">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">zdt1_sim.js</div>
+          <div class="sim-label">ZDT1 — 2-objektif minimization</div>
+        </div>
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="zdt1Canvas" width="500" height="500"></canvas>
+            </div>
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background:#ef4444;"></span> Pareto front</div>
+                <div class="legend-item"><span class="legend-swatch" style="background:#0d9488;"></span> Solusi saat ini</div>
+              </div>
+              <div class="sim-controls" id="zdt1Controls">
+                <label>
+                  <span class="label-text">\(x_1\) (langsung = \(f_1\))</span>
+                  <input type="range" id="zdt1X1" min="0.01" max="1" step="0.01" value="0.3">
+                  <span class="value-text" id="zdt1X1Val">\(x_1 = 0.30\)</span>
+                </label>
+                <label>
+                  <span class="label-text">\(g\) — suboptimality</span>
+                  <input type="range" id="zdt1G" min="1" max="6" step="0.05" value="1">
+                  <span class="value-text" id="zdt1GVal">\(g = 1.00\)</span>
+                </label>
+              </div>
+              <div class="sim-stats">
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="zdt1F1">0.3000</span>
+                  <span class="sim-stat-label">\(f_1\)</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="zdt1F2">0.4523</span>
+                  <span class="sim-stat-label">\(f_2\)</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="zdt1Status" style="color:var(--accent-2);">✓ Pareto optimal</span>
+                  <span class="sim-stat-label">Status</span>
+                </div>
+              </div>
+              <div style="margin-top:10px;color:var(--muted);font-size:0.85rem;padding:10px;border:1px solid var(--line);border-radius:var(--radius-md);">
+                <p style="margin:0;" id="zdt1Desc">Geser \(x_1\) untuk mengubah \(f_1\). Naikkan \(g\) (atur \(x_2..x_n > 0\)) untuk melihat solusi <em>dominated</em> di atas Pareto front.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB CANTILEVER ============ -->
+    <div class="tab-content" id="tab-cantilever">
+      <section class="section" aria-label="Penjelasan Cantilever Beam">
+        <div class="section-head">
+          <div>
+            <h2>Cantilever Beam Design</h2>
+            <p class="section-desc">Masalah 2-objektif dari teknik struktur: menyeimbangkan massa (berat) vs defleksi (kekakuan).</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="info-card">
+            <h3>Formulasi Fisik</h3>
+            <p>Balok kantilever dengan penampang persegi panjang (lebar \(b\), tinggi \(h\)), panjang \(L\), dibebani gaya \(P\) di ujung.</p>
+            <p>\[
+              \text{Massa } M = \rho L \cdot (b h)
+            \]</p>
+            <p>\[
+              \text{Defleksi } \delta = \frac{P L^3}{3 E I}, \quad I = \frac{b h^3}{12}
+            \]</p>
+            <p>\[
+              \delta = \frac{4 P L^3}{E} \cdot \frac{1}{b h^3}
+            \]</p>
+            <p>Dengan normalisasi konstanta, masalah MOO menjadi:</p>
+            <p>\[
+              \min \; f_1 = b h, \quad \min \; f_2 = \frac{1}{b h^3}
+            \]</p>
+            <p>dengan batas variabel \(b, h \in [0.1,\, 4]\) (sesuai simulasi di bawah). Batas ini esensial — tanpa batas atas \(h\), front tidak terdefinisi.</p>
+          </div>
+          <div class="info-card">
+            <h3>Pareto Front Analitik</h3>
+            <p>Untuk massa tetap \(f_1 = bh\), defleksi dapat ditulis ulang:</p>
+            <p>\[
+              f_2 = \frac{1}{b h^3} = \frac{1}{f_1 \, h^2}
+            \]</p>
+            <p>— monoton turun terhadap \(h\). Pada massa yang sama, penampang selalu lebih baik jika dibuat setinggi (dan setipis) mungkin, sehingga Pareto set terletak pada <strong>batas domain</strong>: \(h = h_{\max}\), plus \(b = b_{\min}\) untuk massa sangat kecil.</p>
+            <p>Dengan \(b, h \in [0.1,\, 4]\), front terdiri dari dua segmen:</p>
+            <p>\[
+              f_2 = \frac{1}{16\, f_1} \;\;(h{=}4,\ f_1 \ge 0.4), \qquad
+              f_2 = \frac{1}{100\, f_1^{3}} \;\;(b{=}0.1,\ f_1 < 0.4)
+            \]</p>
+            <div class="highlight-box">
+              <p>Tanpa batas atas \(h\), tidak ada titik Pareto-optimal (\(h \to \infty \Rightarrow f_2 \to 0\) pada massa tetap) — contoh bagus pentingnya batas variabel dalam formulasi MOO. Kurva merah pada simulasi dihitung numerik dari grid \((b,h)\) dan tepat mengikuti kedua segmen analitik ini.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SIMULASI CANTILEVER -->
+      <div class="sim-card" id="sim-cantilever">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">cantilever_sim.js</div>
+          <div class="sim-label">Cantilever — min massa vs min defleksi</div>
+        </div>
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="cantCanvas" width="500" height="500"></canvas>
+            </div>
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background:#ef4444;"></span> Pareto front</div>
+                <div class="legend-item"><span class="legend-swatch" style="background:#0d9488;"></span> Solusi saat ini</div>
+                <div class="legend-item"><span class="legend-swatch" style="background:rgba(100,116,139,0.15);border-color:transparent;border-radius:2px;width:20px;height:14px;"></span> Feasible region</div>
+              </div>
+              <div class="sim-controls" id="cantControls">
+                <label>
+                  <span class="label-text">Lebar \(b\)</span>
+                  <input type="range" id="cantB" min="0.1" max="4" step="0.05" value="1">
+                  <span class="value-text" id="cantBVal">\(b = 1.00\)</span>
+                </label>
+                <label>
+                  <span class="label-text">Tinggi \(h\)</span>
+                  <input type="range" id="cantH" min="0.1" max="4" step="0.05" value="1.5">
+                  <span class="value-text" id="cantHVal">\(h = 1.50\)</span>
+                </label>
+              </div>
+              <div class="sim-stats">
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="cantF1">1.5000</span>
+                  <span class="sim-stat-label">\(f_1 = b \cdot h\) (massa)</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="cantF2">0.2963</span>
+                  <span class="sim-stat-label">\(f_2 = 1/(b \cdot h^3)\) (defleksi)</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="cantStatus" style="color:var(--accent-2);">✓ Pareto</span>
+                  <span class="sim-stat-label">Status</span>
+                </div>
+              </div>
+              <div style="margin-top:10px;color:var(--muted);font-size:0.85rem;padding:10px;border:1px solid var(--line);border-radius:var(--radius-md);">
+                <p style="margin:0;" id="cantDesc">Atur \(b\) dan \(h\) untuk melihat trade-off. Titik pada Pareto front (merah) adalah yang tidak dapat diperbaiki pada kedua tujuan sekaligus.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB CONDUCTOR ============ -->
+    <div class="tab-content" id="tab-conductor">
+      <section class="section" aria-label="Penjelasan Conductor Sizing">
+        <div class="section-head">
+          <div>
+            <h2>Conductor Sizing — Saluran Transmisi / Distribusi</h2>
+            <p class="section-desc">Masalah 2-objektif dari teknik tenaga listrik: biaya material konduktor vs rugi-rugi daya \(I^2R\).</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="info-card">
+            <h3>Formulasi</h3>
+            <p>Luas penampang konduktor \(A\) (mm²) menentukan dua tujuan yang bertentangan:</p>
+            <p>\[
+              f_1(A) = c_1 \cdot A \quad \text{(biaya material)}
+            \]</p>
+            <p>\[
+              f_2(A) = c_2 \cdot \frac{1}{A} \quad \text{(rugi daya } I^2R\text{)}
+            \]</p>
+            <p>dengan \(c_1\) = biaya per satuan luas dan \(c_2 = \rho L I^2\) (resistivitas × panjang × kuadrat arus).</p>
+            <p>Variabel keputusan: \(A > 0\).</p>
+          </div>
+          <div class="info-card">
+            <h3>Pareto Front Analitik</h3>
+            <p>Dengan normalisasi \(c_1 = c_2 = 1\):</p>
+            <p>\[
+              f_1 = A, \quad f_2 = \frac{1}{A}
+            \]</p>
+            <p>Hubungan eksplisit Pareto front:</p>
+            <p>\[
+              f_1 \cdot f_2 = 1 \quad \Longrightarrow \quad f_2 = \frac{1}{f_1}
+            \]</p>
+            <p>Ini adalah hiperbola — setiap titik pada kurva ini adalah Pareto-optimal. Memperbesar \(A\) menaikkan biaya tapi menurunkan rugi daya, dan sebaliknya.</p>
+            <div class="highlight-box">
+              <p>Masalah ini adalah contoh paling sederhana dari trade-off biaya vs efisiensi di sistem tenaga. Dalam praktik nyata, ukuran konduktor bersifat diskrit (nilai standar), tetapi prinsip Pareto-nya identik.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SIMULASI CONDUCTOR -->
+      <div class="sim-card" id="sim-conductor">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">conductor_sim.js</div>
+          <div class="sim-label">Conductor Sizing — min biaya vs min rugi daya</div>
+        </div>
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="condCanvas" width="500" height="500"></canvas>
+            </div>
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background:#ef4444;"></span> Pareto front \(f_2 = 1/f_1\)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background:#0d9488;"></span> Solusi saat ini</div>
+              </div>
+              <div class="sim-controls" id="condControls">
+                <label>
+                  <span class="label-text">Luas penampang \(A\)</span>
+                  <input type="range" id="condA" min="0.2" max="5" step="0.05" value="1.5">
+                  <span class="value-text" id="condAVal">\(A = 1.50\)</span>
+                </label>
+              </div>
+              <div class="sim-stats">
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="condF1">1.5000</span>
+                  <span class="sim-stat-label">\(f_1 = A\) (biaya material)</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="condF2">0.6667</span>
+                  <span class="sim-stat-label">\(f_2 = 1/A\) (rugi daya)</span>
+                </div>
+                <div class="sim-stat">
+                  <span class="sim-stat-value" id="condHV">1.0000</span>
+                  <span class="sim-stat-label">\(f_1 \cdot f_2\)</span>
+                </div>
+              </div>
+              <div style="margin-top:10px;color:var(--muted);font-size:0.85rem;padding:10px;border:1px solid var(--line);border-radius:var(--radius-md);">
+                <p style="margin:0;" id="condDesc">Geser \(A\) untuk melihat trade-off. Setiap titik pada kurva \(f_1 \cdot f_2 = 1\) adalah Pareto-optimal. Produk \(f_1 \cdot f_2\) selalu konstan = 1 di sepanjang front.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB REFERENSI ============ -->
+    <div class="tab-content" id="tab-referensi">
+      <section class="section" aria-label="Referensi">
+        <div class="section-head">
+          <div>
+            <h2>Referensi &amp; Tautan Terkait</h2>
+            <p class="section-desc">Paper asli untuk setiap masalah benchmark, serta tautan ke halaman lain di situs ini.</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <h3 style="margin-bottom:12px;">📄 Referensi Utama</h3>
+            <ul class="ref-list">
+              <li>
+                <div class="ref-authors">Zitzler, E., Deb, K., &amp; Thiele, L.</div>
+                <div class="ref-title">Comparison of Multiobjective Evolutionary Algorithms: Empirical Results</div>
+                <div class="ref-source">Evolutionary Computation, 8(2):173–195, 2000.</div>
+                <div class="ref-doi"><a href="https://doi.org/10.1162/106365600568202" target="_blank">doi:10.1162/106365600568202</a></div>
+              </li>
+              <li>
+                <div class="ref-authors">Deb, K.</div>
+                <div class="ref-title">Multi-Objective Optimization Using Evolutionary Algorithms</div>
+                <div class="ref-source">John Wiley &amp; Sons, 2001. ISBN: 978-0-471-87339-6</div>
+                <div class="ref-doi"><a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">doi:10.1002/0470010640</a></div>
+              </li>
+              <li>
+                <div class="ref-authors">Miettinen, K.</div>
+                <div class="ref-title">Nonlinear Multiobjective Optimization</div>
+                <div class="ref-source">Springer, 1999. ISBN: 978-0-7923-8278-2</div>
+                <div class="ref-doi"><a href="https://doi.org/10.1007/978-1-4615-5563-6" target="_blank">doi:10.1007/978-1-4615-5563-6</a></div>
+              </li>
+              <li>
+                <div class="ref-authors">Zitzler, E., Deb, K., &amp; Thiele, L.</div>
+                <div class="ref-title">ZDT Test Functions (ZDT1–ZDT6)</div>
+                <div class="ref-source">Tersedia di berbagai repositori benchmark, mis. dokumentasi <a href="https://pymoo.org/problems/multi/zdt.html" target="_blank" style="color:var(--primary);font-weight:600;">pymoo — ZDT suite</a>.</div>
+              </li>
+              <li>
+                <div class="ref-authors">Coello Coello, C. A., Lamont, G. B., &amp; Van Veldhuizen, D. A.</div>
+                <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
+                <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
+                <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">doi:10.1007/978-0-387-36797-2</a></div>
+              </li>
+              <li>
+                <div class="ref-authors">Boyd, S. &amp; Vandenberghe, L.</div>
+                <div class="ref-title">Convex Optimization</div>
+                <div class="ref-source">Cambridge University Press, 2004. ISBN: 978-0-521-83378-3</div>
+                <div class="ref-doi"><a href="https://doi.org/10.1017/CBO9780511804441" target="_blank">doi:10.1017/CBO9780511804441</a></div>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 style="margin-bottom:12px;">🔗 Halaman Terkait</h3>
+            <ul class="ref-list">
+              <li>
+                <div class="ref-authors"><a href="./moo.html" style="color:var(--primary);">🎯 Multi-objective Optimization</a></div>
+                <div class="ref-title">Konsep MOO, Pareto front, scalarization, hypervolume, metrik evaluasi, dan simulasi interaktif.</div>
+              </li>
+              <li>
+                <div class="ref-authors"><a href="./nsga2.html" style="color:var(--primary);">🧬 NSGA-II</a></div>
+                <div class="ref-title">Non-dominated Sorting Genetic Algorithm II — salah satu algoritma MOEA yang paling banyak digunakan.</div>
+              </li>
+              <li>
+                <div class="ref-authors"><a href="./nsga3.html" style="color:var(--primary);">🧬 NSGA-III</a></div>
+                <div class="ref-title">Reference-point-based NSGA untuk many-objective optimization.</div>
+              </li>
+              <li>
+                <div class="ref-authors"><a href="./spea2.html" style="color:var(--primary);">🧬 SPEA2</a></div>
+                <div class="ref-title">Strength Pareto Evolutionary Algorithm 2 dengan fine-grained fitness.</div>
+              </li>
+              <li>
+                <div class="ref-authors"><a href="./moea-moga.html" style="color:var(--primary);">🧬 MOEA/MOGA</a></div>
+                <div class="ref-title">Keluarga Multiobjective Evolutionary / Genetic Algorithm.</div>
+              </li>
+              <li>
+                <div class="ref-authors"><a href="./convex-opt.html" style="color:var(--primary);">📐 Convex Optimization</a></div>
+                <div class="ref-title">Dasar convex optimization, kondisi KKT, dan kaitannya dengan MOO.</div>
+              </li>
+              <li>
+                <div class="ref-authors"><a href="./stat-tests.html" style="color:var(--primary);">📊 Uji Statistik Nonparametrik</a></div>
+                <div class="ref-title">Kruskal-Wallis, Mann-Whitney U, dan koreksi Holm-Bonferroni.</div>
+              </li>
+              <li>
+                <div class="ref-authors"><a href="./acn101.html" style="color:var(--primary);">📖 ACN101 — Modul Perkuliahan</a></div>
+                <div class="ref-title">Materi optimization dan MOO untuk S1, S2, dan S3.</div>
+              </li>
+              <li>
+                <div class="ref-authors"><a href="./index.html" style="color:var(--primary);">🏠 Beranda</a></div>
+                <div class="ref-title">Halaman utama — semua topik.</div>
+              </li>
+            </ul>
+
+            <h3 style="margin:20px 0 12px;">📎 Catatan</h3>
+            <div class="info-card">
+              <p>Semua masalah di halaman ini memiliki Pareto front yang <strong>diketahui secara analitik</strong>, sehingga ideal untuk memvalidasi algoritma MOO seperti NSGA-II, SPEA2, atau MOEA/D. Metrik seperti <em>Generational Distance</em> (GD) dan <em>Inverted Generational Distance</em> (IGD) dapat dihitung secara tepat dengan membandingkan solusi yang ditemukan terhadap front teoritis.</p>
+              <p style="margin-top:8px;">Untuk masalah <em>real-world</em> tanpa front analitik, digunakan reference front dari agregasi multiple runs atau metrik <em>hypervolume</em> yang tidak memerlukan pengetahuan front sejati.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>Contoh Masalah MOO Klasik</strong> — Berdasarkan Zitzler, Deb &amp; Thiele (2000), Miettinen (1999), Deb (2001)<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // ========== THEME TOGGLE ==========
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-moo-contoh");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-moo-contoh", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // ========== DRAWER ==========
+    const hamBtn = document.getElementById("hamBtn");
+    const drawer = document.getElementById("drawer");
+    const overlay = document.getElementById("drawerOverlay");
+    const drawerClose = document.getElementById("drawerClose");
+    function openDrawer() { drawer.classList.add("open"); overlay.classList.add("open"); document.body.style.overflow = "hidden"; }
+    function closeDrawer() { drawer.classList.remove("open"); overlay.classList.remove("open"); document.body.style.overflow = ""; }
+    hamBtn.addEventListener("click", openDrawer);
+    drawerClose.addEventListener("click", closeDrawer);
+    overlay.addEventListener("click", closeDrawer);
+
+    // ========== TAB SWITCHING ==========
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+      document.getElementById("tab-" + tabId).classList.add("active");
+      document.querySelector('.tab-btn[data-tab="' + tabId + '"]').classList.add("active");
+      // Re-render canvases after tab switch (handled by resize/scroll)
+      if (tabId === "zdt1") drawZDT1();
+      else if (tabId === "cantilever") drawCantilever();
+      else if (tabId === "conductor") drawConductor();
+    }
+
+    // ========== ZDT1 SIMULATION ==========
+    const zCanvas = document.getElementById("zdt1Canvas");
+    const zCtx = zCanvas.getContext("2d");
+    const ZW = zCanvas.width, ZH = zCanvas.height;
+    const pad = 45;
+
+    function zdt1Pareto(f1) { return 1 - Math.sqrt(f1); }
+
+    function drawZDT1() {
+      const W = ZW, H = ZH;
+      const pW = W - 2 * pad, pH = H - 2 * pad;
+      zCtx.clearRect(0, 0, W, H);
+
+      const x1 = parseFloat(document.getElementById("zdt1X1").value);
+      const g = parseFloat(document.getElementById("zdt1G").value);
+      const f1 = x1;
+      const f2 = g * (1 - Math.sqrt(Math.min(f1 / g, 1)));
+      const isPareto = g <= 1.001;
+
+      document.getElementById("zdt1X1Val").textContent = "x₁ = " + x1.toFixed(2);
+      document.getElementById("zdt1GVal").textContent = "g = " + g.toFixed(2);
+      document.getElementById("zdt1F1").textContent = f1.toFixed(4);
+      document.getElementById("zdt1F2").textContent = f2.toFixed(4);
+      document.getElementById("zdt1Status").textContent = isPareto ? "✓ Pareto optimal" : "✗ Dominated";
+      document.getElementById("zdt1Status").style.color = isPareto ? "var(--accent-2)" : "var(--danger)";
+
+      function toC(f1v, f2v) {
+        return [pad + (f1v / 1.1) * pW, H - pad - (f2v / 1.1) * pH];
+      }
+
+      // Grid
+      const lineColor = getComputedStyle(root).getPropertyValue("--line").trim();
+      zCtx.strokeStyle = lineColor;
+      zCtx.lineWidth = 0.5;
+      for (let t = 0; t <= 10; t++) {
+        const frac = t / 10;
+        const gx = pad + frac * pW;
+        zCtx.beginPath(); zCtx.moveTo(gx, pad); zCtx.lineTo(gx, H - pad); zCtx.stroke();
+        const gy = pad + frac * pH;
+        zCtx.beginPath(); zCtx.moveTo(pad, gy); zCtx.lineTo(W - pad, gy); zCtx.stroke();
+      }
+
+      // Feasible region shading
+      zCtx.beginPath();
+      zCtx.moveTo(pad, H - pad);
+      for (let i = 0; i <= 100; i++) {
+        const f1v = (i / 100) * 1.1;
+        const f2v = 1.1;
+        const [px, py] = toC(f1v, f2v);
+        i === 0 ? zCtx.moveTo(px, py) : zCtx.lineTo(px, py);
+      }
+      const fx = pad + 1.1 * pW;
+      zCtx.lineTo(fx, pad);
+      zCtx.lineTo(pad, pad);
+      zCtx.closePath();
+      zCtx.fillStyle = "rgba(13, 148, 136, 0.04)";
+      zCtx.fill();
+
+      // Pareto front — berakhir di (1, 0) karena f1 = x1 ≤ 1
+      zCtx.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const f1v = i / 100;
+        const f2v = zdt1Pareto(f1v);
+        const [px, py] = toC(f1v, Math.max(0, f2v));
+        i === 0 ? zCtx.moveTo(px, py) : zCtx.lineTo(px, py);
+      }
+      zCtx.strokeStyle = "#ef4444";
+      zCtx.lineWidth = 2.5;
+      zCtx.stroke();
+
+      // Axes
+      const muted2 = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      zCtx.strokeStyle = muted2;
+      zCtx.lineWidth = 1;
+      zCtx.beginPath();
+      zCtx.moveTo(pad, pad); zCtx.lineTo(pad, H - pad); zCtx.lineTo(W - pad, H - pad);
+      zCtx.stroke();
+
+      // Ticks
+      zCtx.fillStyle = muted2;
+      zCtx.font = "10px Inter, sans-serif";
+      zCtx.textAlign = "center";
+      for (let i = 0; i <= 5; i++) {
+        const v = (i / 5) * 1.1;
+        const [px, py] = toC(v, 0);
+        zCtx.fillText(v.toFixed(1), px, H - pad + 16);
+      }
+      zCtx.textAlign = "right";
+      for (let i = 0; i <= 5; i++) {
+        const v = (i / 5) * 1.1;
+        const [px, py] = toC(0, v);
+        zCtx.fillText(v.toFixed(1), pad - 8, py + 3);
+      }
+
+      // Axis labels
+      zCtx.font = "12px Inter, sans-serif";
+      zCtx.textAlign = "center";
+      zCtx.fillText("f₁", W / 2, H - 3);
+      zCtx.save();
+      zCtx.translate(12, H / 2);
+      zCtx.rotate(-Math.PI / 2);
+      zCtx.fillText("f₂", 0, 0);
+      zCtx.restore();
+
+      // Ideal point
+      const [izx, izy] = toC(0, 0);
+      zCtx.beginPath();
+      zCtx.arc(izx, izy, 3, 0, Math.PI * 2);
+      zCtx.fillStyle = "rgba(100, 116, 139, 0.5)";
+      zCtx.fill();
+      zCtx.fillStyle = muted2;
+      zCtx.font = "10px Inter, sans-serif";
+      zCtx.textAlign = "left";
+      zCtx.fillText("z*", izx + 4, izy - 4);
+
+      // Solution point
+      const [sx, sy] = toC(f1, f2);
+      zCtx.beginPath();
+      zCtx.arc(sx, sy, 7, 0, Math.PI * 2);
+      zCtx.fillStyle = "rgba(13, 148, 136, 0.85)";
+      zCtx.fill();
+      zCtx.strokeStyle = "#0f766e";
+      zCtx.lineWidth = 2;
+      zCtx.stroke();
+      zCtx.beginPath();
+      zCtx.arc(sx, sy, 11, 0, Math.PI * 2);
+      zCtx.strokeStyle = "rgba(13, 148, 136, 0.25)";
+      zCtx.lineWidth = 1.5;
+      zCtx.stroke();
+    }
+
+    document.getElementById("zdt1X1").addEventListener("input", drawZDT1);
+    document.getElementById("zdt1G").addEventListener("input", drawZDT1);
+
+    // ========== CANTILEVER SIMULATION ==========
+    const cCanvas = document.getElementById("cantCanvas");
+    const cCtx = cCanvas.getContext("2d");
+
+    // Pre-compute Pareto front for cantilever problem
+    function computeCantileverPareto() {
+      const points = [];
+      const bVals = [], hVals = [];
+      for (let b = 0.1; b <= 4.01; b += 0.05) bVals.push(b);
+      for (let h = 0.1; h <= 4.01; h += 0.05) hVals.push(h);
+
+      for (const b of bVals) {
+        for (const h of hVals) {
+          const f1 = b * h;
+          const f2 = 1 / (b * h * h * h);
+          points.push({ f1, f2, b, h });
+        }
+      }
+
+      // Find Pareto front: sort by f1 ascending, track min f2
+      points.sort((a, b) => a.f1 - b.f1);
+      const pareto = [];
+      let minF2 = Infinity;
+      for (const p of points) {
+        if (p.f2 < minF2 - 1e-10) {
+          minF2 = p.f2;
+          pareto.push(p);
+        }
+      }
+      return { all: points, pareto };
+    }
+
+    const cantData = computeCantileverPareto();
+    let cantMaxF1 = 0, cantMaxF2 = 0;
+    for (const p of cantData.all) {
+      if (p.f1 > cantMaxF1) cantMaxF1 = p.f1;
+      if (p.f2 > cantMaxF2) cantMaxF2 = p.f2;
+    }
+    cantMaxF1 *= 1.05;
+    cantMaxF2 *= 1.05;
+
+    function isCantileverPareto(b, h) {
+      const f1 = b * h;
+      const f2 = 1 / (b * h * h * h);
+      for (const p of cantData.pareto) {
+        if (p.f1 <= f1 + 1e-9 && p.f2 <= f2 + 1e-9) {
+          if (p.f1 < f1 - 1e-9 || p.f2 < f2 - 1e-9) return false;
+        }
+        if (p.f1 > f1) break;
+      }
+      return true;
+    }
+
+    function drawCantilever() {
+      const W = cCanvas.width, H = cCanvas.height;
+      const pW = W - 2 * pad, pH = H - 2 * pad;
+      cCtx.clearRect(0, 0, W, H);
+
+      const b = parseFloat(document.getElementById("cantB").value);
+      const h = parseFloat(document.getElementById("cantH").value);
+      const f1 = b * h;
+      const f2 = 1 / (b * h * h * h);
+      const isPareto = isCantileverPareto(b, h);
+
+      document.getElementById("cantBVal").textContent = "b = " + b.toFixed(2);
+      document.getElementById("cantHVal").textContent = "h = " + h.toFixed(2);
+      document.getElementById("cantF1").textContent = f1.toFixed(4);
+      document.getElementById("cantF2").textContent = f2.toFixed(4);
+      document.getElementById("cantStatus").textContent = isPareto ? "✓ Pareto" : "✗ Dominated";
+      document.getElementById("cantStatus").style.color = isPareto ? "var(--accent-2)" : "var(--danger)";
+
+      function toC(f1v, f2v) {
+        return [pad + (f1v / cantMaxF1) * pW, H - pad - (f2v / cantMaxF2) * pH];
+      }
+
+      // Grid
+      const lineColor = getComputedStyle(root).getPropertyValue("--line").trim();
+      cCtx.strokeStyle = lineColor;
+      cCtx.lineWidth = 0.5;
+      for (let t = 0; t <= 10; t++) {
+        const frac = t / 10;
+        const gx = pad + frac * pW;
+        cCtx.beginPath(); cCtx.moveTo(gx, pad); cCtx.lineTo(gx, H - pad); cCtx.stroke();
+        const gy = pad + frac * pH;
+        cCtx.beginPath(); cCtx.moveTo(pad, gy); cCtx.lineTo(W - pad, gy); cCtx.stroke();
+      }
+
+      // Feasible region (scatter of all points)
+      const step = Math.max(1, Math.floor(cantData.all.length / 3000));
+      for (let i = 0; i < cantData.all.length; i += step) {
+        const p = cantData.all[i];
+        const [px, py] = toC(p.f1, p.f2);
+        cCtx.fillStyle = "rgba(100, 116, 139, 0.08)";
+        cCtx.fillRect(px - 1, py - 1, 2, 2);
+      }
+
+      // Pareto front
+      cCtx.beginPath();
+      for (let i = 0; i < cantData.pareto.length; i++) {
+        const p = cantData.pareto[i];
+        const [px, py] = toC(p.f1, p.f2);
+        i === 0 ? cCtx.moveTo(px, py) : cCtx.lineTo(px, py);
+      }
+      cCtx.strokeStyle = "#ef4444";
+      cCtx.lineWidth = 2.5;
+      cCtx.stroke();
+
+      // Axes
+      const muted2 = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      cCtx.strokeStyle = muted2;
+      cCtx.lineWidth = 1;
+      cCtx.beginPath();
+      cCtx.moveTo(pad, pad); cCtx.lineTo(pad, H - pad); cCtx.lineTo(W - pad, H - pad);
+      cCtx.stroke();
+
+      // Ticks
+      cCtx.fillStyle = muted2;
+      cCtx.font = "10px Inter, sans-serif";
+      cCtx.textAlign = "center";
+      for (let i = 0; i <= 4; i++) {
+        const f1v = (i / 4) * cantMaxF1;
+        const [px, py] = toC(f1v, 0);
+        cCtx.fillText(f1v.toFixed(1), px, H - pad + 16);
+      }
+      cCtx.textAlign = "right";
+      for (let i = 0; i <= 4; i++) {
+        const f2v = (i / 4) * cantMaxF2;
+        const [px, py] = toC(0, f2v);
+        cCtx.fillText(f2v.toFixed(1), pad - 8, py + 3);
+      }
+
+      // Axis labels
+      cCtx.font = "12px Inter, sans-serif";
+      cCtx.textAlign = "center";
+      cCtx.fillText("f₁ (massa →)", W / 2, H - 3);
+      cCtx.save();
+      cCtx.translate(12, H / 2);
+      cCtx.rotate(-Math.PI / 2);
+      cCtx.fillText("f₂ (defleksi →)", 0, 0);
+      cCtx.restore();
+
+      // Solution point
+      const [sx, sy] = toC(f1, f2);
+      cCtx.beginPath();
+      cCtx.arc(sx, sy, 7, 0, Math.PI * 2);
+      cCtx.fillStyle = "rgba(13, 148, 136, 0.85)";
+      cCtx.fill();
+      cCtx.strokeStyle = "#0f766e";
+      cCtx.lineWidth = 2;
+      cCtx.stroke();
+      cCtx.beginPath();
+      cCtx.arc(sx, sy, 11, 0, Math.PI * 2);
+      cCtx.strokeStyle = "rgba(13, 148, 136, 0.25)";
+      cCtx.lineWidth = 1.5;
+      cCtx.stroke();
+    }
+
+    document.getElementById("cantB").addEventListener("input", drawCantilever);
+    document.getElementById("cantH").addEventListener("input", drawCantilever);
+
+    // ========== CONDUCTOR SIMULATION ==========
+    const coCanvas = document.getElementById("condCanvas");
+    const coCtx = coCanvas.getContext("2d");
+    const condMaxF1 = 5.5, condMaxF2 = 5.5;
+
+    function drawConductor() {
+      const W = coCanvas.width, H = coCanvas.height;
+      const pW = W - 2 * pad, pH = H - 2 * pad;
+      coCtx.clearRect(0, 0, W, H);
+
+      const A = parseFloat(document.getElementById("condA").value);
+      const f1 = A;
+      const f2 = 1 / A;
+      const product = f1 * f2;
+
+      document.getElementById("condAVal").textContent = "A = " + A.toFixed(2);
+      document.getElementById("condF1").textContent = f1.toFixed(4);
+      document.getElementById("condF2").textContent = f2.toFixed(4);
+      document.getElementById("condHV").textContent = product.toFixed(4);
+
+      function toC(f1v, f2v) {
+        return [pad + (f1v / condMaxF1) * pW, H - pad - (f2v / condMaxF2) * pH];
+      }
+
+      // Grid
+      const lineColor = getComputedStyle(root).getPropertyValue("--line").trim();
+      coCtx.strokeStyle = lineColor;
+      coCtx.lineWidth = 0.5;
+      for (let t = 0; t <= 10; t++) {
+        const frac = t / 10;
+        const gx = pad + frac * pW;
+        coCtx.beginPath(); coCtx.moveTo(gx, pad); coCtx.lineTo(gx, H - pad); coCtx.stroke();
+        const gy = pad + frac * pH;
+        coCtx.beginPath(); coCtx.moveTo(pad, gy); coCtx.lineTo(W - pad, gy); coCtx.stroke();
+      }
+
+      // Catatan: dengan satu variabel keputusan, himpunan attainable di ruang
+      // objektif adalah kurva f2 = 1/f1 itu sendiri — tidak ada region 2D
+      // yang perlu diarsir (arsiran "feasible region" sebelumnya menyesatkan).
+
+      // Pareto front: f2 = 1/f1 (hyperbola)
+      coCtx.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const f1v = 0.1 + (i / 100) * (condMaxF1 - 0.1);
+        const f2v = 1 / f1v;
+        if (f2v > condMaxF2) continue;
+        const [px, py] = toC(f1v, f2v);
+        i === 0 ? coCtx.moveTo(px, py) : coCtx.lineTo(px, py);
+      }
+      coCtx.strokeStyle = "#ef4444";
+      coCtx.lineWidth = 2.5;
+      coCtx.stroke();
+
+      // Axes
+      const muted2 = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      coCtx.strokeStyle = muted2;
+      coCtx.lineWidth = 1;
+      coCtx.beginPath();
+      coCtx.moveTo(pad, pad); coCtx.lineTo(pad, H - pad); coCtx.lineTo(W - pad, H - pad);
+      coCtx.stroke();
+
+      // Ticks
+      coCtx.fillStyle = muted2;
+      coCtx.font = "10px Inter, sans-serif";
+      coCtx.textAlign = "center";
+      for (let i = 0; i <= 5; i++) {
+        const v = (i / 5) * condMaxF1;
+        const [px, py] = toC(v, 0);
+        coCtx.fillText(v.toFixed(1), px, H - pad + 16);
+      }
+      coCtx.textAlign = "right";
+      for (let i = 0; i <= 5; i++) {
+        const v = (i / 5) * condMaxF2;
+        const [px, py] = toC(0, v);
+        coCtx.fillText(v.toFixed(1), pad - 8, py + 3);
+      }
+
+      // Axis labels
+      coCtx.font = "12px Inter, sans-serif";
+      coCtx.textAlign = "center";
+      coCtx.fillText("f₁ = A (biaya material →)", W / 2, H - 3);
+      coCtx.save();
+      coCtx.translate(12, H / 2);
+      coCtx.rotate(-Math.PI / 2);
+      coCtx.fillText("f₂ = 1/A (rugi daya →)", 0, 0);
+      coCtx.restore();
+
+      // Label on front
+      coCtx.fillStyle = muted2;
+      coCtx.font = "11px Inter, sans-serif";
+      coCtx.textAlign = "left";
+      const [lf1x, lf1y] = toC(2.5, 0.4);
+      coCtx.fillText("f₁ · f₂ = 1", lf1x, lf1y);
+
+      // Solution point
+      const [sx, sy] = toC(f1, f2);
+      coCtx.beginPath();
+      coCtx.arc(sx, sy, 7, 0, Math.PI * 2);
+      coCtx.fillStyle = "rgba(13, 148, 136, 0.85)";
+      coCtx.fill();
+      coCtx.strokeStyle = "#0f766e";
+      coCtx.lineWidth = 2;
+      coCtx.stroke();
+      coCtx.beginPath();
+      coCtx.arc(sx, sy, 11, 0, Math.PI * 2);
+      coCtx.strokeStyle = "rgba(13, 148, 136, 0.25)";
+      coCtx.lineWidth = 1.5;
+      coCtx.stroke();
+    }
+
+    document.getElementById("condA").addEventListener("input", drawConductor);
+
+    // ========== INITIAL DRAW ==========
+    drawZDT1();
+    drawCantilever();
+    drawConductor();
+
+    // Re-render on tab visibility
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tab = this.getAttribute('data-tab');
+        if (tab === 'zdt1') setTimeout(drawZDT1, 50);
+        else if (tab === 'cantilever') setTimeout(drawCantilever, 50);
+        else if (tab === 'conductor') setTimeout(drawConductor, 50);
+      });
+    });
+  </script>
+
+  <script>
+    // Re-render KaTeX after dynamic tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (window.renderMathInElement) {
+          setTimeout(() => {
+            renderMathInElement(document.body, {
+              delimiters: [
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\[', right: '\\]', display: true}
+              ],
+              ignoredTags: ['script', 'noscript', 'style', 'textarea', 'annotation', 'annotation-xml']
+            });
+          }, 100);
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

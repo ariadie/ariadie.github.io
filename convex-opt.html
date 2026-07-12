@@ -715,7 +715,7 @@
               <tr><td>QP</td><td>Quadratic convex</td><td>Linear</td></tr>
               <tr><td>SOCP</td><td>Linear</td><td>Cone orde-2</td></tr>
               <tr><td>SDP</td><td>Linear</td><td>PSD cone</td></tr>
-              <tr><td>GP</td><td>Posynomial (log-convex)</td><td>Monial/Posynomial</td></tr>
+              <tr><td>GP</td><td>Posynomial (convex setelah transformasi log)</td><td>Monomial/Posynomial</td></tr>
             </table>
           </div>
 
@@ -740,7 +740,7 @@ subject to  fᵢ(x) ≤ 0,   i = 1,...,m
       <div class="section-head">
         <div>
           <h2>Simulasi Interaktif</h2>
-          <p class="section-desc">Bandingkan fungsi convex (\(x^2\), \(e^x\)) vs non-convex (\(\sin x\), \(x^3\)). Jalankan <em>gradient descent</em> untuk melihat bagaimana titik awal yang berbeda konvergen ke <strong>global optimum</strong> untuk fungsi convex, atau terperangkap di <strong>local optimum</strong> untuk fungsi non-convex.</p>
+          <p class="section-desc">Bandingkan fungsi convex (\(x^2\), \(e^x - x\)) vs non-convex (\(x^4 - 10x^2 + 2x\), \(x^3 - 6x\)). Jalankan <em>gradient descent</em> untuk melihat bagaimana titik awal yang berbeda konvergen ke <strong>global optimum</strong> untuk fungsi convex, atau terperangkap di <strong>local optimum</strong> untuk fungsi non-convex.</p>
         </div>
       </div>
 
@@ -772,11 +772,11 @@ subject to  fᵢ(x) ≤ 0,   i = 1,...,m
                   Fungsi:
                   <select id="funcSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 10px; font-weight: 600;">
                     <option value="convex1">\(f(x)=x^2\) (convex)</option>
-                    <option value="convex2">\(f(x)=e^x\) (convex)</option>
+                    <option value="convex2">\(f(x)=e^x - x\) (convex)</option>
                     <option value="convex3">\(f(x)=x^4 + x^2\) (convex)</option>
-                    <option value="nonconvex1">\(f(x)=\sin x\) (non-convex)</option>
-                    <option value="nonconvex2">\(f(x)=x^3 - 6x\) (non-convex)</option>
-                    <option value="nonconvex3">\(f(x)=x^4 - 10x^2 + 2x\) (non-convex)</option>
+                    <option value="nonconvex3">\(f(x)=x^4 - 10x^2 + 2x\) (non-convex, 2 basin tak setara)</option>
+                    <option value="nonconvex2">\(f(x)=x^3 - 6x\) (non-convex, tak terbatas ke bawah)</option>
+                    <option value="nonconvex1">\(f(x)=\sin x\) (non-convex, periodik — semua minimum lokal sama)</option>
                   </select>
                 </label>
               </div>
@@ -927,9 +927,9 @@ subject to  fᵢ(x) ≤ 0,   i = 1,...,m
         isConvex: true
       },
       convex2: {
-        label: "e^x",
-        f: x => Math.exp(x),
-        df: x => Math.exp(x),
+        label: "e^x − x",
+        f: x => Math.exp(x) - x,
+        df: x => Math.exp(x) - 1,
         ddf: x => Math.exp(x),
         xRange: [-2, 2],
         isConvex: true

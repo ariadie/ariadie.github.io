@@ -355,12 +355,12 @@
           <span class="eyebrow">Evolusi Buatan untuk MOO</span>
           <h1>Multi-Objective Evolutionary Algorithm</h1>
           <p class="lead">
-            <strong>Multi-Objective Evolutionary Algorithm (MOEA)</strong>, juga dikenal sebagai
-            <strong>Multi-Objective Genetic Algorithm (MOGA)</strong>, adalah kelas algoritma yang
-            menggunakan prinsip evolusi Darwin — seleksi, crossover, dan mutasi — untuk menyelesaikan
-            masalah optimasi multi-objective. Tidak seperti metode scalarization klasik, MOEA bekerja
+            <strong>Multi-Objective Evolutionary Algorithm (MOEA)</strong> adalah kelas algoritma
+            evolusioner untuk masalah optimasi multi-objective; <strong>Multi-Objective Genetic
+            Algorithm (MOGA)</strong> adalah MOEA yang memakai operator genetika — seleksi, crossover,
+            dan mutasi. Tidak seperti metode scalarization klasik, MOEA bekerja
             dengan <em>populasi</em> solusi sehingga dapat menemukan banyak titik Pareto-optimal dalam
-            satu kali proses evolusi, tanpa memerlukan asumsi convexitas (bandingkan dengan
+            satu kali proses evolusi, tanpa memerlukan asumsi konveksitas (bandingkan dengan
             <a href="./convex-opt.html" style="color: var(--primary); font-weight: 700;">Convex Opt</a>).
           </p>
           <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
@@ -499,7 +499,7 @@ Output: A (Pareto front approximation)
       <div class="section-head">
         <div>
           <h2>Simulasi Interaktif MOEA</h2>
-          <p class="section-desc">Generational GA sederhana untuk problem 2-objective. Saksikan populasi berevolusi menuju Pareto front. Pilih strategi fitness assignment dan lihat dampaknya pada konvergensi dan keragaman.</p>
+          <p class="section-desc">Generational GA sederhana untuk problem 2-objective. Saksikan populasi berevolusi menuju Pareto front. Pilih strategi fitness assignment dan lihat dampaknya pada konvergensi dan keragaman. Simulasi bersifat ilustratif — bukan implementasi lengkap algoritma tertentu.</p>
         </div>
       </div>
 
@@ -591,7 +591,7 @@ Output: A (Pareto front approximation)
           <div class="ref-doi"><a href="https://doi.org/10.1109/ICEC.1994.350037" target="_blank">https://doi.org/10.1109/ICEC.1994.350037</a></div>
         </li>
         <li>
-          <div class="ref-authors">Coello Coello, C. A., Van Veldhuizen, D. A., &amp; Lamont, G. B.</div>
+          <div class="ref-authors">Coello Coello, C. A., Lamont, G. B., &amp; Van Veldhuizen, D. A.</div>
           <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
           <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
           <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
@@ -772,16 +772,18 @@ Output: A (Pareto front approximation)
     function computeHV(pop) {
       const f1 = getF1Indices(pop);
       if (f1.length === 0) return 0;
-      // Sort by f1 ascending
-      const sols = f1.map(i => ({ f1: pop[i].f1, f2: pop[i].f2 }));
+      // Hanya titik yang mendominasi reference point; urutkan naik berdasar f1
+      const sols = f1.map(i => ({ f1: pop[i].f1, f2: pop[i].f2 }))
+        .filter(s => s.f1 < refPoint[0] && s.f2 < refPoint[1]);
       sols.sort((a, b) => a.f1 - b.f1);
+      // Staircase 2D standar: tiap titik menyumbang (ref0 - f1_i) * (prevF2 - f2_i)
       let hv = 0;
-      let prevF1 = 0;
+      let prevF2 = refPoint[1];
       for (const s of sols) {
-        if (s.f2 > refPoint[1]) continue;
-        hv += (Math.min(s.f1, refPoint[0]) - prevF1) * (refPoint[1] - s.f2);
-        prevF1 = Math.max(prevF1, Math.min(s.f1, refPoint[0]));
-        if (prevF1 >= refPoint[0]) break;
+        if (s.f2 < prevF2) {
+          hv += (refPoint[0] - s.f1) * (prevF2 - s.f2);
+          prevF2 = s.f2;
+        }
       }
       return hv;
     }
@@ -851,10 +853,12 @@ Output: A (Pareto front approximation)
         if (newPop.length + fi.length <= POP_SIZE) {
           for (const idx of fi) newPop.push(combined[idx]);
         } else {
+          // Pasangkan jarak dengan indeks SEBELUM sort (indexOf saat sort = bug pemetaan)
           const d = crowdingDist(combined, fi);
-          fi.sort((a, b) => d[fi.indexOf(b)] - d[fi.indexOf(a)]);
+          const order = fi.map((idx, kk) => ({ idx, d: d[kk] }));
+          order.sort((a, b) => b.d - a.d);
           const need = POP_SIZE - newPop.length;
-          for (let i = 0; i < need; i++) newPop.push(combined[fi[i]]);
+          for (let i = 0; i < need; i++) newPop.push(combined[order[i].idx]);
           break;
         }
       }

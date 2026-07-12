@@ -624,15 +624,16 @@
           <span class="eyebrow">Multiobjective Evolutionary Algorithm</span>
           <h1>Strength Pareto Evolutionary Algorithm 2</h1>
           <p class="lead">
-            <strong>SPEA2</strong> adalah algoritma evolusioner multiobjective yang diperkenalkan oleh 
-            Zitzler, Laumanns, and Thiele (2001) sebagai penyempurnaan dari SPEA (Zitzler &amp; Thiele, 1999).
+            <strong>SPEA2</strong> adalah algoritma evolusioner multiobjective yang diperkenalkan oleh
+            Zitzler, Laumanns, dan Thiele (2001) sebagai penyempurnaan dari SPEA (Zitzler &amp; Thiele, 1999).
             SPEA2 mengintegrasikan <em>fine-grained fitness assignment</em>, <em>density estimation</em>,
             dan <em>archive truncation</em> untuk menemukan solusi Pareto-optimal secara efisien.
           </p>
           <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
             <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
             <a class="btn" href="#penjelasan">Pelajari Algoritma</a>
-            <a class="btn" href="https://doi.org/10.1109/TEVC.1999.781198" target="_blank">Paper Asli SPEA →</a>
+            <a class="btn" href="https://doi.org/10.3929/ethz-a-004284029" target="_blank">Laporan Asli SPEA2 →</a>
+            <a class="btn" href="https://doi.org/10.1109/TEVC.1999.781198" target="_blank">Paper SPEA (1999) →</a>
           </div>
         </div>
       </div>
@@ -748,7 +749,7 @@ Output: A (final archive)
       <div class="section-head">
         <div>
           <h2>Simulasi Interaktif SPEA2</h2>
-          <p class="section-desc">Visualisasi real-time algoritma SPEA2 pada problem 2-objective minimization. Titik biru = populasi, titik ungu = archive (Pareto front approximation).</p>
+          <p class="section-desc">Visualisasi real-time algoritma SPEA2 pada problem 2-objective minimization. Titik biru = populasi, titik ungu = archive (Pareto front approximation). Fitness (R+D), seleksi lingkungan, dan truncation mengikuti SPEA2; operator variasi disederhanakan (uniform crossover + mutasi seragam) untuk keperluan ilustrasi.</p>
         </div>
       </div>
 
@@ -805,7 +806,7 @@ Output: A (final archive)
                 </div>
                 <div class="sim-stat">
                   <span class="sim-stat-value" id="statPareto">0</span>
-                  <span class="sim-stat-label">Pareto Optimal</span>
+                  <span class="sim-stat-label">Dekat Front Sejati</span>
                 </div>
               </div>
             </div>
@@ -849,7 +850,7 @@ Output: A (final archive)
           <div class="ref-doi"><a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640</a></div>
         </li>
         <li>
-          <div class="ref-authors">Coello Coello, C. A., Van Veldhuizen, D. A., &amp; Lamont, G. B.</div>
+          <div class="ref-authors">Coello Coello, C. A., Lamont, G. B., &amp; Van Veldhuizen, D. A.</div>
           <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
           <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
           <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
@@ -978,7 +979,8 @@ Output: A (final archive)
       }
       const D = new Array(n);
       for (let i = 0; i < n; i++) {
-        const sigma = dist[i][Math.min(k, dist[i].length - 1)] || 0;
+        // Indeks k-1 (0-based) = tetangga terdekat ke-k
+        const sigma = dist[i][Math.min(k - 1, dist[i].length - 1)] || 0;
         D[i] = 1 / (sigma + 2);
       }
       // Final fitness F[i] = R[i] + D[i]
@@ -1027,26 +1029,56 @@ Output: A (final archive)
         }
         return newArch;
       }
-      // Truncation: remove closest neighbors iteratively
+      // Truncation SPEA2: buang individu dengan vektor jarak tetangga terkecil
+      // secara leksikografis (jarak ke-1, lalu ke-2, ke-3, ...) — menjaga boundary solutions
       while (newArch.length > ARCHIVE_SIZE) {
-        let minDist = Infinity;
-        let toRemove = -1;
-        for (let i = 0; i < newArch.length; i++) {
-          let minD = Infinity;
-          for (let j = 0; j < newArch.length; j++) {
+        const m = newArch.length;
+        const dmat = [];
+        for (let i = 0; i < m; i++) {
+          const row = [];
+          for (let j = 0; j < m; j++) {
             if (i === j) continue;
-            const d = Math.hypot(newArch[i].f1 - newArch[j].f1, newArch[i].f2 - newArch[j].f2);
-            if (d < minD) minD = d;
+            row.push(Math.hypot(newArch[i].f1 - newArch[j].f1, newArch[i].f2 - newArch[j].f2));
           }
-          if (minD < minDist) {
-            minDist = minD;
-            toRemove = i;
-          }
+          row.sort((a, b) => a - b);
+          dmat.push(row);
         }
-        if (toRemove >= 0) newArch.splice(toRemove, 1);
-        else break;
+        let toRemove = 0;
+        for (let i = 1; i < m; i++) {
+          let less = false;
+          for (let q = 0; q < dmat[i].length; q++) {
+            if (dmat[i][q] < dmat[toRemove][q]) { less = true; break; }
+            if (dmat[i][q] > dmat[toRemove][q]) { less = false; break; }
+          }
+          if (less) toRemove = i;
+        }
+        newArch.splice(toRemove, 1);
       }
       return newArch;
+    }
+
+    // Fitness SPEA2 (R + D) untuk anggota archive — dipakai pada mating selection
+    function assignArchiveFitness(arch) {
+      const n = arch.length;
+      if (n === 0) return;
+      const S = new Array(n).fill(0);
+      for (let i = 0; i < n; i++)
+        for (let j = 0; j < n; j++)
+          if (i !== j && dominates(arch[i], arch[j])) S[i]++;
+      const k = Math.max(1, Math.round(Math.sqrt(POP_SIZE + ARCHIVE_SIZE)));
+      for (let i = 0; i < n; i++) {
+        let R = 0;
+        for (let j = 0; j < n; j++)
+          if (i !== j && dominates(arch[j], arch[i])) R += S[j];
+        const dists = [];
+        for (let j = 0; j < n; j++) {
+          if (i === j) continue;
+          dists.push(Math.hypot(arch[i].f1 - arch[j].f1, arch[i].f2 - arch[j].f2));
+        }
+        dists.sort((a, b) => a - b);
+        const sigma = dists.length ? dists[Math.min(k - 1, dists.length - 1)] : 0;
+        arch[i].fit = R + 1 / (sigma + 2);
+      }
     }
 
     function crossover(a, b) {
@@ -1091,16 +1123,16 @@ Output: A (final archive)
       }
       // Environmental selection
       archive = environmentalSelection(population, archive);
-      // Mating + variation
+      // Mating selection: binary tournament berdasarkan fitness SPEA2 F(i) = R + D
+      assignArchiveFitness(archive);
       const newPop = [];
       while (newPop.length < POP_SIZE) {
-        // Tournament selection from archive
         const a1 = archive[Math.floor(Math.random() * archive.length)];
         const a2 = archive[Math.floor(Math.random() * archive.length)];
         const b1 = archive[Math.floor(Math.random() * archive.length)];
         const b2 = archive[Math.floor(Math.random() * archive.length)];
-        const p1 = a1.f1 + a1.f2 < a2.f1 + a2.f2 ? a1 : a2;
-        const p2 = b1.f1 + b1.f2 < b2.f1 + b2.f2 ? b1 : b2;
+        const p1 = a1.fit < a2.fit ? a1 : a2;
+        const p2 = b1.fit < b2.fit ? b1 : b2;
         const children = crossover(p1, p2);
         for (const c of children) {
           mutate(c, 0.1);
