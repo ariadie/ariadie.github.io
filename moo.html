@@ -635,18 +635,12 @@
         <a class="drawer-link" href="./moea-moga.html">🧬 MOEA/MOGA</a>
         <a class="drawer-link" href="./convex-opt.html">📐 Convex Opt</a>
         <a class="drawer-link" href="./stat-tests.html">📊 Uji Statistik</a>
+        <a class="drawer-link" href="./moo-contoh.html">📈 Contoh Masalah MOO</a>
         <a class="drawer-link" href="./moo.html" style="color:var(--primary);">🎯 MOO</a>
       </div>
       <div class="drawer-section">
-        <div class="drawer-section-label">Sistem Kendali</div>
-        <a class="drawer-link" href="../site2/pole-placement.html">⚙️ Pole Placement</a>
-        <a class="drawer-link" href="../site2/pid.html">🎛️ Kontrol PID</a>
-      </div>
-      <div class="drawer-section">
         <div class="drawer-section-label">Materi Ajar</div>
-        <a class="drawer-link" href="./acn101.html">📖 ACN101 (S1)</a>
-        <a class="drawer-link" href="./acn102.html">📖 ACN102 (S2)</a>
-        <a class="drawer-link" href="./acn103.html">📖 ACN103 (S3)</a>
+        <a class="drawer-link" href="./acn101.html">📖 ACN101 (S1/S2/S3)</a>
       </div>
       <div class="drawer-section">
         <a class="drawer-link" href="./index.html" style="color:var(--muted);font-size:0.82rem;">🏠 Beranda</a>
@@ -695,7 +689,7 @@
         <article class="feature-card">
           <div class="feature-icon">🧬</div>
           <h3>Evolutionary MOO</h3>
-          <p>Algoritma seperti NSGA-II, NSGA-III, dan SPEA2 menggunakan populasi untuk menemukan banyak solusi Pareto dalam sekali jalan — tanpa perlu asumsi convexitas.</p>
+          <p>Algoritma seperti NSGA-II, NSGA-III, dan SPEA2 menggunakan populasi untuk menemukan banyak solusi Pareto dalam sekali jalan — tanpa perlu asumsi konveksitas.</p>
         </article>
       </div>
     </section>
@@ -727,7 +721,7 @@
             <li>
               <div>
                 <span class="step-title">Ideal &amp; Nadir Point</span>
-                <span class="step-text"><em>Ideal point</em> \(z^*\) terdiri dari nilai optimal masing-masing tujuan secara terpisah: \(z_i^* = \min f_i(x)\). <em>Nadir point</em> \(z^{\text{nad}}\) adalah batas bawah Pareto front: \(z_i^{\text{nad}} = \max\) dari nilai \(f_i\) pada Pareto front.</span>
+                <span class="step-text"><em>Ideal point</em> \(z^*\) terdiri dari nilai optimal masing-masing tujuan secara terpisah: \(z_i^* = \min f_i(x)\). <em>Nadir point</em> \(z^{\text{nad}}\) adalah batas atas Pareto front (nilai terburuk tiap objektif di sepanjang front): \(z_i^{\text{nad}} = \max\) dari nilai \(f_i\) pada Pareto front.</span>
               </div>
             </li>
             <li>
@@ -767,7 +761,7 @@
               <li>Untuk masalah non-convex, diperlukan metode lain (ε-constraint, Chebyshev, atau EMO).</li>
             </ul>
             <div class="highlight-box" style="margin-top: 8px;">
-              <p>📐 Lihat pembahasan convexitas dan gradient descent di <a href="./convex-opt.html" style="color: var(--primary); font-weight: 700;">halaman Convex Optimization</a>.</p>
+              <p>📐 Lihat pembahasan konveksitas dan gradient descent di <a href="./convex-opt.html" style="color: var(--primary); font-weight: 700;">halaman Convex Optimization</a>.</p>
             </div>
           </div>
         </div>
@@ -802,7 +796,7 @@
           <div class="feature-icon" style="margin-bottom: 10px;">📏</div>
           <h3>Weighted Chebyshev</h3>
           <p style="margin: 8px 0;">\[\min_x \max_i \big(w_i |f_i(x) - z_i^*|\big)\]</p>
-          <p>Meminimalkan jarak Chebyshev (maksimum weighted deviation) dari ideal point. Dapat menemukan seluruh Pareto front termasuk bagian non-convex. Membutuhkan \(z^*\) (ideal point) yang diketahui.</p>
+          <p>Meminimalkan jarak Chebyshev (maksimum weighted deviation) dari ideal point. Dapat menemukan seluruh Pareto front termasuk bagian non-convex. Membutuhkan \(z^*\) (ideal point) yang diketahui. Catatan: solusinya dapat bersifat <em>weakly Pareto-optimal</em>; varian <em>augmented Chebyshev</em> menambahkan suku augmentasi kecil untuk menjamin Pareto-optimal.</p>
         </div>
 
         <div class="algo-card">
@@ -908,22 +902,22 @@
         <a href="./acn101.html" style="text-decoration:none;">
           <article class="feature-card" style="cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;">
             <div class="feature-icon">📖</div>
-            <h3>ACN101 (S1)</h3>
-            <p>Pengantar Optimization, Multiobjective Optimization, dan MOEA/MOGA untuk mahasiswa S1.</p>
+            <h3>ACN101 &mdash; S1</h3>
+            <p>Pengantar Optimization, Multiobjective Optimization, dan MOEA/MOGA untuk mahasiswa sarjana.</p>
           </article>
         </a>
-        <a href="./acn102.html" style="text-decoration:none;">
+        <a href="./acn101.html#tab-s2" style="text-decoration:none;">
           <article class="feature-card" style="cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;">
             <div class="feature-icon">📖</div>
-            <h3>ACN102 (S2)</h3>
-            <p>Lanjutan Optimization, MOO, dan MOEA/MOGA untuk mahasiswa S2 dengan pendekatan lebih formal.</p>
+            <h3>ACN101 &mdash; S2</h3>
+            <p>Lanjutan Optimization, MOO, dan MOEA/MOGA untuk mahasiswa magister dengan pendekatan lebih formal.</p>
           </article>
         </a>
-        <a href="./acn103.html" style="text-decoration:none;">
+        <a href="./acn101.html#tab-s3" style="text-decoration:none;">
           <article class="feature-card" style="cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;">
             <div class="feature-icon">📖</div>
-            <h3>ACN103 (S3)</h3>
-            <p>Optimization, MOO, dan MOEA/MOGA tingkat riset untuk mahasiswa S3 dan peneliti.</p>
+            <h3>ACN101 &mdash; S3</h3>
+            <p>Optimization, MOO, dan MOEA/MOGA tingkat riset untuk mahasiswa doktoral dan peneliti.</p>
           </article>
         </a>
       </div>
@@ -952,7 +946,7 @@
           <div class="ref-doi"><a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640</a></div>
         </li>
         <li>
-          <div class="ref-authors">Coello Coello, C. A., Van Veldhuizen, D. A., &amp; Lamont, G. B.</div>
+          <div class="ref-authors">Coello Coello, C. A., Lamont, G. B., &amp; Van Veldhuizen, D. A.</div>
           <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
           <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
           <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
@@ -960,13 +954,12 @@
         <li>
           <div class="ref-authors">Pareto, V.</div>
           <div class="ref-title">Cours d'Économie Politique</div>
-          <div class="ref-source">F. Rouge, Lausanne, 1896.</div>
-          <div class="ref-doi"><a href="https://doi.org/10.1017/S0770451800009348" target="_blank">https://doi.org/10.1017/S0770451800009348</a></div>
+          <div class="ref-source">F. Rouge, Lausanne, 1896 (2 vol.; karya klasik, tanpa DOI).</div>
         </li>
         <li>
           <div class="ref-authors">Hwang, C. L., &amp; Masud, A. S. M.</div>
           <div class="ref-title">Multiple Objective Decision Making — Methods and Applications</div>
-          <div class="ref-source">Springer, 1979. ISBN: 978-0-387-09311-6</div>
+          <div class="ref-source">Springer, 1979 (LNEMS vol. 164). ISBN: 978-3-540-09111-0</div>
           <div class="ref-doi"><a href="https://doi.org/10.1007/978-3-642-45511-7" target="_blank">https://doi.org/10.1007/978-3-642-45511-7</a></div>
         </li>
       </ul>
@@ -1030,7 +1023,7 @@
       if (w1 <= 0) return { f1: 1, f2: 0, pareto: true };
       if (w2 <= 0) return { f1: 0, f2: 1, pareto: true };
       const sf = w2 / (2 * w1);
-      if (sf >= 1) return { f1: 1, f2: 0, pareto: sf <= 1 };
+      if (sf >= 1) return { f1: 1, f2: 0, pareto: true }; // titik sudut (1,0) tetap Pareto-optimal
       const f1 = sf * sf;
       const f2 = 1 - sf;
       return { f1, f2, pareto: true };

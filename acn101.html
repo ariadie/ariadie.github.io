@@ -1,197 +1,443 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ACN101 - Materi Pembelajaran: Optimization, MOO, dan MOEA/MOGA</title>
+  <meta name="description" content="Materi pembelajaran Optimization, Multi-Objective Optimization (MOO), dan MOEA/MOGA untuk level S1, S2, dan S3." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="ACN101 — Optimization, MOO &amp; MOEA/MOGA" />
+  <meta property="og:description" content="Materi pembelajaran bertingkat: S1, S2, dan S3 dalam satu halaman interaktif." />
+  <meta property="og:type" content="website" />
+  <title>ACN101 — Optimization, MOO &amp; MOEA/MOGA</title>
+
   <style>
-    :root{
-      --bg:#f8fafc;
-      --card:#ffffff;
-      --ink:#0f172a;
-      --muted:#475569;
-      --line:#e2e8f0;
-      --accent:#1d4ed8;
-      --soft:#eff6ff;
-      --ok:#065f46;
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #2563eb;
+      --primary-2: #0891b2;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --max: 1180px;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--ink);
-      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height:1.65;
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #60a5fa;
+      --primary-2: #22d3ee;
+      --accent: #34d399;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
     }
-    .container{
-      max-width:1100px;
-      margin:1.5rem auto;
-      padding:0 1rem 2rem;
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(8, 145, 178, 0.14), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
     }
-    .hero{
-      background:linear-gradient(135deg,#dbeafe 0%, #eff6ff 40%, #ffffff 100%);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:1.25rem 1.25rem 1rem;
-      margin-bottom:1rem;
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
     }
-    h1{
-      margin:.1rem 0 .45rem;
-      font-size:1.65rem;
-      line-height:1.25;
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto; min-height: 76px;
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
     }
-    .subtitle{
-      color:var(--muted);
-      margin:0;
+    .brand {
+      display: flex; align-items: center; gap: 12px; min-width: 0; text-decoration: none;
     }
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:1rem;
+    .brand-mark {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white; font-weight: 900; box-shadow: var(--shadow-soft); flex: none;
     }
-    @media(min-width:980px){
-      .grid{
-        grid-template-columns: 260px 1fr;
-      }
+    .brand-text { display: flex; flex-direction: column; min-width: 0; }
+    .brand-title { font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand-subtitle { color: var(--muted-2); font-size: 0.86rem; margin-top: -2px; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex: none; }
+
+    .ham-btn {
+      width: 44px; height: 44px;
+      border: 1px solid var(--line); background: var(--card); color: var(--text);
+      border-radius: 999px; display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1.2rem;
+      transition: transform .2s ease, border-color .2s ease;
     }
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:1rem;
+    .ham-btn:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--primary) 46%, var(--line)); }
+
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s ease;
     }
-    .toc h3, .meta h3{
-      margin:.1rem 0 .6rem;
-      font-size:1rem;
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+    .drawer {
+      position: fixed; top: 0; right: 0; z-index: 210;
+      width: min(300px, 82vw); height: 100%;
+      background: var(--card-solid);
+      border-left: 1px solid var(--line);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
     }
-    .toc ol{
-      margin:.2rem 0 .2rem 1.1rem;
-      padding:0;
+    .drawer.open { transform: translateX(0); }
+    .drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; border-bottom: 1px solid var(--line);
     }
-    .toc li{ margin:.35rem 0; }
-    .toc a{
-      color:var(--accent);
-      text-decoration:none;
+    .drawer-header strong { font-size: 1rem; letter-spacing: -0.02em; }
+    .drawer-close {
+      width: 36px; height: 36px; border: none; background: transparent;
+      cursor: pointer; font-size: 1.3rem; color: var(--muted);
+      display: grid; place-items: center; border-radius: 50%;
     }
-    .toc a:hover{text-decoration:underline;}
-    .main section{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:1rem 1rem .9rem;
-      margin-bottom:.9rem;
+    .drawer-close:hover { background: color-mix(in srgb, var(--line) 40%, transparent); }
+    .drawer-body { padding: 10px 0; flex: 1; }
+    .drawer-section { padding: 4px 20px 10px; }
+    .drawer-section-label {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted-2); font-weight: 800; margin-bottom: 6px;
     }
-    h2{
-      margin:.2rem 0 .55rem;
-      font-size:1.25rem;
+    .drawer-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      color: var(--text); text-decoration: none;
+      font-size: 0.9rem; font-weight: 700;
+      transition: background .15s ease;
     }
-    h3{
-      margin:.8rem 0 .4rem;
-      font-size:1.03rem;
+    .drawer-link:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line); background: var(--card); color: var(--text);
+      border-radius: 999px; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
     }
-    p{ margin:.45rem 0; }
-    ul,ol{ margin:.3rem 0 .75rem 1.15rem; }
-    li{ margin:.25rem 0; }
-    .eq{
-      background:var(--soft);
-      border:1px solid #dbeafe;
-      padding:.55rem .7rem;
-      border-radius:8px;
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .hero { padding: 40px 0 24px; text-align: center; }
+    .hero-card {
+      position: relative; overflow: hidden;
+      border: 1px solid var(--line); border-radius: var(--radius-xl);
+      background: var(--card); box-shadow: var(--shadow);
+      padding: clamp(24px, 3vw, 44px);
+    }
+    .hero-card::before {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 12px; border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary); font-size: 0.82rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    h1 {
+      font-size: clamp(1.8rem, 3.6vw, 3.2rem);
+      line-height: 1.05; letter-spacing: -0.065em;
+      margin: 18px 0 14px;
+    }
+    .lead {
+      color: var(--muted); font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+      max-width: 760px; margin: 0 auto 20px;
+    }
+
+    /* ─── Tabs ─── */
+    .tab-radio { display: none; }
+    .tab-labels {
+      display: flex; gap: 8px; justify-content: center;
+      margin: 20px 0 0;
+    }
+    .tab-labels label {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 22px; border-radius: 999px;
+      border: 2px solid var(--line);
+      background: var(--card); color: var(--muted-2);
+      font-weight: 800; font-size: 0.9rem; cursor: pointer;
+      transition: all .2s ease;
+    }
+    .tab-labels label:hover {
+      border-color: color-mix(in srgb, var(--primary) 50%, var(--line));
+      color: var(--text);
+    }
+    #tab-s1:checked ~ .tab-labels label[for="tab-s1"],
+    #tab-s2:checked ~ .tab-labels label[for="tab-s2"],
+    #tab-s3:checked ~ .tab-labels label[for="tab-s3"] {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+    }
+
+    .tab-panel { display: none; }
+    #tab-s1:checked ~ .tab-panel.s1,
+    #tab-s2:checked ~ .tab-panel.s2,
+    #tab-s3:checked ~ .tab-panel.s3 { display: block; }
+
+    .section { padding: 28px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+    h2 { margin: 0; font-size: clamp(1.3rem, 1.8vw, 1.7rem); line-height: 1.15; letter-spacing: -0.045em; }
+    .section-desc { color: var(--muted); margin: 6px 0 0; max-width: 700px; }
+    h3 { margin: 20px 0 8px; font-size: 1.05rem; letter-spacing: -0.02em; }
+    p { margin: 10px 0; color: var(--muted); }
+    ul, ol { padding-left: 22px; color: var(--muted); }
+    li { margin-bottom: 5px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    .topic-card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius-lg); padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+    .topic-card h3 { margin: 0 0 8px; }
+    .topic-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .topic-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary); margin-bottom: 12px; font-size: 1.22rem;
+    }
+
+    .code-box, .eq-box {
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 14px 18px; margin: 12px 0; overflow-x: auto;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      overflow-x:auto;
-      margin:.55rem 0;
-      font-size:.95rem;
     }
-    .hint{
-      border-left:4px solid #60a5fa;
-      background:#f8fbff;
-      padding:.65rem .75rem;
-      border-radius:8px;
-      margin:.7rem 0;
+
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 12px 16px; margin: 14px 0;
     }
-    .checkpoint{
-      border-left:4px solid #34d399;
-      background:#f0fdf4;
-      padding:.65rem .75rem;
-      border-radius:8px;
-      margin:.7rem 0;
+    .callout p { margin: 0; }
+    .callout strong { color: var(--text); }
+
+    .fig {
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 10px; background: var(--card-solid); margin: 14px 0;
     }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin:.6rem 0;
-      font-size:.95rem;
+    .fig svg { display: block; margin: 0 auto; }
+    .figcap { font-size: 0.88rem; color: var(--muted-2); text-align: center; margin-top: 8px; }
+
+    table {
+      width: 100%; border-collapse: collapse; margin: 14px 0;
+      font-size: 0.92rem;
     }
-    th,td{
-      border:1px solid var(--line);
-      padding:.5rem .55rem;
-      vertical-align:top;
-      text-align:left;
+    th {
+      background: color-mix(in srgb, var(--primary) 8%, transparent);
+      border: 1px solid var(--line); padding: 10px 12px;
+      text-align: left; font-size: 0.82rem; text-transform: uppercase;
+      letter-spacing: 0.04em; color: var(--muted-2);
     }
-    th{ background:#f1f5f9; }
-    .fig{
-      border:1px solid var(--line);
-      border-radius:10px;
-      padding:.55rem;
-      background:#fff;
-      margin:.65rem 0 .45rem;
+    td {
+      border: 1px solid var(--line); padding: 10px 12px;
+      color: var(--muted); vertical-align: top;
     }
-    .figcap{
-      font-size:.9rem;
-      color:var(--muted);
-      text-align:center;
-      margin-top:.4rem;
+
+    .ref-list { padding-left: 0; list-style: none; }
+    .ref-list li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 0.94rem; }
+    .ref-list li:last-child { border-bottom: none; }
+
+    .footer { padding: 44px 0 54px; color: var(--muted-2); text-align: center; font-size: 0.92rem; }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .section-head { flex-direction: column; align-items: start; }
     }
-    a{
-      color:var(--accent);
-      text-decoration:none;
-      word-break:break-word;
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .tab-labels label { padding: 8px 16px; font-size: 0.82rem; }
+      .drawer { width: 82vw; }
+      table { font-size: 0.82rem; }
+      th, td { padding: 6px 8px; }
     }
-    a:hover{ text-decoration:underline; }
-    .refs li{ margin:.4rem 0; }
-    .small{ color:var(--muted); font-size:.9rem; }
-    .badge{
-      display:inline-block;
-      font-size:.78rem;
-      background:#e0ecff;
-      color:#1e3a8a;
-      border:1px solid #bfdbfe;
-      border-radius:999px;
-      padding:.2rem .55rem;
-      margin-right:.35rem;
+    @media print {
+      .nav, .footer, .drawer, .drawer-overlay { display: none !important; }
+      body { background: white; color: black; }
+      .tab-panel { display: block !important; }
+      .ans-btn { display: none !important; }
+      .ans-content { display: block !important; }
     }
+    .ans-btn {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 3px 10px;
+      font-size: 0.78rem;
+      border: 1px dashed var(--primary);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--primary);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .ans-btn:hover { background: var(--primary); color: #fff; }
+    .ans-content {
+      display: none;
+      margin: 8px 0 6px 0;
+      padding: 10px 14px;
+      background: var(--card);
+      border-left: 3px solid var(--primary);
+      border-radius: var(--radius-sm);
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .ans-content.visible { display: block; }
+    li .ans-content { margin-left: 0; }
+    .ans-content p { margin: 4px 0; }
+    .ans-content table { width:100%; border-collapse:collapse; margin:8px 0; font-size:0.87rem; }
+    .ans-content th, .ans-content td { border:1px solid var(--line); padding:6px 10px; text-align:left; }
+    .ans-content th { background:color-mix(in srgb, var(--primary) 12%, transparent); font-weight:600; color:var(--primary); }
+    .ans-content ul, .ans-content ol { margin:4px 0 4px 20px; }
+    .ans-content li { margin:2px 0; }
+    .ans-content pre { overflow-x:auto; }
+    .ans-content .callout { margin:8px 0; }
+    .ans-content .code-box { margin:6px 0; font-size:0.84rem; }
   </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','pre','code','annotation','annotation-xml']})"></script>
 </head>
 <body>
-  <div class="container">
-    <header class="hero">
-      <span class="badge">Materi Kuliah Lanjut</span>
-      <span class="badge">Level Mahasiswa Tingkat Akhir</span>
-      <h1>Optimization → Multi-Objective Optimization (MOO) → MOEA/MOGA</h1>
-      <p class="subtitle">
-        Fokus: pemahaman konsep, alur berpikir, dan implikasi praktis untuk riset/skripsi/proyek rekayasa.
-      </p>
-    </header>
 
-    <div class="grid">
-      <aside class="card toc">
-        <h3>Navigasi Materi</h3>
-        <ol>
-          <li><a href="#tujuan">Tujuan Pembelajaran</a></li>
-          <li><a href="#fondasi">Fondasi Optimization</a></li>
-          <li><a href="#transisi">Transisi ke MOO</a></li>
-          <li><a href="#pareto">Inti Pareto dan Trade-off</a></li>
-          <li><a href="#moea-moga">MOEA/MOGA: Kenapa dan Kapan Dipakai</a></li>
-          <li><a href="#algoritma">Algoritma Penting (NSGA-II, SPEA2, MOEA/D)</a></li>
-          <li><a href="#metrik">Metrik Evaluasi Hasil</a></li>
-          <li><a href="#workflow">Workflow Praktis untuk Proyek Akhir</a></li>
-          <li><a href="#latihan">Pertanyaan Latihan</a></li>
-          <li><a href="#referensi">Referensi Tepercaya</a></li>
-        </ol>
-      </aside>
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">ACN101</span>
+          <span class="brand-subtitle">Optimization · MOO · MOEA/MOGA</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <button class="ham-btn" id="hamBtn" aria-label="Buka menu">☰</button>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
 
-      <main class="main">
-        <section id="tujuan">
+  <!-- Drawer -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigasi halaman">
+    <div class="drawer-header">
+      <strong>Navigasi</strong>
+      <button class="drawer-close" id="drawerClose" aria-label="Tutup menu">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-section">
+        <div class="drawer-section-label">Halaman Ini</div>
+        <a class="drawer-link" href="#tab-s1">📑 Pilih Level</a>
+        <a class="drawer-link" href="#referensi">📎 Referensi</a>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-label">Optimasi &amp; Algoritma</div>
+        <a class="drawer-link" href="./nsga2.html">🧬 NSGA-II</a>
+        <a class="drawer-link" href="./nsga3.html">🧬 NSGA-III</a>
+        <a class="drawer-link" href="./spea2.html">🧬 SPEA2</a>
+        <a class="drawer-link" href="./moea-moga.html">🧬 MOEA/MOGA</a>
+        <a class="drawer-link" href="./convex-opt.html">📐 Convex Opt</a>
+        <a class="drawer-link" href="./moo.html">🎯 MOO</a>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-label">Statistika</div>
+        <a class="drawer-link" href="./stat-tests.html">📊 Uji Statistik</a>
+      </div>
+      <div class="drawer-section">
+        <a class="drawer-link" href="./index.html" style="color:var(--muted);font-size:0.82rem;">🏠 Beranda</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Materi Pembelajaran Bertingkat</span>
+          <h1>Optimization → MOO → MOEA/MOGA</h1>
+          <p class="lead">
+            Materi ini mencakup fondasi <strong>optimization</strong>, transisi ke
+            <strong>Multi-Objective Optimization (MOO)</strong>, dan penerapan
+            <strong>MOEA/MOGA</strong> — disajikan dalam tiga level kedalaman:
+            S1 (sarjana), S2 (magister), dan S3 (doktoral).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <input type="radio" name="level" id="tab-s1" class="tab-radio" checked>
+    <input type="radio" name="level" id="tab-s2" class="tab-radio">
+    <input type="radio" name="level" id="tab-s3" class="tab-radio">
+    <div class="tab-labels">
+      <label for="tab-s1">🎓 S1 &mdash; Sarjana</label>
+      <label for="tab-s2">🎓 S2 &mdash; Magister</label>
+      <label for="tab-s3">🎓 S3 &mdash; Doktoral</label>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB S1 -->
+    <!-- ============================================================ -->
+    <div class="tab-panel s1">
+      <div class="section" aria-label="Tujuan S1">
+        <div class="topic-card">
           <h2>1) Tujuan Pembelajaran</h2>
           <ul>
             <li>Memahami perbedaan <strong>single-objective optimization</strong> dan <strong>multi-objective optimization (MOO)</strong>.</li>
@@ -199,243 +445,807 @@
             <li>Memahami mengapa <strong>MOEA/MOGA</strong> efektif untuk masalah kompleks/nonlinear.</li>
             <li>Mampu menyusun alur eksperimen optimisasi untuk topik skripsi/proyek.</li>
           </ul>
-        </section>
+        </div>
+      </div>
 
-        <section id="fondasi">
-          <h2>2) Fondasi Optimization</h2>
-          <p>
-            Optimization adalah proses mencari nilai variabel keputusan <code>x</code> agar objektif terbaik tercapai, sambil memenuhi batasan.
-          </p>
-          <div class="eq">min / max f(x), dengan syarat g_i(x) ≤ 0 dan h_j(x) = 0</div>
-          <h3>Komponen utama</h3>
-          <ul>
-            <li><strong>Decision variables</strong>: variabel yang dapat diubah.</li>
-            <li><strong>Objective function</strong>: ukuran kinerja yang dioptimalkan.</li>
-            <li><strong>Constraints</strong>: batasan sistem, fisik, atau regulasi.</li>
-            <li><strong>Feasible region</strong>: ruang solusi yang valid.</li>
-          </ul>
-          <p>
-            Jika problem konveks, solusi global biasanya lebih mudah dijamin secara teori
-            (<a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank" rel="noopener noreferrer">Boyd & Vandenberghe</a>).
-            Jika nonkonveks/kompleks, pendekatan metaheuristik sering lebih relevan
-            (<a href="https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/" target="_blank" rel="noopener noreferrer">Kochenderfer & Wheeler</a>).
-          </p>
-          <div class="checkpoint">
-            <strong>Checkpoint:</strong> sebelum memilih algoritma, selalu petakan dulu jenis variabel, bentuk objektif, dan sifat kendala.
-          </div>
-        </section>
+      <div class="section">
+        <h2>2) Fondasi Optimization</h2>
+        <p>Optimization adalah proses mencari nilai variabel keputusan \(x\) agar objektif terbaik tercapai, sambil memenuhi batasan.</p>
+        <div class="code-box">min / max f(x), dengan syarat g_i(x) ≤ 0 dan h_j(x) = 0</div>
+        <h3>Komponen utama</h3>
+        <ul>
+          <li><strong>Decision variables</strong>: variabel yang dapat diubah.</li>
+          <li><strong>Objective function</strong>: ukuran kinerja yang dioptimalkan.</li>
+          <li><strong>Constraints</strong>: batasan sistem, fisik, atau regulasi.</li>
+          <li><strong>Feasible region</strong>: ruang solusi yang valid.</li>
+        </ul>
+        <div class="callout">
+          <strong>Checkpoint:</strong> sebelum memilih algoritma, selalu petakan dulu jenis variabel, bentuk objektif, dan sifat kendala.
+        </div>
+      </div>
 
-        <section id="transisi">
-          <h2>3) Transisi ke Multi-Objective Optimization (MOO)</h2>
-          <p>
-            Dalam kasus nyata, tujuan sering konflik: contoh klasik <em>biaya vs kualitas</em>, <em>akurasi vs waktu komputasi</em>, <em>kecepatan vs konsumsi energi</em>.
-          </p>
-          <div class="eq">min F(x) = [f1(x), f2(x), ..., fm(x)]^T</div>
-          <p>
-            Karena konflik antar objektif, kita biasanya tidak mendapatkan “satu solusi terbaik mutlak”, melainkan sekumpulan solusi kompromi.
-            Konsep ini dibahas kuat dalam literatur MOO
-            (<a href="https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396" target="_blank" rel="noopener noreferrer">Deb, 2001</a>;
-            <a href="https://link.springer.com/book/10.1007/978-1-4615-5563-6" target="_blank" rel="noopener noreferrer">Miettinen, 1999</a>).
-          </p>
-        </section>
+      <div class="section">
+        <h2>3) Transisi ke Multi-Objective Optimization (MOO)</h2>
+        <p>Dalam kasus nyata, tujuan sering konflik: contoh klasik <em>biaya vs kualitas</em>, <em>akurasi vs waktu komputasi</em>, <em>kecepatan vs konsumsi energi</em>.</p>
+        <div class="code-box">min F(x) = [f1(x), f2(x), ..., fm(x)]^T</div>
+        <p>Karena konflik antar objektif, kita biasanya tidak mendapatkan "satu solusi terbaik mutlak", melainkan sekumpulan solusi kompromi.</p>
+      </div>
 
-        <section id="pareto">
-          <h2>4) Inti Pareto dan Trade-off</h2>
-          <ul>
-            <li><strong>Dominasi Pareto</strong>: solusi A lebih baik/equivalent di semua objektif dan lebih baik pada minimal satu objektif dibanding B.</li>
-            <li><strong>Pareto-optimal</strong>: solusi yang tidak didominasi solusi feasible lain.</li>
-            <li><strong>Pareto front</strong>: kumpulan nilai objektif dari solusi Pareto-optimal.</li>
-          </ul>
+      <div class="section">
+        <h2>4) Inti Pareto dan Trade-off</h2>
+        <ul>
+          <li><strong>Dominasi Pareto</strong>: solusi A lebih baik atau setara di semua objektif dan lebih baik pada minimal satu objektif dibanding B.</li>
+          <li><strong>Pareto-optimal</strong>: solusi yang tidak didominasi solusi feasible lain.</li>
+          <li><strong>Pareto front</strong>: kumpulan nilai objektif dari solusi Pareto-optimal.</li>
+        </ul>
 
-          <div class="fig">
-            <svg viewBox="0 0 760 280" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi Pareto front">
-              <rect x="0" y="0" width="760" height="280" fill="#fff"/>
-              <line x1="70" y1="230" x2="710" y2="230" stroke="#334155" stroke-width="2"/>
-              <line x1="70" y1="230" x2="70" y2="35" stroke="#334155" stroke-width="2"/>
-              <text x="625" y="254" font-size="14" fill="#0f172a">f1 (biaya) ↓</text>
-              <text x="18" y="52" font-size="14" fill="#0f172a" transform="rotate(-90,18,52)">f2 (emisi) ↓</text>
+        <div class="fig">
+          <svg viewBox="0 0 760 280" width="100%" style="max-width:700px;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi Pareto front">
+            <rect x="0" y="0" width="760" height="280" fill="transparent"/>
+            <line x1="70" y1="230" x2="710" y2="230" stroke="#334155" stroke-width="2"/>
+            <line x1="70" y1="230" x2="70" y2="35" stroke="#334155" stroke-width="2"/>
+            <text x="625" y="254" font-size="14" fill="#64748b">f1 (biaya) ↓</text>
+            <text x="18" y="52" font-size="14" fill="#64748b" transform="rotate(-90,18,52)">f2 (emisi) ↓</text>
+            <polyline points="110,60 170,105 235,138 305,160 380,175 455,186 535,193 620,198"
+                      fill="none" stroke="#2563eb" stroke-width="3"/>
+            <circle cx="110" cy="60" r="4" fill="#2563eb"/>
+            <circle cx="170" cy="105" r="4" fill="#2563eb"/>
+            <circle cx="235" cy="138" r="4" fill="#2563eb"/>
+            <circle cx="305" cy="160" r="4" fill="#2563eb"/>
+            <circle cx="380" cy="175" r="4" fill="#2563eb"/>
+            <circle cx="455" cy="186" r="4" fill="#2563eb"/>
+            <circle cx="535" cy="193" r="4" fill="#2563eb"/>
+            <circle cx="620" cy="198" r="4" fill="#2563eb"/>
+            <circle cx="300" cy="120" r="5" fill="#94a3b8"/>
+            <circle cx="410" cy="140" r="5" fill="#94a3b8"/>
+            <circle cx="520" cy="158" r="5" fill="#94a3b8"/>
+            <text x="200" y="70" font-size="13" fill="#1d4ed8">Pareto front</text>
+            <text x="430" y="108" font-size="12" fill="#64748b">solusi terdominasi</text>
+          </svg>
+          <div class="figcap">Titik biru = solusi Pareto-optimal, titik abu-abu = solusi terdominasi.</div>
+        </div>
 
-              <polyline points="110,190 170,165 235,147 305,132 380,121 455,113 535,108 620,104"
-                        fill="none" stroke="#2563eb" stroke-width="3"/>
-              <circle cx="110" cy="190" r="4" fill="#2563eb"/>
-              <circle cx="170" cy="165" r="4" fill="#2563eb"/>
-              <circle cx="235" cy="147" r="4" fill="#2563eb"/>
-              <circle cx="305" cy="132" r="4" fill="#2563eb"/>
-              <circle cx="380" cy="121" r="4" fill="#2563eb"/>
-              <circle cx="455" cy="113" r="4" fill="#2563eb"/>
-              <circle cx="535" cy="108" r="4" fill="#2563eb"/>
-              <circle cx="620" cy="104" r="4" fill="#2563eb"/>
+        <div class="callout">
+          <strong>Poin penting:</strong> memilih satu titik dari Pareto front adalah tahap <em>decision making</em>, bukan murni optimisasi.
+        </div>
+      </div>
 
-              <circle cx="300" cy="170" r="5" fill="#94a3b8"/>
-              <circle cx="410" cy="165" r="5" fill="#94a3b8"/>
-              <circle cx="520" cy="155" r="5" fill="#94a3b8"/>
-              <text x="465" y="92" font-size="13" fill="#1d4ed8">Pareto front</text>
-              <text x="510" y="170" font-size="12" fill="#64748b">solusi terdominasi</text>
-            </svg>
-            <div class="figcap">Ilustrasi: titik biru = solusi Pareto-optimal, titik abu-abu = solusi terdominasi.</div>
-          </div>
+      <div class="section">
+        <h2>5) MOEA/MOGA: Kenapa dan Kapan Dipakai</h2>
+        <p><strong>MOEA</strong> (Multi-Objective Evolutionary Algorithm) adalah keluarga algoritma evolusioner untuk MOO. <strong>MOGA</strong> adalah MOEA berbasis operator genetika (seleksi, crossover, mutasi).</p>
+        <h3>Kelebihan utama</h3>
+        <ul>
+          <li>Mencari banyak solusi Pareto dalam satu proses (population-based).</li>
+          <li>Tidak wajib informasi gradien.</li>
+          <li>Robust untuk objektif nonlinier, nonkonveks, bahkan noisy.</li>
+          <li>Fleksibel untuk kendala dan variabel campuran.</li>
+        </ul>
+        <h3>Kapan tepat dipakai?</h3>
+        <ul>
+          <li>Saat ada \(\ge 2\) objektif yang saling konflik.</li>
+          <li>Saat metode deterministik sulit diterapkan atau sangat mahal.</li>
+          <li>Saat butuh peta trade-off untuk dasar keputusan manajerial/teknis.</li>
+        </ul>
+      </div>
 
-          <div class="hint">
-            <strong>Poin penting:</strong> memilih satu titik dari Pareto front adalah tahap <em>decision making</em>, bukan murni optimisasi.
-          </div>
-        </section>
+      <div class="section">
+        <h2>6) Algoritma Penting: NSGA-II, SPEA2, MOEA/D</h2>
+        <table>
+          <thead>
+            <tr><th>Algoritma</th><th>Gagasan inti</th><th>Kekuatan</th><th>Referensi</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>NSGA-II</strong></td>
+              <td>Fast non-dominated sorting + crowding distance + elitism</td>
+              <td>Seimbang antara konvergensi dan diversitas; sangat populer</td>
+              <td><a href="https://doi.org/10.1109/4235.996017" target="_blank">Deb et al., 2002</a></td>
+            </tr>
+            <tr>
+              <td><strong>SPEA2</strong></td>
+              <td>Strength assignment + density estimation + external archive</td>
+              <td>Seleksi elit stabil; kualitas ranking dominasi baik</td>
+              <td><a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank">Zitzler et al., 2001</a></td>
+            </tr>
+            <tr>
+              <td><strong>MOEA/D</strong></td>
+              <td>Dekomposisi MOO menjadi subproblem skalar bertetangga</td>
+              <td>Efisien pada banyak skenario many-objective</td>
+              <td><a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank">Zhang &amp; Li, 2007</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <section id="moea-moga">
-          <h2>5) MOEA/MOGA: Kenapa dan Kapan Dipakai</h2>
-          <p>
-            <strong>MOEA</strong> (Multi-Objective Evolutionary Algorithm) adalah keluarga algoritma evolusioner untuk MOO.
-            <strong>MOGA</strong> adalah MOEA berbasis operator genetika (seleksi, crossover, mutasi).
-          </p>
-          <h3>Kelebihan utama</h3>
-          <ul>
-            <li>Mencari banyak solusi Pareto dalam satu proses (population-based).</li>
-            <li>Tidak wajib informasi gradien.</li>
-            <li>Robust untuk objektif nonlinier, nonkonveks, bahkan noisy.</li>
-            <li>Fleksibel untuk kendala dan variabel campuran.</li>
-          </ul>
-          <h3>Kapan tepat dipakai?</h3>
-          <ul>
-            <li>Saat ada ≥2 objektif yang saling konflik.</li>
-            <li>Saat metode deterministik sulit diterapkan atau sangat mahal.</li>
-            <li>Saat butuh peta trade-off untuk dasar keputusan manajerial/teknis.</li>
-          </ul>
-          <p>
-            Referensi dasar: Deb (2001) dan Coello dkk. (2007)
-            (<a href="https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396" target="_blank" rel="noopener noreferrer">Wiley</a>,
-            <a href="https://link.springer.com/book/10.1007/978-0-387-36797-2" target="_blank" rel="noopener noreferrer">Springer</a>).
-          </p>
-        </section>
+      <div class="section">
+        <h2>7) Metrik Evaluasi Hasil MOEA/MOGA</h2>
+        <ul>
+          <li><strong>Hypervolume (HV)</strong>: semakin besar biasanya semakin baik.</li>
+          <li><strong>GD / IGD</strong>: mengukur kedekatan dan cakupan terhadap front referensi.</li>
+          <li><strong>Spread (\(\Delta\))</strong>: mengukur pemerataan distribusi solusi.</li>
+        </ul>
+        <p>Lihat tinjauan evaluasi optimizer multiobjektif: <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank">Zitzler et al., 2003</a>.</p>
+      </div>
 
-        <section id="algoritma">
-          <h2>6) Algoritma Penting: NSGA-II, SPEA2, MOEA/D</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Algoritma</th>
-                <th>Gagasan inti</th>
-                <th>Kekuatan</th>
-                <th>Referensi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>NSGA-II</strong></td>
-                <td>Fast non-dominated sorting + crowding distance + elitism</td>
-                <td>Seimbang antara konvergensi dan diversitas; sangat populer</td>
-                <td><a href="https://doi.org/10.1109/4235.996017" target="_blank" rel="noopener noreferrer">Deb et al., 2002</a></td>
-              </tr>
-              <tr>
-                <td><strong>SPEA2</strong></td>
-                <td>Strength assignment + density estimation + external archive</td>
-                <td>Seleksi elit stabil; kualitas ranking dominasi baik</td>
-                <td><a href="https://tik-old.ee.ethz.ch/db/public/tik/?db=publications&form=report_single_publication&publication_id=1287" target="_blank" rel="noopener noreferrer">Zitzler et al., 2001</a></td>
-              </tr>
-              <tr>
-                <td><strong>MOEA/D</strong></td>
-                <td>Dekomposisi MOO menjadi subproblem skalar bertetangga</td>
-                <td>Efisien pada banyak skenario many-objective</td>
-                <td><a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank" rel="noopener noreferrer">Zhang & Li, 2007</a></td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="small">
-            Dalam praktik tugas akhir, NSGA-II sering jadi baseline pertama karena dukungan literatur dan implementasi yang luas.
-          </p>
-        </section>
+      <div class="section">
+        <h2>8) Workflow Praktis untuk Proyek Akhir</h2>
+        <ol>
+          <li><strong>Definisikan objektif &amp; kendala</strong> dari kasus nyata (jelas dan terukur).</li>
+          <li><strong>Tentukan representasi solusi</strong> (real, integer, binary, atau campuran).</li>
+          <li><strong>Pilih baseline algoritma</strong> (mis. NSGA-II).</li>
+          <li><strong>Tetapkan budget eksperimen</strong> (jumlah evaluasi, ukuran populasi, jumlah run).</li>
+          <li><strong>Lakukan multi-run</strong> dengan seed berbeda (untuk reliabilitas statistik).</li>
+          <li><strong>Evaluasi dengan beberapa metrik</strong> (HV + IGD/Spread).</li>
+          <li><strong>Interpretasi trade-off</strong> bersama konteks domain (teknis &amp; biaya).</li>
+        </ol>
+        <div class="callout">
+          Untuk implementasi cepat dan reproducible, gunakan framework: <a href="https://pymoo.org/" target="_blank">pymoo</a>.
+        </div>
+      </div>
 
-        <section id="metrik">
-          <h2>7) Metrik Evaluasi Hasil MOEA/MOGA</h2>
-          <p>Evaluasi tidak cukup hanya “nilai objektif terbaik”. Perlu metrik front:</p>
-          <ul>
-            <li><strong>Hypervolume (HV)</strong>: semakin besar biasanya semakin baik.</li>
-            <li><strong>GD / IGD</strong>: mengukur kedekatan dan cakupan terhadap front referensi.</li>
-            <li><strong>Spread (Δ)</strong>: mengukur pemerataan distribusi solusi.</li>
-          </ul>
-          <p>
-            Lihat tinjauan evaluasi optimizer multiobjektif:
-            <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank" rel="noopener noreferrer">Zitzler et al., 2003</a>.
-          </p>
-        </section>
-
-        <section id="workflow">
-          <h2>8) Workflow Praktis untuk Proyek Akhir</h2>
-          <ol>
-            <li><strong>Definisikan objektif & kendala</strong> dari kasus nyata (jelas dan terukur).</li>
-            <li><strong>Tentukan representasi solusi</strong> (real, integer, binary, atau campuran).</li>
-            <li><strong>Pilih baseline algoritma</strong> (mis. NSGA-II).</li>
-            <li><strong>Tetapkan budget eksperimen</strong> (jumlah evaluasi, ukuran populasi, jumlah run).</li>
-            <li><strong>Lakukan multi-run</strong> dengan seed berbeda (untuk reliabilitas statistik).</li>
-            <li><strong>Evaluasi dengan beberapa metrik</strong> (HV + IGD/Spread).</li>
-            <li><strong>Interpretasi trade-off</strong> bersama konteks domain (teknis & biaya).</li>
-          </ol>
-          <div class="hint">
-            Untuk implementasi cepat dan reproducible, gunakan framework:
-            <a href="https://pymoo.org/" target="_blank" rel="noopener noreferrer">pymoo</a>.
-          </div>
-        </section>
-
-        <section id="latihan">
-          <h2>9) Pertanyaan Latihan (Untuk Diskusi Kelas)</h2>
-          <ol>
-            <li>Mengapa weighted-sum bisa gagal menangkap Pareto front nonkonveks?</li>
-            <li>Jika dua solusi sama-sama non-dominated, bagaimana memilih satu solusi final?</li>
-            <li>Dalam kasus Anda, metrik apa yang paling penting: HV, IGD, atau Spread? Mengapa?</li>
-            <li>Kapan MOEA/D lebih cocok dibanding NSGA-II?</li>
-          </ol>
-        </section>
-
-        <section id="referensi">
-          <h2>10) Referensi Tepercaya</h2>
-          <ol class="refs">
-            <li>
-              Boyd, S., & Vandenberghe, L. (2004). <em>Convex Optimization</em>. Cambridge University Press.
-              <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank" rel="noopener noreferrer">https://web.stanford.edu/~boyd/cvxbook/</a>
-            </li>
-            <li>
-              Kochenderfer, M. J., & Wheeler, T. A. (2019). <em>Algorithms for Optimization</em>. MIT Press.
-              <a href="https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/" target="_blank" rel="noopener noreferrer">https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/</a>
-            </li>
-            <li>
-              Miettinen, K. (1999). <em>Nonlinear Multiobjective Optimization</em>. Springer.
-              <a href="https://link.springer.com/book/10.1007/978-1-4615-5563-6" target="_blank" rel="noopener noreferrer">https://link.springer.com/book/10.1007/978-1-4615-5563-6</a>
-            </li>
-            <li>
-              Deb, K. (2001). <em>Multi-Objective Optimization Using Evolutionary Algorithms</em>. Wiley.
-              <a href="https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396" target="_blank" rel="noopener noreferrer">https://www.wiley.com/en-us/Multi-Objective+Optimization+Using+Evolutionary+Algorithms-p-9780471873396</a>
-            </li>
-            <li>
-              Deb, K., Pratap, A., Agarwal, S., & Meyarivan, T. (2002). NSGA-II. IEEE TEC.
-              DOI:
-              <a href="https://doi.org/10.1109/4235.996017" target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/4235.996017</a>
-            </li>
-            <li>
-              Zitzler, E., Laumanns, M., & Thiele, L. (2001). SPEA2, ETH Zürich TIK-Report 103.
-              <a href="https://tik-old.ee.ethz.ch/db/public/tik/?db=publications&form=report_single_publication&publication_id=1287" target="_blank" rel="noopener noreferrer">https://tik-old.ee.ethz.ch/db/public/tik/?db=publications&form=report_single_publication&publication_id=1287</a>
-            </li>
-            <li>
-              Zhang, Q., & Li, H. (2007). MOEA/D. IEEE TEC.
-              DOI:
-              <a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/TEVC.2007.892759</a>
-            </li>
-            <li>
-              Zitzler, E., et al. (2003). Performance Assessment of Multiobjective Optimizers. IEEE TEC.
-              DOI:
-              <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/TEVC.2003.810758</a>
-            </li>
-            <li>
-              Coello Coello, C. A., Lamont, G. B., & Van Veldhuizen, D. A. (2007).
-              <em>Evolutionary Algorithms for Solving Multi-Objective Problems</em>. Springer.
-              <a href="https://link.springer.com/book/10.1007/978-0-387-36797-2" target="_blank" rel="noopener noreferrer">https://link.springer.com/book/10.1007/978-0-387-36797-2</a>
-            </li>
-            <li>
-              Dokumentasi resmi pymoo:
-              <a href="https://pymoo.org/" target="_blank" rel="noopener noreferrer">https://pymoo.org/</a>
-            </li>
-          </ol>
-          <p class="small">Tip: gunakan DOI saat sitasi skripsi agar sumber mudah diverifikasi.</p>
-        </section>
-      </main>
+      <div class="section">
+        <h2>9) Pertanyaan Latihan (Untuk Diskusi Kelas)</h2>
+        <ol style="margin-bottom:0;">
+          <li>Mengapa weighted-sum bisa gagal menangkap Pareto front nonkonveks?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Weighted-sum meminimalkan \(F = w_1 f_1 + w_2 f_2\) dengan \(w_1 + w_2 = 1\). Ini setara dengan mencari garis singgung linear pada Pareto front:</p>
+              <div class="code-box" style="margin:8px 0;">min Σ w_k f_k(x)  →  titik singgung antara contour line linear dan Pareto front</div>
+              <p>Pada front <strong>nonkonveks</strong>, ilustrasinya:</p>
+              <pre style="font-size:0.8rem;line-height:1.3;background:var(--bg);padding:8px;border-radius:6px;">
+     f₂
+      ↑
+      |     · · ·
+      |   ·       ·   ← region nonkonveks (cekung)
+      | ·           ·
+      |·             ·
+      |←—— garis singgung hanya menyentuh ujung →
+      +——————————————→ f₁
+              </pre>
+              <p>Garis lurus dengan bobot tetap tidak bisa menyinggung region cekung — solusi yang ditemukan selalu berada di ujung-ujung front (ekstrem), bukan titik di bagian cekung. Metode dekomposisi (Tchebycheff, augmented scalarization) diperlukan untuk menjangkau region tersebut.</p>
+            </div>
+          </li>
+          <li>Jika dua solusi sama-sama non-dominated, bagaimana memilih satu solusi final?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Pemilihan dari himpunan Pareto adalah <strong>decision making</strong>, bukan optimisasi. Beberapa pendekatan umum:</p>
+              <table style="width:100%;margin:8px 0;font-size:0.9rem;">
+                <tr><th>Metode</th><th>Cara Kerja</th><th>Kapan Digunakan</th></tr>
+                <tr><td><strong>Preferensi subjektif</strong></td><td>DM menetapkan bobot tiap objektif</td><td>Prioritas jelas, satu DM</td></tr>
+                <tr><td><strong>TOPSIS</strong></td><td>Jarak ke solusi ideal + anti-ideal</td><td>Perankingan cepat, trade-off linier</td></tr>
+                <tr><td><strong>AHP</strong></td><td>Perbandingan berpasangan hierarkis</td><td>Kriteria multi-level, preferensi kualitatif</td></tr>
+                <tr><td><strong>PROMETHEE</strong></td><td>Fungsi preferensi pairwise</td><td>Data tidak pasti, banyak stakeholder</td></tr>
+              </table>
+              <p>Prinsipnya: gunakan <em>visual inspection</em> Pareto front terlebih dahulu, lalu aplikasikan MCDM untuk memilih titik final.</p>
+            </div>
+          </li>
+          <li>Dalam kasus Anda, metrik apa yang paling penting: HV, IGD, atau Spread? Mengapa?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Tidak ada metrik tunggal yang sempurna — pilihan bergantung konteks:</p>
+              <table style="width:100%;margin:8px 0;font-size:0.9rem;">
+                <tr><th>Metrik</th><th>Mengukur</th><th>Butuh Front Referensi?</th><th>Kelemahan</th></tr>
+                <tr><td><strong>HV</strong></td><td>Konvergensi + diversitas</td><td>Tidak</td><td>Kompleksitas O(N<sup>M-1</sup>)</td></tr>
+                <tr><td><strong>IGD</strong></td><td>Konvergensi (jarak front ke referensi)</td><td>Ya</td><td>Abaikan diversitas jika front referensi jarang</td></tr>
+                <tr><td><strong>Spread (Δ)</strong></td><td>Pemerataan solusi</td><td>Tidak</td><td>Tidak mengukur konvergensi</td></tr>
+              </table>
+              <p><strong>Rekomendasi:</strong></p>
+              <ul style="margin:4px 0 0 18px;">
+                <li><strong>HV</strong> — pilihan default untuk perbandingan umum tanpa front referensi</li>
+                <li><strong>IGD + Spread</strong> — jika front referensi tepercaya tersedia</li>
+                <li><strong>R2</strong> — alternatif efisien untuk banyak objektif</li>
+              </ul>
+            </div>
+          </li>
+          <li>Kapan MOEA/D lebih cocok dibanding NSGA-II?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>MOEA/D dan NSGA-II memiliki kekuatan berbeda. Berikut perbandingan sistematis:</p>
+              <table style="width:100%;margin:8px 0;font-size:0.9rem;">
+                <tr><th>Aspek</th><th>MOEA/D</th><th>NSGA-II</th></tr>
+                <tr><td>Mekanisme seleksi</td><td>Dekomposisi (aggregasi subproblem)</td><td>Non-dominated sorting + crowding distance</td></tr>
+                <tr><td>Banyak objektif (&gt;5)</td><td><strong>Lebih cocok</strong> — tidak bergantung dominasi Pareto</td><td>Kurang efektif (<em>dominance resistance</em>)</td></tr>
+                <tr><td>Efisiensi komputasi</td><td>O(N · T) per generasi</td><td>O(M · N²) untuk sorting</td></tr>
+                <tr><td>Struktur masalah</td><td>Cocok jika dekomposisi natural</td><td>Cocok untuk masalah umum</td></tr>
+                <tr><td>Diversitas</td><td>Ditentukan distribusi weight vectors</td><td>Dijaga oleh crowding distance</td></tr>
+              </table>
+              <p><strong>Kesimpulan:</strong> MOEA/D sering kompetitif untuk many-objective dan masalah yang terdekomposisi secara alami — performanya bergantung pada skema dekomposisi, distribusi weight vectors, dan karakteristik problem. NSGA-II tetap baseline yang robust untuk masalah umum dengan 2–3 objektif.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
     </div>
-  </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB S2 -->
+    <!-- ============================================================ -->
+    <div class="tab-panel s2">
+      <div class="section" aria-label="Tujuan S2">
+        <div class="topic-card">
+          <h2>1) Capaian Pembelajaran (Level S2)</h2>
+          <ul>
+            <li>Menjelaskan optimization sebagai masalah inferensi keputusan berbasis fungsi objektif dan kendala.</li>
+            <li>Membedakan secara formal pendekatan single-objective, scalarization MOO, dan Pareto-based MOO.</li>
+            <li>Mengevaluasi kelayakan penggunaan MOEA/MOGA untuk problem non-konveks, black-box, dan mahal evaluasinya.</li>
+            <li>Menyusun desain eksperimen yang <em>reproducible</em> untuk studi perbandingan algoritma.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>2) Fondasi Teoretis Optimization</h2>
+        <p>Masalah optimization dapat dipandang sebagai pemetaan dari ruang keputusan ke ruang performa:</p>
+        <div class="code-box">x ∈ X  →  f(x) ∈ R,  min/max f(x) s.t. g_i(x) ≤ 0, h_j(x) = 0</div>
+        <p>Untuk problem konveks, teori dualitas dan kondisi optimalitas memberi justifikasi analitik kuat. Namun, pada problem non-konveks/non-smooth/black-box, optimalitas global sulit dijamin; fokus bergeser ke strategi pencarian efektif dan robust.</p>
+        <div class="callout">
+          <strong>Insight S2:</strong> pilihan algoritma harus didorong oleh struktur masalah, bukan popularitas metode.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>3) Formalisasi MOO dan Pareto Optimality</h2>
+        <div class="code-box">min F(x) = [f1(x), f2(x), ..., fm(x)]^T,  x ∈ Ω</div>
+        <p>Pada MOO, relasi order total tidak berlaku secara alami; yang digunakan adalah order parsial melalui dominasi Pareto. Akibatnya, solusi yang dicari adalah himpunan non-dominated, bukan titik tunggal.</p>
+        <ul>
+          <li><strong>Pareto dominance:</strong> A mendominasi B jika A tidak lebih buruk di semua objektif dan lebih baik minimal satu objektif.</li>
+          <li><strong>Pareto set:</strong> solusi non-dominated di ruang keputusan.</li>
+          <li><strong>Pareto front:</strong> citra Pareto set di ruang objektif.</li>
+        </ul>
+
+        <div class="fig">
+          <svg viewBox="0 0 760 280" width="100%" style="max-width:700px;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pareto front">
+            <rect x="0" y="0" width="760" height="280" fill="transparent"/>
+            <line x1="70" y1="230" x2="710" y2="230" stroke="#334155" stroke-width="2"/>
+            <line x1="70" y1="230" x2="70" y2="35" stroke="#334155" stroke-width="2"/>
+            <text x="625" y="254" font-size="14" fill="#64748b">f1 (objective 1) ↓</text>
+            <text x="18" y="52" font-size="14" fill="#64748b" transform="rotate(-90,18,52)">f2 (objective 2) ↓</text>
+            <polyline points="110,60 168,105 232,138 302,160 374,175 450,186 530,193 620,198"
+                      fill="none" stroke="#2563eb" stroke-width="3"/>
+            <circle cx="110" cy="60" r="4" fill="#2563eb"/>
+            <circle cx="168" cy="105" r="4" fill="#2563eb"/>
+            <circle cx="232" cy="138" r="4" fill="#2563eb"/>
+            <circle cx="302" cy="160" r="4" fill="#2563eb"/>
+            <circle cx="374" cy="175" r="4" fill="#2563eb"/>
+            <circle cx="450" cy="186" r="4" fill="#2563eb"/>
+            <circle cx="530" cy="193" r="4" fill="#2563eb"/>
+            <circle cx="620" cy="198" r="4" fill="#2563eb"/>
+            <circle cx="290" cy="120" r="5" fill="#94a3b8"/>
+            <circle cx="405" cy="140" r="5" fill="#94a3b8"/>
+            <circle cx="510" cy="158" r="5" fill="#94a3b8"/>
+            <text x="200" y="70" font-size="13" fill="#1d4ed8">Pareto front</text>
+          </svg>
+          <div class="figcap">Ilustrasi Pareto front (dua objektif minimisasi).</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>4) Scalarization vs Pareto-based Search</h2>
+        <h3>4.1 Scalarization (contoh: weighted sum)</h3>
+        <div class="code-box">min Σ w_k f_k(x), dengan w_k ≥ 0</div>
+        <p>Kelebihan: sederhana, mudah diintegrasikan dengan solver klasik. Keterbatasan: sensitif terhadap skala objektif dan dapat gagal merekonstruksi front non-konveks.</p>
+
+        <h3>4.2 Pareto-based search</h3>
+        <p>Pendekatan ini mempertahankan populasi solusi dan memanfaatkan dominasi + mekanisme diversitas. Secara empiris lebih baik untuk eksplorasi front kompleks.</p>
+
+        <div class="callout" style="border-left-color:#f59e0b;">
+          <strong>Catatan S2:</strong> klaim "algoritma A terbaik" tanpa karakterisasi bentuk front, biaya evaluasi, dan sensitivitas parameter biasanya lemah secara metodologis.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>5) MOEA/MOGA: Prinsip, Asumsi, dan Kompleksitas</h2>
+        <p><strong>MOEA</strong> adalah kelas algoritma evolusioner untuk MOO; <strong>MOGA</strong> adalah MOEA dengan operator genetika eksplisit.</p>
+        <h3>Prinsip inti</h3>
+        <ol>
+          <li>Representasi populasi solusi kandidat.</li>
+          <li>Evaluasi multiobjektif.</li>
+          <li>Seleksi berbasis dominasi/indikator.</li>
+          <li>Operator variasi: crossover dan mutation.</li>
+          <li>Elitism + mekanisme diversity preservation.</li>
+        </ol>
+        <h3>Asumsi implisit yang sering dilupakan</h3>
+        <ul>
+          <li>Operator variasi relevan terhadap struktur encoding problem.</li>
+          <li>Budget evaluasi cukup untuk membangun aproksimasi front yang stabil.</li>
+          <li>Noise objektif tidak merusak ranking dominasi secara ekstrem.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>6) NSGA-II, SPEA2, MOEA/D (Analisis Kritis)</h2>
+        <table>
+          <thead>
+            <tr><th>Algoritma</th><th>Mekanisme inti</th><th>Kekuatan</th><th>Keterbatasan umum</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>NSGA-II</strong></td>
+              <td>Fast non-dominated sorting, crowding distance, elitism</td>
+              <td>Baseline kuat, implementasi luas</td>
+              <td>Skalabilitas pada many-objective bisa menurun</td>
+            </tr>
+            <tr>
+              <td><strong>SPEA2</strong></td>
+              <td>Strength assignment + archive elit</td>
+              <td>Ranking dominasi cenderung stabil</td>
+              <td>Pengaturan archive memengaruhi performa</td>
+            </tr>
+            <tr>
+              <td><strong>MOEA/D</strong></td>
+              <td>Dekomposisi ke subproblem skalar bertetangga</td>
+              <td>Efektif pada beberapa skenario objektif banyak</td>
+              <td>Sensitif pada desain skema dekomposisi/neighbor</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>7) Metrik Kinerja dan Validitas Eksperimen</h2>
+        <h3>7.1 Metrik yang lazim</h3>
+        <ul>
+          <li><strong>Hypervolume (HV)</strong>: dominasi volume terhadap titik referensi.</li>
+          <li><strong>GD/IGD</strong>: kedekatan dan cakupan terhadap front referensi.</li>
+          <li><strong>Spread (\(\Delta\))</strong>: pemerataan solusi pada front.</li>
+        </ul>
+
+        <h3>7.2 Standar validitas eksperimen S2</h3>
+        <ul>
+          <li>Lakukan <strong>multi-run</strong> (mis. 20–30 run) karena sifat stokastik.</li>
+          <li>Laporkan <strong>median + IQR</strong> (bukan hanya rata-rata).</li>
+          <li>Gunakan uji statistik non-parametrik jika perlu perbandingan algoritma.</li>
+          <li>Laporkan budget evaluasi, seed, parameter operator, dan stopping criteria.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>8) Blueprint Riset S2</h2>
+        <ol>
+          <li><strong>Rumusan masalah</strong>: definisikan gap dan kontribusi (metode/analisis/aplikasi).</li>
+          <li><strong>Formalisasi</strong>: variabel, objektif, kendala, domain keputusan.</li>
+          <li><strong>Pemilihan algoritma</strong>: baseline + varian usulan.</li>
+          <li><strong>Desain eksperimen</strong>: dataset/instance, budget, skenario ablation.</li>
+          <li><strong>Evaluasi kuantitatif</strong>: HV, IGD, runtime, dan robustitas.</li>
+          <li><strong>Analisis kualitatif</strong>: bentuk front, interpretasi trade-off domain.</li>
+          <li><strong>Reproducibility package</strong>: kode, parameter, seed, dokumentasi.</li>
+        </ol>
+        <div class="callout">
+          <strong>Rekomendasi alat:</strong> gunakan framework eksperimen seperti <a href="https://pymoo.org/" target="_blank">pymoo</a> untuk mempercepat replikasi benchmark.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>9) Soal Diskusi Tingkat Lanjut</h2>
+        <ol style="margin-bottom:0;">
+          <li>Bagaimana Anda membuktikan bahwa peningkatan HV bukan sekadar efek parameter tuning berlebihan?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Untuk membuktikan peningkatan HV bukan artefak tuning, lakukan:</p>
+              <ol style="margin:6px 0 6px 20px;">
+                <li><strong>Desain eksperimen faktorial</strong> — variasikan parameter algoritma (populasi, crossover rate, mutation rate) secara sistematis</li>
+                <li><strong>Multi-run dengan seed berbeda</strong> — minimal 30 run independen per konfigurasi</li>
+                <li><strong>Uji statistik nonparametrik</strong> — Mann-Whitney U untuk dua algoritma, Kruskal-Wallis untuk &gt;2</li>
+                <li><strong>Koreksi perbandingan ganda</strong> — Holm-Bonferroni atau Benjamini-Hochberg pada p-value</li>
+                <li><strong>Effect size</strong> — hitung Cliff's delta atau Vargha-Delaney A untuk melihat besaran perbedaan</li>
+              </ol>
+              <p>Jika peningkatan HV konsisten melintasi <em>berbagai</em> set parameter (bukan hanya satu set yang di-tune berlebihan), maka peningkatan tersebut tepercaya.</p>
+            </div>
+          </li>
+          <li>Dalam konteks objective mahal (expensive black-box), kapan surrogate-assisted MOEA diperlukan?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Surrogate-assisted MOEA diperlukan ketika biaya evaluasi sangat tinggi:</p>
+              <table style="width:100%;margin:8px 0;font-size:0.9rem;">
+                <tr><th>Skenario</th><th>Biaya Evaluasi</th><th>Budget Maksimal</th><th>Surrogate?</th></tr>
+                <tr><td>Benchmark sintetis (ZDT, DTLZ)</td><td>~ms</td><td>10<sup>5</sup>+</td><td>Tidak perlu</td></tr>
+                <tr><td>Simulasi CFD/FEM</td><td>menit–jam</td><td>100–500</td><td><strong>Ya</strong></td></tr>
+                <tr><td>Training model ML besar</td><td>jam–hari</td><td>10–100</td><td><strong>Sangat disarankan</strong></td></tr>
+                <tr><td>Eksperimen fisik/robotik</td><td>hari</td><td>&lt;50</td><td><strong>Wajib</strong></td></tr>
+              </table>
+              <p>Untuk menghindari bias surrogate sistematis, gunakan <em>infill criteria</em>:</p>
+              <ul style="margin:4px 0 0 18px;">
+                <li><strong>EI (Expected Improvement)</strong> — seimbang eksplorasi-eksploitasi</li>
+                <li><strong>PI (Probability of Improvement)</strong> — konservatif, eksploitasi tinggi</li>
+                <li><strong>LCB (Lower Confidence Bound)</strong> — adjustable via κ parameter</li>
+              </ul>
+            </div>
+          </li>
+          <li>Apakah dominasi Pareto masih efektif saat jumlah objektif &gt; 5? Jelaskan alternatifnya.
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Pada &gt;5 objektif, <strong>dominance resistance</strong> muncul — hampir semua solusi menjadi non-dominated sehingga tekanan seleksi hilang:</p>
+              <pre style="font-size:0.8rem;line-height:1.3;background:var(--bg);padding:8px;border-radius:6px;">
+  M=2:  ~10-30% solusi non-dominated  ← seleksi kuat
+  M=3:  ~40-60% solusi non-dominated
+  M=5:  ~80-95% solusi non-dominated
+  M=10: ~99%+ solusi non-dominated    ← dominance resistance
+              </pre>
+              <p style="font-size:0.8rem;color:var(--muted-2);margin:4px 0 8px;">Angka di atas ilustratif — proporsi riil bergantung ukuran populasi dan distribusi solusi.</p>
+              <p>Alternatif yang tersedia:</p>
+              <table style="width:100%;margin:8px 0;font-size:0.9rem;">
+                <tr><th>Pendekatan</th><th>Metode Contoh</th><th>Cara Kerja</th></tr>
+                <tr><td><strong>Dekomposisi</strong></td><td>MOEA/D, NSGA-III</td><td>Pecah masalah jadi subproblem dengan weight vectors</td></tr>
+                <tr><td><strong>Indicator-based</strong></td><td>SMS-EMOA, HypE</td><td>Seleksi berdasarkan kontribusi HV</td></tr>
+                <tr><td><strong>Preference-based</strong></td><td>r-dominance, g-dominance</td><td>Persempit region dominance dengan arah preferensi DM</td></tr>
+                <tr><td><strong>Dimensionality reduction</strong></td><td>PCA, feature selection</td><td>Kurangi jumlah objektif sebelum optimisasi</td></tr>
+              </table>
+            </div>
+          </li>
+          <li>Bagaimana mengintegrasikan preferensi pengambil keputusan ke proses evolusi, bukan hanya pasca-optimisasi?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Preferensi dapat diintegrasikan <em>selama</em> proses evolusi melalui <strong>progressive preference articulation</strong>:</p>
+              <ol style="margin:6px 0 6px 20px;">
+                <li><strong>Reference Point Methods</strong> — DM memberikan titik referensi (aspiration level), algoritma memprioritaskan solusi di dekatnya. Diupdate tiap iterasi. Contoh: R-NSGA-II.</li>
+                <li><strong>Weight Adaptation</strong> — bobot dalam dekomposisi disesuaikan berdasarkan interaksi DM. Contoh: MOEA/D dengan adaptive weights.</li>
+                <li><strong>Active Preference Learning</strong> — ML mempelajari preferensi dari contoh solusi yang dipilih DM, lalu memandu pencarian. Contoh: PL-MOEA.</li>
+                <li><strong>Interactive Indicator Selection</strong> — pilih indikator yang mencerminkan preferensi (mis. weighted HV, R2).</li>
+              </ol>
+              <p>Keuntungan utama: DM tidak perlu menunggu hingga akhir — eksplorasi diarahkan sejak awal, menghemat evaluasi mahal.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB S3 -->
+    <!-- ============================================================ -->
+    <div class="tab-panel s3">
+      <div class="section" aria-label="Tujuan S3">
+        <div class="topic-card">
+          <h2>1) Learning Outcomes (Doktoral/S3)</h2>
+          <ul>
+            <li>Memformulasikan problem MOO secara rigor, termasuk asumsi struktural dan implikasi komputasionalnya.</li>
+            <li>Membandingkan kelas metode (scalarization, decomposition, dominance-based, indicator-based) secara kritis.</li>
+            <li>Mendesain eksperimen MOEA/MOGA yang <em>reproducible</em>, sahih secara statistik, dan layak dipublikasikan.</li>
+            <li>Mengidentifikasi <em>research gap</em> dan merumuskan kontribusi teoretis/metodologis baru.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>2) Foundations: Optimization sebagai Problem Inference</h2>
+        <p>Optimization pada level doktoral tidak sekadar "mencari nilai minimum", tetapi membangun peta inferensi <em>decision space → performance space</em> di bawah keterbatasan informasi, biaya evaluasi, dan ketidakpastian.</p>
+        <div class="code-box">x ∈ Ω ⊂ R^n, objective f: Ω → R, constraints g_i(x) ≤ 0, h_j(x) = 0</div>
+        <p>Untuk problem konveks, teori memberi jaminan lebih kuat (duality, optimality conditions), namun pada problem non-konveks/black-box, jaminan global lazimnya tidak praktis; maka strategi berpindah ke pendekatan robust berbasis eksplorasi.</p>
+        <div class="callout">
+          <strong>Interpretasi S3:</strong> pemilihan algoritma adalah keputusan epistemik — apa yang dapat dipercaya dari model, data, dan anggaran komputasi.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>3) Formalisasi MOO dan Geometri Pareto</h2>
+        <div class="code-box">min F(x) = (f1(x), f2(x), ..., fm(x)), x ∈ Ω</div>
+        <p>MOO mendefinisikan order parsial melalui dominasi Pareto. Ini mengubah sasaran dari titik optimum tunggal menjadi aproksimasi himpunan solusi non-dominated.</p>
+        <ul>
+          <li><strong>Pareto set (PS)</strong>: himpunan solusi non-dominated di ruang keputusan.</li>
+          <li><strong>Pareto front (PF)</strong>: citra PS di ruang objektif.</li>
+          <li><strong>Convergence–Diversity tension</strong>: kedekatan terhadap PF vs pemerataan distribusi solusi.</li>
+        </ul>
+
+        <div class="fig">
+          <svg viewBox="0 0 760 280" width="100%" style="max-width:700px;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Geometri Pareto">
+            <rect x="0" y="0" width="760" height="280" fill="transparent"/>
+            <line x1="70" y1="230" x2="710" y2="230" stroke="#334155" stroke-width="2"/>
+            <line x1="70" y1="230" x2="70" y2="35" stroke="#334155" stroke-width="2"/>
+            <text x="640" y="255" font-size="14" fill="#64748b">f1 ↓</text>
+            <text x="20" y="55" font-size="14" fill="#64748b" transform="rotate(-90,20,55)">f2 ↓</text>
+            <polyline points="110,60 170,105 235,138 305,160 380,175 455,186 535,193 620,198"
+                      fill="none" stroke="#2563eb" stroke-width="3"/>
+            <circle cx="110" cy="60" r="4" fill="#2563eb"/>
+            <circle cx="170" cy="105" r="4" fill="#2563eb"/>
+            <circle cx="235" cy="138" r="4" fill="#2563eb"/>
+            <circle cx="305" cy="160" r="4" fill="#2563eb"/>
+            <circle cx="380" cy="175" r="4" fill="#2563eb"/>
+            <circle cx="455" cy="186" r="4" fill="#2563eb"/>
+            <circle cx="535" cy="193" r="4" fill="#2563eb"/>
+            <circle cx="620" cy="198" r="4" fill="#2563eb"/>
+            <circle cx="300" cy="120" r="5" fill="#94a3b8"/>
+            <circle cx="410" cy="140" r="5" fill="#94a3b8"/>
+            <circle cx="515" cy="158" r="5" fill="#94a3b8"/>
+            <text x="200" y="70" font-size="13" fill="#1d4ed8">PF approximation</text>
+          </svg>
+          <div class="figcap">Geometri front Pareto pada problem bi-objektif minimisasi.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>4) Batas Teori Klasik &amp; Motivasi Metaheuristik</h2>
+        <h3>4.1 Scalarization: elegan namun tidak selalu cukup</h3>
+        <div class="code-box">min Σ_k w_k f_k(x), w_k ≥ 0</div>
+        <p>Weighted-sum efektif pada konteks tertentu, tetapi dapat gagal mengungkap seluruh PF, terutama jika PF non-konveks. Ini bukan "kegagalan implementasi", tetapi konsekuensi geometrik dari transformasi multiobjektif ke skalar.</p>
+
+        <h3>4.2 Metaheuristik populasi</h3>
+        <p>MOEA/MOGA mengatasi keterbatasan tersebut dengan pencarian populasi simultan, sehingga lebih natural untuk memetakan PF. Trade-off-nya: beban evaluasi tinggi, sensitivitas parameter, dan keterbatasan jaminan optimalitas formal.</p>
+        <div class="callout" style="border-left-color:#f59e0b;">
+          <strong>Catatan kritis:</strong> pada disertasi, "hasil lebih baik" harus diuji lintas benchmark, budget setara, dan analisis statistik.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>5) Arsitektur MOEA/MOGA</h2>
+        <ol>
+          <li>Inisialisasi populasi P0.</li>
+          <li>Evaluasi vektor objektif F(x).</li>
+          <li>Ranking/selection (dominance, decomposition, indicator).</li>
+          <li>Variation operators (crossover, mutation).</li>
+          <li>Elitism + diversity preservation.</li>
+          <li>Terminasi berbasis budget (evaluations/generations/time).</li>
+        </ol>
+
+        <div class="fig">
+          <svg viewBox="0 0 860 220" width="100%" style="max-width:800px;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Alur MOEA/MOGA">
+            <rect x="0" y="0" width="860" height="220" fill="transparent"/>
+            <defs>
+              <marker id="arr" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <path d="M0,0 L10,3 L0,6 Z" fill="#334155"/>
+              </marker>
+            </defs>
+            <rect x="20" y="80" width="130" height="48" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+            <text x="85" y="109" text-anchor="middle" font-size="13" fill="#1e293b">Initialize P0</text>
+            <rect x="180" y="80" width="150" height="48" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+            <text x="255" y="109" text-anchor="middle" font-size="13" fill="#1e293b">Evaluate F(x)</text>
+            <rect x="360" y="80" width="180" height="48" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+            <text x="450" y="103" text-anchor="middle" font-size="13" fill="#1e293b">Select (dominance /</text>
+            <text x="450" y="119" text-anchor="middle" font-size="13" fill="#1e293b">indicator / decomposition)</text>
+            <rect x="570" y="80" width="130" height="48" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+            <text x="635" y="109" text-anchor="middle" font-size="13" fill="#1e293b">Variation</text>
+            <rect x="730" y="80" width="110" height="48" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+            <text x="785" y="109" text-anchor="middle" font-size="13" fill="#1e293b">New Pop</text>
+            <line x1="150" y1="104" x2="178" y2="104" stroke="#334155" stroke-width="2" marker-end="url(#arr)"/>
+            <line x1="330" y1="104" x2="358" y2="104" stroke="#334155" stroke-width="2" marker-end="url(#arr)"/>
+            <line x1="540" y1="104" x2="568" y2="104" stroke="#334155" stroke-width="2" marker-end="url(#arr)"/>
+            <line x1="700" y1="104" x2="728" y2="104" stroke="#334155" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M785 130 C785 176, 100 176, 100 132" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr)"/>
+            <text x="430" y="198" text-anchor="middle" font-size="13" fill="#64748b">Iterate under fixed evaluation budget</text>
+          </svg>
+          <div class="figcap">Kerangka generik MOEA/MOGA.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>6) Kritik Metodologis: NSGA-II, SPEA2, MOEA/D</h2>
+        <table>
+          <thead>
+            <tr><th>Metode</th><th>Ide Inti</th><th>Kekuatan</th><th>Potensi Kelemahan</th><th>Sumber Primer</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>NSGA-II</td>
+              <td>Fast non-dominated sorting + crowding distance + elitism</td>
+              <td>Baseline kuat dan luas dipakai</td>
+              <td>Selektivitas dominance menurun pada many-objective</td>
+              <td><a href="https://doi.org/10.1109/4235.996017" target="_blank">Deb et al., 2002</a></td>
+            </tr>
+            <tr>
+              <td>SPEA2</td>
+              <td>Strength assignment + archive elit + density estimation</td>
+              <td>Ranking stabil pada banyak kasus</td>
+              <td>Ketergantungan pada desain archive/parameter density</td>
+              <td><a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank">Zitzler et al., 2001</a></td>
+            </tr>
+            <tr>
+              <td>MOEA/D</td>
+              <td>Decomposition menjadi subproblem scalar dengan neighborhood</td>
+              <td>Efisien pada beberapa benchmark many-objective</td>
+              <td>Sensitif terhadap strategi dekomposisi dan vector bobot</td>
+              <td><a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank">Zhang &amp; Li, 2007</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="section-desc">Praktik S3: bandingkan algoritma dalam kerangka "kondisi kapan unggul", bukan klaim universal.</p>
+      </div>
+
+      <div class="section">
+        <h2>7) Quality Indicators &amp; Statistical Validity</h2>
+        <h3>7.1 Indikator kualitas front</h3>
+        <ul>
+          <li><strong>Hypervolume (HV)</strong>: menangkap convergence + diversity sekaligus, tetapi mahal dihitung pada dimensi tinggi.</li>
+          <li><strong>IGD/IGD+</strong>: mengukur kedekatan dan cakupan aproksimasi terhadap front referensi.</li>
+          <li><strong>ε-indicator</strong>: batas dominasi relatif antar set solusi.</li>
+        </ul>
+
+        <h3>7.2 Validitas inferensi eksperimen</h3>
+        <ul>
+          <li>Gunakan <strong>budget evaluasi setara</strong> antar algoritma.</li>
+          <li>Lakukan <strong>multi-run</strong> dengan seed berbeda.</li>
+          <li>Laporkan median, IQR, dan visualisasi distribusi (boxplot/violin).</li>
+          <li>Gunakan uji statistik nonparametrik (mis. Wilcoxon/Friedman + post-hoc) bila relevan.</li>
+          <li>Laporkan efek praktis, bukan hanya signifikansi statistik.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>8) Many-Objective, Preference Learning, dan Dynamic MOO</h2>
+        <h3>8.1 Many-objective optimization (MaOO)</h3>
+        <p>Saat jumlah objektif meningkat, relasi dominasi menjadi kurang diskriminatif. Agenda riset bergerak ke indikator alternatif, reference-point methods, atau preference articulation.</p>
+
+        <h3>8.2 Preference-based MOO</h3>
+        <p>Daripada mengaproksimasi seluruh PF, sistem dapat diarahkan ke region-of-interest (ROI) berdasarkan preferensi stakeholder. Ini relevan untuk aplikasi industri dengan kebutuhan keputusan cepat.</p>
+
+        <h3>8.3 Dynamic/uncertain MOO</h3>
+        <p>Pada sistem dinamis, PF dapat bergeser terhadap waktu; algoritma perlu kemampuan tracking dan adaptation, bukan sekadar konvergensi statik.</p>
+
+        <div class="callout">
+          <strong>Research opportunity:</strong> integrasi MOEA dengan uncertainty quantification, surrogate modeling, dan preference learning masih sangat aktif diteliti.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>9) Blueprint Kontribusi Disertasi</h2>
+        <ol>
+          <li><strong>Problem framing</strong>: tunjukkan gap dari literatur, bukan sekadar "belum pernah dicoba".</li>
+          <li><strong>Theoretical proposition</strong>: rumuskan hipotesis metode (mis. operator baru, strategi archive, adaptive selection).</li>
+          <li><strong>Algorithmic design</strong>: berikan argumentasi kenapa desain Anda harus bekerja.</li>
+          <li><strong>Protocol eksperimen</strong>: benchmark standar + kasus aplikasi domain.</li>
+          <li><strong>Ablation study</strong>: isolasi kontribusi tiap komponen metode.</li>
+          <li><strong>Generalization claims</strong>: batasi klaim sesuai bukti.</li>
+          <li><strong>Reproducibility package</strong>: kode, seed, config, log, dan skrip evaluasi.</li>
+        </ol>
+        <div class="callout">
+          <strong>Standar minimal publikasi:</strong> baseline kuat, protokol adil, statistik jelas, dan diskusi keterbatasan eksplisit.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>10) Pertanyaan Riset Lanjut (Level S3)</h2>
+        <ol style="margin-bottom:0;">
+          <li>Bagaimana merancang indikator kualitas yang tetap informatif pada &gt;10 objektif dengan biaya komputasi wajar?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Kompleksitas HV eksponensial terhadap jumlah objektif M — O(N<sup>M-1</sup>) menjadi tidak praktis untuk M &gt; 10. Alternatif:</p>
+              <table style="width:100%;margin:8px 0;font-size:0.9rem;">
+                <tr><th>Indikator</th><th>Kompleksitas</th><th>Keunggulan</th><th>Kelemahan</th></tr>
+                <tr><td><strong>HV (exact)</strong></td><td>O(N<sup>M-1</sup>)</td><td>Pareto-compliant, informatif</td><td>Eksponensial — tidak praktis M&gt;10</td></tr>
+                <tr><td><strong>HypE</strong></td><td>O(N · S) Monte Carlo</td><td>Estimasi HV cepat</td><td>Hasil stokastik, perlu banyak sampel</td></tr>
+                <tr><td><strong>IGD<sup>+</sup></strong></td><td>O(M · N²)</td><td>Weakly Pareto-compliant</td><td>Butuh front referensi representatif</td></tr>
+                <tr><td><strong>R2</strong></td><td>O(M · N · |W|)</td><td>Efisien untuk M besar</td><td>Bergantung pemilihan weight vectors W</td></tr>
+              </table>
+              <p><strong>Rekomendasi:</strong> R2 memberikan keseimbangan terbaik antara efisiensi dan informativitas untuk M &gt; 10. HV eksak tetap menjadi <em>gold standard</em> untuk M ≤ 5.</p>
+            </div>
+          </li>
+          <li>Bagaimana menggabungkan preferensi stakeholder secara adaptif selama evolusi, bukan pasca-hoc?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Ada tiga paradigma utama integrasi preferensi adaptif, dengan trade-off masing-masing:</p>
+              <table style="width:100%;margin:8px 0;font-size:0.9rem;">
+                <tr><th>Paradigma</th><th>Mekanisme</th><th>Frekuensi Interaksi</th><th>Contoh Framework</th></tr>
+                <tr><td><strong>Reference point</strong></td><td>DM update titik referensi tiap beberapa generasi</td><td>Sedang (tiap 5–20 gen)</td><td>R-NSGA-II, iMOEA</td></tr>
+                <tr><td><strong>Active learning</strong></td><td>ML pelajari preferensi dari solusi yang dipilih DM</td><td>Rendah (tiap fase)</td><td>PL-MOEA, iTDE</td></tr>
+                <tr><td><strong>Weight adaptation</strong></td><td>Weight vectors dalam MOEA/D berubah sesuai feedback</td><td>Tinggi (tiap generasi)</td><td>MOEA/D-AWA, PICEA-g</td></tr>
+              </table>
+              <p><strong>Research gap:</strong> bagaimana menjaga konsistensi preferensi ketika DM berubah pikiran selama proses interaksi? Ini adalah <em>open problem</em> dalam interactive MOO.</p>
+            </div>
+          </li>
+          <li>Dalam expensive MOO, kapan surrogate model meningkatkan efisiensi tanpa bias front secara sistematis?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Surrogate model aman dan efektif jika tiga kondisi berikut terpenuhi:</p>
+              <ol style="margin:6px 0 6px 20px;">
+                <li><strong>Initial Design memadai</strong> — jumlah sampel awal cukup untuk menangkap bentuk dasar fungsi objektif (Latin Hypercube Sampling disarankan)</li>
+                <li><strong>Infill criterion tepat</strong> — pilih sesuai tujuan:
+                  <ul style="margin:2px 0 0 20px;">
+                    <li><strong>EI</strong> — eksplorasi-eksploitasi seimbang (default)</li>
+                    <li><strong>PI</strong> — jika fokus konvergensi cepat</li>
+                    <li><strong>LCB</strong> — kontrol eksplorasi via parameter κ</li>
+                  </ul>
+                </li>
+                <li><strong>Validasi periodik</strong> — evaluasi sejati dilakukan berkala untuk memeriksa deviasi surrogate</li>
+              </ol>
+              <div class="callout" style="margin:10px 0;">
+                <strong>Peringatan:</strong> tanpa validasi periodik, surrogate dapat menghasilkan <em>deceptive convergence</em> — front yang smooth tapi jauh dari front sejati. Ini adalah jebakan umum dalam surrogate-assisted optimization.
+              </div>
+            </div>
+          </li>
+          <li>Bagaimana membedakan peningkatan metodologis asli vs overfitting pada benchmark tertentu?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Membedakan kontribusi asli vs overfitting memerlukan protokol evaluasi ketat:</p>
+              <ol style="margin:6px 0 6px 20px;">
+                <li><strong>Benchmark suite luas</strong> — gunakan berbagai fungsi dengan karakteristik struktural berbeda (konveks, nonkonveks, multimodal, disconnected)</li>
+                <li><strong>Validasi dunia nyata</strong> — uji pada setidaknya satu problem domain yang relevan dengan klaim kontribusi</li>
+                <li><strong>Statistik nonparametrik</strong> — Mann-Whitney / Kruskal-Wallis + koreksi Holm-Bonferroni untuk perbandingan ganda</li>
+                <li><strong>Efisiensi komputasi</strong> — laporkan running time dan jumlah evaluasi, bukan hanya kualitas solusi:
+                  <div class="code-box" style="margin:6px 0;font-size:0.82rem;">Peningkatan 5% HV dengan 10× waktu komputasi → trade-off tidak selalu menguntungkan</div>
+                </li>
+                <li><strong>Parameter sensitivity</strong> — uji algoritma dengan berbagai konfigurasi parameter untuk memastikan keunggulan bukan karena tuning berlebihan</li>
+                <li><strong>Ablation study</strong> — isolasi kontribusi tiap komponen metode (apa yang terjadi jika komponen X dihilangkan?)</li>
+              </ol>
+            </div>
+          </li>
+          <li>Apa bentuk jaminan teoretis minimum yang realistis untuk MOEA pada kelas problem tertentu?
+            <button class="ans-btn" onclick="toggleAnswer(this)" type="button">Lihat Jawaban</button>
+            <div class="ans-content">
+              <p>Jaminan teoretis MOEA sangat terbatas dibandingkan metode gradient-based. Berikut peta jaminan yang realistis:</p>
+              <table style="width:100%;margin:8px 0;font-size:0.9rem;">
+                <tr><th>Kelas/Algoritma</th><th>Jaminan</th><th>Syarat</th><th>Kekuatan</th></tr>
+                <tr><td>MOEA umum (NSGA-II, SPEA2)</td><td>Konvergensi asimptotik dalam probabilitas ke Pareto front</td><td>Operator variasi ergodic, populasi tak hingga</td><td>Lemah (tidak praktis)</td></tr>
+                <tr><td>MOEA/D (Tchebycheff)</td><td>Konvergensi ke titik (weakly) Pareto optimal</td><td>Subproblem dioptimasi eksak; Tchebycheff tidak memerlukan konveksitas (weighted-sum memerlukannya)</td><td>Sedang</td></tr>
+                <tr><td>Indicator-based (HV)</td><td>Distribusi memaksimalkan HV pada limit</td><td>Populasi tak hingga, reference point tepat</td><td>Sedang</td></tr>
+                <tr><td>Finite-sample guarantee</td><td>Tidak ada secara umum</td><td>—</td><td><strong>Open problem</strong></td></tr>
+              </table>
+              <p>Ketiadaan jaminan <em>finite-sample</em> membuka peluang riset: merancang MOEA dengan <em>convergence rate</em> terukur untuk kelas problem spesifik (mis. masalah konveks dengan struktur separabel).</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- REFERENSI (dibagi semua level) -->
+    <section class="section" id="referensi" aria-label="Referensi">
+      <div class="hero-card">
+        <h2>Referensi Tepercaya</h2>
+        <ol class="ref-list">
+          <li>Boyd, S., &amp; Vandenberghe, L. (2004). <em>Convex Optimization</em>. Cambridge University Press. <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank">web.stanford.edu/~boyd/cvxbook/</a></li>
+          <li>Kochenderfer, M. J., &amp; Wheeler, T. A. (2019). <em>Algorithms for Optimization</em>. MIT Press. <a href="https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/" target="_blank">mitpress.mit.edu</a></li>
+          <li>Miettinen, K. (1999). <em>Nonlinear Multiobjective Optimization</em>. Springer. <a href="https://doi.org/10.1007/978-1-4615-5563-6" target="_blank">doi:10.1007/978-1-4615-5563-6</a></li>
+          <li>Deb, K. (2001). <em>Multi-Objective Optimization Using Evolutionary Algorithms</em>. Wiley. <a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">doi:10.1002/0470010640</a></li>
+          <li>Deb, K., Pratap, A., Agarwal, S., &amp; Meyarivan, T. (2002). NSGA-II. <em>IEEE TEC</em>. <a href="https://doi.org/10.1109/4235.996017" target="_blank">doi:10.1109/4235.996017</a></li>
+          <li>Zitzler, E., Laumanns, M., &amp; Thiele, L. (2001). SPEA2. ETH Zürich TIK-Report 103. <a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank">TIK-Report</a></li>
+          <li>Zhang, Q., &amp; Li, H. (2007). MOEA/D. <em>IEEE TEC</em>. <a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank">doi:10.1109/TEVC.2007.892759</a></li>
+          <li>Zitzler, E., et al. (2003). Performance Assessment of Multiobjective Optimizers. <em>IEEE TEC</em>. <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank">doi:10.1109/TEVC.2003.810758</a></li>
+          <li>Coello Coello, C. A., Lamont, G. B., &amp; Van Veldhuizen, D. A. (2007). <em>Evolutionary Algorithms for Solving Multi-Objective Problems</em> (2nd ed.). Springer. <a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">doi:10.1007/978-0-387-36797-2</a></li>
+          <li>Dokumentasi pymoo: <a href="https://pymoo.org/" target="_blank">https://pymoo.org/</a></li>
+        </ol>
+        <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);">Kembali ke <a href="./index.html" style="font-weight:700;">Beranda</a></p>
+      </div>
+    </section>
+
+    <div class="footer">
+      &copy; 2026 Ariadie Chandra Nugraha — ACN101 Optimization · MOO · MOEA/MOGA
+    </div>
+
+  </main>
+
+  <script>
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-acn101");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-acn101", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Hamburger drawer
+    document.getElementById("hamBtn").addEventListener("click", () => {
+      document.getElementById("drawer").classList.add("open");
+      document.getElementById("drawerOverlay").classList.add("open");
+      document.body.style.overflow = "hidden";
+    });
+    function closeDrawer() {
+      document.getElementById("drawer").classList.remove("open");
+      document.getElementById("drawerOverlay").classList.remove("open");
+      document.body.style.overflow = "";
+    }
+    document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+    document.getElementById("drawerOverlay").addEventListener("click", closeDrawer);
+
+    // Tab persistence & URL hash support
+    const tabRadios = document.querySelectorAll(".tab-radio");
+    const savedTab = localStorage.getItem("acn101-tab");
+    const hash = location.hash.replace("#", "");
+    if (hash && document.getElementById(hash)) {
+      document.getElementById(hash).checked = true;
+    } else if (savedTab) {
+      const el = document.getElementById(savedTab);
+      if (el) el.checked = true;
+    }
+    tabRadios.forEach(r => r.addEventListener("change", () => {
+      localStorage.setItem("acn101-tab", r.id);
+      history.replaceState(null, "", "#" + r.id);
+    }));
+
+    function toggleAnswer(btn) {
+      const content = btn.nextElementSibling;
+      if (!content || !content.classList.contains("ans-content")) return;
+      const visible = content.classList.toggle("visible");
+      btn.textContent = visible ? "Sembunyikan" : "Lihat Jawaban";
+    }
+  </script>
 </body>
 </html>
