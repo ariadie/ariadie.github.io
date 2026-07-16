@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Panduan visualisasi Pareto Front dan data berdimensi tinggi di Pymoo menggunakan Python (Bahasa Indonesia).">
+  <title>Visualisasi Pareto Front — Pymoo</title>
+  <link rel="icon" href="images/favicon.ico">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Style -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="images/logo.svg" alt="Pymoo Logo" class="sidebar-logo">
+        <span class="sidebar-title">pymoo Docs</span>
+      </div>
+      <ul class="sidebar-menu">
+        <li class="menu-label">Pengantar</li>
+        <li class="menu-item"><a href="index.html">🏠 Beranda</a></li>
+        <li class="menu-item"><a href="getting-started.html">🚀 Memulai Cepat</a></li>
+        
+        <li class="menu-label">Penggunaan</li>
+        <li class="menu-item"><a href="problems.html">🧩 Formulasi Masalah</a></li>
+        <li class="menu-item"><a href="algorithms.html">🧬 Daftar Algoritme</a></li>
+        <li class="menu-item"><a href="decision-making.html">🎯 MCDM &amp; Kinerja</a></li>
+        <li class="menu-item active"><a href="visualization.html">📊 Visualisasi Front</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <span>v0.6.2 (ID)</span>
+        <a href="https://github.com/anyoptimization/pymoo" target="_blank">GitHub</a>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <!-- Header -->
+      <header class="header">
+        <button class="menu-toggle" id="hamBtn">☰</button>
+        <span class="header-title-mobile">pymoo Docs</span>
+        <div class="header-actions">
+          <a href="../index.html" class="back-to-hub">⬅️ <span>Kembali ke Hub</span></a>
+          <button class="theme-toggle" id="themeToggle">🌙 <span>Mode Gelap</span></button>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="content">
+        <h1>Visualisasi Pareto Front &amp; Multiobjektif</h1>
+        
+        <p>Modul visualisasi Pymoo dirancang menggunakan basis pustaka <strong>Matplotlib</strong>. Ini memungkinkan pengguna untuk dengan mudah memplot larik NumPy 2D hasil optimasi (seperti <code>res.F</code>) dalam berbagai representasi visual yang indah.</p>
+
+        <h2>1. Scatter Plot (2D dan 3D)</h2>
+        <p>Merupakan jenis plot dasar paling populer untuk melihat sebaran solusi pada ruang objektif 2D atau 3D. Jika dimensi objektif (M) lebih dari 3, Pymoo secara cerdas akan menggambarkan matriks sebaran perbandingan antar objektif secara berpasangan.</p>
+
+        <pre><code><span class="py-keyword">from</span> pymoo.visualization.scatter <span class="py-keyword">import</span> Scatter
+
+<span class="py-comment"># Membuat plot 2D</span>
+plot = Scatter(title=<span class="py-string">"Optimasi Dua Objektif"</span>)
+plot.add(res.F, color=<span class="py-string">"blue"</span>, facecolors=<span class="py-string">"none"</span>)
+plot.show()</code></pre>
+
+        <div class="doc-img-wrapper">
+          <img src="images/visualization_index_9_1.png" alt="Scatter Plot Contoh Pymoo" class="doc-img" style="max-width: 480px;">
+          <div class="doc-img-caption">Scatter Plot Sebaran Solusi Pareto-Optimal pada Masalah DTLZ</div>
+        </div>
+
+        <h2>2. Parallel Coordinate Plot (PCP)</h2>
+        <p>Saat jumlah objektif lebih dari 3 (Many-objective), Scatter plot 3D menjadi sulit diinterpretasikan. PCP memetakan setiap objektif ke sumbu paralel vertikal terpisah, dan setiap solusi digambarkan sebagai garis berkelanjutan melintasi sumbu-sumbu tersebut.</p>
+
+        <pre><code><span class="py-keyword">from</span> pymoo.visualization.pcp <span class="py-keyword">import</span> PCP
+
+<span class="py-comment"># Membuat plot PCP untuk solusi many-objective</span>
+plot = PCP(title=<span class="py-string">"PCP Solusi Banyak Objektif"</span>)
+plot.add(res.F)
+plot.show()</code></pre>
+
+        <div class="doc-img-wrapper">
+          <img src="images/visualization_index_12_1.png" alt="Parallel Coordinates Plot Contoh Pymoo" class="doc-img" style="max-width: 540px;">
+          <div class="doc-img-caption">Visualisasi Garis Solusi Menggunakan Sumbu Paralel Vertikal PCP</div>
+        </div>
+
+        <h2>3. Diagram Petal &amp; Radar (Spider Plot)</h2>
+        <p>Bermanfaat untuk membandingkan karakteristik beberapa solusi spesifik (misalnya solusi terpilih vs solusi alternatif). Setiap solusi digambarkan sebagai kelopak bunga (Petal) atau bentuk segi banyak (Radar) di mana jari-jari sumbu menyatakan nilai masing-masing objektif.</p>
+
+        <pre><code><span class="py-keyword">from</span> pymoo.visualization.petal <span class="py-keyword">import</span> Petal
+<span class="py-keyword">from</span> pymoo.visualization.radar <span class="py-keyword">import</span> Radar
+
+<span class="py-comment"># Menggambar petal diagram untuk beberapa solusi terpilih</span>
+plot = Petal(title=<span class="py-string">"Diagram Kelopak"</span>)
+plot.add(res.F[:<span class="py-number">3</span>]) <span class="py-comment"># membandingkan 3 solusi pertama</span>
+plot.show()</code></pre>
+
+        <h2>4. Heatmap</h2>
+        <p>Menampilkan nilai objektif dalam format peta panas grid berwarna. Setiap kolom menyatakan sumbu objektif dan setiap baris menyatakan satu individu solusi.</p>
+
+        <div class="alert alert-info">
+          <span class="alert-icon">💡</span>
+          <div class="alert-content">
+            <p><strong>Menyimpan Plot Offline:</strong> Karena modul visualisasi Pymoo membungkus Matplotlib, Anda dapat langsung menyimpan plot dalam berbagai format dengan mengakses atribut <code>fig</code> bawaan:</p>
+            <pre style="margin: 0.5rem 0 0 0;"><code>plot.do()
+plot.fig.savefig("pareto_front.png", dpi=300)</code></pre>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Shared Script -->
+  <script src="common.js"></script>
+</body>
+</html>

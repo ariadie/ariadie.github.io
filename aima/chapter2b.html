@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 2b: Agent Structures &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#8e44ad;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(142,68,173,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#8e44ad;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(142,68,173,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#8e44ad;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #8e44ad;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#6c3483;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #8e44ad;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#f3e5f5 0%,#e1bee7 100%);}
+        .concept-card h4{color:#6c3483;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#8e44ad;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#8e44ad,#3498db,#2ecc71);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#8e44ad;box-shadow:0 0 0 3px rgba(142,68,173,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(142,68,173,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(142,68,173,.4);background:linear-gradient(135deg,#9b59b6,#8e44ad);}
+        .btn-danger{background:linear-gradient(135deg,#e74c3c,#c0392b);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#8e44ad,#3498db,#2ecc71,#f39c12);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(142,68,173,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #8e44ad;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#8e44ad;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 2 (Bagian 2)</h1>
+            <div class="subtitle">Agent Structures: Dari Simple Reflex hingga Learning Agent</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter2a.html" title="Sebelumnya: Bab 2a">&#8592; Bab 2a</a>
+            <span class="navcur">Bab 2b</span>
+            <a class="navbtn" href="chapter3a.html" title="Lanjut: Bab 3a">Bab 3a &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#simple">Simple Reflex</a>
+            <a href="#model">Model-Based</a>
+            <a href="#goal">Goal-Based</a>
+            <a href="#utility">Utility-Based</a>
+            <a href="#learning">Learning Agent</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Bab ini membahas lima struktur agen yang berbeda, dari yang paling sederhana hingga yang paling kompleks. Setiap struktur menambahkan kemampuan baru yang memungkinkan agen menangani lingkungan yang semakin kompleks.</p>
+
+                <div class="simulation-container">
+                    <canvas id="archCanvas" width="850" height="350"></canvas>
+                </div>
+                <p style="text-align:center;color:#7f8c8d;font-size:.9em;">Klik arsitektur untuk melihat diagram bloknya</p>
+            </div>
+
+            <!-- SIMPLE REFLEX -->
+            <div id="simple" class="section" style="--delay:0.3s;">
+                <h2>2.5.1 Simple Reflex Agent</h2>
+                <p>Agen paling sederhana: memilih aksi berdasarkan <strong>persepsi saat ini saja</strong>, mengabaikan riwayat.</p>
+
+                <div class="math">
+                    \[ \text{Action} = \text{CONDITION-STATEMENT}(\text{percept}) \]
+                </div>
+
+                <h3>Cara Kerja</h3>
+                <ol>
+                    <li>Agen menerima persepsi dari sensor</li>
+                    <li>Persepsi di-matching dengan aturan IF-THEN</li>
+                    <li>Aksi yang sesuai dijalankan</li>
+                </ol>
+
+                <h3>Karakteristik</h3>
+                <table>
+                    <tr><th>Keunggulan</th><th>Keterbatasan</th></tr>
+                    <tr><td>Sangat sederhana</td><td>Hanya cocok untuk fully observable environments</td></tr>
+                    <tr><td>Mudah diimplementasikan</td><td>Tidak memiliki memori tentang keadaan sebelumnya</td></tr>
+                    <tr><td>Cepat (waktu konstan)</td><td>Tidak bisa menangani partially observable environments</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Contoh:</strong> Thermostat sederhana &mdash; jika suhu &lt; 20°C, nyalakan pemanas. Tidak peduli berapa lama sudah dingin, atau apakah baru saja dinyalakan.
+                </div>
+            </div>
+
+            <!-- MODEL-BASED -->
+            <div id="model" class="section" style="--delay:0.6s;">
+                <h2>2.5.2 Model-Based Reflex Agent</h2>
+                <p>Menambahkan <strong>status internal</strong> (model dunia) untuk menangani partially observable environments.</p>
+
+                <div class="math">
+                    \[ \text{status}(t+1) = \text{UPDATE}(\text{status}(t), \text{action}(t), \text{percept}(t+1)) \]
+                </div>
+
+                <h3>Bagian Internal: Model Dunia</h3>
+                <p>Agen mempertahankan dua informasi penting:</p>
+                <ul>
+                    <li><strong>Bagian yang belum berubah</strong> &mdash; keadaan lingkungan yang tidak terpengaruh oleh aksi agen</li>
+                    <li><strong>Bagian yang terpengaruh aksi</strong> &mdash; keadaan yang berubah sebagai akibat aksi agen</li>
+                </ul>
+
+                <div class="warning">
+                    <strong>Pertanyaan:</strong> Bagaimana agen tahu bagian mana yang berubah? Jawaban: melalui <em>model bagaimana dunia bereaksi terhadap aksi</em> &mdash; aturan transisi yang dipelajari atau didefinisikan sebelumnya.
+                </div>
+            </div>
+
+            <!-- GOAL-BASED -->
+            <div id="goal" class="section" style="--delay:0.9s;">
+                <h2>2.5.3 Goal-Based Agent</h2>
+                <p>Informasi tentang <strong>tujuan</strong> (goal) membantu agen memilih antara aksi yang memuaskan saat ini.</p>
+
+                <h3>Bagaimana Goal Membantu?</h3>
+                <p>Ketika ada beberapa jalur untuk mencapai tujuan, agen harus mempertimbangkan <strong>jangka panjang</strong>. Goal menyediakan criterion untuk memutuskan aksi mana yang benar.</p>
+
+                <h3>Perbedaan dengan Simple Reflex</h3>
+                <table>
+                    <tr><th>Simple Reflex</th><th>Goal-Based</th></tr>
+                    <tr><td>Merespons persepsi saat ini</td><td>Mempertimbangkan masa depan</td></tr>
+                    <tr><td>Tidak ada perencanaan</td><td>Bisa merencanakan jalur ke tujuan</td></tr>
+                    <tr><td>Cepat tapi terbatas</td><td>Lebih lambat tapi lebih fleksibel</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Contoh:</strong> GPS Navigation &mdash; tidak hanya merespons lampu lalu lintas saat ini, tapi merencanakan seluruh rute dari A ke B.
+                </div>
+            </div>
+
+            <!-- UTILITY-BASED -->
+            <div id="utility" class="section" style="--delay:1.2s;">
+                <h2>2.5.4 Utility-Based Agent</h2>
+                <p>Goal hanya mengatakan "apa yang harus dicapai". Utility mengatakan <strong>"seberapa puas"</strong> agen dengan keadaan tertentu &mdash; memungkinkan perbandingan derajat kepuasan.</p>
+
+                <div class="math">
+                    \[ \text{Utility Function } U(s): S \to \mathbb{R} \]
+                    <p style="margin-top:8px;font-size:.95em;">
+                        Memetakan setiap keadaan ke nilai real yang merepresentasikan "seberapa baik" keadaan tersebut.
+                    </p>
+                </div>
+
+                <h3>Kapan Utility Diperlukan?</h3>
+                <ul>
+                    <li><strong>Keadaan konflik:</strong> Beberapa goal saling bertentangan &mdash; perlu trade-off</li>
+                    <li><strong>Ketidakpastian:</strong> Lingkungan stokastik &mdash; utility membantu memilih aksi dengan hasil yang diharapkan terbaik</li>
+                    <li><strong>Multi-goal:</strong> Ada banyak goal dengan prioritas berbeda</li>
+                </ul>
+
+                <div class="warning">
+                    <strong>Penting:</strong> Performance measure harus ditetapkan oleh pembuat desain, bukan oleh agen. Jika agen yang menentukan utilitasnya sendiri, ia dapat memanipulasi sistem untuk mempermudah pencapaiannya.
+                </div>
+            </div>
+
+            <!-- LEARNING AGENT -->
+            <div id="learning" class="section" style="--delay:1.5s;">
+                <h2>2.5.5 Learning Agent</h2>
+                <p>Agen yang dapat <strong>memperbaiki diri sendiri</strong> melalui pengalaman. Learning agent memiliki empat komponen utama:</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">L</span> Learning Element</h4>
+                        <p>Bertanggung jawab untuk membuat peningkatan. Mengevaluasi feedback dari Critic dan menyarankan perubahan pada Performance Element.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">C</span> Critic</h4>
+                        <p>Mengevaluasi seberapa baik agen berperforma dibandingkan standar absolut. Memberikan feedback ke Learning Element.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">P</span> Performance Element</h4>
+                        <p>Komponen yang melakukan seleksi aksi eksternal &mdash; "agen" itu sendiri sebelum pembelajaran. Menerima input dari sensors dan menghasilkan aksi.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.25s">
+                        <h4><span class="icon">G</span> Problem Generator</h4>
+                        <p>Menyarankan aksi yang akan menghasilkan pengalaman baru &mdash; menjelajahi untuk menemukan peningkatan yang lebih baik (exploration).</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Mengapa Learning Agent?</strong> Desainer tidak selalu tahu lingkungan sepenuhnya. Learning agent memulai dengan komponen desainer (yang mungkin sederhana) dan memperbaiki dirinya sendiri melalui interaksi dengan lingkungan nyata &mdash; menghasilkan agen yang lebih baik daripada desain awal.
+                </div>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:1.8s;">
+                <h2>Simulasi Interaktif: Arsitektur Agen</h2>
+                <p>Visualisasi perbandingan kelima arsitektur agen. Klik salah satu untuk melihat diagram blok dan penjelasan komponennya.</p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="archSelect">Pilih Arsitektur</label>
+                        <select id="archSelect">
+                            <option value="simple">Simple Reflex Agent</option>
+                            <option value="model">Model-Based Reflex Agent</option>
+                            <option value="goal">Goal-Based Agent</option>
+                            <option value="utility">Utility-Based Agent</option>
+                            <option value="learning">Learning Agent</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="drawArchitecture()">Tampilkan Diagram</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="archDiagram" width="800" height="420"></canvas>
+                </div>
+
+                <div id="archDesc" style="margin-top:20px;"></div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:2.1s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Simple vs Model-Based</h4>
+                    <p>Berikan contoh keadaan di mana simple reflex agent gagal tetapi model-based agent berhasil. Jelaskan mengapa.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Contoh:</strong> Vacuum cleaner di ruangan 2 lokasi. Jika vacuum hanya melihat "kotor" saat ini (simple reflex), ia akan terus menyedot di lokasi yang sama. Model-based agent mempertahankan status internal tentang lokasi mana yang sudah dibersihkan sebelumnya, sehingga dapat berpindah ke lokasi lain.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Goal vs Utility</h4>
+                    <p>Kapan goal-based agent tidak cukup dan dibutuhkan utility-based agent? Berikan contoh konkret.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Contoh:</strong> Autonomous driving. Goal-based agent hanya bisa menentukan "sampai di tujuan" tapi tidak bisa menimbang trade-off antara kecepatan dan keamanan. Utility-based agent dapat menetapkan utilitas untuk berbagai keadaan: "cepat dan aman" = utilitas tinggi, "cepat tapi berisiko" = utilitas sedang, "lambat tapi aman" = utilitas rendah. Ini memungkinkan keputusan yang lebih nuansa.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Learning Agent</h4>
+                    <p>Sebutkan komponen Learning Agent dan jelaskan peran masing-masing. Mengapa Problem Generator diperlukan?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Learning Element:</strong> Menganalisis feedback dari Critic dan menyarankan perubahan pada Performance Element. <strong>Critic:</strong> Mengevaluasi performa agen berdasarkan standar absolut (performance measure). <strong>Performance Element:</strong> Komponen yang memilih aksi eksternal &mdash; "agen" utama. <strong>Problem Generator:</strong> Mempromosikan eksplorasi dengan menyarankan aksi yang belum pernah dicoba. Tanpa Problem Generator, agen mungkin terjebak dalam local optimum &mdash; tidak pernah mencoba pendekatan baru yang mungkin lebih baik.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:2.4s;">
+                <h2>Ringkasan Bab 2</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <table>
+                        <tr><th>Arsitektur</th><th>Internal State?</th><th>Goal?</th><th>Utility?</th><th>Learning?</th><th>Lingkungan</th></tr>
+                        <tr><td>Simple Reflex</td><td>Tidak</td><td>Tidak</td><td>Tidak</td><td>Tidak</td><td>Fully observable</td></tr>
+                        <tr><td>Model-Based</td><td>Ya</td><td>Tidak</td><td>Tidak</td><td>Tidak</td><td>Partially observable</td></tr>
+                        <tr><td>Goal-Based</td><td>Ya</td><td>Ya</td><td>Tidak</td><td>Tidak</td><td>Sequential</td></tr>
+                        <tr><td>Utility-Based</td><td>Ya</td><td>Ya</td><td>Ya</td><td>Tidak</td><td>Stochastic, multi-goal</td></tr>
+                        <tr><td>Learning</td><td>Ya</td><td>Ya</td><td>Ya</td><td>Ya</td><td>Semua</td></tr>
+                    </table>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Evolusi:</strong> Setiap arsitektur menambahkan kemampuan baru. Dari simple reflex (IF-THEN) hingga learning agent (dapat memperbaiki diri sendiri).</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Trade-off:</strong> Kompleksitas lebih tinggi = kemampuan lebih baik, tapi memerlukan lebih banyak komputasi dan desain.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Learning Agent</strong> adalah yang paling fleksibel &mdash; dapat dimulai dengan desain sederhana dan memperbaiki diri melalui pengalaman.</div>
+                    </div>
+                </div>
+                <p>Lanjut ke <a href="chapter3a.html">Bab 3a</a> (Problem Formulation &amp; Uninformed Search) atau <a href="chapter2a.html">Bab 2a</a> (Environments &amp; Rationality).</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 2b</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter2a.html" title="Sebelumnya: Bab 2a">&#8592; Bab 2a</a>
+                    <span class="navcur">Bab 2b</span>
+                    <a class="navbtn" href="chapter3a.html" title="Lanjut: Bab 3a">Bab 3a &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== ARCHITECTURE OVERVIEW CANVAS =====
+const archCvs = document.getElementById('archCanvas');
+const archCtx = archCvs.getContext('2d');
+const ACW = archCvs.width, ACH = archCvs.height;
+
+const architectures = [
+    { x: 100, y: 175, r: 50, color: '#3498db', label: 'Simple\nReflex', complexity: 1 },
+    { x: 270, y: 175, r: 50, color: '#2ecc71', label: 'Model-\nBased', complexity: 2 },
+    { x: 440, y: 175, r: 50, color: '#f39c12', label: 'Goal-\nBased', complexity: 3 },
+    { x: 610, y: 175, r: 50, color: '#e74c3c', label: 'Utility-\nBased', complexity: 4 },
+    { x: 780, y: 175, r: 50, color: '#9b59b6', label: 'Learning', complexity: 5 }
+];
+
+let hoveredArch = -1, selectedArch = -1;
+
+function drawArchOverview() {
+    archCtx.clearRect(0, 0, ACW, ACH);
+    archCtx.fillStyle = '#f8f9fa';
+    archCtx.fillRect(0, 0, ACW, ACH);
+
+    archCtx.fillStyle = '#2c3e50';
+    archCtx.font = 'bold 15px Segoe UI';
+    archCtx.textAlign = 'center';
+    archCtx.fillText('Evolusi Arsitektur Agen: dari Sederhana ke Kompleks', ACW/2, 30);
+
+    // Arrow
+    archCtx.beginPath();
+    archCtx.moveTo(50, 200); archCtx.lineTo(ACW-50, 200);
+    archCtx.strokeStyle = '#bdc3c7';
+    archCtx.lineWidth = 3;
+    archCtx.setLineDash([8,4]);
+    archCtx.stroke();
+    archCtx.setLineDash([]);
+
+    // Arrow head
+    archCtx.beginPath();
+    archCtx.moveTo(ACW-60, 190); archCtx.lineTo(ACW-40, 200); archCtx.lineTo(ACW-60, 210);
+    archCtx.fillStyle = '#bdc3c7'; archCtx.fill();
+
+    archCtx.font = '11px Segoe UI';
+    archCtx.fillStyle = '#7f8c8d';
+    archCtx.fillText('Kompleksitas & Kemampuan', ACW/2, 230);
+
+    architectures.forEach((arch, i) => {
+        const isHovered = i === hoveredArch;
+        const isSelected = i === selectedArch;
+        const r = arch.r + (isHovered ? 8 : 0) + (isSelected ? 5 : 0);
+
+        if (isHovered || isSelected) {
+            archCtx.beginPath();
+            archCtx.arc(arch.x, arch.y, r + 12, 0, 2*Math.PI);
+            archCtx.fillStyle = arch.color + '15';
+            archCtx.fill();
+        }
+
+        archCtx.beginPath();
+        archCtx.arc(arch.x, arch.y, r, 0, 2*Math.PI);
+        archCtx.fillStyle = isSelected ? arch.color : (isHovered ? arch.color + 'dd' : arch.color + '99');
+        archCtx.fill();
+        archCtx.strokeStyle = arch.color;
+        archCtx.lineWidth = isSelected ? 4 : 2;
+        archCtx.stroke();
+
+        archCtx.fillStyle = '#fff';
+        archCtx.font = 'bold 12px Segoe UI';
+        archCtx.textAlign = 'center';
+        archCtx.textBaseline = 'middle';
+        const lines = arch.label.split('\n');
+        lines.forEach((line, li) => {
+            archCtx.fillText(line, arch.x, arch.y - 8 + li * 16);
+        });
+
+        // Complexity dots
+        archCtx.fillStyle = '#fff';
+        for (let d = 0; d < arch.complexity; d++) {
+            archCtx.beginPath();
+            archCtx.arc(arch.x - 12 + d * 6, arch.y + 22, 2, 0, 2*Math.PI);
+            archCtx.fill();
+        }
+    });
+
+    archCtx.textAlign = 'start';
+    archCtx.textBaseline = 'alphabetic';
+}
+
+archCvs.addEventListener('mousemove', (e) => {
+    const rect = archCvs.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (ACW / rect.width);
+    const my = (e.clientY - rect.top) * (ACH / rect.height);
+    hoveredArch = -1;
+    architectures.forEach((arch, i) => {
+        const dx = mx - arch.x, dy = my - arch.y;
+        if (dx*dx + dy*dy < arch.r*arch.r) hoveredArch = i;
+    });
+    archCvs.style.cursor = hoveredArch >= 0 ? 'pointer' : 'default';
+    drawArchOverview();
+});
+
+archCvs.addEventListener('click', () => {
+    if (hoveredArch >= 0) {
+        selectedArch = hoveredArch;
+        document.getElementById('archSelect').value = ['simple','model','goal','utility','learning'][selectedArch];
+        drawArchitecture();
+        drawArchOverview();
+        document.getElementById('simulation').scrollIntoView({behavior:'smooth'});
+    }
+});
+
+drawArchOverview();
+
+// ===== ARCHITECTURE DIAGRAM =====
+const diagCvs = document.getElementById('archDiagram');
+const diagCtx = diagCvs.getContext('2d');
+const DW = diagCvs.width, DH = diagCvs.height;
+
+const archDescs = {
+    simple: {
+        title: 'Simple Reflex Agent',
+        desc: 'Memilih aksi berdasarkan persepsi saat ini saja. Menggunakan aturan IF-THEN untuk matching kondisi.',
+        color: '#3498db',
+        blocks: [
+            { x: 50, y: 180, w: 90, h: 60, label: 'Sensors', color: '#3498db' },
+            { x: 200, y: 150, w: 180, h: 120, label: 'Condition-\nAction Rules', color: '#3498db' },
+            { x: 450, y: 180, w: 90, h: 60, label: 'Actuators', color: '#3498db' },
+            { x: 350, y: 320, w: 120, h: 50, label: 'Environment', color: '#7f8c8d' },
+            { x: 350, y: 50, w: 120, h: 50, label: 'Current Percept', color: '#3498db' }
+        ],
+        arrows: [
+            { from: [95,210], to: [200,210], label: 'percept' },
+            { from: [380,210], to: [450,210], label: 'action' },
+            { from: [540,210], to: [410,320], label: '' },
+            { from: [350,320], to: [95,240], label: '' }
+        ]
+    },
+    model: {
+        title: 'Model-Based Reflex Agent',
+        desc: 'Menambahkan status internal (model dunia) untuk menangani partially observable environments.',
+        color: '#2ecc71',
+        blocks: [
+            { x: 30, y: 180, w: 80, h: 60, label: 'Sensors', color: '#2ecc71' },
+            { x: 170, y: 100, w: 160, h: 80, label: 'How the world\nis now', color: '#27ae60' },
+            { x: 170, y: 220, w: 160, h: 80, label: 'How it evolves\nindependently', color: '#27ae60' },
+            { x: 170, y: 320, w: 160, h: 70, label: 'What my actions\ndid', color: '#27ae60' },
+            { x: 400, y: 160, w: 160, h: 100, label: 'Condition-\nAction Rules', color: '#2ecc71' },
+            { x: 630, y: 180, w: 80, h: 60, label: 'Actuators', color: '#2ecc71' },
+            { x: 350, y: 380, w: 120, h: 40, label: 'Environment', color: '#7f8c8d' }
+        ],
+        arrows: [
+            { from: [110,210], to: [170,140], label: 'percept' },
+            { from: [330,140], to: [400,180], label: '' },
+            { from: [330,260], to: [400,230], label: '' },
+            { from: [330,355], to: [400,260], label: '' },
+            { from: [560,210], to: [630,210], label: 'action' }
+        ]
+    },
+    goal: {
+        title: 'Goal-Based Agent',
+        desc: 'Menggunakan informasi goal untuk memilih aksi. Mempertimbangkan masa depan dan perencanaan.',
+        color: '#f39c12',
+        blocks: [
+            { x: 30, y: 180, w: 80, h: 60, label: 'Sensors', color: '#f39c12' },
+            { x: 170, y: 100, w: 160, h: 80, label: 'How the world\nis now', color: '#d4ac0d' },
+            { x: 170, y: 220, w: 160, h: 80, label: 'How it evolves\nindependently', color: '#d4ac0d' },
+            { x: 170, y: 320, w: 160, h: 70, label: 'What my actions\ndid', color: '#d4ac0d' },
+            { x: 400, y: 100, w: 160, h: 80, label: 'Goal', color: '#e67e22' },
+            { x: 400, y: 220, w: 160, h: 100, label: 'Description of\nNew State', color: '#f39c12' },
+            { x: 630, y: 180, w: 80, h: 60, label: 'Actuators', color: '#f39c12' },
+            { x: 350, y: 380, w: 120, h: 40, label: 'Environment', color: '#7f8c8d' }
+        ],
+        arrows: [
+            { from: [110,210], to: [170,140], label: 'percept' },
+            { from: [330,140], to: [400,140], label: '' },
+            { from: [330,260], to: [400,270], label: '' },
+            { from: [560,140], to: [400,140], label: '' },
+            { from: [560,270], to: [630,210], label: 'action' }
+        ]
+    },
+    utility: {
+        title: 'Utility-Based Agent',
+        desc: 'Menggunakan fungsi utilitas untuk menentukan seberapa "puas" suatu keadaan. Memungkinkan trade-off.',
+        color: '#e74c3c',
+        blocks: [
+            { x: 30, y: 180, w: 80, h: 60, label: 'Sensors', color: '#e74c3c' },
+            { x: 170, y: 80, w: 160, h: 70, label: 'Current State', color: '#c0392b' },
+            { x: 170, y: 180, w: 160, h: 70, label: 'State Evolution', color: '#c0392b' },
+            { x: 170, y: 280, w: 160, h: 70, label: 'Action Effects', color: '#c0392b' },
+            { x: 400, y: 80, w: 160, h: 70, label: 'Utility Function', color: '#e74c3c' },
+            { x: 400, y: 200, w: 160, h: 100, label: 'Utilities for\nOutcome States', color: '#e74c3c' },
+            { x: 630, y: 180, w: 80, h: 60, label: 'Actuators', color: '#e74c3c' },
+            { x: 350, y: 370, w: 120, h: 40, label: 'Environment', color: '#7f8c8d' }
+        ],
+        arrows: [
+            { from: [110,210], to: [170,115], label: 'percept' },
+            { from: [330,115], to: [400,115], label: '' },
+            { from: [330,215], to: [400,250], label: '' },
+            { from: [560,115], to: [630,180], label: '' },
+            { from: [560,250], to: [630,210], label: 'action' }
+        ]
+    },
+    learning: {
+        title: 'Learning Agent',
+        desc: 'Empat komponen: Learning Element, Critic, Performance Element, dan Problem Generator. Dapat memperbaiki diri.',
+        color: '#9b59b6',
+        blocks: [
+            { x: 30, y: 180, w: 80, h: 60, label: 'Sensors', color: '#9b59b6' },
+            { x: 170, y: 180, w: 130, h: 80, label: 'Performance\nElement', color: '#8e44ad' },
+            { x: 170, y: 50, w: 130, h: 60, label: 'Learning\nElement', color: '#8e44ad' },
+            { x: 170, y: 330, w: 130, h: 50, label: 'Problem\nGenerator', color: '#8e44ad' },
+            { x: 370, y: 180, w: 130, h: 80, label: 'Critic', color: '#8e44ad' },
+            { x: 570, y: 180, w: 80, h: 60, label: 'Actuators', color: '#9b59b6' },
+            { x: 370, y: 350, w: 130, h: 50, label: 'Environment', color: '#7f8c8d' }
+        ],
+        arrows: [
+            { from: [110,210], to: [170,210], label: 'percept' },
+            { from: [300,210], to: [370,210], label: '' },
+            { from: [500,210], to: [570,210], label: 'action' },
+            { from: [370,180], to: [300,80], label: 'critique' },
+            { from: [235,180], to: [235,110], label: 'improve' },
+            { from: [235,330], to: [235,260], label: 'explore' }
+        ]
+    }
+};
+
+function drawArchitecture() {
+    const arch = document.getElementById('archSelect').value;
+    const data = archDescs[arch];
+    if (!data) return;
+
+    diagCtx.clearRect(0, 0, DW, DH);
+    diagCtx.fillStyle = '#f8f9fa';
+    diagCtx.fillRect(0, 0, DW, DH);
+
+    // Title
+    diagCtx.fillStyle = data.color;
+    diagCtx.font = 'bold 18px Segoe UI';
+    diagCtx.textAlign = 'center';
+    diagCtx.fillText(data.title, DW/2, 35);
+
+    // Draw arrows
+    data.arrows.forEach(arr => {
+        diagCtx.beginPath();
+        diagCtx.moveTo(arr.from[0], arr.from[1]);
+        diagCtx.lineTo(arr.to[0], arr.to[1]);
+        diagCtx.strokeStyle = '#95a5a6';
+        diagCtx.lineWidth = 2;
+        diagCtx.stroke();
+
+        // Arrowhead
+        const dx = arr.to[0]-arr.from[0], dy = arr.to[1]-arr.from[1];
+        const len = Math.sqrt(dx*dx+dy*dy);
+        const ux = dx/len, uy = dy/len;
+        const ax = arr.to[0] - ux*10, ay = arr.to[1] - uy*10;
+        diagCtx.beginPath();
+        diagCtx.moveTo(arr.to[0], arr.to[1]);
+        diagCtx.lineTo(ax - uy*5, ay + ux*5);
+        diagCtx.lineTo(ax + uy*5, ay - ux*5);
+        diagCtx.closePath();
+        diagCtx.fillStyle = '#95a5a6';
+        diagCtx.fill();
+
+        if (arr.label) {
+            const mx = (arr.from[0]+arr.to[0])/2;
+            const my = (arr.from[1]+arr.to[1])/2 - 8;
+            diagCtx.fillStyle = '#7f8c8d';
+            diagCtx.font = '11px Segoe UI';
+            diagCtx.textAlign = 'center';
+            diagCtx.fillText(arr.label, mx, my);
+        }
+    });
+
+    // Draw blocks
+    data.blocks.forEach(block => {
+        diagCtx.fillStyle = block.color + '20';
+        diagCtx.strokeStyle = block.color;
+        diagCtx.lineWidth = 2;
+        diagCtx.beginPath();
+        diagCtx.roundRect(block.x, block.y, block.w, block.h, 8);
+        diagCtx.fill();
+        diagCtx.stroke();
+
+        diagCtx.fillStyle = '#2c3e50';
+        diagCtx.font = 'bold 12px Segoe UI';
+        diagCtx.textAlign = 'center';
+        diagCtx.textBaseline = 'middle';
+        const lines = block.label.split('\n');
+        const lineH = 15;
+        const startY = block.y + block.h/2 - (lines.length-1)*lineH/2;
+        lines.forEach((line, li) => {
+            diagCtx.fillText(line, block.x + block.w/2, startY + li*lineH);
+        });
+    });
+
+    diagCtx.textAlign = 'start';
+    diagCtx.textBaseline = 'alphabetic';
+
+    // Update description
+    const descDiv = document.getElementById('archDesc');
+    descDiv.innerHTML = `
+        <div class="concept-card" style="--card-delay:0s;border-left-color:${data.color};opacity:1;transform:none;">
+            <h4 style="color:${data.color};"><span class="icon" style="background:${data.color};">→</span> ${data.title}</h4>
+            <p>${data.desc}</p>
+        </div>
+    `;
+}
+
+drawArchitecture();
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Daftar algoritme optimasi evolusioner di Pymoo: GA, DE, PSO, NSGA-II, NSGA-III, dan MOEA/D (Bahasa Indonesia).">
+  <title>Daftar Algoritme Optimasi — Pymoo</title>
+  <link rel="icon" href="images/favicon.ico">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Style -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="images/logo.svg" alt="Pymoo Logo" class="sidebar-logo">
+        <span class="sidebar-title">pymoo Docs</span>
+      </div>
+      <ul class="sidebar-menu">
+        <li class="menu-label">Pengantar</li>
+        <li class="menu-item"><a href="index.html">🏠 Beranda</a></li>
+        <li class="menu-item"><a href="getting-started.html">🚀 Memulai Cepat</a></li>
+        
+        <li class="menu-label">Penggunaan</li>
+        <li class="menu-item"><a href="problems.html">🧩 Formulasi Masalah</a></li>
+        <li class="menu-item active"><a href="algorithms.html">🧬 Daftar Algoritme</a></li>
+        <li class="menu-item"><a href="decision-making.html">🎯 MCDM &amp; Kinerja</a></li>
+        <li class="menu-item"><a href="visualization.html">📊 Visualisasi Front</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <span>v0.6.2 (ID)</span>
+        <a href="https://github.com/anyoptimization/pymoo" target="_blank">GitHub</a>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <!-- Header -->
+      <header class="header">
+        <button class="menu-toggle" id="hamBtn">☰</button>
+        <span class="header-title-mobile">pymoo Docs</span>
+        <div class="header-actions">
+          <a href="../index.html" class="back-to-hub">⬅️ <span>Kembali ke Hub</span></a>
+          <button class="theme-toggle" id="themeToggle">🌙 <span>Mode Gelap</span></button>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="content">
+        <h1>Daftar Algoritme Optimasi di Pymoo</h1>
+        
+        <p>Pymoo menyediakan banyak algoritme optimasi yang dirancang untuk berbagai kategori masalah (Single, Multi, dan Many-objective) dan tipe variabel (Kontinu, Diskret, Biner, Permutasi, dll.). Berikut adalah ringkasan algoritme yang paling umum digunakan.</p>
+
+        <h2>Tabel Ringkasan Algoritme Utama</h2>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Algoritme</th>
+                <th>Nama Kelas</th>
+                <th>Kategori</th>
+                <th>Kendala?</th>
+                <th>Deskripsi Singkat</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Genetic Algorithm (GA)</strong></td>
+                <td><code>GA</code></td>
+                <td>Single-objective</td>
+                <td>Ya</td>
+                <td>Algoritme genetika modular klasik yang sangat mudah dikustomisasi untuk berbagai tipe representasi variabel.</td>
+              </tr>
+              <tr>
+                <td><strong>Differential Evolution (DE)</strong></td>
+                <td><code>DE</code></td>
+                <td>Single-objective</td>
+                <td>Ya</td>
+                <td>Variasi mutasi berbasis diferensial vektor, sangat efektif untuk optimasi numerik kontinu skala global.</td>
+              </tr>
+              <tr>
+                <td><strong>Particle Swarm (PSO)</strong></td>
+                <td><code>PSO</code></td>
+                <td>Single-objective</td>
+                <td>Ya</td>
+                <td>Kecerdasan kelompok di mana partikel bergerak dipandu oleh posisi terbaik pribadi dan kelompok.</td>
+              </tr>
+              <tr>
+                <td><strong>CMA-ES</strong></td>
+                <td><code>CMAES</code></td>
+                <td>Single-objective</td>
+                <td>Tidak</td>
+                <td>Algoritme berbasis model kovariansi matriks untuk pencarian lokal/global kontinu tanpa turunan.</td>
+              </tr>
+              <tr>
+                <td><strong>NSGA-II</strong></td>
+                <td><code>NSGA2</code></td>
+                <td>Multi-objective</td>
+                <td>Ya</td>
+                <td>Standar industri MOO dengan pemilahan non-dominasi (non-dominated sorting) dan crowding distance untuk keberagaman solusi.</td>
+              </tr>
+              <tr>
+                <td><strong>SPEA2</strong></td>
+                <td><code>SPEA2</code></td>
+                <td>Multi-objective</td>
+                <td>Ya</td>
+                <td>Menggunakan k-th nearest neighbor density estimation dan mekanisme pemotongan arsip (archive truncation) untuk keberagaman.</td>
+              </tr>
+              <tr>
+                <td><strong>NSGA-III</strong></td>
+                <td><code>NSGA3</code></td>
+                <td>Many-objective</td>
+                <td>Ya</td>
+                <td>Penyempurnaan NSGA-II untuk tujuan &ge; 3, menggunakan titik acuan (reference points) daripada crowding distance.</td>
+              </tr>
+              <tr>
+                <td><strong>MOEA/D</strong></td>
+                <td><code>MOEAD</code></td>
+                <td>Many-objective</td>
+                <td>Tidak</td>
+                <td>Mendekomposisi masalah multiobjektif menjadi sejumlah submasalah single-objective yang dioptimalkan secara paralel.</td>
+              </tr>
+              <tr>
+                <td><strong>AGE-MOEA / AGE-MOEA2</strong></td>
+                <td><code>AGEMOEA</code></td>
+                <td>Many-objective</td>
+                <td>Tidak</td>
+                <td>NSGA-II yang dimodifikasi dengan estimasi geometri Pareto front untuk memandu seleksi alam secara dinamis.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Contoh Konfigurasi Algoritme Kustom</h2>
+        
+        <h3>1. Mengonfigurasi Differential Evolution (DE)</h3>
+        <p>DE sangat cocok untuk optimasi bernilai kontinu. Anda bisa menentukan strategi mutasi (seperti <code>DE_rand_1_bin</code>) dan nilai crossover:</p>
+        <pre><code><span class="py-keyword">from</span> pymoo.algorithms.soo.de <span class="py-keyword">import</span> DE
+<span class="py-keyword">from</span> pymoo.operators.crossover.dex <span class="py-keyword">import</span> DEX
+
+algorithm = DE(
+    pop_size=<span class="py-number">50</span>,
+    variant=<span class="py-string">"DE/rand/1/bin"</span>,
+    CR=<span class="py-number">0.9</span>,
+    F=<span class="py-number">0.8</span>,
+    crossover=DEX(bias=<span class="py-number">0.5</span>)
+)</code></pre>
+
+        <h3>2. Mengonfigurasi NSGA-III (Many-objective Optimization)</h3>
+        <p>Untuk optimasi many-objective (3 atau lebih tujuan), crowding distance pada NSGA-II kehilangan efektifitasnya. NSGA-III menggunakan titik-titik arah acuan (reference directions) untuk mempartisi ruang objektif:</p>
+        <pre><code><span class="py-keyword">from</span> pymoo.algorithms.moo.nsga3 <span class="py-keyword">import</span> NSGA3
+<span class="py-keyword">from</span> pymoo.util.ref_dirs <span class="py-keyword">import</span> get_reference_directions
+
+<span class="py-comment"># Membuat reference directions di atas unit simplex (misal: 3 objektif)</span>
+ref_dirs = get_reference_directions(<span class="py-string">"das-dennis"</span>, <span class="py-number">3</span>, n_partitions=<span class="py-number">12</span>)
+
+algorithm = NSGA3(
+    pop_size=<span class="py-number">92</span>, <span class="py-comment"># Ukuran populasi disesuaikan dengan jumlah arah acuan</span>
+    ref_dirs=ref_dirs
+)</code></pre>
+
+        <div class="alert alert-info">
+          <span class="alert-icon">💡</span>
+          <div class="alert-content">
+            <p><strong>Cara Memilih Algoritme:</strong> Jika tujuan Anda hanya 1, gunakan <code>GA</code> atau <code>DE</code>. Jika tujuan Anda 2, gunakan <code>NSGA2</code>. Jika tujuan Anda 3 atau lebih, gunakan <code>NSGA3</code> atau <code>MOEAD</code>.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Shared Script -->
+  <script src="common.js"></script>
+</body>
+</html>

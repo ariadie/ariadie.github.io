@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 3a: Problem Formulation & Uninformed Search &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#2c3e50,#3498db);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#3498db;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(52,152,219,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#3498db;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(52,152,219,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#3498db;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #3498db;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#1976d2;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #3498db;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);}
+        .concept-card h4{color:#1976d2;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#3498db;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#3498db,#2ecc71,#f39c12);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#3498db;box-shadow:0 0 0 3px rgba(52,152,219,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(52,152,219,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(52,152,219,.4);background:linear-gradient(135deg,#2980b9,#3498db);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3498db,#2ecc71,#f39c12,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(52,152,219,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #3498db;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#3498db;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#3498db;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 3 (Bagian 1)</h1>
+            <div class="subtitle">Problem Formulation &amp; Uninformed Search &mdash; AIMA 4th Edition</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 3a</span>
+            <a class="navbtn" href="chapter3b.html" title="Lanjut: Bab 3b">Bab 3b &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#formulation">Formulasi Masalah</a>
+            <a href="#bfs">BFS</a>
+            <a href="#dfs">DFS</a>
+            <a href="#ucs">UCS</a>
+            <a href="#ids">IDS</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Bab ini membahas bagaimana agen cerdas memecahkan masalah melalui <strong>pencarian</strong> (search). Agen berbasis tujuan (<em>goal-based agents</em>) menentukan serangkaian aksi yang mengubah keadaan lingkungan dari kondisi awal menuju kondisi yang diinginkan.</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Problem Formulation</h4>
+                        <p>Mendefinisikan masalah secara formal: keadaan awal, ruang keadaan, aksi, model transisi, pengujian tujuan, dan biaya jalur.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">2</span> Uninformed Search</h4>
+                        <p>Pencarian tanpa informasi heuristik: BFS, DFS, Uniform-Cost, dan Iterative Deepening&mdash;hanya menggunakan definisi masalah.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">3</span> Completeness &amp; Optimality</h4>
+                        <p>Algoritma yang <em>lengkap</em> menjamin solusi ditemukan; yang <em>optimal</em> menjamin jalur terbaik (biaya minimum).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROBLEM FORMULATION -->
+            <div id="formulation" class="section" style="--delay:0.3s;">
+                <h2>Formulasi Masalah (Problem Formulation)</h2>
+                <p>Sebuah masalah P didefinisikan sebagai 6-tuple: <em>P = &langle;S, A, T(s,a), GoalTest(s), StepCost(s,a,s&prime;)&rangle;</em></p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">S</span> State Space (Ruang Keadaan)</h4>
+                        <p>Himpunan semua keadaan yang mungkin. Contoh: kota-kota di peta Rumania. Disediakan oleh <em>agent program</em> &mdash; tidak harus keadaan dunia sesungguhnya.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">s<sub>0</sub></span> Initial State (Keadaan Awal)</h4>
+                        <p>Keadaan tempat agen memulai. Contoh: <em>s<sub>0</sub> = Arad</em>.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">A</span> Actions (Aksi)</h4>
+                        <p>Fungsi <em>Actions(s)</em> mengembalikan aksi yang tersedia pada keadaan <em>s</em>. Contoh: <em>Actions(Arads) = {Go(Bucharest), Go(Sibiu), Go(Timisoara)}</em>.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.25s">
+                        <h4><span class="icon">T</span> Transition Model</h4>
+                        <p>Fungsi <em>Result(s, a)</em> mengembalikan keadaan setelah aksi <em>a</em> dilakukan pada <em>s</em>. Jika tidak diketahui, gunakan <em>Transition(s, a)</em> yang mengembalikan himpunan keadaan.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">G</span> Goal Test</h4>
+                        <p>Menentukan apakah keadaan saat ini adalah tujuan. Bisa berupa <em>s == Goal</em> (titik tunggal) atau <em>s &isin; GoalSet</em> (himpunan).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.35s">
+                        <h4><span class="icon">C</span> Path Cost</h4>
+                        <p>Fungsi <em>StepCost(s, a, s&prime;)</em> memberikan biaya translisi. Untuk <em>state-space graph</em>: bobot sisi. Untuk <em>tree</em>: biaya langkah.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Penting:</strong> Bentuk pencarian ditentukan oleh 6-tuple ini, <strong>bukan</strong> oleh 6-tuple asli dari masalah. Perbedaan ini memungkinkan agen menyelesaikan masalah yang berbeda dari masalah asli.
+                </div>
+
+                <h3>Rumusan Pencarian</h3>
+                <p><strong>State-space search</strong> = pencarian melalui graf keadaan. Pendekatan yang paling umum untuk sebagian besar masalah AI. Gunakan <em>tree search</em> atau <em>graph search</em> dengan 6-tuple masalah.</p>
+            </div>
+
+            <!-- BFS -->
+            <div id="bfs" class="section" style="--delay:0.6s;">
+                <h2>Breadth-First Search (Pencarian Melebar)</h2>
+                <p>Memperluas node terdalam (paling dangkal) terlebih dahulu &mdash; mengunjungi semua node pada <em>kedalaman d</em> sebelum naik ke <em>d+1</em>.</p>
+
+                <div class="math">
+                    \[ \text{BFS: Expand shallowest node in frontier} \]
+                </div>
+
+                <h3>Implementasi</h3>
+                <p>Menggunakan <strong>FIFO queue</strong>: node yang diperluas lebih dulu dimasukkan lebih dulu ke <em>frontier</em>.</p>
+
+                <h3>Analisis Kompleksitas</h3>
+                <table>
+                    <tr><th>Metriks</th><th>Kompleksitas</th></tr>
+                    <tr><td>Waktu (branching factor <em>b</em>, kedalaman <em>m</em>)</td><td>\(O(b^{m+1})\) - kasus terburuk</td></tr>
+                    <tr><td>Ruang</td><td>\(O(b^{m+1})\): semua node di generasi saat ini</td></tr>
+                    <tr><td>Kedalaman</td><td>\(m + 1\)</td></tr>
+                    <tr><td>Lengkap?</td><td>Ya (jika <em>b</em> terbatas)</td></tr>
+                    <tr><td>Optimal?</td><td>Ya (jika biaya langkah sama/non-negatif)</td></tr>
+                </table>
+
+                <div class="warning">
+                    <strong>Peringatan:</strong> BFS mengembalikan solusi terdangkal, <strong>bukan</strong> yang termurah jika biaya langkah berbeda.
+                </div>
+            </div>
+
+            <!-- DFS -->
+            <div id="dfs" class="section" style="--delay:0.9s;">
+                <h2>Depth-First Search (Pencarian Mendalam)</h2>
+                <p>Memperluas node paling dalam di <em>frontier</em> terlebih dahulu &mdash; selalu mengambil jalan paling kiri.</p>
+
+                <h3>Implementasi</h3>
+                <p>Menggunakan <strong>LIFO stack</strong>: expand node yang baru saja ditambahkan.</p>
+
+                <h3>Analisis Kompleksitas</h3>
+                <table>
+                    <tr><th>Metriks</th><th>Kompleksitas</th></tr>
+                    <tr><td>Waktu (ruang keadaan terbatas <em>b</em>)</td><td>\(O(b^m)\): node paling kiri paling dalam</td></tr>
+                    <tr><td>Ruang</td><td>\(O(bm)\): cukup satu jalur dari akar ke daun</td></tr>
+                    <tr><td>Kedalaman</td><td>\(m\)</td></tr>
+                    <tr><td>Lengkap?</td><td>Tidak (bisa masuk <em>loop</em> tak terbatas)</td></tr>
+                    <tr><td>Optimal?</td><td>Tidak (bisa menemukan solusi bukan termurah)</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Mengapa DFS masih berguna?</strong> DFS menggunakan sangat sedikit memori (<em>O(bm)</em>), sehingga berguna untuk ruang keadaan yang sangat besar (miliaran state), asalkan solusi ditemukan di kedalaman awal.
+                </div>
+            </div>
+
+            <!-- UCS -->
+            <div id="ucs" class="section" style="--delay:1.2s;">
+                <h2>Uniform-Cost Search (Pencarian Biaya Seragam)</h2>
+                <p>Expand node dengan <strong>biaya jalur terendah</strong> <em>g(n)</em> &mdash; bukan yang paling dangkal.</p>
+
+                <div class="math">
+                    \[ \text{UCS: Expand node with lowest } g(n) \]
+                </div>
+
+                <h3>Implementasi</h3>
+                <p>Menggunakan <strong>priority queue</strong> berdasarkan <em>g(n)</em>, urutan menaik. Mirip DFS, tapi selalu mengambil node termurah.</p>
+
+                <h3>Analisis Kompleksitas</h3>
+                <table>
+                    <tr><th>Metriks</th><th>Kompleksitas</th></tr>
+                    <tr><td>Waktu</td><td>\(O(b^{\lceil C^*/\varepsilon \rceil + 1})\): di mana \(C^*\) = biaya optimal, \(\varepsilon\) = biaya langkah minimum</td></tr>
+                    <tr><td>Ruang</td><td>Sama seperti waktu (priority queue)</td></tr>
+                    <tr><td>Lengkap?</td><td>Ya (jika \(\varepsilon > 0\))</td></tr>
+                    <tr><td>Optimal?</td><td>Ya &mdash; selalu menemukan jalur termurah</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Contoh:</strong> DFS dapat memperluas node \(S \to A \to B \to C\) (biaya 50), sedangkan UCS memperluas \(S \to B\) (biaya 40) terlebih dahulu karena lebih murah.
+                </div>
+            </div>
+
+            <!-- IDS -->
+            <div id="ids" class="section" style="--delay:1.5s;">
+                <h2>Iterative Deepening Search (IDS)</h2>
+                <p>Kombinasi DFS & BFS: menjalankan DFS hingga kedalaman limit \(l = 0, 1, 2, \ldots\) secara bertahap.</p>
+
+                <div class="math">
+                    \[ \text{IDS = DFS(0), DFS(1), DFS(2), \ldots} \]
+                </div>
+
+                <h3>Analisis Kompleksitas</h3>
+                <table>
+                    <tr><th>Metriks</th><th>Kompleksitas</th></tr>
+                    <tr><td>Waktu</td><td>\(O(b^m)\): DFS dominasi untuk depth \(m\)</td></tr>
+                    <tr><td>Ruang</td><td>\(O(bm)\): seperti DFS</td></tr>
+                    <tr><td>Lengkap?</td><td>Ya (jika \(b\) terbatas)</td></tr>
+                    <tr><td>Optimal?</td><td>Ya (jika biaya langkah sama)</td></tr>
+                </table>
+
+                <h3>Mengapa IDS Optimal?</h3>
+                <ul>
+                    <li>DFS yang berlapis menjamin ditemukannya node di kedalaman \(d\) jika ada</li>
+                    <li>Urutan penelusuran pada depth \(d\) <strong>identik</strong> dengan BFS</li>
+                    <li>Sangat memori-efisien: \(O(bd)\)</li>
+                </ul>
+
+                <div class="warning">
+                    <strong>Pertanyaan:</strong> Bukankah IDS <em>redundan</em> karena menjalankan DFS berulang kali? Jawaban: jumlah tambahan kerja relatif kecil, yaitu \((b + 1)/(b - 1)\) kali lebih banyak daripada satu kali DFS.
+                </div>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>Simulasi Interaktif: Pencarian pada Graf</h2>
+                <p>Visualisasi perbandingan BFS, DFS, UCS, dan IDS pada graf sederhana. Pilih algoritme, sumber, dan tujuan, lalu langkahi proses pencarian.</p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="algoSelect">Algoritme</label>
+                        <select id="algoSelect">
+                            <option value="bfs">Breadth-First Search</option>
+                            <option value="dfs">Depth-First Search</option>
+                            <option value="ucs">Uniform-Cost Search</option>
+                            <option value="ids">Iterative Deepening</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="sourceSelect">Sumber (Start)</label>
+                        <select id="sourceSelect"></select>
+                    </div>
+                    <div class="control-group">
+                        <label for="goalSelect">Tujuan (Goal)</label>
+                        <select id="goalSelect"></select>
+                    </div>
+                    <div class="control-group">
+                        <label for="idsLimit">IDS Depth Limit</label>
+                        <input type="range" id="idsLimit" min="1" max="6" step="1" value="3">
+                        <div class="value-display" id="idsLimitVal">Limit = 3</div>
+                    </div>
+                    <button class="btn" onclick="resetSearch()">Reset</button>
+                    <button class="btn" onclick="stepSearch()">Langkah &#9654;</button>
+                    <button class="btn" onclick="runSearch()">Jalankan &#9654;&#9654;</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="searchCanvas" width="900" height="500"></canvas>
+                </div>
+
+                <div style="text-align:center;margin:15px 0;">
+                    <span style="display:inline-block;width:14px;height:14px;background:#f0f0f0;border:2px solid #bbb;border-radius:3px;vertical-align:middle;margin-right:4px;"></span> Unvisited
+                    <span style="display:inline-block;width:14px;height:14px;background:#ffeaa7;border:2px solid #f39c12;border-radius:3px;vertical-align:middle;margin-left:15px;margin-right:4px;"></span> In Frontier
+                    <span style="display:inline-block;width:14px;height:14px;background:#74b9ff;border:2px solid #0984e3;border-radius:3px;vertical-align:middle;margin-left:15px;margin-right:4px;"></span> Explored
+                    <span style="display:inline-block;width:14px;height:14px;background:#55efc4;border:2px solid #00b894;border-radius:3px;vertical-align:middle;margin-left:15px;margin-right:4px;"></span> Goal Found
+                </div>
+
+                <div id="searchLog" style="background:#1a1a2e;color:#e0e0e0;padding:15px 20px;border-radius:8px;font-family:'Fira Code',monospace;font-size:.88em;max-height:200px;overflow-y:auto;margin-top:15px;"></div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; BFS vs DFS</h4>
+                    <p>Pada graf tak berarah berikut, tentukan urutan kunjungan BFS dan DFS dari node A ke H (asumsikan urutan leksikografis untuk tetangga):</p>
+                    <p style="text-align:center;font-size:1.1em;">A &mdash; B &mdash; C, &ensp; A &mdash; D &mdash; E, &ensp; C &mdash; F &mdash; H, &ensp; D &mdash; G &mdash; H</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>BFS</strong> (FIFO): A &rarr; B &rarr; D &rarr; C &rarr; E &rarr; F &rarr; G &rarr; H &mdash; menemukan H di kedalaman 3.</p>
+                            <p><strong>DFS</strong> (LIFO): A &rarr; B &rarr; C &rarr; F &rarr; H &mdash; menemukan H di kedalaman 4 (jalur A-B-C-F-H). Jika diimplementasikan dengan urutan tetangga leksikografis, DFS dapat menemukan jalur yang lebih panjang atau lebih pendek tergantung urutan.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Kompleksitas IDS</h4>
+                    <p>Mengapa IDS lebih disukai dari BFS untuk masalah dengan ruang keadaan yang sangat besar?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>IDS memiliki kompleksitas memori <em>O(bm)</em> dibandingkan BFS yang memerlukan <em>O(b<sup>d</sup>)</em>. Untuk masalah dengan <em>b = 10</em> dan <em>d = 20</em>, BFS memerlukan ~10<sup>20</sup> node di memori, sedangkan IDS hanya ~200 node. IDS sangat menghemat memori sambil tetap optimal (asalkan biaya langkah sama).</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; UCS dan Biaya Tidak Seragam</h4>
+                    <p>Jelaskan mengapa UCS optimal bahkan dengan biaya langkah yang berbeda-beda, sementara BFS tidak optimal.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>UCS selalu expand node dengan <em>g(n)</em> terendah &mdash; artinya ia mengeksplorasi node berdasarkan biaya kumulatif, bukan kedalaman. BFS menganggap semua langkah sama biayanya, sehingga ketika biaya berbeda, BFS bisa menemukan jalur dangkal yang lebih mahal sebelum menemukan jalur lebih panjang yang lebih murah.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>Ringkasan</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <table>
+                        <tr><th>Algoritma</th><th>Lengkap?</th><th>Optimal?</th><th>Waktu</th><th>Ruang</th></tr>
+                        <tr><td>BFS</td><td>Ya</td><td>Ya (biaya sama)</td><td>\(O(b^{d+1})\)</td><td>\(O(b^{d+1})\)</td></tr>
+                        <tr><td>DFS</td><td>Tidak</td><td>Tidak</td><td>\(O(b^m)\)</td><td>\(O(bm)\)</td></tr>
+                        <tr><td>UCS</td><td>Ya (ε &gt; 0)</td><td>Ya</td><td>\(O(b^{1+\lfloor C^*/\varepsilon \rfloor})\)</td><td>\(O(b^{1+\lfloor C^*/\varepsilon \rfloor})\)</td></tr>
+                        <tr><td>IDS</td><td>Ya</td><td>Ya (biaya sama)</td><td>\(O(b^d)\)</td><td>\(O(bd)\)</td></tr>
+                    </table>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Rekomendasi:</strong> IDS adalah pilihan default terbaik untuk ruang keadaan tak dikenal karena kombinasi kelengkapan, optimalitas, dan efisiensi memori.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>UCS</strong> optimal untuk biaya berbeda; <strong>BFS</strong> optimal hanya untuk biaya seragam.</div>
+                    </div>
+                </div>
+                <p>Lanjut ke <a href="chapter3b.html">Bab 3b</a> untuk Pencarian Terinformasi (Greedy Best-First, A*) dan Heuristik.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 3a</p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 3a</span>
+                    <a class="navbtn" href="chapter3b.html" title="Lanjut: Bab 3b">Bab 3b &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== GRAPH DATA =====
+const graph = {
+    'Arad':           {x:160,y:160, adj:{'Zerind':75,'Oradea':151,'Sibiu':140,'Timisoara':118}},
+    'Zerind':         {x:100,y:100, adj:{'Arad':75,'Oradea':71}},
+    'Oradea':         {x:180,y:50,  adj:{'Zerind':71,'Arad':151,'Sibiu':151,'Cluj':91}},
+    'Sibiu':          {x:250,y:150, adj:{'Arad':140,'Oradea':151,'Fagaras':99,'Rimnicu':80,'Cluj':91}},
+    'Timisoara':      {x:100,y:250, adj:{'Arad':118,'Lugoj':111}},
+    'Lugoj':          {x:160,y:310, adj:{'Timisoara':111,'Mehadia':70}},
+    'Mehadia':        {x:220,y:360, adj:{'Lugoj':70,'Drobeta':75}},
+    'Drobeta':        {x:200,y:430, adj:{'Mehadia':75,'Craiova':120}},
+    'Craiova':        {x:350,y:420, adj:{'Drobeta':120,'Rimnicu':146,'Pitesti':138}},
+    'Rimnicu':        {x:330,y:260, adj:{'Sibiu':80,'Craiova':146,'Pitesti':97}},
+    'Fagaras':        {x:380,y:100, adj:{'Sibiu':99,'Bucharest':211}},
+    'Pitesti':        {x:440,y:330, adj:{'Rimnicu':97,'Craiova':138,'Bucharest':101}},
+    'Bucharest':      {x:530,y:300, adj:{'Fagaras':211,'Pitesti':101,'Giurgiu':90,'Urziceni':85}},
+    'Giurgiu':        {x:530,y:400, adj:{'Bucharest':90}},
+    'Urziceni':       {x:630,y:250, adj:{'Bucharest':85,'Hirsova':98,'Vaslui':142}},
+    'Hirsova':        {x:730,y:220, adj:{'Urziceni':98,'Eforie':86}},
+    'Eforie':         {x:780,y:280, adj:{'Hirsova':86}},
+    'Vaslui':         {x:730,y:130, adj:{'Urziceni':142,'Iasi':92}},
+    'Iasi':           {x:680,y:60,  adj:{'Vaslui':92,'Neamt':87}},
+    'Neamt':          {x:600,y:30,  adj:{'Iasi':87}},
+    'Cluj':           {x:260,y:20,  adj:{'Oradea':91,'Sibiu':91}}
+};
+
+const nodeNames = Object.keys(graph);
+
+// Populate select options
+const srcSel = document.getElementById('sourceSelect');
+const goalSel = document.getElementById('goalSelect');
+nodeNames.forEach(n => {
+    srcSel.add(new Option(n, n));
+    goalSel.add(new Option(n, n));
+});
+srcSel.value = 'Arad';
+goalSel.value = 'Bucharest';
+
+// ===== SEARCH ENGINE =====
+let frontier = [], explored = new Set(), visited = new Set(), parent = {};
+let found = false, done = false, path = [], currentAlgo = '';
+let stepQueue = [];
+
+function initSearch() {
+    frontier = []; explored = new Set(); visited = new Set(); parent = {};
+    found = false; done = false; path = []; stepQueue = [];
+    const src = srcSel.value;
+    currentAlgo = document.getElementById('algoSelect').value;
+
+    if (currentAlgo === 'ids') {
+        const lim = parseInt(document.getElementById('idsLimit').value);
+        buildIDSSteps(src, lim);
+    } else {
+        frontier.push({node: src, depth: 0, cost: 0});
+        if (currentAlgo === 'ucs') frontier.sort((a,b) => a.cost - b.cost);
+    }
+    drawGraph();
+    updateLog('Mulai pencarian dari ' + src + ' dengan ' + currentAlgo.toUpperCase());
+}
+
+function buildIDSSteps(src, maxDepth) {
+    stepQueue = [];
+    for (let lim = 0; lim <= maxDepth; lim++) {
+        stepQueue.push({type:'ids_new_level', level:lim});
+        let stFrontier = [{node:src, depth:0}];
+        let stExplored = new Set();
+        while (stFrontier.length > 0) {
+            const cur = stFrontier.pop();
+            if (cur.depth > lim) continue;
+            stepQueue.push({type:'visit', node:cur.node, depth:cur.depth, level:lim, parent:null});
+            stExplored.add(cur.node);
+            if (cur.node === document.getElementById('goalSelect').value) {
+                stepQueue.push({type:'found', node:cur.node, level:lim});
+                return;
+            }
+            const adj = graph[cur.node].adj;
+            for (const nb of Object.keys(adj).sort().reverse()) {
+                if (!stExplored.has(nb)) {
+                    stFrontier.push({node:nb, depth:cur.depth+1});
+                }
+            }
+        }
+    }
+    stepQueue.push({type:'not_found'});
+}
+
+function stepSearch() {
+    if (done) return;
+
+    if (currentAlgo === 'ids') {
+        stepIDS();
+    } else {
+        stepGeneric();
+    }
+    drawGraph();
+}
+
+function stepIDS() {
+    if (stepQueue.length === 0) { done = true; return; }
+    const step = stepQueue.shift();
+    if (step.type === 'ids_new_level') {
+        frontier = []; explored = new Set(); visited = new Set(); parent = {};
+        updateLog('--- IDS: Level ' + step.level + ' ---');
+    } else if (step.type === 'visit') {
+        visited.add(step.node);
+        frontier.push(step.node);
+        updateLog('Visit ' + step.node + ' (depth=' + step.depth + ', level=' + step.level + ')');
+    } else if (step.type === 'found') {
+        found = true; done = true;
+        updateLog('>> DITEMUKAN: ' + step.node + ' di level ' + step.level);
+    } else if (step.type === 'not_found') {
+        done = true;
+        updateLog('>> TIDAK DITEMUKAN dalam kedalaman yang dicari.');
+    }
+}
+
+function stepGeneric() {
+    if (frontier.length === 0) { done = true; updateLog('>> Frontier kosong. Tidak ditemukan.'); return; }
+    if (found) return;
+
+    const cur = frontier.shift();
+    if (explored.has(cur.node)) { return; }
+
+    explored.add(cur.node);
+    visited.add(cur.node);
+    const goal = document.getElementById('goalSelect').value;
+
+    updateLog('Expand ' + cur.node + (cur.cost !== undefined ? ' [g=' + cur.cost + ']' : ''));
+
+    if (cur.node === goal) {
+        found = true; done = true;
+        reconstructPath(cur.node);
+        updateLog('>> DITEMUKAN: ' + cur.node + ' | Jalur: ' + path.join(' -> '));
+        return;
+    }
+
+    const adj = graph[cur.node].adj;
+    let neighbors = Object.entries(adj).map(([nb,cost]) => ({node:nb, cost: cost + (cur.cost||0)}));
+
+    if (currentAlgo === 'dfs') neighbors.reverse();
+
+    for (const nb of neighbors) {
+        if (!explored.has(nb.node) && !frontier.some(f => f.node === nb.node)) {
+            frontier.push(nb);
+            parent[nb.node] = cur.node;
+        }
+    }
+
+    if (currentAlgo === 'ucs') frontier.sort((a,b) => a.cost - b.cost);
+}
+
+function reconstructPath(node) {
+    path = [node];
+    let cur = node;
+    while (parent[cur]) { path.unshift(parent[cur]); cur = parent[cur]; }
+}
+
+function runSearch() {
+    if (done) { resetSearch(); }
+    const iv = setInterval(() => {
+        stepSearch();
+        drawGraph();
+        if (done) clearInterval(iv);
+    }, 600);
+}
+
+function resetSearch() {
+    initSearch();
+    document.getElementById('searchLog').innerHTML = '';
+}
+
+// ===== DRAWING =====
+const cvs = document.getElementById('searchCanvas');
+const ctx = cvs.getContext('2d');
+
+function drawGraph() {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    // Draw edges
+    const drawnEdges = new Set();
+    for (const [name, data] of Object.entries(graph)) {
+        const x1 = data.x, y1 = data.y;
+        for (const [nb, cost] of Object.entries(data.adj)) {
+            const key = [name, nb].sort().join('|');
+            if (drawnEdges.has(key)) continue;
+            drawnEdges.add(key);
+            const x2 = graph[nb].x, y2 = graph[nb].y;
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+            ctx.strokeStyle = '#bdc3c7'; ctx.lineWidth = 1.5; ctx.stroke();
+            const mx = (x1+x2)/2, my = (y1+y2)/2;
+            ctx.fillStyle = '#7f8c8d'; ctx.font = '11px Arial';
+            ctx.fillText(cost, mx-8, my-4);
+        }
+    }
+
+    // Draw nodes
+    for (const [name, data] of Object.entries(graph)) {
+        const x = data.x, y = data.y;
+        let fill = '#ecf0f1', border = '#bdc3c7', textColor = '#2c3e50';
+
+        if (name === document.getElementById('goalSelect').value && found) {
+            fill = '#55efc4'; border = '#00b894';
+        } else if (visited.has(name)) {
+            if (frontier.some(f => f.node === name)) {
+                fill = '#ffeaa7'; border = '#f39c12';
+            } else {
+                fill = '#74b9ff'; border = '#0984e3';
+            }
+        } else if (frontier.some(f => f.node === name)) {
+            fill = '#ffeaa7'; border = '#f39c12';
+        }
+
+        ctx.beginPath(); ctx.arc(x, y, 22, 0, 2*Math.PI);
+        ctx.fillStyle = fill; ctx.fill();
+        ctx.strokeStyle = border; ctx.lineWidth = 3; ctx.stroke();
+
+        ctx.fillStyle = textColor; ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const shortName = name.length > 8 ? name.substring(0,7)+'.' : name;
+        ctx.fillText(shortName, x, y);
+    }
+    ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+}
+
+function updateLog(msg) {
+    const log = document.getElementById('searchLog');
+    log.innerHTML += msg + '\n';
+    log.scrollTop = log.scrollHeight;
+}
+
+// IDS limit display
+document.getElementById('idsLimit').addEventListener('input', function() {
+    document.getElementById('idsLimitVal').textContent = 'Limit = ' + this.value;
+});
+
+// Init
+initSearch();
+</script>
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 3b: Informed Search &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#8e44ad;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(142,68,173,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#8e44ad;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(142,68,173,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#8e44ad;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #8e44ad;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#6c3483;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #8e44ad;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#f3e5f5 0%,#e1bee7 100%);}
+        .concept-card h4{color:#6c3483;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#8e44ad;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#8e44ad,#3498db,#2ecc71);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;cursor:crosshair;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#8e44ad;box-shadow:0 0 0 3px rgba(142,68,173,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(142,68,173,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(142,68,173,.4);background:linear-gradient(135deg,#9b59b6,#8e44ad);}
+        .btn-danger{background:linear-gradient(135deg,#e74c3c,#c0392b);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#8e44ad,#3498db,#2ecc71,#f39c12);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(142,68,173,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #8e44ad;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#8e44ad;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .grid-legend{display:flex;flex-wrap:wrap;gap:15px;justify-content:center;margin:15px 0;}
+        .grid-legend span{display:inline-flex;align-items:center;gap:6px;font-size:.9em;}
+        .grid-legend span i{display:inline-block;width:18px;height:18px;border-radius:3px;border:2px solid;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 3 (Bagian 2)</h1>
+            <div class="subtitle">Informed Search &mdash; Greedy Best-First, A*, Heuristics</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter3a.html" title="Sebelumnya: Bab 3a">&#8592; Bab 3a</a>
+            <span class="navcur">Bab 3b</span>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#greedy">Greedy Best-First</a>
+            <a href="#astar">A* Search</a>
+            <a href="#heuristics">Heuristics</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#local">Local Search</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar: Pencarian Terinformasi</h2>
+                <p>Pencarian terinformasi menggunakan <strong>fungsi heuristik</strong> \(h(n)\) untuk memperkirakan biaya terpendek dari node \(n\) ke tujuan. Ini memungkinkan algoritma mengarahkan pencarian ke area yang lebih menjanjikan.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">h</span> Fungsi Heuristik</h4>
+                        <p>\(h(n)\) = estimasi biaya terendah dari \(n\) ke goal. Harus <strong>admissible</strong> (tidak melebihi biaya aktual) untuk optimality.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">f</span> Fungsi Evaluasi</h4>
+                        <p>\(f(n) = g(n) + h(n)\) untuk A*. Menggabungkan biaya aktual dari start + estimasi ke goal.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">A*</span> A* Search</h4>
+                        <p>Expand node dengan \(f(n)\) terendah. Optimal dan lengkap jika \(h(n)\) admissible & consistent.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GREEDY BEST-FIRST -->
+            <div id="greedy" class="section" style="--delay:0.3s;">
+                <h2>Greedy Best-First Search</h2>
+                <p>Expand node yang paling dekat dengan tujuan, berdasarkan heuristik <strong>saja</strong>.</p>
+
+                <div class="math">
+                    \[ f(n) = h(n) \]
+                </div>
+
+                <h3>Implementasi</h3>
+                <ul>
+                    <li>Priority queue berdasarkan \(h(n)\), urutan menaik</li>
+                    <li>Greedy: selalu memilih node "terdekat" ke goal</li>
+                </ul>
+
+                <h3>Analisis</h3>
+                <table>
+                    <tr><th>Metriks</th><th>Nilai</th></tr>
+                    <tr><td>Waktu</td><td>\(O(b^m)\) dalam kasus terburuk</td></tr>
+                    <tr><td>Ruang</td><td>\(O(b^m)\)</td></tr>
+                    <tr><td>Lengkap?</td><td>Tidak (bisa masuk loop)</td></tr>
+                    <tr><td>Optimal?</td><td>Tidak</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Kapan berguna?</strong> Ketika \(h(n)\) sangat baik dan kita hanya perlu solusi yang "cukup baik" dengan cepat, atau sebagai komponen dalam algoritma hybrid.
+                </div>
+            </div>
+
+            <!-- A* -->
+            <div id="astar" class="section" style="--delay:0.6s;">
+                <h2>A* Search</h2>
+                <p>Memperluas node dengan \(f(n) = g(n) + h(n)\) terendah. Menggabungkan keunggulan UCS (biaya aktual) dengan Greedy (informasi heuristik).</p>
+
+                <div class="math">
+                    \[ f(n) = g(n) + h(n) \]
+                    <p style="margin-top:8px;font-size:.95em;">
+                        \(g(n)\) = biaya aktual dari start ke \(n\)<br>
+                        \(h(n)\) = estimasi biaya dari \(n\) ke goal<br>
+                        \(f(n)\) = estimasi biaya total melalui \(n\)
+                    </p>
+                </div>
+
+                <h3>Implementasi</h3>
+                <p>Menggunakan <strong>priority queue</strong> berdasarkan \(f(n)\). Mirip dengan UCS, tetapi menggunakan \(f\) daripada \(g\).</p>
+
+                <h3>Analisis</h3>
+                <table>
+                    <tr><th>Metriks</th><th>Nilai</th></tr>
+                    <tr><td>Waktu</td><td>\(O(b^m)\) dalam kasus terburuk</td></tr>
+                    <tr><td>Ruang</td><td>\(O(b^m)\) (menyimpan semua node)</td></tr>
+                    <tr><td>Lengkap?</td><td>Ya (jika \(h(n)\) tidak underestimate)</td></tr>
+                    <tr><td>Optimal?</td><td>Ya (jika \(h(n)\) admissible & consistent)</td></tr>
+                </table>
+
+                <h3>Optimalitas: Kondisi yang Diperlukan</h3>
+                <ul>
+                    <li>\(h(n)\) harus <strong>admissible</strong>: \(\forall n, 0 \leq h(n) \leq h^*(n)\)</li>
+                    <li>\(h(n)\) harus <strong>consistent</strong> (monoton): \(\forall n, \forall a \in Actions(n), h(n) \leq c(n,a,n') + h(n')\)</li>
+                    <li>Consistency ⟹ admissibility (kecuali untuk tujuan)</li>
+                </ul>
+
+                <div class="warning">
+                    <strong>Mengapa konsistensi penting?</strong> Jika \(h\) konsisten, maka \(f\) longgar menurut urutan ekspansi (tidak pernah menurun). Ini menjamin setiap node yang di-expand memiliki \(f \leq f^*\) (biaya optimal).
+                </div>
+            </div>
+
+            <!-- HEURISTICS -->
+            <div id="heuristics" class="section" style="--delay:0.9s;">
+                <h2>Fungsi Heuristik</h2>
+
+                <h3>Contoh Heuristik untuk Peta Rumania</h3>
+                <p>Untuk perjalanan langsung (straight-line distance, SLD) dari Bucharest:</p>
+                <ul>
+                    <li>Arad &rarr; Bucharest: SLD = 366</li>
+                    <li>Craiova &rarr; Bucharest: SLD = 160</li>
+                    <li>Sibiu &rarr; Bucharest: SLD = 253</li>
+                </ul>
+
+                <h3>Kualitas Heuristik</h3>
+                <div class="note">
+                    <strong>"Semakin baik \(h(n)\), semakin efisien pencarian."</strong>
+                    <p>Karena \(0 \leq h(n) \leq h^*(n)\), semakin besar \(h(n)\) mendekati \(h^*(n)\), semakin kecil ruang yang perlu dijelajahi (semakin kecil \(b^*\)).</p>
+                </div>
+
+                <h3>Sifat Heuristik yang Baik</h3>
+                <ul>
+                    <li>Harus menghitung dengan cepat (waktu komputasi \(h(n)\) harus kecil)</li>
+                    <li>Harus benar-benar mendekati \(h^*(n)\) (overestimate dilarang untuk admissibility)</li>
+                    <li>Untuk masalah nyata, sering menggunakan heuristik "relaxed problem" (masalah dengan kendala yang dilonggarkan)</li>
+                </ul>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:1.2s;">
+                <h2>Simulasi Interaktif: A* pada Grid 2D</h2>
+                <p>Klik pada grid untuk menempatkan/menghapus tembok. Klik tombol "Start" dan "Goal" lalu klik grid untuk menempatkan titik. Jalankan algoritme pencarian untuk melihat bagaimana A*, Greedy Best-First, dan BFS berbeda dalam menjelajahi ruang pencarian.</p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="algoGrid">Algoritme</label>
+                        <select id="algoGrid">
+                            <option value="astar">A* Search</option>
+                            <option value="greedy">Greedy Best-First</option>
+                            <option value="bfs">BFS (Uninformed)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="heuristicType">Heuristik</label>
+                        <select id="heuristicType">
+                            <option value="manhattan">Manhattan Distance</option>
+                            <option value="euclidean">Euclidean Distance</option>
+                            <option value="chebyshev">Chebyshev Distance</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="gridSpeed">Kecepatan</label>
+                        <input type="range" id="gridSpeed" min="1" max="100" step="1" value="30">
+                        <div class="value-display" id="speedVal">30 ms/step</div>
+                    </div>
+                    <div class="control-group">
+                        <label>Mode Edit</label>
+                        <select id="editMode">
+                            <option value="wall">Tembok</option>
+                            <option value="weight">Beban (3x)</option>
+                            <option value="start">Start</option>
+                            <option value="goal">Goal</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="runGridSearch()">Jalankan &#9654;</button>
+                    <button class="btn btn-danger" onclick="clearGrid()">Clear All</button>
+                    <button class="btn" onclick="resetGridAnim()">Reset Animasi</button>
+                </div>
+
+                <div class="grid-legend">
+                    <span><i style="background:#ecf0f1;border-color:#bdc3c7;"></i> Kosong</span>
+                    <span><i style="background:#2c3e50;border-color:#2c3e50;"></i> Tembok</span>
+                    <span><i style="background:#e74c3c;border-color:#c0392b;"></i> Beban (3x)</span>
+                    <span><i style="background:#27ae60;border-color:#1e8449;"></i> Start</span>
+                    <span><i style="background:#e74c3c;border-color:#c0392b;"></i> Goal</span>
+                    <span><i style="background:#85c1e9;border-color:#3498db;"></i> Frontier</span>
+                    <span><i style="background:#aed6f1;border-color:#85c1e9;"></i> Explored</span>
+                    <span><i style="background:#f9e79f;border-color:#f4d03f;"></i> Path</span>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="gridCanvas" width="700" height="500"></canvas>
+                </div>
+
+                <div id="gridStats" style="text-align:center;margin:15px 0;font-size:1.1em;"></div>
+
+                <div id="gridLog" style="background:#1a1a2e;color:#e0e0e0;padding:15px 20px;border-radius:8px;font-family:'Fira Code',monospace;font-size:.88em;max-height:150px;overflow-y:auto;margin-top:15px;"></div>
+            </div>
+
+            <!-- LOCAL SEARCH -->
+            <div id="local" class="section" style="--delay:1.8s;">
+                <h2>Local Search (Pencarian Lokal)</h2>
+                <p>Pencarian lokal berfokus pada keadaan saat ini, bukan menjelajahi seluruh ruang pencarian. Berguna untuk masalah optimasi di mana jalur tidak penting.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">HC</span> Hill Climbing</h4>
+                        <p>Selalu bergerak ke tetangga dengan nilai fungsi evaluasi terbaik. Tidak mempertahankan frontier &mdash; hanya keadaan saat ini.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">SA</span> Simulated Annealing</h4>
+                        <p>Menerima transisi yang memperburuk secara probabilitistik, dengan suhu yang menurun seiring waktu. Terhindar dari local optimum.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">GA</span> Genetic Algorithm</h4>
+                        <p>Evolusi populasi kandidat melalui seleksi, crossover, dan mutasi. Mempertahankan populasi besar solusi kandidat.</p>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Batasan Hill Climbing:</strong>
+                    <ul>
+                        <li><strong>Local maximum:</strong> lebih baik dari semua tetangga, tapi bukan optimum global</li>
+                        <li><strong>Plateau:</strong> area datar dengan nilai yang sama (tidak ada gradien)</li>
+                        <li><strong>Ridge:</strong> puncak sempit yang sulit dijangkau karena gerakan terbatas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:2.1s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; A* vs Greedy Best-First</h4>
+                    <p>Mengapa Greedy Best-First tidak optimal sedangkan A* optimal?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Greedy hanya melihat \(h(n)\) tanpa mempertimbangkan biaya aktual \(g(n)\). Ini bisa memilih jalur pendek secara heuristik tapi biaya aktualnya mahal. A* menggunakan \(f(n) = g(n) + h(n)\) yang mempertimbangkan kedua aspek, sehingga node dengan biaya total terendah selalu dipilih.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Consistency vs Admissibility</h4>
+                    <p>Apakah semua heuristik admissible juga konsisten? Apakah semua heuristik konsisten juga admissible?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Konsisten ⟹ Admissible:</strong> Ya. Jika \(h\) konsisten, maka untuk semua jalur dari node ke goal, \(f\) tidak menurun, sehingga \(h(n) \leq h^*(n)\) (admissible).</p>
+                            <p><strong>Admissible ̸⟹ Konsisten:</strong> Tidak selalu. Heuristik bisa admissible tapi tidak memenuhi syarat triangle inequality (consistency).</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Heuristik untuk Sliding Tiles</h4>
+                    <p>Untuk puzzle 8-tile, \(h_1(n)\) = jumlah tile yang salah tempat, \(h_2(n)\) = total jarak Manhattan. Mana yang lebih baik? Mengapa?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>\(h_2(n)\) lebih baik karena lebih dekat ke \(h^*(n)\). Jarak Manhattan "menghitung" setiap langkah secara individual, sedangkan \(h_1\) hanya menghitung apakah tile sudah di posisi yang benar. \(h_2\) memberikan informasi yang lebih akurat tentang biaya yang diperlukan.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:2.4s;">
+                <h2>Ringkasan Bab 3</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <table>
+                        <tr><th>Algoritma</th><th>f(n)</th><th>Lengkap?</th><th>Optimal?</th><th>Ruang</th></tr>
+                        <tr><td>BFS</td><td>kedalaman</td><td>Ya</td><td>Ya*</td><td>\(O(b^d)\)</td></tr>
+                        <tr><td>UCS</td><td>g(n)</td><td>Ya</td><td>Ya</td><td>\(O(b^{C^*/\varepsilon})\)</td></tr>
+                        <tr><td>Greedy</td><td>h(n)</td><td>Tidak</td><td>Tidak</td><td>\(O(b^m)\)</td></tr>
+                        <tr><td>A*</td><td>g(n)+h(n)</td><td>Ya</td><td>Ya</td><td>\(O(b^m)\)</td></tr>
+                    </table>
+                    <p style="margin-top:10px;font-size:.9em;color:#6c757d;">*Ya jika biaya langkah sama.</p>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>A* adalah standar emas</strong> untuk pencarian terinformasi: optimal, lengkap, dan efisien dengan heuristik yang baik.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Heuristik yang baik</strong> harus admissible (untuk optimality A*), cepat dihitung, dan mendekati \(h^*(n)\).</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Pencarian lokal</strong> berguna untuk masalah optimasi di mana jalur tidak penting (8-puzzle, TSP, layout).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 3b</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter3a.html" title="Sebelumnya: Bab 3a">&#8592; Bab 3a</a>
+                    <span class="navcur">Bab 3b</span>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== GRID SEARCH ENGINE =====
+const COLS = 28, ROWS = 20;
+const CELL = 24;
+const cvs = document.getElementById('gridCanvas');
+const gCtx = cvs.getContext('2d');
+cvs.width = COLS * CELL + 1;
+cvs.height = ROWS * CELL + 1;
+
+// Grid state: 0=empty, 1=wall, 2=weight(3x)
+let grid = [];
+let startPos = {x:2, y:2};
+let goalPos = {x:COLS-3, y:ROWS-3};
+let gridAnim = null;
+let gridRunning = false;
+
+function initGrid() {
+    grid = Array.from({length:ROWS}, () => Array(COLS).fill(0));
+}
+initGrid();
+
+function drawGrid() {
+    gCtx.clearRect(0, 0, cvs.width, cvs.height);
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            const x = c * CELL, y = r * CELL;
+            let fill = '#ecf0f1', border = '#dee2e6';
+            if (grid[r][c] === 1) { fill = border = '#2c3e50'; }
+            else if (grid[r][c] === 2) { fill = '#fadbd8'; border = '#e74c3c'; }
+            gCtx.fillStyle = fill;
+            gCtx.fillRect(x, y, CELL, CELL);
+            gCtx.strokeStyle = border;
+            gCtx.lineWidth = 0.5;
+            gCtx.strokeRect(x, y, CELL, CELL);
+        }
+    }
+    // Draw start & goal
+    drawCell(startPos.x, startPos.y, '#27ae60', '#1e8449', 'S');
+    drawCell(goalPos.x, goalPos.y, '#e74c3c', '#c0392b', 'G');
+}
+
+function drawCell(c, r, fill, border, label) {
+    const x = c * CELL, y = r * CELL;
+    gCtx.fillStyle = fill;
+    gCtx.fillRect(x+1, y+1, CELL-2, CELL-2);
+    gCtx.strokeStyle = border;
+    gCtx.lineWidth = 2;
+    gCtx.strokeRect(x+1, y+1, CELL-2, CELL-2);
+    if (label) {
+        gCtx.fillStyle = '#fff';
+        gCtx.font = 'bold 12px Arial';
+        gCtx.textAlign = 'center'; gCtx.textBaseline = 'middle';
+        gCtx.fillText(label, x + CELL/2, y + CELL/2);
+        gCtx.textAlign = 'start'; gCtx.textBaseline = 'alphabetic';
+    }
+}
+
+function drawOverlayCell(c, r, fill, border) {
+    const x = c * CELL, y = r * CELL;
+    gCtx.fillStyle = fill;
+    gCtx.globalAlpha = 0.5;
+    gCtx.fillRect(x+1, y+1, CELL-2, CELL-2);
+    gCtx.globalAlpha = 1.0;
+    gCtx.strokeStyle = border;
+    gCtx.lineWidth = 1;
+    gCtx.strokeRect(x+1, y+1, CELL-2, CELL-2);
+}
+
+// Mouse interaction
+let mouseDown = false;
+cvs.addEventListener('mousedown', (e) => {
+    mouseDown = true;
+    handleCellClick(e);
+});
+cvs.addEventListener('mousemove', (e) => { if (mouseDown) handleCellClick(e); });
+cvs.addEventListener('mouseup', () => { mouseDown = false; });
+cvs.addEventListener('mouseleave', () => { mouseDown = false; });
+
+function handleCellClick(e) {
+    if (gridRunning) return;
+    const rect = cvs.getBoundingClientRect();
+    const c = Math.floor((e.clientX - rect.left) / CELL);
+    const r = Math.floor((e.clientY - rect.top) / CELL);
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+
+    const mode = document.getElementById('editMode').value;
+    if (mode === 'wall') {
+        if (!(c === startPos.x && r === startPos.y) && !(c === goalPos.x && r === goalPos.y))
+            grid[r][c] = grid[r][c] === 1 ? 0 : 1;
+    } else if (mode === 'weight') {
+        if (!(c === startPos.x && r === startPos.y) && !(c === goalPos.x && r === goalPos.y))
+            grid[r][c] = grid[r][c] === 2 ? 0 : 2;
+    } else if (mode === 'start') {
+        startPos = {x:c, y:r}; grid[r][c] = 0;
+    } else if (mode === 'goal') {
+        goalPos = {x:c, y:r}; grid[r][c] = 0;
+    }
+    drawGrid();
+    drawOverlay();
+}
+
+let overlay = {};
+function drawOverlay() {
+    for (const key of Object.keys(overlay)) {
+        const [c, r] = key.split(',').map(Number);
+        const o = overlay[key];
+        drawOverlayCell(c, r, o.fill, o.border);
+    }
+}
+
+// Heuristics
+function manhattan(c1, r1, c2, r2) { return Math.abs(c1-c2) + Math.abs(r1-r2); }
+function euclidean(c1, r1, c2, r2) { return Math.sqrt((c1-c2)**2 + (r1-r2)**2); }
+function chebyshev(c1, r1, c2, r2) { return Math.max(Math.abs(c1-c2), Math.abs(r1-r2)); }
+
+function getH(c, r) {
+    const type = document.getElementById('heuristicType').value;
+    if (type === 'manhattan') return manhattan(c, r, goalPos.x, goalPos.y);
+    if (type === 'euclidean') return euclidean(c, r, goalPos.x, goalPos.y);
+    return chebyshev(c, r, goalPos.x, goalPos.y);
+}
+
+function getCost(c, r) { return grid[r][c] === 2 ? 3 : 1; }
+
+function neighbors(c, r) {
+    const dirs = [[0,-1],[0,1],[-1,0],[1,0]];
+    const result = [];
+    for (const [dc, dr] of dirs) {
+        const nc = c+dc, nr = r+dr;
+        if (nc >= 0 && nc < COLS && nr >= 0 && nr < ROWS && grid[nr][nc] !== 1) {
+            result.push({x:nc, y:nr, cost:getCost(nc, nr)});
+        }
+    }
+    return result;
+}
+
+// Grid search algorithms
+function runGridSearch() {
+    if (gridRunning) return;
+    gridRunning = true;
+    overlay = {};
+    drawGrid();
+
+    const algo = document.getElementById('algoGrid').value;
+    const speed = parseInt(document.getElementById('gridSpeed').value);
+    document.getElementById('speedVal').textContent = speed + ' ms/step';
+
+    const frontier = [];
+    const explored = new Set();
+    const gScore = {};
+    const parent = {};
+    const key = (c,r) => c + ',' + r;
+    const startKey = key(startPos.x, startPos.y);
+    gScore[startKey] = 0;
+
+    if (algo === 'bfs') {
+        frontier.push({x:startPos.x, y:startPos.y, f:0});
+    } else if (algo === 'greedy') {
+        frontier.push({x:startPos.x, y:startPos.y, f:getH(startPos.x, startPos.y)});
+    } else {
+        frontier.push({x:startPos.x, y:startPos.y, f:getH(startPos.x, startPos.y)});
+    }
+
+    const log = document.getElementById('gridLog');
+    log.innerHTML = '';
+    let nodesExplored = 0, found = false;
+
+    function step() {
+        if (frontier.length === 0) {
+            log.innerHTML += '>> Frontier kosong. Tidak ditemukan.\n';
+            log.scrollTop = log.scrollHeight;
+            gridRunning = false;
+            document.getElementById('gridStats').innerHTML = '<span style="color:#e74c3c;">Tidak ditemukan</span>';
+            return;
+        }
+
+        // Sort frontier by f
+        if (algo !== 'bfs') frontier.sort((a,b) => a.f - b.f);
+        const cur = frontier.shift();
+        const curKey = key(cur.x, cur.y);
+
+        if (explored.has(curKey)) { requestAnimationFrame(step); return; }
+        explored.add(curKey);
+        nodesExplored++;
+
+        // Overlay explored
+        if (!(cur.x === startPos.x && cur.y === startPos.y) && !(cur.x === goalPos.x && cur.y === goalPos.y)) {
+            overlay[curKey] = {fill:'#aed6f1', border:'#85c1e9'};
+        }
+
+        if (cur.x === goalPos.x && cur.y === goalPos.y) {
+            // Reconstruct path
+            found = true;
+            let c = curKey;
+            let pathLen = 0;
+            while (parent[c]) {
+                const [pc, pr] = parent[c].split(',').map(Number);
+                if (!(pc === startPos.x && pr === startPos.y)) {
+                    overlay[c] = {fill:'#f9e79f', border:'#f4d03f'};
+                }
+                pathLen += getCost(pc, pr);
+                c = parent[c];
+            }
+            drawGrid(); drawOverlay();
+            log.innerHTML += `>> DITEMUKAN! Jalur biaya: ${pathLen.toFixed(1)}, Nodes di-explore: ${nodesExplored}\n`;
+            log.scrollTop = log.scrollHeight;
+            document.getElementById('gridStats').innerHTML = `<strong>Ditemukan!</strong> Biaya jalur: ${pathLen.toFixed(1)} | Nodes di-explore: ${nodesExplored}`;
+            gridRunning = false;
+            return;
+        }
+
+        // Expand
+        const nbs = neighbors(cur.x, cur.y);
+        for (const nb of nbs) {
+            const nbKey = key(nb.x, nb.y);
+            if (explored.has(nbKey)) continue;
+            const newG = (gScore[curKey] || 0) + nb.cost;
+            if (gScore[nbKey] !== undefined && gScore[nbKey] <= newG) continue;
+            gScore[nbKey] = newG;
+            parent[nbKey] = curKey;
+
+            let f;
+            if (algo === 'bfs') f = 0;
+            else if (algo === 'greedy') f = getH(nb.x, nb.y);
+            else f = newG + getH(nb.x, nb.y);
+
+            frontier.push({x:nb.x, y:nb.y, f:f});
+        }
+
+        // Overlay frontier
+        for (const fn of frontier) {
+            const fk = key(fn.x, fn.y);
+            if (!explored.has(fk) && !(fn.x === startPos.x && fn.y === startPos.y) && !(fn.x === goalPos.x && fn.y === goalPos.y)) {
+                overlay[fk] = {fill:'#85c1e9', border:'#3498db'};
+            }
+        }
+
+        drawGrid(); drawOverlay();
+
+        if (nodesExplored % 20 === 0) {
+            log.innerHTML += `Explore ${curKey} (f=${(algo==='bfs'?'--':cur.f.toFixed(1))}), frontier: ${frontier.length}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        gridAnim = setTimeout(step, speed);
+    }
+
+    step();
+}
+
+function clearGrid() {
+    if (gridRunning) { clearTimeout(gridAnim); gridRunning = false; }
+    initGrid();
+    startPos = {x:2, y:2};
+    goalPos = {x:COLS-3, y:ROWS-3};
+    overlay = {};
+    drawGrid();
+    document.getElementById('gridLog').innerHTML = '';
+    document.getElementById('gridStats').innerHTML = '';
+}
+
+function resetGridAnim() {
+    if (gridRunning) { clearTimeout(gridAnim); gridRunning = false; }
+    overlay = {};
+    drawGrid();
+    document.getElementById('gridLog').innerHTML = '';
+    document.getElementById('gridStats').innerHTML = '';
+}
+
+// Initial draw
+drawGrid();
+</script>
+</body>
+</html>

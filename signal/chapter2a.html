@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 2a: Konvolusi Sistem LTI</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        /* ---------- Global Styles ---------- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.2);
+            overflow: hidden;
+            animation: fadeIn .8s ease-in;
+        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        header {
+            background: linear-gradient(135deg,#16a085,#1abc9c);
+            color:#fff;
+            padding:40px;
+            text-align:center;
+            position:relative;
+            overflow:hidden;
+        }
+        header::before{
+            content:'';
+            position:absolute;
+            top:-50%;right:-50%;
+            width:200%;height:200%;
+            background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);
+        }
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{
+            background:#f8f9fa;
+            padding:15px;
+            border-bottom:1px solid #e9ecef;
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            flex-wrap:wrap;
+        }
+        nav a{
+            color:#495057;
+            text-decoration:none;
+            padding:8px 16px;
+            border-radius:20px;
+            transition:all .3s ease;
+            font-weight:500;
+        }
+        nav a:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.3);}
+        .chapternav{
+            background:#2c3e50;
+            padding:12px 15px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+        }
+        .footernav{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-top:15px;
+        }
+        .navbtn{
+            color:#fff;
+            text-decoration:none;
+            padding:8px 18px;
+            border-radius:20px;
+            font-weight:600;
+            background:rgba(255,255,255,.12);
+            border:1px solid rgba(255,255,255,.25);
+            transition:all .3s ease;
+        }
+        .navbtn:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.4);}
+        .navcur{
+            color:#fff;
+            font-weight:700;
+            padding:8px 18px;
+            border-radius:20px;
+            background:#1abc9c;
+        }
+        .navdisabled{
+            opacity:.45;
+            cursor:not-allowed;
+            pointer-events:none;
+        }
+        .content{padding:40px;}
+        .section{
+            margin-bottom:40px;
+            opacity:0;
+            animation:slideUp .6s ease-out forwards;
+            animation-delay:calc(var(--delay)+.2s);
+        }
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{
+            color:#2c3e50;
+            border-left:5px solid #1abc9c;
+            padding-left:15px;
+            margin-bottom:20px;
+            font-size:1.8em;
+        }
+        h3{ color:#34495e; margin-top:30px; font-size:1.4em; }
+        h4{ color:#117a65; margin-top:20px; font-size:1.1em; }
+        p{margin:12px 0;}
+        .concept-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+            gap:25px;
+            margin:30px 0;
+        }
+        .concept-card{
+            background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);
+            padding:25px;
+            border-radius:10px;
+            border-left:4px solid #1abc9c;
+            transition:all .3s ease;
+            animation:cardFade .6s ease-out forwards;
+            animation-delay:calc(var(--card-delay)+.3s);
+            opacity:0;
+            transform:translateX(-20px);
+        }
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{
+            transform:translateY(-5px)scale(1.02);
+            box-shadow:0 10px 25px rgba(0,0,0,.15);
+            background:linear-gradient(135deg,#e0f7f4 0%,#b2dfdb 100%);
+        }
+        .concept-card h4{
+            color:#117a65;
+            margin:0 0 15px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .concept-card .icon{
+            width:30px;height:30px;
+            background:#1abc9c;
+            border-radius:50%;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            color:#fff;
+            font-weight:bold;
+        }
+        .simulation-container{
+            background:#f8f9fa;
+            border:2px solid #e9ecef;
+            border-radius:10px;
+            padding:30px;
+            margin:30px 0;
+            position:relative;
+            overflow:hidden;
+        }
+        .simulation-container::before{
+            content:'';
+            position:absolute;top:0;left:0;right:0;height:4px;
+            background:linear-gradient(90deg,#1abc9c,#2ecc71,#f39c12);
+        }
+        canvas{
+            background:#fff;
+            border:1px solid #dee2e6;
+            border-radius:8px;
+            display:block;
+            margin:20px auto;
+            box-shadow:inset 0 2px 5px rgba(0,0,0,.1);
+            transition:all .3s ease;
+        }
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{
+            display:flex;
+            flex-wrap:wrap;
+            gap:20px;
+            justify-content:center;
+            margin:25px 0;
+            padding:20px;
+            background:#fff;
+            border-radius:8px;
+            box-shadow:0 2px 10px rgba(0,0,0,.05);
+        }
+        .control-group{
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+            min-width:150px;
+        }
+        label{ font-weight:600; color:#495057; font-size:.9em; }
+        select,input[type=range]{
+            padding:10px 12px;
+            border:2px solid #dee2e6;
+            border-radius:6px;
+            background:#fff;
+            transition:all .3s ease;
+            font-size:14px;
+        }
+        select:hover,input[type=range]:hover{ border-color:#1abc9c; box-shadow:0 0 0 3px rgba(26,188,156,.1); }
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{ font-size:.85em; color:#6c757d; text-align:center; margin-top:5px; }
+        .btn{
+            background:linear-gradient(135deg,#1abc9c,#16a085);
+            color:#fff; border:none; padding:12px 25px; border-radius:25px;
+            cursor:pointer; font-weight:600; transition:all .3s ease; margin:5px;
+            box-shadow:0 4px 15px rgba(26,188,156,.3);
+        }
+        .btn:hover{ transform:translateY(-2px); box-shadow:0 6px 20px rgba(26,188,156,.4); background:linear-gradient(135deg,#16a085,#1abc9c); }
+        .summary-box{
+            background:linear-gradient(135deg,#fff3e0,#ffe0b2);
+            border-left:5px solid #ff9800;
+            padding:25px; margin:30px 0; border-radius:8px; position:relative; overflow:hidden;
+        }
+        .key-takeaway{
+            display:flex; align-items:flex-start; gap:15px; margin:15px 0; padding:10px;
+            background:rgba(255,255,255,.7); border-radius:6px; transition:all .3s ease;
+        }
+        .key-takeaway:hover{ background:rgba(255,255,255,.9); transform:translateX(5px); }
+        .takeaway-icon{
+            background:#4caf50; color:#fff; width:25px;height:25px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center; font-size:.8em; flex-shrink:0;
+        }
+        .references{
+            margin-top:40px; padding-top:30px; border-top:2px solid #e9ecef; animation:fadeIn 1s ease-in;
+        }
+        .reference-item{
+            margin-bottom:20px; padding:15px; background:#f8f9fa; border-radius:6px;
+            border-left:3px solid #6c757d; transition:all .3s ease; animation:slideIn .5s ease-out forwards; opacity:0;
+        }
+        @keyframes slideIn{ from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)} }
+        .reference-item:hover{ background:#e9ecef; transform:translateX(5px); box-shadow:0 5px 15px rgba(0,0,0,.1); }
+        .reference-item strong{color:#2c3e50;}
+        footer{
+            background:#2c3e50; color:#fff; text-align:center; padding:30px; margin-top:50px; position:relative; overflow:hidden;
+        }
+        footer::before{ content:''; position:absolute;top:0;left:0;right:0;height:3px; background:linear-gradient(90deg,#1abc9c,#2ecc71,#f39c12,#e74c3c); }
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{ background:linear-gradient(120deg,rgba(26,188,156,.2),transparent); padding:2px 6px; border-radius:3px; font-weight:600; color:#2c3e50; }
+        .math{
+            background:#f4f6f8; border-left:4px solid #1abc9c; padding:12px 18px; margin:18px 0;
+            border-radius:6px; font-size:1.05em; overflow-x:auto;
+        }
+        .math .eq-label{ float:right; color:#6c757d; font-size:.85em; }
+        .note{ background:linear-gradient(135deg,#e8f5e9,#c8e6c9); border-left:5px solid #4caf50; padding:15px 20px; margin:20px 0; border-radius:8px; }
+        .warning{ background:linear-gradient(135deg,#fff8e1,#ffecb3); border-left:5px solid #ffc107; padding:15px 20px; margin:20px 0; border-radius:8px; }
+        .exercise{ background:linear-gradient(135deg,#ede7f6,#d1c4e9); border-left:5px solid #7e57c2; padding:20px 25px; margin:25px 0; border-radius:8px; }
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{ background:#fff; border:1px dashed #7e57c2; padding:15px 20px; margin-top:15px; border-radius:6px; }
+        details summary{ cursor:pointer; font-weight:600; color:#5e35b1; padding:8px 0; }
+        details[open] summary{margin-bottom:10px;}
+        table{ width:100%; border-collapse:collapse; margin:20px 0; background:#fff; }
+        th,td{ border:1px solid #dee2e6; padding:10px 12px; text-align:left; }
+        th{ background:#1abc9c; color:#fff; }
+        tr:nth-child(even){ background:#f8f9fa; }
+        .toc{ background:#fff; border:2px solid #e9ecef; border-radius:10px; padding:20px 30px; margin:25px 0; }
+        .toc ol{ margin:0; padding-left:25px; }
+        .toc li{ margin:6px 0; }
+        .toc a{ color:#1abc9c; text-decoration:none; }
+        .toc a:hover{ text-decoration:underline; }
+        @media(max-width:768px){
+            body{padding:10px;} h1{font-size:2em;} .content{padding:20px;}
+            .controls{flex-direction:column;align-items:center;} .concept-grid{grid-template-columns:1fr;}
+            canvas{width:100%!important;height:auto!important;}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ----- Header ----- -->
+        <header>
+            <h1>Bab 2 (Bagian 1)</h1>
+            <div class="subtitle">Sistem Linear Time-Invariant (LTI): Konvolusi &mdash; Catatan Sarjana &amp; Pascasarjana</div>
+        </header>
+
+        <!-- ----- Inter-chapter navigation ----- -->
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <a class="navbtn" href="intro.html" title="Sebelumnya: Bab 1">&#8592; Bab 1</a>
+            <span class="navcur">Bab 2a</span>
+            <a class="navbtn" href="chapter2b.html" title="Lanjut: Bab 2b">Bab 2b &#8594;</a>
+        </div>
+
+        <!-- ----- Navigation ----- -->
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#discrete">LTI Discrete-Time</a>
+            <a href="#continuous">LTI Continuous-Time</a>
+            <a href="#properties">Properti</a>
+            <a href="#simulation">Simulasi Interaktif</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+            <a href="#references">Referensi</a>
+        </nav>
+
+        <!-- ----- Main Content ----- -->
+        <div class="content">
+            <!-- Overview -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 2 (Bagian Konvolusi)</h2>
+                <p>Bab 1 telah menetapkan kosakata sinyal (signal) dan sistem (system) serta berargumen bahwa sistem <strong>Linear Time-Invariant (LTI) / linier invariant-waktu (LTI)</strong> merupakan idealisasi yang paling berguna. Bagian ini (Bab 2a) membuatnya konkret untuk operasi <span class="highlight">konvolusi (convolution)</span>: setiap sistem LTI dijelaskan secara lengkap oleh satu fungsi, yaitu <span class="highlight">impulse response (respons impuls)</span> <em>h(t)</em> atau <em>h[n]</em>, dan hubungan input&ndash;output diberikan oleh <em>y = x ∗ h</em>.</p>
+
+                <p>Inilah inti konseptual dari buku ini. Setelah convolution dipahami, transformasi Fourier, Laplace, dan z-transform (Bab 3&ndash;9) menjadi alat yang alami untuk mengubah convolution menjadi perkalian. (Eigenfunction dan sistem persamaan beda/diferensial dibahas di <a href="chapter2b.html">Bab 2b</a>.)</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">h</span>Impulse Response</h4>
+                        <p>Output dari sistem LTI ketika input-nya adalah impuls satuan <em>δ(t)</em> / <em>δ[n]</em>. Fungsi ini mengkarakterisasi sistem secara lengkap.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">∗</span>Convolution</h4>
+                        <p>Operasi <em>y = x ∗ h</em> yang menghasilkan output dengan menjumlahkan salinan impulse response yang telah diberi bobot dan digeser.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">⚙️</span>Properti</h4>
+                        <p>Komutatif/asosiatif/distributif, serta uji causality &amp; stability langsung dari <em>h</em>.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Tujuan pembelajaran (S1/S2):</strong> Di akhir bagian ini Anda seharusnya mampu (i) menuliskan convolution sum/integral untuk sistem LTI apa pun, (ii) menentukan causality dan stability langsung dari <em>h</em>, dan (iii) memanfaatkan properti komutatif/asosiatif/distributif.
+                </div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#discrete">Sistem LTI discrete-time &amp; convolution sum</a></li>
+                        <li><a href="#continuous">Sistem LTI continuous-time &amp; convolution integral</a></li>
+                        <li><a href="#properties">Properti convolution dan sistem LTI (causality, stability, memori)</a></li>
+                        <li><a href="#simulation">Simulasi JavaScript interaktif</a></li>
+                        <li><a href="#exercises">Latihan terselesaikan beserta solusi</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Discrete-Time -->
+            <div id="discrete" class="section" style="--delay:1s;">
+                <h2>🔢 Sistem LTI Discrete-Time: Convolution Sum</h2>
+
+                <h3>2.1 Properti Sifting dari δ[n]</h3>
+                <p>Setiap sinyal discrete-time dapat dituliskan sebagai superposisi impuls-impuls yang digeser:</p>
+                <div class="math">\[ x[n] = \sum_{k=-\infty}^{\infty} x[k]\,\delta[n-k] \]<span class="eq-label">(2.1)</span></div>
+                <p>Karena sistem bersifat <strong>linear</strong>, respons terhadap suatu jumlah adalah jumlah dari respons-responsnya; karena bersifat <strong>time-invariant (invariant-waktu)</strong>, respons terhadap <em>δ[n&minus;k]</em> adalah <em>h[n&minus;k]</em>. Memasukkan (2.1) ke dalam sistem menghasilkan:</p>
+
+                <div class="math">\[ y[n] = \sum_{k=-\infty}^{\infty} x[k]\,h[n-k] = (x * h)[n] \]<span class="eq-label">(2.2)</span></div>
+                <p>Inilah <strong>convolution sum (jumlah konvolusi)</strong>. Secara ekuivalen, dengan perubahan variabel,</p>
+                <div class="math">\[ y[n] = \sum_{k=-\infty}^{\infty} h[k]\,x[n-k] \]<span class="eq-label">(2.3)</span></div>
+
+                <h3>2.2 Cara Menghitungnya (Flip-and-Slide / balik-dan-geser)</h3>
+                <p>Resep praktis untuk <em>y[n] = x[n] ∗ h[n]</em>:</p>
+                <ul>
+                    <li><strong>Flip (balik)</strong> <em>h[k]</em> untuk memperoleh <em>h[&minus;k]</em>.</li>
+                    <li><strong>Shift (geser)</strong> sebesar <em>n</em>: bentuk <em>h[n&minus;k]</em>.</li>
+                    <li><strong>Kalikan</strong> secara titik-demi-titik dengan <em>x[k]</em> lalu <strong>jumlahkan</strong> terhadap <em>k</em>.</li>
+                </ul>
+                <div class="warning"><strong>Disiplin indeks:</strong> Indeks penjumlahan adalah <em>k</em>; <em>n</em> adalah parameter. Kesalahan umum adalah menjumlahkan terhadap <em>n</em>. Jaga <em>n</em> tetap saat Anda menggeser.</div>
+
+                <div class="note">
+                    <strong>Contoh mini terselesaikan:</strong> Misalkan <em>x[n] = u[n]</em> (unit step) dan <em>h[n] = δ[n] &minus; δ[n&minus;1]</em> (filter beda-pertama). Maka
+                    <div class="math">\[ y[n] = \sum_k u[k](\delta[n-k] - \delta[n-1-k]) = u[n] - u[n-1] = \delta[n] \]</div>
+                    Step diubah kembali menjadi impuls &mdash; sistem ini adalah invers dari akumulasi.
+                </div>
+            </div>
+
+            <!-- Continuous-Time -->
+            <div id="continuous" class="section" style="--delay:1.2s;">
+                <h2>🌊 Sistem LTI Continuous-Time: Convolution Integral</h2>
+
+                <h3>2.3 Properti Sifting dari δ(t)</h3>
+                <p>Dalam continuous-time (waktu-kontinyu), impuls berupa delta Dirac, dan setiap sinyal memenuhi:</p>
+                <div class="math">\[ x(t) = \int_{-\infty}^{\infty} x(\tau)\,\delta(t-\tau)\,d\tau \]<span class="eq-label">(2.4)</span></div>
+                <p>Berdasarkan linearitas dan time-invariance, respons terhadap <em>x(t)</em> adalah:</p>
+
+                <div class="math">\[ y(t) = \int_{-\infty}^{\infty} x(\tau)\,h(t-\tau)\,d\tau = (x * h)(t) \]<span class="eq-label">(2.5)</span></div>
+                <p>Secara ekuivalen,</p>
+                <div class="math">\[ y(t) = \int_{-\infty}^{\infty} h(\tau)\,x(t-\tau)\,d\tau \]<span class="eq-label">(2.6)</span></div>
+
+                <h3>2.4 Membaca Integral</h3>
+                <p>Pikirkan (2.5) sebagai: pada setiap waktu <em>t</em>, akumulasikan kontribusi dari setiap sampel input masa lalu <em>x(τ)</em> yang diberi bobot oleh bagaimana sistem "mengingatnya", yaitu <em>h(t&minus;τ)</em>. Inilah sebabnya <em>h</em> disebut <em>impulse response</em> &mdash; secara harfiah ia adalah kernel memori sistem.</p>
+
+                <table>
+                    <tr><th>Aspek</th><th>Discrete-Time</th><th>Continuous-Time</th></tr>
+                    <tr><td>Blok penyusun</td><td><em>δ[n]</em></td><td><em>δ(t)</em></td></tr>
+                    <tr><td>Superposisi</td><td>jumlah terhadap <em>k</em></td><td>integral terhadap <em>τ</em></td></tr>
+                    <tr><td>Input&ndash;output</td><td><em>y[n]=Σ x[k]h[n&minus;k]</em></td><td><em>y(t)=∫ x(τ)h(t&minus;τ)dτ</em></td></tr>
+                    <tr><td>Kernel memori</td><td>barisan <em>h[n]</em></td><td>fungsi <em>h(t)</em></td></tr>
+                </table>
+            </div>
+
+            <!-- Properties -->
+            <div id="properties" class="section" style="--delay:1.4s;">
+                <h2>⚙️ Properti Convolution &amp; Sistem LTI</h2>
+
+                <h3>2.5 Properti Aljabar Convolution</h3>
+                <div class="math">\[ \text{Commutative: } x * h = h * x \]<span class="eq-label">(2.7)</span></div>
+                <div class="math">\[ \text{Associative: } (x * h_1) * h_2 = x * (h_1 * h_2) \]<span class="eq-label">(2.8)</span></div>
+                <div class="math">\[ \text{Distributive: } x * (h_1 + h_2) = x * h_1 + x * h_2 \]<span class="eq-label">(2.9)</span></div>
+                <p>Sifat asosiatif berarti kaskade dua sistem LTI juga merupakan sistem LTI dengan impulse response <em>h = h₁ ∗ h₂</em> (urutan tidak berpengaruh). Sifat distributif berarti kombinasi paralel memiliki impulse response <em>h = h₁ + h₂</em>.</p>
+
+                <h3>2.6 Memori</h3>
+                <p>Sebuah sistem LTI bersifat <strong>tanpa-memori (memoryless)</strong> jika dan hanya jika <em>h(t) = 0</em> untuk semua <em>t ≠ 0</em>, yaitu <em>h(t) = K·δ(t)</em> (sehingga <em>y(t) = K·x(t)</em>). Selain itu, sistem memiliki memori.</p>
+
+                <h3>2.7 Causality (Kausalitas)</h3>
+                <p>Sistem LTI yang kausal (causal) harus memenuhi:</p>
+                <div class="math">\[ h(t) = 0\quad \forall\, t < 0 \qquad (\text{CT});\qquad h[n] = 0\quad \forall\, n < 0 \qquad (\text{DT}) \]<span class="eq-label">(2.10)</span></div>
+                <p>Intuisi: impulse response tidak dapat dimulai sebelum impuls tiba. Sebuah <em>h</em> yang non-kausal (mis. <em>h(t) = e<sup>&minus;|t|</sup></em>) baik-baik saja untuk pemrosesan offline, tetapi tidak dapat direalisasikan secara real time.</p>
+
+                <h3>2.8 Stability (Stabilitas BIBO)</h3>
+                <p>Sebuah sistem LTI bersifat stabil BIBO jika dan hanya jika impulse response-nya absolutely summable / integrable (dapat dijumlahkan/diintegralkan secara absolut):</p>
+                <div class="math">\[ \sum_{n=-\infty}^{\infty} |h[n]| < \infty \qquad\text{(DT)};\qquad \int_{-\infty}^{\infty} |h(t)|\,dt < \infty \qquad\text{(CT)} \]<span class="eq-label">(2.11)</span></div>
+                <div class="note">Ini adalah uji stability yang paling sering digunakan di seluruh buku ini. Untuk low-pass RC, <em>h(t) = (1/RC)e<sup>&minus;t/RC</sup>u(t)</sup></em> terintegral menjadi 1, sehingga stabil. Untuk integrator yang tidak stabil, <em>h(t) = u(t)</em> terintegral menjadi ∞.</div>
+
+                <h3>2.9 Invertibilitas</h3>
+                <p>Sebuah sistem LTI bersifat invertibel jika dan hanya jika terdapat <em>h<sub>inv</sub></em> dengan <em>h ∗ h<sub>inv</sub> = δ</em>. Dalam domain frekuensi (bab-bab selanjutnya) hal ini menjadi "tidak pernah nol".</p>
+            </div>
+
+            <!-- Interactive Simulation -->
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>🎮 Convolution Interaktif</h2>
+                <p>Oppenheim memulai dari <strong>discrete-time</strong> (convolution sum) lalu <strong>continuous-time</strong> (convolution integral). Kedua kasus disajikan di bawah sebagai simulasi terpisah. Pada tiap demo, plot atas menampilkan input <em>x</em> dan impulse response yang telah dibalik-digeser, sedangkan plot bawah menampilkan output berjalan <em>y</em> yang diakumulasikan hingga kursor.</p>
+
+                <!-- Demo A: Discrete-Time -->
+                <h3>Demo A &mdash; Discrete-Time: Convolution Sum</h3>
+                <p>Perhatikan bagaimana <em>y[n] = Σ<sub>k</sub> x[k]·h[n&minus;k]</em> terbentuk dengan menjumlahkan stem (batang) bergeser. Kursor <em>m</em> menunjukkan batas akumulasi; output hingga indeks <em>m</em> ditampilkan hijau.</p>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="inpTypeDT">Input x[n]</label>
+                        <select id="inpTypeDT">
+                            <option value="step">Step u[n]</option>
+                            <option value="rect">Pulsa persegi (n=0..3)</option>
+                            <option value="exp">Eksponensial (0.6)^n u[n]</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="sysTypeDT">Impulse response h[n]</label>
+                        <select id="sysTypeDT">
+                            <option value="expdecay">Eksponensial (0.5)^n u[n]</option>
+                            <option value="rect">Pulsa persegi (n=0..2)</option>
+                            <option value="delta">Delta δ[n] (identitas)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="cursorN">Indeks kursor m</label>
+                        <input type="range" id="cursorN" min="0" max="12" step="1" value="0">
+                        <div class="value-display" id="cursorValDT">m = 0</div>
+                    </div>
+                    <button class="btn" onclick="resetConv()">Reset</button>
+                </div>
+                <div class="simulation-container">
+                    <canvas id="convTopDT" width="900" height="220"></canvas>
+                    <canvas id="convBotDT" width="900" height="220"></canvas>
+                </div>
+
+                <!-- Demo B: Continuous-Time -->
+                <h3>Demo B &mdash; Continuous-Time: Convolution Integral</h3>
+                <p>Plot atas menampilkan input <em>x(t)</em> (biru) dan impulse response yang dibalik-digeser <em>h(t&minus;τ)</em> (oranye) pada waktu kursor <em>τ</em>. Plot bawah menampilkan output berjalan <em>y(t)</em> (hijau) yang diakumulasikan hingga <em>τ</em>.</p>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="inpType">Input x(t)</label>
+                        <select id="inpType">
+                            <option value="rect">Pulsa persegi</option>
+                            <option value="tri">Pulsa segitiga</option>
+                            <option value="exp">Peluruhan eksponensial</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="sysType">Impulse response h(t)</label>
+                        <select id="sysType">
+                            <option value="expdecay">Peluruhan eksponensial e^(-t)u(t)</option>
+                            <option value="rect">Pulsa persegi</option>
+                            <option value="delta">Mendekati-delta (identitas)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="cursorT">Waktu kursor τ</label>
+                        <input type="range" id="cursorT" min="0" max="10" step="0.1" value="0">
+                        <div class="value-display" id="cursorVal">0.0 s</div>
+                    </div>
+                    <button class="btn" onclick="resetConv()">Reset</button>
+                </div>
+                <div class="simulation-container">
+                    <canvas id="convTop" width="900" height="220"></canvas>
+                    <canvas id="convBot" width="900" height="220"></canvas>
+                </div>
+
+                <p style="text-align:center;margin-top:20px;color:#6c757d;">
+                    <strong>Coba sendiri:</strong> Geser slider kursor (diskrit: <em>m</em>; kontinu: <em>τ</em>). Perhatikan bagaimana output hijau bertambah seiring lebih banyak suku (diskrit) atau luas (kontinu) yang terakumulasi.
+                </p>
+            </div>
+
+            <!-- Exercises -->
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Convolution discrete dari barisan berhingga</h4>
+                    <p>Hitung <em>y[n] = x[n] ∗ h[n]</em> untuk <em>x[n] = {1, 2}</em> (tak-nol pada <em>n = 0,1</em>) dan <em>h[n] = {3, 1}</em> (tak-nol pada <em>n = 0,1</em>).</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <div class="math">\[ y[0] = 1\cdot3 = 3 \]</div>
+                            <div class="math">\[ y[1] = 1\cdot1 + 2\cdot3 = 7 \]</div>
+                            <div class="math">\[ y[2] = 2\cdot1 = 2 \]</div>
+                            <p>Jadi <em>y[n] = {3, 7, 2}</em>, tak-nol untuk <em>n = 0,1,2</em>. Panjang = <em>(2 + 2 &minus; 1) = 3</em> ✓.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Causality dari h[n]</h4>
+                    <p>Apakah sistem dengan <em>h[n] = (0.5)<sup>n</sup> u[n+1]</em> bersifat causal? Stabil?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Causality:</strong> <em>h[&minus;1] = (0.5)<sup>&minus;1</sup>·u[0] = 2 ≠ 0</em>, sehingga <em>h[n]</em> tak-nol untuk <em>n &lt; 0</em> ⇒ <strong>non-causal</strong>.</p>
+                            <p><strong>Stability:</strong> <em>Σ|h[n]| = Σ<sub>n=&minus;1</sub><sup>∞</sup> (0.5)<sup>n</sup> = 2 + 1 + 0.5 + &hellip; = 4 &lt; ∞</em> ⇒ <strong>stabil</strong>.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Convolution dengan sebuah delta</h4>
+                    <p>Buktikan bahwa <em>x(t) ∗ δ(t&minus;t₀) = x(t&minus;t₀)</em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <div class="math">\[ (x * \delta(\cdot - t_0))(t) = \int x(\tau)\,\delta(t-\tau-t_0)\,d\tau = x(t - t_0) \]</div>
+                            <p>berdasarkan properti sifting. Jadi mengonvolusi dengan delta yang digeser hanya menunda sinyal &mdash; delta adalah elemen identitas dari convolution, sejauh geseran.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Bagian Konvolusi</h2>
+
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Impulse response:</strong> Sebuah sistem LTI dikarakterisasi sepenuhnya oleh <em>h(t)</em> atau <em>h[n]</em>.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Convolution:</strong> <em>y = x ∗ h</em> melalui jumlah (DT) atau integral (CT). Flip-and-slide adalah cara praktis menghitungnya.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Hukum aljabar:</strong> Convolution bersifat komutatif, asosiatif, dan distributif &mdash; kaskade maupun paralel tereduksi menjadi sistem tunggal.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Causality &amp; stability:</strong> Causal ⇔ <em>h = 0</em> untuk waktu/indeks negatif; stabil BIBO ⇔ <em>h</em> dapat dijumlahkan/diintegralkan secara absolut.</div>
+                    </div>
+                </div>
+
+                <p>Bagian ini mengubah konsep abstrak LTI menjadi alat komputasi konkret: convolution. Impulse response adalah sidik jari lengkap sistem. Lanjut ke <a href="chapter2b.html">Bab 2b</a> untuk eigenfunction dan sistem persamaan beda/diferensial.</p>
+            </div>
+
+            <!-- References -->
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+
+                <div class="reference-item">
+                    <strong>Oppenheim, A.V., Willsky, A.S., &amp; Nawab, S.H.</strong> (1996). <em>Signals and Systems</em>. Ed. ke-2. Prentice Hall. Bab 2 &mdash; Sistem Linear Time-Invariant (Bagian Konvolusi). ISBN: 0132085550.
+                </div>
+                <div class="reference-item">
+                    <strong>Oppenheim &amp; Schafer</strong> (2010). <em>Discrete-Time Signal Processing</em>. Ed. ke-3. Prentice Hall. (Pembahasan lebih mendalam tentang convolution dan filtering LTI.)
+                </div>
+                <div class="reference-item">
+                    <strong>Sumber Belajar Tambahan:</strong>
+                    <ul style="margin-top:10px;padding-left:20px;">
+                        <li><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/" target="_blank">MIT OCW – Signals &amp; Systems</a></li>
+                        <li><a href="https://www.mathworks.com/help/signal/ref/conv.html" target="_blank">MathWorks – conv / conv2</a></li>
+                        <li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html" target="_blank">SciPy – signal.convolve</a></li>
+                    </ul>
+                </div>
+                <div class="key-takeaway" style="background:linear-gradient(135deg,#e0f7f4,#d1f2eb);">
+                    <div class="takeaway-icon">💡</div>
+                    <div>
+                        <strong>Tips Mengajar:</strong> Animasi flip-and-slide di atas mencerminkan cara Anda menghitung convolution dengan tangan. Menyandingkan visual tersebut dengan integral/jumlah membuat interpretasi "pemberian bobot oleh memori" melekat.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ----- Footer ----- -->
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Panduan Interaktif Oppenheim Signals &amp; Systems | Bab 2a</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">
+                    Sistem Linear Time-Invariant &mdash; convolution sum, convolution integral, dan sifat-sifatnya.
+                </p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <a class="navbtn" href="intro.html" title="Sebelumnya: Bab 1">&#8592; Bab 1</a>
+                    <span class="navcur">Bab 2a</span>
+                    <a class="navbtn" href="chapter2b.html" title="Lanjut: Bab 2b">Bab 2b &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    // ===== Shared helpers =====
+    function drawAxes(ctx, W, H, midY) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.strokeStyle = '#495057';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
+        ctx.strokeStyle = '#e9ecef';
+        ctx.lineWidth = 1;
+        for (let gx = 0; gx <= W; gx += W / 12) {
+            ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+        }
+    }
+
+    // ===== Demo A: Discrete-Time Convolution Sum =====
+    const topDT = document.getElementById('convTopDT');
+    const botDT = document.getElementById('convBotDT');
+    const topCtxDT = topDT.getContext('2d');
+    const botCtxDT = botDT.getContext('2d');
+    const WDT = topDT.width, HDT = topDT.height, midYDT = HDT / 2;
+    const N_MAX = 12;                    // visible index window 0..12
+    const VSCALE = 34;                   // pixels per unit amplitude
+
+    function inpFnDT(type, n) {
+        if (n < 0 || n > N_MAX) return 0;
+        if (type === 'step') return 1;
+        if (type === 'rect') return (n >= 0 && n <= 3) ? 1 : 0;
+        if (type === 'exp')  return Math.pow(0.6, n);
+        return 0;
+    }
+    function hFnDT(type, n) {
+        if (n < 0 || n > N_MAX) return 0;
+        if (type === 'expdecay') return Math.pow(0.5, n);
+        if (type === 'rect')     return (n >= 0 && n <= 2) ? 1 : 0;
+        if (type === 'delta')    return (n === 0) ? 1 : 0;
+        return 0;
+    }
+    function nToX(n) { return (n / N_MAX) * WDT; }
+    function vToPixDT(v) { return midYDT - v * VSCALE; }
+
+    function drawStem(ctx, fn, color, m, flipped) {
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 2;
+        const hi = flipped ? m : N_MAX;
+        for (let k = 0; k <= hi; k++) {
+            const v = fn(k);
+            if (v === 0) continue;
+            const x = nToX(k);
+            ctx.beginPath(); ctx.moveTo(x, midYDT); ctx.lineTo(x, vToPixDT(v)); ctx.stroke();
+            ctx.beginPath(); ctx.arc(x, vToPixDT(v), 4, 0, 2 * Math.PI); ctx.fill();
+        }
+    }
+
+    function drawConvDT() {
+        const inp = document.getElementById('inpTypeDT').value;
+        const sys = document.getElementById('sysTypeDT').value;
+        const m = parseInt(document.getElementById('cursorN').value, 10);
+        document.getElementById('cursorValDT').textContent = 'm = ' + m;
+
+        drawAxes(topCtxDT, WDT, HDT, midYDT);
+        drawStem(topCtxDT, (k) => inpFnDT(inp, k), '#3498db', m, false);
+        topCtxDT.strokeStyle = '#e67e22';
+        topCtxDT.fillStyle = '#e67e22';
+        topCtxDT.setLineDash([5, 4]);
+        topCtxDT.lineWidth = 2;
+        for (let k = 0; k <= m; k++) {
+            const v = hFnDT(sys, m - k);
+            if (v === 0) continue;
+            const x = nToX(k);
+            topCtxDT.beginPath(); topCtxDT.moveTo(x, midYDT); topCtxDT.lineTo(x, vToPixDT(v)); topCtxDT.stroke();
+            topCtxDT.beginPath(); topCtxDT.arc(x, vToPixDT(v), 4, 0, 2 * Math.PI); topCtxDT.fill();
+        }
+        topCtxDT.setLineDash([]);
+        topCtxDT.strokeStyle = 'rgba(231,76,60,0.5)'; topCtxDT.setLineDash([4, 4]);
+        topCtxDT.beginPath(); topCtxDT.moveTo(nToX(m), 0); topCtxDT.lineTo(nToX(m), HDT); topCtxDT.stroke();
+        topCtxDT.setLineDash([]);
+        topCtxDT.fillStyle = '#3498db'; topCtxDT.font = 'bold 13px Arial';
+        topCtxDT.fillText('x[k]', 12, 24);
+        topCtxDT.fillStyle = '#e67e22';
+        topCtxDT.fillText('h[m−k]  [flipped & shifted]', 12, 44);
+
+        drawAxes(botCtxDT, WDT, HDT, midYDT);
+        botCtxDT.strokeStyle = '#2ecc71';
+        botCtxDT.fillStyle = '#2ecc71';
+        botCtxDT.lineWidth = 2;
+        const fullScope = Math.max(m, 0);
+        for (let n = 0; n <= fullScope; n++) {
+            let acc = 0;
+            for (let k = 0; k <= n; k++) {
+                acc += inpFnDT(inp, k) * hFnDT(sys, n - k);
+            }
+            const x = nToX(n);
+            botCtxDT.beginPath(); botCtxDT.moveTo(x, midYDT); botCtxDT.lineTo(x, vToPixDT(acc)); botCtxDT.stroke();
+            botCtxDT.beginPath(); botCtxDT.arc(x, vToPixDT(acc), 4, 0, 2 * Math.PI); botCtxDT.fill();
+        }
+        botCtxDT.fillStyle = '#2ecc71'; botCtxDT.font = 'bold 13px Arial';
+        botCtxDT.fillText('y[n] = (x * h)[n]  accumulated to m', 12, 24);
+    }
+
+    // ===== Demo B: Continuous-Time Convolution Integral =====
+    const topC = document.getElementById('convTop');
+    const botC = document.getElementById('convBot');
+    const topCtx = topC.getContext('2d');
+    const botCtx = botC.getContext('2d');
+    const T_MAX = 10;
+    const W = topC.width, H = topC.height, midY = H / 2;
+
+    function inpFn(type, t) {
+        if (t < 0) return 0;
+        if (type === 'rect') return (t >= 0 && t <= 2) ? 1 : 0;
+        if (type === 'tri')  return (t >= 0 && t <= 2) ? (1 - Math.abs(t - 1)) : 0;
+        if (type === 'exp')  return Math.exp(-0.5 * t);
+        return 0;
+    }
+    function hFn(type, t) {
+        if (type === 'expdecay') return t >= 0 ? Math.exp(-t) : 0;
+        if (type === 'rect')     return (t >= 0 && t <= 1) ? 1 : 0;
+        if (type === 'delta')    return (Math.abs(t) < 0.08) ? 12 : 0;
+        return 0;
+    }
+    function tToX(t) { return (t / T_MAX) * W; }
+    function yToPix(v) { return midY - v * 40; }
+
+    function drawConv() {
+        const inp = document.getElementById('inpType').value;
+        const sys = document.getElementById('sysType').value;
+        const tau = parseFloat(document.getElementById('cursorT').value);
+        document.getElementById('cursorVal').textContent = tau.toFixed(1) + ' s';
+
+        const dt = T_MAX / W;
+
+        drawAxes(topCtx, W, H, midY);
+        topCtx.beginPath(); topCtx.strokeStyle = '#3498db'; topCtx.lineWidth = 3;
+        for (let px = 0; px <= W; px++) {
+            const t = (px / W) * T_MAX;
+            const v = inpFn(inp, t);
+            const py = yToPix(v);
+            if (px === 0) topCtx.moveTo(px, py); else topCtx.lineTo(px, py);
+        }
+        topCtx.stroke();
+        topCtx.beginPath(); topCtx.strokeStyle = '#e67e22'; topCtx.lineWidth = 2; topCtx.setLineDash([5, 4]);
+        for (let px = 0; px <= W; px++) {
+            const t = (px / W) * T_MAX;
+            const v = hFn(sys, tau - t);
+            const py = yToPix(v);
+            if (px === 0) topCtx.moveTo(px, py); else topCtx.lineTo(px, py);
+        }
+        topCtx.stroke(); topCtx.setLineDash([]);
+        topCtx.strokeStyle = 'rgba(231,76,60,0.5)'; topCtx.setLineDash([4, 4]);
+        topCtx.beginPath(); topCtx.moveTo(tToX(tau), 0); topCtx.lineTo(tToX(tau), H); topCtx.stroke();
+        topCtx.setLineDash([]);
+        topCtx.fillStyle = '#3498db'; topCtx.font = 'bold 13px Arial';
+        topCtx.fillText('x(t)', 12, 24);
+        topCtx.fillStyle = '#e67e22';
+        topCtx.fillText('h(τ−t)  [flipped & shifted]', 12, 44);
+
+        drawAxes(botCtx, W, H, midY);
+        botCtx.beginPath(); botCtx.strokeStyle = '#2ecc71'; botCtx.lineWidth = 3;
+        for (let px = 0; px <= W; px++) {
+            const t = (px / W) * T_MAX;
+            let acc = 0;
+            const tmax = Math.min(t, tau);
+            for (let s = 0; s <= tmax; s += dt) {
+                acc += inpFn(inp, s) * hFn(sys, t - s) * dt;
+            }
+            const py = yToPix(acc);
+            if (px === 0) botCtx.moveTo(px, py); else botCtx.lineTo(px, py);
+        }
+        botCtx.stroke();
+        botCtx.fillStyle = '#2ecc71'; botCtx.font = 'bold 13px Arial';
+        botCtx.fillText('y(t) = (x * h)(t)  accumulated to τ', 12, 24);
+    }
+
+    function resetConv() {
+        document.getElementById('cursorT').value = 0;
+        document.getElementById('cursorVal').textContent = '0.0 s';
+        document.getElementById('cursorN').value = 0;
+        document.getElementById('cursorValDT').textContent = 'm = 0';
+        drawConv();
+        drawConvDT();
+    }
+
+    document.getElementById('inpType').addEventListener('change', drawConv);
+    document.getElementById('sysType').addEventListener('change', drawConv);
+    document.getElementById('cursorT').addEventListener('input', drawConv);
+    document.getElementById('inpTypeDT').addEventListener('change', drawConvDT);
+    document.getElementById('sysTypeDT').addEventListener('change', drawConvDT);
+    document.getElementById('cursorN').addEventListener('input', drawConvDT);
+
+    drawConv();
+    drawConvDT();
+</script>
+</body>
+</html>

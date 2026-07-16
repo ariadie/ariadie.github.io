@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 1: Pengantar Sinyal dan Sistem (Signals and Systems)</title>
+    <style>
+        /* ---------- Global Styles ---------- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.2);
+            overflow: hidden;
+            animation: fadeIn .8s ease-in;
+        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        header {
+            background: linear-gradient(135deg,#3498db,#2980b9);
+            color:#fff;
+            padding:40px;
+            text-align:center;
+            position:relative;
+            overflow:hidden;
+        }
+        header::before{
+            content:'';
+            position:absolute;
+            top:-50%;right:-50%;
+            width:200%;height:200%;
+            background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);
+        }
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{
+            background:#f8f9fa;
+            padding:15px;
+            border-bottom:1px solid #e9ecef;
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            flex-wrap:wrap;
+        }
+        nav a{
+            color:#495057;
+            text-decoration:none;
+            padding:8px 16px;
+            border-radius:20px;
+            transition:all .3s ease;
+            font-weight:500;
+        }
+        nav a:hover{background:#3498db;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(52,152,219,.3);}
+        .chapternav{
+            background:#2c3e50;
+            padding:12px 15px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+        }
+        .footernav{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-top:15px;
+        }
+        .navbtn{
+            color:#fff;
+            text-decoration:none;
+            padding:8px 18px;
+            border-radius:20px;
+            font-weight:600;
+            background:rgba(255,255,255,.12);
+            border:1px solid rgba(255,255,255,.25);
+            transition:all .3s ease;
+        }
+        .navbtn:hover{background:#3498db;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(52,152,219,.4);}
+        .navcur{
+            color:#fff;
+            font-weight:700;
+            padding:8px 18px;
+            border-radius:20px;
+            background:#3498db;
+        }
+        .navdisabled{
+            opacity:.45;
+            cursor:not-allowed;
+            pointer-events:none;
+        }
+        .content{padding:40px;}
+        .section{
+            margin-bottom:40px;
+            opacity:0;
+            animation:slideUp .6s ease-out forwards;
+            animation-delay:calc(var(--delay)+.2s);
+        }
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{
+            color:#2c3e50;
+            border-left:5px solid #3498db;
+            padding-left:15px;
+            margin-bottom:20px;
+            font-size:1.8em;
+        }
+        h3{
+            color:#34495e;
+            margin-top:30px;
+            font-size:1.4em;
+        }
+        h4{
+            color:#1976d2;
+            margin-top:20px;
+            font-size:1.1em;
+        }
+        p{margin:12px 0;}
+        .concept-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+            gap:25px;
+            margin:30px 0;
+        }
+        .concept-card{
+            background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);
+            padding:25px;
+            border-radius:10px;
+            border-left:4px solid #3498db;
+            transition:all .3s ease;
+            animation:cardFade .6s ease-out forwards;
+            animation-delay:calc(var(--card-delay)+.3s);
+            opacity:0;
+            transform:translateX(-20px);
+        }
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{
+            transform:translateY(-5px)scale(1.02);
+            box-shadow:0 10px 25px rgba(0,0,0,.15);
+            background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);
+        }
+        .concept-card h4{
+            color:#1976d2;
+            margin:0 0 15px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .concept-card .icon{
+            width:30px;height:30px;
+            background:#3498db;
+            border-radius:50%;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            color:#fff;
+            font-weight:bold;
+        }
+        .simulation-container{
+            background:#f8f9fa;
+            border:2px solid #e9ecef;
+            border-radius:10px;
+            padding:30px;
+            margin:30px 0;
+            position:relative;
+            overflow:hidden;
+        }
+        .simulation-container::before{
+            content:'';
+            position:absolute;top:0;left:0;right:0;height:4px;
+            background:linear-gradient(90deg,#3498db,#2ecc71,#f39c12);
+        }
+        canvas{
+            background:#fff;
+            border:1px solid #dee2e6;
+            border-radius:8px;
+            display:block;
+            margin:20px auto;
+            box-shadow:inset 0 2px 5px rgba(0,0,0,.1);
+            transition:all .3s ease;
+        }
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{
+            display:flex;
+            flex-wrap:wrap;
+            gap:20px;
+            justify-content:center;
+            margin:25px 0;
+            padding:20px;
+            background:#fff;
+            border-radius:8px;
+            box-shadow:0 2px 10px rgba(0,0,0,.05);
+        }
+        .control-group{
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+            min-width:150px;
+        }
+        label{
+            font-weight:600;
+            color:#495057;
+            font-size:.9em;
+        }
+        select,input[type=range]{
+            padding:10px 12px;
+            border:2px solid #dee2e6;
+            border-radius:6px;
+            background:#fff;
+            transition:all .3s ease;
+            font-size:14px;
+        }
+        select:hover,input[type=range]:hover{
+            border-color:#3498db;
+            box-shadow:0 0 0 3px rgba(52,152,219,.1);
+        }
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{
+            font-size:.85em;
+            color:#6c757d;
+            text-align:center;
+            margin-top:5px;
+        }
+        .btn{
+            background:linear-gradient(135deg,#3498db,#2980b9);
+            color:#fff;
+            border:none;
+            padding:12px 25px;
+            border-radius:25px;
+            cursor:pointer;
+            font-weight:600;
+            transition:all .3s ease;
+            margin:5px;
+            box-shadow:0 4px 15px rgba(52,152,219,.3);
+        }
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 6px 20px rgba(52,152,219,.4);
+            background:linear-gradient(135deg,#2980b9,#3498db);
+        }
+        .summary-box{
+            background:linear-gradient(135deg,#fff3e0,#ffe0b2);
+            border-left:5px solid #ff9800;
+            padding:25px;
+            margin:30px 0;
+            border-radius:8px;
+            position:relative;
+            overflow:hidden;
+        }
+        .summary-box::before{
+            content:'';
+            position:absolute;top:0;right:0;width:100px;height:100px;
+            background:radial-gradient(circle,rgba(255,152,0,.1)0%,transparent 70%);
+            border-radius:50%;
+            transform:translate(30%,-30%);
+        }
+        .key-takeaway{
+            display:flex;
+            align-items:flex-start;
+            gap:15px;
+            margin:15px 0;
+            padding:10px;
+            background:rgba(255,255,255,.7);
+            border-radius:6px;
+            transition:all .3s ease;
+        }
+        .key-takeaway:hover{
+            background:rgba(255,255,255,.9);
+            transform:translateX(5px);
+        }
+        .takeaway-icon{
+            background:#4caf50;
+            color:#fff;
+            width:25px;height:25px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:.8em;
+            flex-shrink:0;
+        }
+        .references{
+            margin-top:40px;
+            padding-top:30px;
+            border-top:2px solid #e9ecef;
+            animation:fadeIn 1s ease-in;
+        }
+        .reference-item{
+            margin-bottom:20px;
+            padding:15px;
+            background:#f8f9fa;
+            border-radius:6px;
+            border-left:3px solid #6c757d;
+            transition:all .3s ease;
+            animation:slideIn .5s ease-out forwards;
+            opacity:0;
+        }
+        @keyframes slideIn{
+            from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}
+        }
+        .reference-item:hover{
+            background:#e9ecef;
+            transform:translateX(5px);
+            box-shadow:0 5px 15px rgba(0,0,0,.1);
+        }
+        .reference-item strong{color:#2c3e50;}
+        footer{
+            background:#2c3e50;
+            color:#fff;
+            text-align:center;
+            padding:30px;
+            margin-top:50px;
+            position:relative;
+            overflow:hidden;
+        }
+        footer::before{
+            content:'';
+            position:absolute;top:0;left:0;right:0;height:3px;
+            background:linear-gradient(90deg,#3498db,#2ecc71,#f39c12,#e74c3c);
+        }
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{
+            background:linear-gradient(120deg,rgba(52,152,219,.2),transparent);
+            padding:2px 6px;
+            border-radius:3px;
+            font-weight:600;
+            color:#2c3e50;
+        }
+        .math{
+            background:#f4f6f8;
+            border-left:4px solid #3498db;
+            padding:12px 18px;
+            margin:18px 0;
+            border-radius:6px;
+            font-family:'Cambria Math','Times New Roman',serif;
+            font-size:1.05em;
+            overflow-x:auto;
+        }
+        .math .eq-label{
+            float:right;
+            color:#6c757d;
+            font-size:.85em;
+        }
+        .note{
+            background:linear-gradient(135deg,#e8f5e9,#c8e6c9);
+            border-left:5px solid #4caf50;
+            padding:15px 20px;
+            margin:20px 0;
+            border-radius:8px;
+        }
+        .warning{
+            background:linear-gradient(135deg,#fff8e1,#ffecb3);
+            border-left:5px solid #ffc107;
+            padding:15px 20px;
+            margin:20px 0;
+            border-radius:8px;
+        }
+        .exercise{
+            background:linear-gradient(135deg,#ede7f6,#d1c4e9);
+            border-left:5px solid #7e57c2;
+            padding:20px 25px;
+            margin:25px 0;
+            border-radius:8px;
+        }
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{
+            background:#fff;
+            border:1px dashed #7e57c2;
+            padding:15px 20px;
+            margin-top:15px;
+            border-radius:6px;
+        }
+        details summary{
+            cursor:pointer;
+            font-weight:600;
+            color:#5e35b1;
+            padding:8px 0;
+        }
+        details[open] summary{margin-bottom:10px;}
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin:20px 0;
+            background:#fff;
+        }
+        th,td{
+            border:1px solid #dee2e6;
+            padding:10px 12px;
+            text-align:left;
+        }
+        th{background:#3498db;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{
+            background:#fff;
+            border:2px solid #e9ecef;
+            border-radius:10px;
+            padding:20px 30px;
+            margin:25px 0;
+        }
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#3498db;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){
+            body{padding:10px;}
+            h1{font-size:2em;}
+            .content{padding:20px;}
+            .controls{flex-direction:column;align-items:center;}
+            .concept-grid{grid-template-columns:1fr;}
+            canvas{width:100%!important;height:auto!important;}
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- ----- Header ----- -->
+        <header>
+            <h1>Bab 1</h1>
+            <div class="subtitle">Pengantar Sinyal dan Sistem (Signals and Systems) &mdash; Catatan Sarjana &amp; Pascasarjana</div>
+        </header>
+
+        <!-- ----- Inter-chapter navigation ----- -->
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Home">&#127968; Beranda</a>
+            <span class="navcur">Bab 1</span>
+                    <a class="navbtn" href="chapter2a.html" title="Berikutnya: Bab 2a">Bab 2a &#8594;</a>
+        </div>
+
+        <!-- ----- Navigation ----- -->
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#concepts">Konsep Kunci</a>
+            <a href="#classification">Klasifikasi</a>
+            <a href="#operations">Operasi Sinyal</a>
+            <a href="#energy">Energi &amp; Daya</a>
+            <a href="#systemprops">Sifat Sistem</a>
+            <a href="#simulation">Simulasi Interaktif</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+            <a href="#references">Referensi</a>
+        </nav>
+
+        <!-- ----- Main Content ----- -->
+        <div class="content">
+            <!-- Overview -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 1</h2>
+                <p>Bab pembuka ini membangun konsep dasar pengolahan sinyal (signal processing) dan analisis sistem (system analysis). Bab ini memperkenalkan kosakata esensial, mendefinisikan klasifikasi sinyal (continuous-time / waktu-kontinyu vs discrete-time / waktu-diskrit, analog vs digital), dan menekankan <span class="highlight">Linear Time-Invariant (LTI) / linier invariant-waktu (LTI) systems</span> sebagai tulang punggung sebagian besar analisis rekayasa.</p>
+
+                <p>Sebelum transformasi Fourier, Laplace, dan z-transform dari bab-bab berikutnya dapat diterapkan, kita harus sepakat tentang apa itu <em>signal</em> (sinyal), apa itu <em>system</em> (sistem), dan bagaimana keduanya berinteraksi. Bab ini sengaja bersifat konseptual: tujuannya adalah kelancaran dengan definisi dan intuisi, bukan komputasi berat. Namun ketepatan definisi-definisi ini menentukan apakah matematika pada Bab 2&ndash;9 diterapkan dengan benar.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">S</span>Apa itu Signal (Sinyal)?</h4>
+                        <p>Signal (sinyal) adalah sebuah <strong>fungsi</strong> yang menyampaikan informasi tentang perilaku atau atribut dari suatu fenomena. Secara formal, signal (sinyal) adalah pemetaan dari suatu himpunan domain (biasanya waktu <em>t</em> atau koordinat spasial) ke himpunan nilai (amplitude). Signal dapat berupa continuous-time, discrete-time, atau digital.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">S</span>Apa itu System (Sistem)?</h4>
+                        <p>System (sistem) adalah sebuah <strong>operator atau pemetaan</strong> <em>T</em> yang mengubah signal masukan (input) <em>x</em> menjadi signal keluaran (output) <em>y = T{x}</em>. System diklasifikasikan berdasarkan sifat seperti linearitas (linearity), invariant-waktu (time-invariance), kausalitas (causality), memori (memory), stabilitas (stability), dan kebalikannya (invertibility).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">🎯</span>Mengapa Mempelajari Signals &amp; Systems?</h4>
+                        <p>Konsep-konsep ini muncul di mana-mana: komunikasi, kontrol, akustik, optik, rekayasa biomedis, pemrosesan audio/citra, keuangan, dan lainnya. Penguasaan terhadapnya memberikan bahasa yang diperlukan untuk merancang, menganalisis, dan mengoptimalkan system (sistem) dunia nyata.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Tujuan pembelajaran (S1/S2):</strong> Pada akhir bab ini Anda seharusnya mampu (i) mengklasifikasikan signal apa pun yang diberikan, (ii) menghitung operasi sinyal dasar, (iii) menentukan apakah suatu system bersifat linier, invariant-waktu, kausal, stabil, dan bermemori, serta (iv) membedakan sinyal energi (energy signal) dari sinyal daya (power signal).
+                </div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#concepts">Motivasi dan definisi</a></li>
+                        <li><a href="#classification">Klasifikasi signal (continuous/discrete, analog/digital, periodic/aperiodic, even/odd)</a></li>
+                        <li><a href="#operations">Operasi sinyal elementer (shift, scaling, reflection, addition)</a></li>
+                        <li><a href="#energy">Sinyal energi dan daya</a></li>
+                        <li><a href="#systemprops">Sifat sistem dan uji masing-masing</a></li>
+                        <li><a href="#simulation">Simulasi interaktif JavaScript</a></li>
+                        <li><a href="#exercises">Latihan terbimbing dengan solusi</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Key Concepts -->
+            <div id="concepts" class="section" style="--delay:1s;">
+                <h2>🔑 Motivasi &amp; Definisi Inti</h2>
+
+                <h3>1.1 Signals (Sinyal) sebagai Objek Matematis</h3>
+                <p>Dalam Oppenheim &amp; Willsky, signal (sinyal) diperlakukan sebagai fungsi matematis. Terdapat dua variabel bebas utama:</p>
+                <ul>
+                    <li><strong>Waktu</strong> <em>t</em> (atau <em>n</em> untuk indeks diskrit) &mdash; kasus yang paling umum.</li>
+                    <li><strong>Koordinat spasial</strong> &mdash; misalnya, sebuah citra <em>f(x, y)</em> adalah signal dua dimensi.</li>
+                </ul>
+                <p>Signal <em>real-valued</em> memetakan ke ℝ; signal <em>complex-valued</em> memetakan ke ℂ (penting untuk analisis domain-frekuensi).</p>
+
+                <div class="math">\[ x(t) : \mathbb{R} \to \mathbb{R},\qquad x[n] : \mathbb{Z} \to \mathbb{R} \]<span class="eq-label">(1.1)</span></div>
+
+                <h3>1.2 Systems (Sistem) sebagai Operator</h3>
+                <p>System <em>T</em> menerima signal masukan (input) <em>x</em> (sering disebut <em>eksitasi</em>) dan menghasilkan keluaran (output) <em>y</em> (yakni <em>respons</em>):</p>
+
+                <div class="math">\[ y(t) = T\{x(t)\},\qquad y[n] = T\{x[n]\} \]<span class="eq-label">(1.2)</span></div>
+
+                <p>Kita sering menggambar system sebagai diagram blok: <code>x(t) → [ T ] → y(t)</code>. Untuk system dengan banyak masukan atau banyak keluaran (MIMO), operator memetakan antar ruang vektor, namun bab ini berfokus pada system single-input single-output (SISO).</p>
+
+                <div class="warning">
+                    <strong>Peringatan notasi:</strong> Jangan mencampuradukkan operator system <em>T{·}</em> dengan variabel waktu. Pada continuous time kita tulis <em>x(t)</em>; pada discrete time variabel bebasnya adalah indeks bilangan bulat <em>n</em>, bukan instan pencuplikan <em>t</em>&mdash;meski <em>t = nT<sub>s</sub></em> menghubungkan keduanya.
+                </div>
+
+                <h3>1.3 Peran Sentral System LTI</h3>
+                <p>Meskipun system nyata jarang sepenuhnya linier atau invariant-waktu, <strong>idealisasi LTI</strong> sangat kuat karena:</p>
+                <ul>
+                    <li>Diharakterisasi sepenuhnya oleh <em>impulse response (respons impuls)</em> <em>h(t)</em> atau <em>h[n]</em>.</li>
+                    <li>Konvolusi (convolution) mendeskripsikan hubungan masukan&ndash;keluaran secara tepat.</li>
+                    <li>Pada domain frekuensi, konvolusi menjadi perkalian &mdash; dasar dari penyaringan (filtering).</li>
+                    <li>Fungsi eigen (eigenfunction) system LTI adalah eksponensial kompleks <em>e<sup>st</sup></em> / <em>e<sup>jωt</sup></em>.</li>
+                </ul>
+                <p>Inilah sebabnya seluruh buku teks membangun ke arah pemahaman konvolusi dan transformasi Fourier/Laplace/z: mereka mendiagonalisasi system LTI.</p>
+            </div>
+
+            <!-- Classification -->
+            <div id="classification" class="section" style="--delay:1.2s;">
+                <h2>🏷️ Klasifikasi Signal</h2>
+
+                <h3>2.1 Continuous-Time vs Discrete-Time</h3>
+                <table>
+                    <tr><th>Properti</th><th>Continuous-Time</th><th>Discrete-Time</th></tr>
+                    <tr><td>Variabel bebas</td><td>real <em>t</em></td><td>bulat <em>n</em></td></tr>
+                    <tr><td>Terdefinisi pada</td><td>setiap instan</td><td>instan terpisah</td></tr>
+                    <tr><td>Notasi</td><td><em>x(t)</em></td><td><em>x[n]</em></td></tr>
+                    <tr><td>Peralatan</td><td>Laplace, CT Fourier</td><td>z-transform, DT Fourier</td></tr>
+                    <tr><td>Contoh</td><td>tegangan dari sensor</td><td>cuplikan tersimpan di memori</td></tr>
+                </table>
+
+                <h3>2.2 Analog vs Digital</h3>
+                <ul>
+                    <li><strong>Analog:</strong> continuous (kontinyu) dalam <em>waktu</em> dan continuous dalam <em>amplitude</em>.</li>
+                    <li><strong>Discrete-time:</strong> terdefinisi pada instan diskrit, tapi amplitude masih bernilai riil (continuous).</li>
+                    <li><strong>Digital:</strong> diskrit dalam <em>waktu</em> dan <em>terkuantisasi</em> dalam amplitude (himpunan level terhingga).</li>
+                </ul>
+                <div class="math">\[ \text{Digital} \subset \text{Discrete-time} \subset \text{All signals} \]<span class="eq-label">(2.1)</span></div>
+
+                <h3>2.3 Periodic vs Aperiodic</h3>
+                <p>Signal continuous-time bersifat <strong>periodik (periodic)</strong> dengan periode <em>T &gt; 0</em> jika:</p>
+                <div class="math">\[ x(t) = x(t + T)\quad \forall t,\qquad T_0 = \min\{T > 0\} \]<span class="eq-label">(2.2)</span></div>
+                <p>Untuk discrete-time, syaratnya adalah <em>x[n] = x[n + N]</em> untuk bilangan bulat <em>N</em>. Sebuah subtlety: sinusoid diskrit <em>cos(Ω<sub>0</sub> n)</em> hanya periodik jika <em>Ω<sub>0</sub>/2π</em> merupakan bilangan rasional. (Coba <em>Ω<sub>0</sub> = 1</em> rad/sample &mdash; ia tidak pernah berulang tepat.)</p>
+
+                <h3>2.4 Genap, Ganjil, dan Simetri Konjugat</h3>
+                <p>Signal apa pun dapat didekomposisi menjadi bagian genap (even) dan ganjil (odd):</p>
+                <div class="math">\[ x_e(t) = \tfrac{1}{2}[x(t) + x(-t)],\qquad x_o(t) = \tfrac{1}{2}[x(t) - x(-t)] \]<span class="eq-label">(2.3)</span></div>
+                <div class="math">\[ x(t) = x_e(t) + x_o(t) \]<span class="eq-label">(2.4)</span></div>
+                <p>Untuk signal kompleks, <em>conjugate symmetry</em> <em>x(-t) = x*(t)</em> adalah yang membuat transformasi Fourier bernilai riil&mdash;fakta kunci yang digunakan dalam analisis spektrum.</p>
+
+                <h3>2.5 Singularitas (Singularity Functions)</h3>
+                <p>Oppenheim membangun banyak signal dari beberapa <strong>singularity functions (fungsi singularitas)</strong> dasar. Yang paling penting:</p>
+                <ul>
+                    <li><strong>Unit step</strong> <em>u(t)</em>: <em>u(t) = 1</em> untuk <em>t ≥ 0</em>, nol untuk <em>t &lt; 0</em>. Versi diskritnya <em>u[n]</em> bernilai 1 untuk <em>n ≥ 0</em>. Ia berfungsi sebagai "saklar" yang menyalakan signal pada suatu waktu.</li>
+                    <li><strong>Unit impulse / Dirac delta</strong> <em>δ(t)</em>: bukan fungsi biasa melainkan distribusi, dengan <em>δ(t) = 0</em> untuk <em>t ≠ 0</em> dan <em>∫ δ(t) dt = 1</em>. Sifat sifting-nya: <em>∫ x(t)δ(t&minus;t₀)dt = x(t₀)</em>. Diskrit: <em>δ[n] = 1</em> pada <em>n = 0</em>, nol lainnya.</li>
+                    <li><strong>Unit ramp</strong> <em>r(t) = t·u(t)</em>: bertambah linear setelah <em>t = 0</em>.</li>
+                    <li><strong>Hubungan turunan</strong>: <em>u(t) = ∫<sub>&minus;∞</sub><sup>t</sup> δ(τ)dτ</em>, sehingga <em>du/dt = δ(t)</em>; dan <em>dr/dt = u(t)</em>.</li>
+                </ul>
+                <div class="math">\[ \delta(t) = \frac{du(t)}{dt},\qquad r(t) = \int_{-\infty}^{t} u(\tau)\,d\tau \]<span class="eq-label">(2.5)</span></div>
+                <div class="note">Fungsi-fungsi ini adalah "batu bata" tempat impulse response <em>h(t)</em> di Bab 2 dibangun&mdash;setiap LTI system dapat dinyatakan melalui kombinasi <em>δ</em> dan turunannya.</div>
+            </div>
+
+            <!-- Signal Operations -->
+            <div id="operations" class="section" style="--delay:1.4s;">
+                <h2>🧮 Operasi Sinyal Elementer</h2>
+                <p>Manipulasi-manipulasi ini muncul berulang di seluruh buku. Misalkan <em>x(t)</em> adalah sebuah signal dan <em>t<sub>0</sub></em>, <em>a</em> adalah konstanta.</p>
+
+                <h4>Time Shift (Pergeseran Waktu / Tunda-Maju)</h4>
+                <div class="math">\[ y(t) = x(t - t_0)\quad \text{delays by } t_0 > 0;\quad x(t + t_0)\text{ advances} \]<span class="eq-label">(3.1)</span></div>
+
+                <h4>Time Scaling (Percepatan / Perlambatan)</h4>
+                <div class="math">\[ y(t) = x(at),\quad |a| > 1 \text{ compresses, } 0 < |a| < 1 \text{ expands} \]<span class="eq-label">(3.2)</span></div>
+                <div class="warning">
+                    <strong>Urutan penting:</strong> <em>x(2t &minus; 3)</em> <em>tidak</em> sama dengan <em>x(2(t &minus; 3))</em>. Selalu faktorkan: <em>x(2t &minus; 3) = x(2(t &minus; 1.5))</em> berarti kompresi oleh 2 <em>kemudian</em> tunda oleh 1.5. Urutan yang disarankan adalah: geser dulu (sejauh 3), lalu skala.
+                </div>
+
+                <h4>Time Reversal (Pembalikan Waktu)</h4>
+                <div class="math">\[ y(t) = x(-t) \]<span class="eq-label">(3.3)</span></div>
+
+                <h4>Operasi Amplitudo</h4>
+                <ul>
+                    <li>Scaling: <em>y(t) = A·x(t)</em></li>
+                    <li>Addition: <em>y(t) = x₁(t) + x₂(t)</em></li>
+                    <li>Multiplication: <em>y(t) = x₁(t)·x₂(t)</em></li>
+                </ul>
+
+                <div class="note">
+                    <strong>Mini-contoh terbimbing:</strong> Diberikan <em>x(t)</em> pulsa persegi satuan dari <em>t = 0</em> ke <em>t = 1</em>, sketsakan <em>x(2t &minus; 1)</em>.
+                    <br>Solusi: tulis sebagai <em>x(2(t &minus; 0.5))</em>. Kompres pulsa dengan faktor 2 (lebar kini 0.5) lalu geser kanan sejauh 0.5. Hasil: persegi dari <em>t = 0.5</em> ke <em>t = 1.0</em>.
+                </div>
+            </div>
+
+            <!-- Energy & Power -->
+            <div id="energy" class="section" style="--delay:1.6s;">
+                <h2>⚡ Sinyal Energi dan Daya</h2>
+                <p>Banyak signal fisik (misalnya, sebuah tegangan melintasi resistor 1 Ω) membawa energi. Kita mendefinisikan energi total dan daya rata-rata:</p>
+
+                <h4>Continuous-Time</h4>
+                <div class="math">\[ E_x = \int_{-\infty}^{\infty} |x(t)|^2\,dt \]<span class="eq-label">(4.1)</span></div>
+                <div class="math">\[ P_x = \lim_{T\to\infty} \frac{1}{2T}\int_{-T}^{T} |x(t)|^2\,dt \]<span class="eq-label">(4.2)</span></div>
+
+                <h4>Discrete-Time</h4>
+                <div class="math">\[ E_x = \sum_{n=-\infty}^{\infty} |x[n]|^2,\qquad
+                    P_x = \lim_{N\to\infty} \frac{1}{2N+1}\sum_{n=-N}^{N} |x[n]|^2 \]<span class="eq-label">(4.3)</span></div>
+
+                <table>
+                    <tr><th>Kelas</th><th>Kondisi</th><th>Contoh</th></tr>
+                    <tr><td>Energy signal</td><td>0 &lt; E<sub>x</sub> &lt; ∞, P<sub>x</sub> = 0</td><td>pulsa tunggal, eksponensial meluruh</td></tr>
+                    <tr><td>Power signal</td><td>0 &lt; P<sub>x</sub> &lt; ∞, E<sub>x</sub> = ∞</td><td>sinus periodik, konstanta</td></tr>
+                    <tr><td>Keduanya bukan</td><td>keduanya tak terhingga</td><td>eksponensial tumbuh e<sup>t</sup></td></tr>
+                </table>
+                <div class="note">Sebuah signal tidak dapat sekaligus menjadi energy signal dan power signal (kecuali signal nol yang trivial). Signal periodik selalu merupakan power signal.</div>
+            </div>
+
+            <!-- System Properties -->
+            <div id="systemprops" class="section" style="--delay:1.8s;">
+                <h2>⚙️ Sifat Sistem &amp; Uji Mereka</h2>
+
+                <h3>5.1 Linearity (Superposisi)</h3>
+                <p>Sebuah system bersifat linier jika dan hanya jika untuk semua masukan <em>x₁, x₂</em> dan skalar <em>a, b</em>:</p>
+                <div class="math">\[ T\{a x_1 + b x_2\} = a\,T\{x_1\} + b\,T\{x_2\} \]<span class="eq-label">(5.1)</span></div>
+                <div class="note"><strong>Uji:</strong> Periksa respons masukan-nol. Jika <em>x = 0</em> memberi <em>y ≠ 0</em> (misal, <em>y = x + 5</em>), system tersebut <em>tidak</em> linier (paling-paling memiliki offset / linier inkremental).</div>
+
+                <h3>5.2 Time-Invariance (Invariant-Waktu)</h3>
+                <p>Sebuah system invariant-waktu jika pergeseran waktu pada masukan menghasilkan pergeseran waktu yang identik pada keluaran:</p>
+                <div class="math">\[ y(t) = T\{x(t)\} \;\Longrightarrow\; T\{x(t - t_0)\} = y(t - t_0) \]<span class="eq-label">(5.2)</span></div>
+                <div class="warning"><strong>Jebakan umum:</strong> <em>y(t) = x(2t)</em> <em>tidak</em> invariant-waktu. Geser masukan: <em>x(2(t &minus; t₀)) = x(2t &minus; 2t₀)</em>, tapi <em>y(t &minus; t₀) = x(2t &minus; 2t₀)</em>&hellip; tunggu, bandingkan dengan menggeser keluaran asli: keluaran untuk <em>x(t&minus;t₀)</em> adalah <em>x(2t &minus; t₀)</em>. Karena <em>x(2t &minus; 2t₀) ≠ x(2t &minus; t₀)</em>, ia gagal. Koefisien internal pada <em>t</em> merusak invariant-waktu.</div>
+
+                <h3>5.3 Causality (Kausalitas)</h3>
+                <p>Sebuah system kausal (causal) jika keluaran pada waktu apa pun hanya bergantung pada masukan saat ini dan masa lalu: <em>y(t₀)</em> ditentukan oleh <em>{x(t) : t ≤ t₀}</em>. System non-kausal (misal, <em>y(t) = x(t + 1)</em>) tidak dapat direalisasikan secara waktu-nyata namun sah untuk pemrosesan offline / citra.</p>
+
+                <h3>5.4 Memory (Memori)</h3>
+                <p>Tanpa-memori (memoryless) jika <em>y(t₀)</em> hanya bergantung pada <em>x(t₀)</em>. Contoh: <em>y = x²</em> (tanpa-memori), <em>y = x(t&minus;1)</em> (bermemori).</p>
+
+                <h3>5.5 Stability (BIBO) / Stabilitas (BIBO)</h3>
+                <p>Bounded-Input Bounded-Output stabil jika dan hanya jika setiap masukan terbatas menghasilkan keluaran terbatas:</p>
+                <div class="math">\[ |x(t)| \le M_x \;\forall t \;\Longrightarrow\; |y(t)| \le M_y \;\forall t \]<span class="eq-label">(5.3)</span></div>
+                <div class="note"><strong>Uji:</strong> Untuk system LTI, stabilitas BIBO ⇔ impulse response-nya terintegralkan mutlak: <em>∫|h(t)|dt &lt; ∞</em> (CT) atau <em>Σ|h[n]| &lt; ∞</em> (DT).</div>
+
+                <div class="key-takeaway">
+                    <div class="takeaway-icon">💡</div>
+                    <div>
+                        <strong>Mengapa ini penting:</strong> System LTI + kausal + stabil adalah standar emas untuk filter yang dapat direalisasikan. Konvolusi (convolution) sum/dan integral serta berbagai transformasi hanya memberi hasil bersih ketika sifat-sifat ini terpenuhi.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Simulation -->
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>🎮 Manipulasi Sinyal Interaktif</h2>
+                <p>Jelajahi bagaimana parameter signal fundamental membentuk bentuk gelombang (waveform). Atur slider dan langsung lihat hasilnya pada kanvas. Panel pertama mendemonstrasikan <strong>klasifikasi signal</strong> (continuous, discrete, dan digital dengan kuantisasi). Panel kedua mendemonstrasikan <strong>operasi sinyal</strong> (tipe, pergeseran waktu, amplitudo, frekuensi).</p>
+
+                <!-- Classification demo -->
+                <h3>Demo A &mdash; Continuous / Discrete / Digital</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="demoSignal">Tipe Signal</label>
+                        <select id="demoSignal">
+                            <option value="continuous">Continuous-Time</option>
+                            <option value="discrete">Discrete-Time</option>
+                            <option value="digital">Digital (Discrete + Quantised)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="demoAmplitude">Amplitudo</label>
+                        <input type="range" id="demoAmplitude" min="1" max="100" value="50">
+                        <div class="value-display" id="ampValue">50</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="demoFrequency">Frekuensi</label>
+                        <input type="range" id="demoFrequency" min="0.1" max="5" step="0.1" value="1">
+                        <div class="value-display" id="freqValue">1.0 Hz</div>
+                    </div>
+                </div>
+                <div class="simulation-container">
+                    <canvas id="demoCanvas" width="800" height="250"></canvas>
+                </div>
+
+                <!-- Operations demo -->
+                <h3>Demo B &mdash; Operasi Sinyal</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="signalSelect">Bentuk Gelombang</label>
+                        <select id="signalSelect">
+                            <option value="sine">Sine Wave</option>
+                            <option value="cosine">Cosine Wave</option>
+                            <option value="square">Square Wave</option>
+                            <option value="triangle">Triangle Wave</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="timeShift">Pergeseran Waktu (t₀)</label>
+                        <input type="range" id="timeShift" min="-2" max="2" step="0.1" value="0">
+                        <div class="value-display" id="shiftValue">0.0 s</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="amplitudeCtrl">Amplitudo (A)</label>
+                        <input type="range" id="amplitudeCtrl" min="1" max="10" step="1" value="5">
+                        <div class="value-display" id="ampValue2">5</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="frequencyCtrl">Frekuensi (f)</label>
+                        <input type="range" id="frequencyCtrl" min="0.5" max="5" step="0.5" value="2">
+                        <div class="value-display" id="freqValue2">2.0 Hz</div>
+                    </div>
+                    <button class="btn" onclick="resetSignals()">Atur Ulang</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="mainCanvas" width="900" height="300"></canvas>
+                </div>
+
+                <p style="text-align:center;margin-top:20px;color:#6c757d;">
+                    <strong>Cobalah:</strong> Seret slider untuk mengubah pergeseran waktu, amplitudo, atau frekuensi dan saksikan bentuk gelombang berubah secara langsung. Perhatikan bagaimana pergeseran waktu negatif <em>memajukan</em> bentuk gelombang ke kiri.
+                </p>
+            </div>
+
+            <!-- Exercises -->
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>✍️ Latihan Terbimbing</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Periodisitas sinusoid diskrit</h4>
+                    <p>Tentukan apakah <em>x[n] = cos(πn/4)</em> periodik, dan jika ya temukan periode fundamentalnya <em>N₀</em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Sinusoid diskrit <em>cos(Ω₀n)</em> periodik jika dan hanya jika <em>Ω₀/2π = m/N</em> rasional. Di sini <em>Ω₀ = π/4</em>, sehingga</p>
+                            <div class="math">\[ \frac{\Omega_0}{2\pi} = \frac{\pi/4}{2\pi} = \frac{1}{8} = \frac{m}{N} \]</div>
+                            <p>Memilih <em>m = 1</em> memberi <em>N = 8</em>. Jadi <em>x[n]</em> periodik dengan periode fundamental <strong>N₀ = 8</strong>.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Dekomposisi genap / ganjil</h4>
+                    <p>Dekomposisi <em>x(t) = e<sup>&minus;t</sup></em> (terdefinisi untuk semua <em>t</em>) menjadi komponen genap dan ganjil.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <div class="math">\[ x_e(t) = \tfrac{1}{2}(e^{-t} + e^{t}) = \cosh t \]</div>
+                            <div class="math">\[ x_o(t) = \tfrac{1}{2}(e^{-t} - e^{t}) = -\sinh t \]</div>
+                            <p>Cek: <em>cosh t &minus; sinh t = e<sup>&minus;t</sup></em> ✓.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Uji sifat system</h4>
+                    <p>Apakah system <em>y(t) = t·x(t)</em> (a) linier, (b) invariant-waktu?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>(a) Linier:</strong> <em>T{a x₁ + b x₂} = t(a x₁ + b x₂) = a·t x₁ + b·t x₂ = a y₁ + b y₂</em>. ✓ Linier.</p>
+                            <p><strong>(b) Invariant-waktu:</strong> Geser masukan sejauh <em>t₀</em>: <em>T{x(t&minus;t₀)} = t·x(t&minus;t₀)</em>. Tapi <em>y(t&minus;t₀) = (t&minus;t₀)·x(t&minus;t₀)</em>. Karena <em>t·x(t&minus;t₀) ≠ (t&minus;t₀)·x(t&minus;t₀)</em>, ia <strong>tidak</strong> invariant-waktu. (Faktor eksplisit <em>t</em> membuat parameter system melenceng terhadap waktu.)</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Energi vs daya</h4>
+                    <p>Klasifikasikan <em>x(t) = 3 cos(2π·50·t)</em> sebagai energy signal atau power signal, dan hitung dayanya.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Ia periodik ⇒ sebuah <strong>power signal</strong>. Daya rata-rata <em>A cos(ωt)</em> dalam satu periode adalah <em>A²/2</em>.</p>
+                            <div class="math">\[ P_x = \frac{3^2}{2} = 4.5\ \text{(units of power on 1 Ω)} \]</div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Bab</h2>
+
+                <div class="summary-box">
+                    <h3>Poin-Poin Utama</h3>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Definisi Fundamental:</strong> Signal adalah fungsi yang menyampaikan informasi; system adalah operator yang mengubah signal masukan menjadi signal keluaran.</div>
+                    </div>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Klasifikasi Signal:</strong> Continuous-time vs discrete-time, analog vs digital, periodic vs aperiodic, even/odd. Menetapkan taksonomi utama.</div>
+                    </div>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Operasi Sinyal:</strong> Pergeseran waktu, scaling, dan pembalikan. Urutan operasi penting &mdash; selalu faktorkan pergeseran internal.</div>
+                    </div>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Energi &amp; Daya:</strong> Energy signal memiliki <em>E</em> terhingga, daya rata-rata nol; power signal memiliki <em>P</em> terhingga, energi tak terhingga. Signal periodik adalah power signal.</div>
+                    </div>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Sifat System:</strong> Linearitas, invariant-waktu, kausalitas, memori, dan stabilitas BIBO &mdash; masing-masing dengan uji konkret. System LTI sentral bagi analisis berikutnya.</div>
+                    </div>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Metodologi:</strong> Bab ini menyediakan kerangka konseptual bagi semua peralatan matematis berikutnya (Fourier, Laplace, z-transform, convolution).</div>
+                    </div>
+                </div>
+
+                <p>Bab 1 berfungsi sebagai gerbang menuju sisa buku teks. Meski tidak memperkenalkan matematika berat, definisi yang tepat dan contoh intuisi meletakkan dasar bagi transformasi, desain filter, dan analisis system lanjutan yang mendominasi bab-bab berikutnya. Simulasi interaktif di atas mengubah definisi abstrak tersebut menjadi objek yang dapat diatur.</p>
+            </div>
+
+            <!-- References -->
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+
+                <div class="reference-item">
+                    <strong>Oppenheim, A.V., Willsky, A.S., &amp; Nawab, S.H.</strong> (1996). <em>Signals and Systems</em>. Edisi ke-2. Prentice Hall. ISBN: 0132085550.
+                </div>
+
+                <div class="reference-item">
+                    <strong>Sumber Belajar Tambahan:</strong>
+                    <ul style="margin-top:10px;padding-left:20px;">
+                        <li><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/" target="_blank">MIT OCW – Signals &amp; Systems</a></li>
+                        <li><a href="https://www.mathworks.com/help/signal/" target="_blank">MathWorks – Signal Processing Toolbox</a></li>
+                        <li><a href="https://docs.scipy.org/doc/scipy/reference/signal.html" target="_blank">SciPy – Signal Documentation</a></li>
+                        <li><a href="https://www.khanacademy.org/math/dsp" target="_blank">Khan Academy – Signal Processing</a></li>
+                    </ul>
+                </div>
+
+                <div class="reference-item">
+                    <strong>Konsep Terkait untuk Studi Lanjut:</strong>
+                    <ul style="margin-top:10px;padding-left:20px;">
+                        <li>Aljabar Linear – transformasi &amp; ruang vektor</li>
+                        <li>Persamaan Diferensial – dinamika continuous-time</li>
+                        <li>Analisis Kompleks – metode domain-frekuensi</li>
+                        <li>Teori Kontrol – aplikasi analisis system</li>
+                        <li>System Komunikasi – pengolahan sinyal dunia nyata</li>
+                    </ul>
+                </div>
+
+                <div class="key-takeaway" style="background:linear-gradient(135deg,#e3f2fd,#f3e5f5);">
+                    <div class="takeaway-icon">💡</div>
+                    <div>
+                        <strong>Tips Mengajar:</strong> Simulasi interaktif seperti yang di atas membuat ide abstrak menjadi nyata. Menyaksikan bentuk gelombang merespons perubahan parameter secara instan memperkokoh pemahaman konseptual jauh lebih baik daripada gambar statis di buku teks.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ----- Footer ----- -->
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Oppenheim Signals &amp; Systems Panduan Interaktif | Edisi ke-2</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">
+                    Panduan interaktif ini menggabungkan teori dengan visualisasi waktu-nyata untuk membantu Anda menguasai dasar-dasar pengolahan sinyal.
+                </p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Home">&#127968; Beranda</a>
+                    <span class="navcur">Bab 1</span>
+            <a class="navbtn" href="chapter2a.html" title="Berikutnya: Bab 2a">Bab 2a &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    // ===== Demo Canvas A: Continuous / Discrete / Digital =====
+    const demoCanvas = document.getElementById('demoCanvas');
+    const demoCtx = demoCanvas.getContext('2d');
+    const demoSignalType = document.getElementById('demoSignal');
+    const demoAmplitude = document.getElementById('demoAmplitude');
+    const demoFrequency = document.getElementById('demoFrequency');
+    const ampValue = document.getElementById('ampValue');
+    const freqValue = document.getElementById('freqValue');
+
+    const DEMO_VSCALE = 1; // amplitude is 1..100 -> pixels handled below
+
+    function drawDemoSignal() {
+        const amp = parseFloat(demoAmplitude.value);
+        const freq = parseFloat(demoFrequency.value);
+        const type = demoSignalType.value;
+
+        const W = demoCanvas.width, H = demoCanvas.height, midY = H / 2;
+        demoCtx.clearRect(0, 0, W, H);
+
+        // Axes
+        demoCtx.strokeStyle = '#dee2e6';
+        demoCtx.lineWidth = 1;
+        demoCtx.beginPath();
+        demoCtx.moveTo(0, midY); demoCtx.lineTo(W, midY); demoCtx.stroke();
+        demoCtx.beginPath();
+        demoCtx.moveTo(0, 0); demoCtx.lineTo(0, H); demoCtx.stroke();
+
+        // Grid
+        demoCtx.strokeStyle = '#e9ecef';
+        demoCtx.lineWidth = 0.5;
+        for (let x = 0; x < W; x += 100) {
+            demoCtx.beginPath(); demoCtx.moveTo(x, 0); demoCtx.lineTo(x, H); demoCtx.stroke();
+        }
+
+        // Plot region height leaves headroom for amp=100
+        const yPix = v => midY - (v / 100) * (midY - 10);
+
+        if (type === 'continuous') {
+            demoCtx.beginPath();
+            demoCtx.strokeStyle = '#e74c3c';
+            demoCtx.lineWidth = 2;
+            const samples = 1000;
+            for (let i = 0; i <= samples; i++) {
+                const t = i / samples * 5;
+                const y = amp * Math.sin(2 * Math.PI * freq * t);
+                const x = (i / samples) * W;
+                if (i === 0) demoCtx.moveTo(x, yPix(y)); else demoCtx.lineTo(x, yPix(y));
+            }
+            demoCtx.stroke();
+        } else if (type === 'discrete') {
+            // discrete-time: stems at evenly spaced sample points
+            const N = 50;
+            demoCtx.strokeStyle = '#e74c3c';
+            demoCtx.fillStyle = '#e74c3c';
+            demoCtx.lineWidth = 2;
+            for (let n = 0; n <= N; n++) {
+                const t = n / N * 5;
+                const y = amp * Math.sin(2 * Math.PI * freq * t);
+                const x = (n / N) * W;
+                demoCtx.beginPath();
+                demoCtx.moveTo(x, midY); demoCtx.lineTo(x, yPix(y)); demoCtx.stroke();
+                demoCtx.beginPath();
+                demoCtx.arc(x, yPix(y), 4, 0, 2 * Math.PI); demoCtx.fill();
+            }
+        } else {
+            // digital: discrete-time + amplitude quantisation
+            const N = 50;
+            const levels = 8; // 8 quantisation levels across [-amp, amp]
+            demoCtx.strokeStyle = '#e74c3c';
+            demoCtx.fillStyle = '#e74c3c';
+            demoCtx.lineWidth = 2;
+            let prevX = null, prevYq = null;
+            for (let n = 0; n <= N; n++) {
+                const t = n / N * 5;
+                const y = amp * Math.sin(2 * Math.PI * freq * t);
+                // quantise to nearest level
+                const step = (2 * amp) / (levels - 1);
+                let yq = Math.round((y + amp) / step) * step - amp;
+                const x = (n / N) * W;
+                demoCtx.beginPath();
+                demoCtx.moveTo(x, midY); demoCtx.lineTo(x, yPix(yq)); demoCtx.stroke();
+                demoCtx.beginPath();
+                demoCtx.arc(x, yPix(yq), 4, 0, 2 * Math.PI); demoCtx.fill();
+                if (prevX !== null) {
+                    demoCtx.beginPath();
+                    demoCtx.setLineDash([4, 4]);
+                    demoCtx.moveTo(prevX, yPix(prevYq)); demoCtx.lineTo(x, yPix(prevYq));
+                    demoCtx.stroke();
+                    demoCtx.setLineDash([]);
+                }
+                prevX = x; prevYq = yq;
+            }
+        }
+    }
+
+    // ===== Demo Canvas B: Signal Operations =====
+    const mainCanvas = document.getElementById('mainCanvas');
+    const mainCtx = mainCanvas.getContext('2d');
+
+    function drawMainSignal() {
+        const shift = parseFloat(document.getElementById('timeShift').value);
+        const amp = parseFloat(document.getElementById('amplitudeCtrl').value);
+        const freq = parseFloat(document.getElementById('frequencyCtrl').value);
+        const type = document.getElementById('signalSelect').value;
+
+        const W = mainCanvas.width, H = mainCanvas.height, midY = H / 2;
+        mainCtx.clearRect(0, 0, W, H);
+
+        // Axes
+        mainCtx.strokeStyle = '#495057';
+        mainCtx.lineWidth = 2;
+        mainCtx.beginPath();
+        mainCtx.moveTo(0, midY); mainCtx.lineTo(W, midY); mainCtx.stroke();
+        mainCtx.beginPath();
+        mainCtx.moveTo(0, 0); mainCtx.lineTo(0, H); mainCtx.stroke();
+
+        // Grid
+        mainCtx.strokeStyle = '#e9ecef';
+        mainCtx.lineWidth = 1;
+        for (let x = 0; x <= W; x += 100) {
+            mainCtx.beginPath(); mainCtx.moveTo(x, 0); mainCtx.lineTo(x, H); mainCtx.stroke();
+        }
+
+        // Time labels (visible window is -2s .. +2s)
+        mainCtx.fillStyle = '#6c757d';
+        mainCtx.font = '12px Arial';
+        mainCtx.fillText('-2s', 20, midY + 20);
+        mainCtx.fillText('0s', W / 2 - 20, midY + 20);
+        mainCtx.fillText('2s', W - 30, midY + 20);
+
+        // Vertical marker at t=0 (original reference) to visualise shift
+        mainCtx.strokeStyle = 'rgba(231,76,60,0.4)';
+        mainCtx.setLineDash([5, 5]);
+        mainCtx.beginPath();
+        mainCtx.moveTo(W / 2, 0); mainCtx.lineTo(W / 2, H); mainCtx.stroke();
+        mainCtx.setLineDash([]);
+
+        // Draw signal. x maps to physical time tau = (x/W)*4 - 2; signal evaluated at (tau - shift)
+        mainCtx.beginPath();
+        mainCtx.strokeStyle = '#3498db';
+        mainCtx.lineWidth = 3;
+        const yPix = v => midY - v * 30;
+
+        for (let x = 0; x <= W; x++) {
+            const tau = (x / W) * 4 - 2;
+            const t = tau - shift; // apply time shift
+            let y = 0;
+            switch (type) {
+                case 'sine':
+                    y = amp * Math.sin(2 * Math.PI * freq * t);
+                    break;
+                case 'cosine':
+                    y = amp * Math.cos(2 * Math.PI * freq * t);
+                    break;
+                case 'square':
+                    y = Math.sign(Math.sin(2 * Math.PI * freq * t)) * amp;
+                    break;
+                case 'triangle': {
+                    // robust modulo handling for negative t
+                    let norm = (freq * t) % 1;
+                    if (norm < 0) norm += 1;
+                    y = amp * (norm < 0.5 ? 2 * norm - 1 : 1 - 2 * norm);
+                    break;
+                }
+            }
+            const canvasY = yPix(y);
+            if (x === 0) mainCtx.moveTo(x, canvasY); else mainCtx.lineTo(x, canvasY);
+        }
+        mainCtx.stroke();
+
+        // Legend
+        mainCtx.fillStyle = '#3498db';
+        mainCtx.font = 'bold 14px Arial';
+        mainCtx.fillText(type.charAt(0).toUpperCase() + type.slice(1) +
+            ` (f=${freq} Hz, A=${amp}, t0=${shift}s)`, 20, 40);
+    }
+
+    function resetSignals() {
+        document.getElementById('timeShift').value = 0;
+        document.getElementById('shiftValue').textContent = '0.0 s';
+        document.getElementById('amplitudeCtrl').value = 5;
+        document.getElementById('ampValue2').textContent = '5';
+        document.getElementById('frequencyCtrl').value = 2;
+        document.getElementById('freqValue2').textContent = '2.0 Hz';
+        document.getElementById('signalSelect').value = 'sine';
+        drawMainSignal();
+    }
+
+    // Event listeners — Demo A
+    demoSignalType.addEventListener('change', drawDemoSignal);
+    demoAmplitude.addEventListener('input', () => {
+        ampValue.textContent = demoAmplitude.value;
+        drawDemoSignal();
+    });
+    demoFrequency.addEventListener('input', () => {
+        freqValue.textContent = parseFloat(demoFrequency.value).toFixed(1) + ' Hz';
+        drawDemoSignal();
+    });
+
+    // Event listeners — Demo B
+    document.getElementById('signalSelect').addEventListener('change', drawMainSignal);
+    document.getElementById('timeShift').addEventListener('input', () => {
+        document.getElementById('shiftValue').textContent =
+            parseFloat(document.getElementById('timeShift').value).toFixed(1) + ' s';
+        drawMainSignal();
+    });
+    document.getElementById('amplitudeCtrl').addEventListener('input', () => {
+        document.getElementById('ampValue2').textContent = document.getElementById('amplitudeCtrl').value;
+        drawMainSignal();
+    });
+    document.getElementById('frequencyCtrl').addEventListener('input', () => {
+        document.getElementById('freqValue2').textContent =
+            parseFloat(document.getElementById('frequencyCtrl').value).toFixed(1) + ' Hz';
+        drawMainSignal();
+    });
+
+    // Initial draws
+    drawDemoSignal();
+    drawMainSignal();
+</script>
+</body>
+</html>

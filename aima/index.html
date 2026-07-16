@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIMA: Artificial Intelligence &mdash; Panduan Interaktif</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff;padding:50px 40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.6em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        .content{padding:40px;}
+        .intro{text-align:center;max-width:820px;margin:0 auto 35px;font-size:1.08em;color:#495057;}
+        .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:30px;margin-top:30px;}
+        .chapter-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);border-radius:12px;padding:28px;border-left:5px solid #3498db;transition:all .3s ease;text-decoration:none;color:#333;display:block;}
+        .chapter-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 14px 30px rgba(0,0,0,.18);background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);}
+        .chapter-card.c2{border-left-color:#8e44ad;}
+        .chapter-card .num{display:inline-block;background:#3498db;color:#fff;font-weight:700;border-radius:50%;width:42px;height:42px;line-height:42px;text-align:center;font-size:1.2em;margin-bottom:12px;}
+        .chapter-card.c2 .num{background:#8e44ad;}
+        .chapter-card h3{margin:0 0 10px;color:#2c3e50;font-size:1.35em;}
+        .chapter-card p{margin:0;color:#495057;font-size:.95em;}
+        .chapter-card .go{margin-top:14px;display:inline-block;color:#3498db;font-weight:700;}
+        .chapter-card.c2 .go{color:#8e44ad;}
+        .soon{opacity:.6;border-left-color:#95a5a6;cursor:not-allowed;pointer-events:none;}
+        .soon .num{background:#95a5a6;}
+        .soon .go{color:#7f8c8d;}
+        .note{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:15px 20px;margin:30px auto 0;max-width:820px;border-radius:8px;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:45px;}
+        .footer-content{max-width:800px;margin:0 auto;font-size:.9em;opacity:.85;}
+        .footer-content a{color:#7fd1ff;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Artificial Intelligence: A Modern Approach</h1>
+            <div class="subtitle">Panduan Belajar Interaktif &mdash; berdasarkan Russell &amp; Norvig (ed. 4)</div>
+        </header>
+
+        <div class="content">
+            <p class="intro">
+                Kumpulan catatan interaktif yang mengubah bab-bab inti dari buku Russell &amp; Norvig,
+                <em>Artificial Intelligence: A Modern Approach</em>, menjadi teori yang mudah dibaca beserta
+                simulasi JavaScript langsung. Setiap bab mencakup definisi, rumus kunci, latihan terselesaikan,
+                dan simulasi interaktif. Gunakan kartu di bawah untuk melompat ke suatu bab.
+            </p>
+
+            <div class="card-grid">
+                <a class="chapter-card" href="chapter1.html" style="border-left-color:#e74c3c;">
+                    <span class="num" style="background:#e74c3c;">1</span>
+                    <h3>Introduction to AI</h3>
+                    <p>Definisi AI, empat dimensi pendekatan, kondisi rasionalitas, sejarah AI (Dartmouth hingga Deep Learning),
+                       tipe agen, dan framework PEAS. Dilengkapi simulasi PEAS Builder interaktif.</p>
+                    <span class="go" style="color:#e74c3c;">Baca Bab 1 &#8594;</span>
+                </a>
+
+                <a class="chapter-card" href="chapter2a.html" style="border-left-color:#1abc9c;">
+                    <span class="num" style="background:#1abc9c;">2a</span>
+                    <h3>Intelligent Agents: Types &amp; Environments</h3>
+                    <p>Tipe agen (human, robotic, software), agent function vs agent program, rasionalitas,
+                       sifat-sifat lingkungan (6 properti), dan contoh PEAS. Simulasi interaktif sifat lingkungan.</p>
+                    <span class="go" style="color:#1abc9c;">Baca Bab 2a &#8594;</span>
+                </a>
+
+                <a class="chapter-card" href="chapter2b.html" style="border-left-color:#8e44ad;">
+                    <span class="num" style="background:#8e44ad;">2b</span>
+                    <h3>Agent Structures</h3>
+                    <p>Simple Reflex, Model-Based, Goal-Based, Utility-Based, dan Learning Agent.
+                       Simulasi diagram blok arsitektur agen interaktif.</p>
+                    <span class="go" style="color:#8e44ad;">Baca Bab 2b &#8594;</span>
+                </a>
+
+                <a class="chapter-card" href="chapter3a.html">
+                    <span class="num">3a</span>
+                    <h3>Problem Formulation &amp; Uninformed Search</h3>
+                    <p>Formulasi masalah (state space, aksi, transisi, goal test, biaya), BFS, DFS,
+                       Uniform-Cost Search, dan Iterative Deepening. Dilengkapi simulasi pencarian pada graf.</p>
+                    <span class="go">Baca Bab 3a &#8594;</span>
+                </a>
+
+                <a class="chapter-card c2" href="chapter3b.html">
+                    <span class="num">3b</span>
+                    <h3>Informed Search: A*, Heuristics &amp; Local Search</h3>
+                    <p>Greedy Best-First, A* Search, fungsi heuristik (admissible, consistent),
+                       Hill Climbing, Simulated Annealing, dan Genetic Algorithm. Simulasi A* pada grid 2D.</p>
+                    <span class="go">Baca Bab 3b &#8594;</span>
+                </a>
+
+                <a class="chapter-card soon" href="#">
+                    <span class="num">4</span>
+                    <h3>Beyond Classical Search</h3>
+                    <p>AND-OR search, online search (LRTA*), partially observable environments.</p>
+                    <span class="go">Segera &#8594;</span>
+                </a>
+
+                <a class="chapter-card soon" href="#">
+                    <span class="num">5</span>
+                    <h3>Adversarial Search &amp; Games</h3>
+                    <p>Minimax, Alpha-Beta Pruning, Monte Carlo Tree Search, game theory.</p>
+                    <span class="go">Segera &#8594;</span>
+                </a>
+
+                <a class="chapter-card soon" href="#">
+                    <span class="num">6</span>
+                    <h3>Constraint Satisfaction Problems</h3>
+                    <p>CSP, backtracking, arc consistency, min-conflicts, tree-structured CSP.</p>
+                    <span class="go">Segera &#8594;</span>
+                </a>
+
+                <a class="chapter-card soon" href="#">
+                    <span class="num">7&ndash;9</span>
+                    <h3>Knowledge, Reasoning &amp; Planning</h3>
+                    <p>Logika proposisional &amp; first-order, inference, planning, knowledge representation.</p>
+                    <span class="go">Segera &#8594;</span>
+                </a>
+            </div>
+
+            <div class="note">
+                <strong>Tips:</strong> Rendering persamaan menggunakan KaTeX dari CDN. Simulasi interaktif
+                dijalankan sepenuhnya di peramban Anda tanpa server.
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide. Berdasarkan:</p>
+                <p style="margin-top:5px;">Russell, S.J. &amp; Norvig, P. (2020). <em>Artificial Intelligence: A Modern Approach</em>, ed. 4. Pearson.</p>
+                <p style="margin-top:10px;">
+                    <a href="chapter1.html">Bab 1</a> &middot;
+                    <a href="chapter2a.html">Bab 2a</a> &middot;
+                    <a href="chapter2b.html">Bab 2b</a> &middot;
+                    <a href="chapter3a.html">Bab 3a</a> &middot;
+                    <a href="chapter3b.html">Bab 3b</a>
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

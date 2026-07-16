@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 2b: Fungsi Eigen &amp; Sistem Persamaan Beda/Diferensial</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        /* ---------- Global Styles ---------- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.2);
+            overflow: hidden;
+            animation: fadeIn .8s ease-in;
+        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        header {
+            background: linear-gradient(135deg,#16a085,#1abc9c);
+            color:#fff;
+            padding:40px;
+            text-align:center;
+            position:relative;
+            overflow:hidden;
+        }
+        header::before{
+            content:'';
+            position:absolute;
+            top:-50%;right:-50%;
+            width:200%;height:200%;
+            background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);
+        }
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{
+            background:#f8f9fa;
+            padding:15px;
+            border-bottom:1px solid #e9ecef;
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            flex-wrap:wrap;
+        }
+        nav a{
+            color:#495057;
+            text-decoration:none;
+            padding:8px 16px;
+            border-radius:20px;
+            transition:all .3s ease;
+            font-weight:500;
+        }
+        nav a:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.3);}
+        .chapternav{
+            background:#2c3e50;
+            padding:12px 15px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+        }
+        .footernav{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-top:15px;
+        }
+        .navbtn{
+            color:#fff;
+            text-decoration:none;
+            padding:8px 18px;
+            border-radius:20px;
+            font-weight:600;
+            background:rgba(255,255,255,.12);
+            border:1px solid rgba(255,255,255,.25);
+            transition:all .3s ease;
+        }
+        .navbtn:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.4);}
+        .navcur{
+            color:#fff;
+            font-weight:700;
+            padding:8px 18px;
+            border-radius:20px;
+            background:#1abc9c;
+        }
+        .navdisabled{
+            opacity:.45;
+            cursor:not-allowed;
+            pointer-events:none;
+        }
+        .content{padding:40px;}
+        .section{
+            margin-bottom:40px;
+            opacity:0;
+            animation:slideUp .6s ease-out forwards;
+            animation-delay:calc(var(--delay)+.2s);
+        }
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{
+            color:#2c3e50;
+            border-left:5px solid #1abc9c;
+            padding-left:15px;
+            margin-bottom:20px;
+            font-size:1.8em;
+        }
+        h3{ color:#34495e; margin-top:30px; font-size:1.4em; }
+        h4{ color:#117a65; margin-top:20px; font-size:1.1em; }
+        p{margin:12px 0;}
+        .concept-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+            gap:25px;
+            margin:30px 0;
+        }
+        .concept-card{
+            background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);
+            padding:25px;
+            border-radius:10px;
+            border-left:4px solid #1abc9c;
+            transition:all .3s ease;
+            animation:cardFade .6s ease-out forwards;
+            animation-delay:calc(var(--card-delay)+.3s);
+            opacity:0;
+            transform:translateX(-20px);
+        }
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{
+            transform:translateY(-5px)scale(1.02);
+            box-shadow:0 10px 25px rgba(0,0,0,.15);
+            background:linear-gradient(135deg,#e0f7f4 0%,#b2dfdb 100%);
+        }
+        .concept-card h4{
+            color:#117a65;
+            margin:0 0 15px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .concept-card .icon{
+            width:30px;height:30px;
+            background:#1abc9c;
+            border-radius:50%;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            color:#fff;
+            font-weight:bold;
+        }
+        .simulation-container{
+            background:#f8f9fa;
+            border:2px solid #e9ecef;
+            border-radius:10px;
+            padding:30px;
+            margin:30px 0;
+            position:relative;
+            overflow:hidden;
+        }
+        .simulation-container::before{
+            content:'';
+            position:absolute;top:0;left:0;right:0;height:4px;
+            background:linear-gradient(90deg,#1abc9c,#2ecc71,#f39c12);
+        }
+        canvas{
+            background:#fff;
+            border:1px solid #dee2e6;
+            border-radius:8px;
+            display:block;
+            margin:20px auto;
+            box-shadow:inset 0 2px 5px rgba(0,0,0,.1);
+            transition:all .3s ease;
+        }
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{
+            display:flex;
+            flex-wrap:wrap;
+            gap:20px;
+            justify-content:center;
+            margin:25px 0;
+            padding:20px;
+            background:#fff;
+            border-radius:8px;
+            box-shadow:0 2px 10px rgba(0,0,0,.05);
+        }
+        .control-group{
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+            min-width:150px;
+        }
+        label{ font-weight:600; color:#495057; font-size:.9em; }
+        select,input[type=range]{
+            padding:10px 12px;
+            border:2px solid #dee2e6;
+            border-radius:6px;
+            background:#fff;
+            transition:all .3s ease;
+            font-size:14px;
+        }
+        select:hover,input[type=range]:hover{ border-color:#1abc9c; box-shadow:0 0 0 3px rgba(26,188,156,.1); }
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{ font-size:.85em; color:#6c757d; text-align:center; margin-top:5px; }
+        .btn{
+            background:linear-gradient(135deg,#1abc9c,#16a085);
+            color:#fff; border:none; padding:12px 25px; border-radius:25px;
+            cursor:pointer; font-weight:600; transition:all .3s ease; margin:5px;
+            box-shadow:0 4px 15px rgba(26,188,156,.3);
+        }
+        .btn:hover{ transform:translateY(-2px); box-shadow:0 6px 20px rgba(26,188,156,.4); background:linear-gradient(135deg,#16a085,#1abc9c); }
+        .summary-box{
+            background:linear-gradient(135deg,#fff3e0,#ffe0b2);
+            border-left:5px solid #ff9800;
+            padding:25px; margin:30px 0; border-radius:8px; position:relative; overflow:hidden;
+        }
+        .key-takeaway{
+            display:flex; align-items:flex-start; gap:15px; margin:15px 0; padding:10px;
+            background:rgba(255,255,255,.7); border-radius:6px; transition:all .3s ease;
+        }
+        .key-takeaway:hover{ background:rgba(255,255,255,.9); transform:translateX(5px); }
+        .takeaway-icon{
+            background:#4caf50; color:#fff; width:25px;height:25px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center; font-size:.8em; flex-shrink:0;
+        }
+        .references{
+            margin-top:40px; padding-top:30px; border-top:2px solid #e9ecef; animation:fadeIn 1s ease-in;
+        }
+        .reference-item{
+            margin-bottom:20px; padding:15px; background:#f8f9fa; border-radius:6px;
+            border-left:3px solid #6c757d; transition:all .3s ease; animation:slideIn .5s ease-out forwards; opacity:0;
+        }
+        @keyframes slideIn{ from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)} }
+        .reference-item:hover{ background:#e9ecef; transform:translateX(5px); box-shadow:0 5px 15px rgba(0,0,0,.1); }
+        .reference-item strong{color:#2c3e50;}
+        footer{
+            background:#2c3e50; color:#fff; text-align:center; padding:30px; margin-top:50px; position:relative; overflow:hidden;
+        }
+        footer::before{ content:''; position:absolute;top:0;left:0;right:0;height:3px; background:linear-gradient(90deg,#1abc9c,#2ecc71,#f39c12,#e74c3c); }
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{ background:linear-gradient(120deg,rgba(26,188,156,.2),transparent); padding:2px 6px; border-radius:3px; font-weight:600; color:#2c3e50; }
+        .math{
+            background:#f4f6f8; border-left:4px solid #1abc9c; padding:12px 18px; margin:18px 0;
+            border-radius:6px; font-size:1.05em; overflow-x:auto;
+        }
+        .math .eq-label{ float:right; color:#6c757d; font-size:.85em; }
+        .note{ background:linear-gradient(135deg,#e8f5e9,#c8e6c9); border-left:5px solid #4caf50; padding:15px 20px; margin:20px 0; border-radius:8px; }
+        .warning{ background:linear-gradient(135deg,#fff8e1,#ffecb3); border-left:5px solid #ffc107; padding:15px 20px; margin:20px 0; border-radius:8px; }
+        .exercise{ background:linear-gradient(135deg,#ede7f6,#d1c4e9); border-left:5px solid #7e57c2; padding:20px 25px; margin:25px 0; border-radius:8px; }
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{ background:#fff; border:1px dashed #7e57c2; padding:15px 20px; margin-top:15px; border-radius:6px; }
+        details summary{ cursor:pointer; font-weight:600; color:#5e35b1; padding:8px 0; }
+        details[open] summary{margin-bottom:10px;}
+        table{ width:100%; border-collapse:collapse; margin:20px 0; background:#fff; }
+        th,td{ border:1px solid #dee2e6; padding:10px 12px; text-align:left; }
+        th{ background:#1abc9c; color:#fff; }
+        tr:nth-child(even){ background:#f8f9fa; }
+        .toc{ background:#fff; border:2px solid #e9ecef; border-radius:10px; padding:20px 30px; margin:25px 0; }
+        .toc ol{ margin:0; padding-left:25px; }
+        .toc li{ margin:6px 0; }
+        .toc a{ color:#1abc9c; text-decoration:none; }
+        .toc a:hover{ text-decoration:underline; }
+        @media(max-width:768px){
+            body{padding:10px;} h1{font-size:2em;} .content{padding:20px;}
+            .controls{flex-direction:column;align-items:center;} .concept-grid{grid-template-columns:1fr;}
+            canvas{width:100%!important;height:auto!important;}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ----- Header ----- -->
+        <header>
+            <h1>Bab 2 (Bagian 2)</h1>
+            <div class="subtitle">Sistem Linear Time-Invariant (LTI): Fungsi Eigen &amp; Persamaan Beda/Diferensial &mdash; Catatan Sarjana &amp; Pascasarjana</div>
+        </header>
+
+        <!-- ----- Inter-chapter navigation ----- -->
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <a class="navbtn" href="intro.html" title="Sebelumnya: Bab 1">&#8592; Bab 1</a>
+            <a class="navbtn" href="chapter2a.html" title="Sebelumnya: Bab 2a">&#8592; Bab 2a</a>
+            <span class="navcur">Bab 2b</span>
+            <a class="navbtn" href="chapter3a.html" title="Lanjut: Bab 3a">Bab 3a &#8594;</a>
+        </div>
+
+        <!-- ----- Navigation ----- -->
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#eigen">Fungsi Eigen</a>
+            <a href="#diffeq">Persamaan Beda/Diferensial</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+            <a href="#references">Referensi</a>
+        </nav>
+
+        <!-- ----- Main Content ----- -->
+        <div class="content">
+            <!-- Overview -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 2 (Bagian Fungsi Eigen)</h2>
+                <p>Bagian ini (Bab 2b) melanjutkan dari <a href="chapter2a.html">Bab 2a</a> yang membahas convolution. Di sini kita menjawab pertanyaan: <em>mengapa</em> eksponensial kompleks begitu penting bagi sistem LTI? Jawabannya: eksponensial kompleks adalah <span class="highlight">fungsi eigen (eigenfunction)</span> dari sistem LTI, dan eigenvalue-nya adalah transformasi dari impulse response. Inilah jembatan menuju seluruh bab transformasi (Fourier, Laplace, z).</p>
+
+                <p>Kita juga menutup Bab 2 dengan menghubungkan sistem LTI yang didefinisikan melalui <span class="highlight">persamaan beda/diferensial (difference/differential equations)</span> ke impulse response <em>h</em> yang sudah dipelajari.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">e</span>Fungsi Eigen</h4>
+                        <p>Eksponensial kompleks <em>e<sup>st</sup></em> / <em>z<sup>n</sup></em> melewati sistem LTI tanpa berubah bentuk, hanya diskala oleh <em>H(s)</em> / <em>H(z)</em>.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">∫</span>Frequency Response</h4>
+                        <p>Menetapkan <em>s = jω</em> memberikan respons frekuensi <em>H(jω)</em> &mdash; dasar filtering.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">∑</span>Persamaan Beda/Diferensial</h4>
+                        <p>Filter nyata sering didefinisikan dengan persamaan ini; <em>h</em> adalah solusinya untuk input <em>δ</em>.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Tujuan pembelajaran (S1/S2):</strong> Di akhir bagian ini Anda seharusnya mampu (i) menunjukkan eksponensial kompleks adalah eigenfunction dan menyatakan eigenvalue <em>H(s)</em>/<em>H(z)</em>, (ii) menghubungkan frequency response ke convolution, dan (iii) menghubungkan persamaan beda/diferensial ke impulse response.
+                </div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#eigen">Fungsi eigen (eigenfunction) &amp; frequency response</a></li>
+                        <li><a href="#diffeq">Sistem yang dinyatakan dengan persamaan beda / diferensial</a></li>
+                        <li><a href="#exercises">Latihan terselesaikan beserta solusi</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Eigenfunctions -->
+            <div id="eigen" class="section" style="--delay:1s;">
+                <h2>🌀 Fungsi Eigen (Eigenfunction) Sistem LTI</h2>
+                <p>Sebuah sinyal <em>φ(t)</em> merupakan <strong>eigenfunction</strong> dari suatu sistem jika output-nya adalah salinan yang diskala: <em>T{φ} = λ φ</em>. Untuk sistem LTI, eigenfunction-nya adalah <span class="highlight">eksponensial kompleks</span>.</p>
+
+                <h3>2.10 Continuous-Time</h3>
+                <div class="math">\[ y(t) = \int_{-\infty}^{\infty} h(\tau)\, e^{s(t-\tau)}\,d\tau
+                         = e^{st}\int_{-\infty}^{\infty} h(\tau)\,e^{-s\tau}\,d\tau
+                         = H(s)\,e^{st} \]<span class="eq-label">(2.12)</span></div>
+                <p>Nilai eigen <em>H(s)</em> adalah <strong>Laplace transform (bilateral)</strong> dari <em>h(t)</em>:</p>
+                <div class="math">\[ H(s) = \int_{-\infty}^{\infty} h(t)\,e^{-st}\,dt \]<span class="eq-label">(2.13)</span></div>
+
+                <h3>2.11 Discrete-Time</h3>
+                <div class="math">\[ y[n] = \sum_{k} h[k]\,z^{n-k} = z^{n}\sum_{k} h[k]\,z^{-k} = H(z)\,z^{n} \]<span class="eq-label">(2.14)</span></div>
+                <div class="math">\[ H(z) = \sum_{n=-\infty}^{\infty} h[n]\,z^{-n} \]<span class="eq-label">(2.15)</span></div>
+
+                <h3>2.12 Mengapa Ini Penting</h3>
+                <p>Menetapkan <em>s = jω</em> (atau <em>z = e<sup>jω</sup></em>) menghasilkan <strong>frequency response (respons frekuensi)</strong> <em>H(jω)</em>. Oleh karena itu, input sinusoida menghasilkan output sinusoida dengan frekuensi yang sama, diskala dalam amplitudo dan digeser dalam fasa sebesar <em>|H(jω)|</em> dan <em>∠H(jω)</em>. Inilah dasar dari filtering, dan tepatnya inilah alasan bab-bab selanjutnya mempelajari transformasi ini.</p>
+
+                <div class="key-takeaway">
+                    <div class="takeaway-icon">💡</div>
+                    <div>
+                        <strong>Gambaran besar:</strong> Convolution dalam waktu ⇔ perkalian dalam domain transformasi. Impulse response <em>h</em> adalah "DNA" dari sebuah sistem LTI; transformasinya <em>H</em> adalah DNA yang sama yang dinyatakan dalam bahasa frekuensi.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Difference / Differential Equations -->
+            <div id="diffeq" class="section" style="--delay:1.2s;">
+                <h2>📐 Sistem yang Dinyatakan dengan Persamaan Beda / Diferensial</h2>
+                <p>Banyak sistem LTI (terutama filter analog dan digital) didefinisikan bukan dengan <em>h</em> secara langsung, melainkan dengan persamaan yang menghubungkan input dan output. Oppenheim menutup Bab 2 dengan menunjukkan bahwa persamaan ini dapat dihubungkan ke impulse response.</p>
+
+                <h3>2.13 Continuous-Time</h3>
+                <p>Sistem linier orde-N yang dijelaskan oleh persamaan diferensial dengan koefisien konstan:</p>
+                <div class="math">\[ \sum_{k=0}^{N} a_k \frac{d^k y(t)}{dt^k} = \sum_{k=0}^{M} b_k \frac{d^k x(t)}{dt^k} \]<span class="eq-label">(2.16)</span></div>
+                <p>Impulse response <em>h(t)</em> adalah solusi dari persamaan di atas ketika <em>x(t) = δ(t)</em> (dengan kondisi awal nol untuk sistem kausal). Karakteristik natural sistem (pole) ditentukan oleh akar polinomial <em>∑aₖsᵏ</em>.</p>
+
+                <h3>2.14 Discrete-Time</h3>
+                <p>Analognya adalah persamaan beda (difference equation):</p>
+                <div class="math">\[ \sum_{k=0}^{N} a_k y[n-k] = \sum_{k=0}^{M} b_k x[n-k] \]<span class="eq-label">(2.17)</span></div>
+                <p>Dengan <em>x[n] = δ[n]</em> (dan kondisi awal nol), rekursi di atas menghasilkan <em>h[n]</em> secara langsung&mdash;inilah sebabnya filter beda sering diimplementasikan sebagai "shift-and-add" yang persis sama dengan operasi convolution.</p>
+
+                <div class="note"><strong>Menghubungkan ke Bab 9:</strong> Kausalitas &amp; stabilitas sistem yang dinyatakan persamaan diferensial/beda mengikuti aturan yang sama dari Bab 2a §2.7&ndash;2.8: sistem kausal bila hanya melibatkan <em>y[n&minus;k]</em> (tanpa <em>y[n+k]</em> ke depan), dan stabil bila semua pole berada di sisi kiri bidang <em>s</em> (CT) atau di dalam lingkaran satuan <em>|z| &lt; 1</em> (DT) &mdash; topik yang dibahas saat transformasi Laplace/z diperkenalkan.</div>
+
+                <div class="key-takeaway">
+                    <div class="takeaway-icon">💡</div>
+                    <div>
+                        <strong>Penutup Bab 2:</strong> Dari impulse response <em>h</em> kita memperoleh convolution, dari convolution kita memperoleh eigenfunction &amp; frequency response, dan dari persamaan beda/diferensial kita memperoleh cara implementasi nyata. Semua ini adalah pandangan berbeda dari satu sistem LTI yang sama.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercises -->
+            <div id="exercises" class="section" style="--delay:2s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Properti fungsi eigen (eigenfunction)</h4>
+                    <p>Untuk <em>h(t) = e<sup>&minus;at</sup>u(t)</em> dengan <em>a &gt; 0</em>, hitung <em>H(s)</em> dan respons terhadap <em>x(t) = e<sup>st</sup></em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <div class="math">\[ H(s) = \int_0^{\infty} e^{-at}e^{-st}\,dt = \int_0^{\infty} e^{-(s+a)t}\,dt = \frac{1}{s+a},\quad \Re(s) > -a \]</div>
+                            <p>Respons: <em>y(t) = H(s)e<sup>st</sup> = e<sup>st</sup>/(s+a)</em>. Eksponensial melewati dengan diskala <em>H(s)</em> ⇒ eigenfunction terkonfirmasi.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Bagian Fungsi Eigen</h2>
+
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Eigenfunction:</strong> Eksponensial kompleks <em>e<sup>st</sup></em> / <em>z<sup>n</sup></em> melewati sistem LTI dengan diskala <em>H(s)</em> / <em>H(z)</em> &mdash; jembatan menuju bab-bab transformasi.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Frequency response:</strong> <em>H(jω)</em> diskala amplitudo dan geser fasa dari sinusoida; dasar filtering.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Persamaan beda/diferensial:</strong> <em>h</em> adalah solusi untuk input <em>δ</em>; implementasi "shift-and-add" ≡ convolution.</div>
+                    </div>
+                </div>
+
+                <p>Bagian ini melengkapi Bab 2: dari impulse response kita memperoleh convolution (Bab 2a) dan, melalui eigenfunction, kita memperoleh bahasa frekuensi yang akan digunakan di sisa buku. Kembali ke <a href="chapter2a.html">Bab 2a</a> untuk materi konvolusi.</p>
+            </div>
+
+            <!-- References -->
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+
+                <div class="reference-item">
+                    <strong>Oppenheim, A.V., Willsky, A.S., &amp; Nawab, S.H.</strong> (1996). <em>Signals and Systems</em>. Ed. ke-2. Prentice Hall. Bab 2 &mdash; Sistem Linear Time-Invariant (Bagian Fungsi Eigen &amp; Persamaan Beda/Diferensial). ISBN: 0132085550.
+                </div>
+                <div class="reference-item">
+                    <strong>Oppenheim &amp; Schafer</strong> (2010). <em>Discrete-Time Signal Processing</em>. Ed. ke-3. Prentice Hall.
+                </div>
+                <div class="key-takeaway" style="background:linear-gradient(135deg,#e0f7f4,#d1f2eb);">
+                    <div class="takeaway-icon">💡</div>
+                    <div>
+                        <strong>Tips Mengajar:</strong> Hubungan eigenfunction menjelaskan mengapa spektrum (Fourier) begitu alami: sistem LTI hanya mengubah "besaran" tiap eksponensial kompleks, tidak bentuknya.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ----- Footer ----- -->
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Panduan Interaktif Oppenheim Signals &amp; Systems | Bab 2b</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">
+                    Sistem Linear Time-Invariant &mdash; eigenfunction, frequency response, dan persamaan beda/diferensial.
+                </p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <a class="navbtn" href="intro.html" title="Sebelumnya: Bab 1">&#8592; Bab 1</a>
+                    <a class="navbtn" href="chapter2a.html" title="Sebelumnya: Bab 2a">&#8592; Bab 2a</a>
+                    <span class="navcur">Bab 2b</span>
+                    <a class="navbtn" href="chapter3a.html" title="Lanjut: Bab 3a">Bab 3a &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    // No interactive simulation in this part; placeholder to keep structure consistent.
+    window.addEventListener('load', function(){});
+</script>
+</body>
+</html>

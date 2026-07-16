@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif Pole Placement — metode kontrol state feedback untuk menempatkan pole sistem loop tertutup." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Pole Placement — Kontrol State Feedback" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap Pole Placement untuk kontrol sistem." />
+  <meta property="og:type" content="website" />
+  <title>Pole Placement — Kontrol State Feedback</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #2563eb;
+      --primary-2: #3b82f6;
+      --accent: #06b6d4;
+      --accent-2: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 32px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0b1120;
+      --bg-soft: #111827;
+      --card: rgba(30,41,59,0.72);
+      --card-solid: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --muted-2: #64748b;
+      --line: rgba(71,85,105,0.44);
+      --primary: #3b82f6;
+      --primary-2: #60a5fa;
+      --accent: #22d3ee;
+      --shadow: 0 24px 80px rgba(0,0,0,0.4);
+      --shadow-soft: 0 10px 30px rgba(0,0,0,0.28);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 72px;
+      gap: 18px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+    .brand-mark {
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.75rem;
+    }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-title { font-weight: 800; font-size: 0.95rem; letter-spacing: -0.02em; }
+    .brand-subtitle { font-size: 0.75rem; color: var(--muted-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 20;
+      min-width: 180px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card-solid);
+      box-shadow: var(--shadow-soft);
+      padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+    .btn-primary:hover { border-color: transparent; }
+
+    .page { max-width: 1100px; margin: 0 auto; padding: 0 26px 60px; }
+
+    .hero { padding: 50px 0 30px; text-align: center; }
+    .hero h1 { margin: 0 0 10px; font-size: 2.4rem; letter-spacing: -0.055em; line-height: 1.2; }
+    .hero p { margin: 0 auto; max-width: 640px; color: var(--muted); font-size: 1.05rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 26px; }
+
+    .hero-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 34px 36px;
+      backdrop-filter: blur(6px);
+      text-align: left;
+    }
+
+    section { margin-top: 48px; }
+    section h2 { font-size: 1.5rem; letter-spacing: -0.03em; margin: 0 0 18px; }
+    section h3 { font-size: 1.15rem; letter-spacing: -0.02em; margin: 24px 0 10px; color: var(--muted); }
+    section p, section li { color: var(--muted); line-height: 1.7; }
+    section ul { padding-left: 22px; }
+    section li { margin-bottom: 6px; }
+
+    .formula-box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      margin: 14px 0;
+      overflow-x: auto;
+      font-size: 0.95rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .sim-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+      backdrop-filter: blur(6px);
+    }
+
+    .sim-card h3 {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .sim-label {
+      font-size: 0.72rem;
+      color: var(--muted-2);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 24px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .control-group label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .control-group input[type="range"] {
+      width: 150px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .control-group .value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .k-display {
+      font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+      font-size: 0.9rem;
+      background: var(--bg-soft);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin: 6px 0;
+      display: inline-block;
+    }
+
+    .sim-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    canvas {
+      display: block;
+      width: 100%;
+      aspect-ratio: auto;
+      border-radius: var(--radius-sm);
+      background: var(--card-solid);
+      border: 1px solid var(--line);
+      margin-bottom: 6px;
+    }
+
+    .stats-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .stat-item {
+      background: var(--bg-soft);
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+    }
+    .stat-item strong { display: block; font-size: 0.95rem; color: var(--text); }
+
+    .ref-list {
+      padding-left: 0;
+      list-style: none;
+    }
+    .ref-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .ref-list li:last-child { border-bottom: none; }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 780px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.7rem; }
+      .nav-actions .btn:not(.dd-btn) { display: none; }
+      .nav-actions { gap: 6px; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+    }
+    @media print {
+      .nav, .sim-card, .footer { display: none !important; }
+      body { background: white; color: black; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','pre','code','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">Pole Placement</span>
+          <span class="brand-subtitle">State Feedback Control Design</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#simulasi">Simulasi</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar Pole Placement">
+      <h1>Pole Placement</h1>
+      <p>Metode kontrol <em>state feedback</em> untuk menempatkan pole sistem loop tertutup pada lokasi yang diinginkan — menjamin kestabilan dan respons transien yang sesuai spesifikasi.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
+      </div>
+    </section>
+
+    <!-- PENJELASAN -->
+    <section id="penjelasan" aria-label="Penjelasan Pole Placement">
+      <div class="hero-card">
+        <h2>Apa itu Pole Placement?</h2>
+        <p>
+          <strong>Pole placement</strong> (atau <em>pole assignment</em>) adalah teknik perancangan kontrol
+          <em>state feedback</em> di mana gain umpan balik \( \mathbf{K} \) dipilih sehingga pole-pole
+          sistem loop tertutup \( \text{eig}(\mathbf{A} - \mathbf{BK}) \) berada pada lokasi yang
+          ditentukan oleh perancang. Dengan menempatkan pole, kita dapat mengendalikan
+          <strong>kestabilan</strong>, <strong>kecepatan respons</strong>, dan <strong>redaman</strong>
+          sistem.
+        </p>
+
+        <h3>Representasi State-Space</h3>
+        <p>Sistem linear time-invariant (LTI) dalam bentuk state-space:</p>
+        <div class="formula-box">
+          \[
+          \dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}u, \qquad
+          y = \mathbf{C}\mathbf{x}
+          \]
+        </div>
+        <p>dengan \( \mathbf{x} \in \mathbb{R}^n \) adalah state vektor, \( u \) adalah input kontrol, dan \( y \) adalah output.</p>
+
+        <h3>Hukum Kontrol State Feedback</h3>
+        <div class="formula-box">
+          \[
+          u = -\mathbf{K}\mathbf{x} + Nr
+          \]
+        </div>
+        <p>di mana \( \mathbf{K} = [k_1, k_2, \dots, k_n] \) adalah vektor gain, \( r \) adalah <em>reference input</em>, dan \( N \) adalah <em>precompensator</em> untuk tracking error steady-state nol. Sistem loop tertutup menjadi:</p>
+        <div class="formula-box">
+          \[
+          \dot{\mathbf{x}} = (\mathbf{A} - \mathbf{BK})\mathbf{x} + \mathbf{B}Nr
+          \]
+        </div>
+
+        <h3>Formula Ackermann</h3>
+        <p>Salah satu metode untuk menghitung \( \mathbf{K} \) adalah <strong>Formula Ackermann</strong>:</p>
+        <div class="formula-box">
+          \[
+          \mathbf{K} = \begin{bmatrix}0 &amp; \cdots &amp; 0 &amp; 1\end{bmatrix}
+          \mathcal{C}^{-1} \, \phi(\mathbf{A})
+          \]
+        </div>
+        <p>dengan \( \mathcal{C} = \begin{bmatrix}\mathbf{B} &amp; \mathbf{AB} &amp; \cdots &amp; \mathbf{A}^{n-1}\mathbf{B}\end{bmatrix} \) adalah matriks <em>controllability</em>, dan \( \phi(\mathbf{A}) = \mathbf{A}^n + d_1\mathbf{A}^{n-1} + \cdots + d_0\mathbf{I} \) adalah polinomial karakteristik yang diinginkan dievaluasi pada \( \mathbf{A} \).</p>
+
+        <h3>Syarat: Controllability</h3>
+        <p>Pole placement hanya mungkin jika sistem <strong>controllable</strong>, yaitu matriks \( \mathcal{C} \) memiliki <em>full rank</em> \( n \). Sistem yang tidak controllable memiliki pole yang tidak dapat digerakkan oleh state feedback.</p>
+
+        <h3>Parameter Fisis vs. Perilaku Loop Tertutup</h3>
+        <p>Parameter fisik plant — seperti massa \(m\), redaman \(b\), konstanta pegas \(k\) (sistem mekanik), atau induktansi \(L\), resistansi \(R\), kapasitansi \(C\) (rangkaian RLC) — bersifat tetap dan menentukan karakteristik alami plant:<p>
+        <div class="formula-box">
+          \[
+          \omega_{n,\text{plant}} = \sqrt{\frac{k}{m}},\qquad
+          \zeta_{\text{plant}} = \frac{b}{2\sqrt{mk}} \qquad\text{(mekanik)}
+          \]
+          \[
+          \omega_{n,\text{plant}} = \frac{1}{\sqrt{LC}},\qquad
+          \zeta_{\text{plant}} = \frac{R}{2}\sqrt{\frac{C}{L}} \qquad\text{(RLC)}
+          \]
+        </div>
+        <p>Slider <strong>\( \zeta \)</strong> dan <strong>\( \omega_n \)</strong> pada simulasi di bawah <em>bukan</em> mengubah parameter fisik plant, melainkan menentukan <strong>perilaku loop tertutup yang diinginkan</strong>. Kontroler \( \mathbf{K} \) dihitung oleh Formula Ackermann sehingga sistem \( \dot{\mathbf{x}} = (\mathbf{A} - \mathbf{BK})\mathbf{x} + \mathbf{B}Nr \) merespon <em>seolah-olah</em> memiliki rasio redaman \( \zeta \) dan frekuensi natural \( \omega_n \) tersebut — tanpa mengganti komponen fisik apa pun.</p>
+        <p>Implementasi fisisnya: sensor mengukur state \( \mathbf{x} \) (posisi &amp; kecepatan, atau tegangan &amp; arus), aktuator menerapkan gaya / tegangan \( u = -\mathbf{K}\mathbf{x} + Nr \) secara real-time. Hasilnya, plant berperilaku sesuai spesifikasi yang diinginkan.</p>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section id="simulasi" aria-label="Simulasi Pole Placement">
+      <h2>Simulasi Interaktif</h2>
+      <p style="margin-bottom: 18px;">Pilih sistem plant, amati parameter alaminya, lalu atur redaman \( \zeta \) dan frekuensi natural \( \omega_n \) yang <em>diinginkan</em> untuk loop tertutup.</p>
+
+      <div class="sim-card">
+        <div class="sim-label">Sistem Plant</div>
+        <div class="control-row">
+          <div class="control-group">
+            <label for="sysSelect">Jenis Sistem</label>
+            <select id="sysSelect" style="padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);font-weight:700;font-size:0.9rem;cursor:pointer;">
+              <option value="msd">Massa-Pegas-Peredam</option>
+              <option value="rlc">Rangkaian RLC Seri</option>
+            </select>
+          </div>
+          <div class="control-group" id="msdParams">
+            <label>Parameter</label>
+            <span style="font-size:0.85rem;font-weight:700;font-family:monospace;">m = 1 kg, b = 0.5 N·s/m, k = 2 N/m</span>
+            <span style="font-size:0.8rem;color:var(--muted);">\( \zeta_{\text{plant}} = 0.177,\; \omega_{n,\text{plant}} = 1.414 \)</span>
+          </div>
+          <div class="control-group" id="rlcParams" style="display:none;">
+            <label>Parameter</label>
+            <span style="font-size:0.85rem;font-weight:700;font-family:monospace;">L = 1 H, R = 2 &Omega;, C = 0.5 F</span>
+            <span style="font-size:0.8rem;color:var(--muted);">\( \zeta_{\text{plant}} = 0.707,\; \omega_{n,\text{plant}} = 1.414 \)</span>
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--line);margin:14px 0;">
+
+        <div class="sim-label">Desired Closed-Loop Behavior</div>
+        <div class="control-row">
+          <div class="control-group">
+            <label for="zetaSlider">Rasio Redaman \( \zeta \)</label>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="range" id="zetaSlider" min="0.1" max="2.0" step="0.05" value="0.7">
+              <span class="value" id="zetaVal">0.70</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="wnSlider">Frekuensi Natural \( \omega_n \)</label>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="range" id="wnSlider" min="0.5" max="8" step="0.1" value="3">
+              <span class="value" id="wnVal">3.0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div><strong>Pole diinginkan:</strong> <span id="poleDisplay" class="k-display" style="font-size:0.85rem;">-2.10 ± 2.14j</span></div>
+          <div><strong>Gain K:</strong> <span id="kDisplay" class="k-display" style="font-size:0.85rem;">[3.00, 4.20]</span></div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="sim-label">Step Response</div>
+            <canvas id="stepCanvas" width="500" height="280"></canvas>
+          </div>
+          <div>
+            <div class="sim-label">s-Plane (Pole Map)</div>
+            <canvas id="poleCanvas" width="500" height="280"></canvas>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <div class="sim-label">Animasi Sistem</div>
+          <canvas id="animCanvas" width="700" height="200"></canvas>
+          <div class="sim-btns" style="margin-top:6px;">
+            <button class="btn btn-primary" id="btnStart">▶ Start</button>
+            <button class="btn" id="btnPause" disabled>⏸ Pause</button>
+            <button class="btn" id="btnReset">↺ Reset</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-item"><strong id="statPO">0.0%</strong> Overshoot</div>
+          <div class="stat-item"><strong id="statTs">0.00 s</strong> Settling Time (2%)</div>
+          <div class="stat-item"><strong id="statEss">0.000</strong> Error steady-state</div>
+          <div class="stat-item"><strong id="statPoles">—</strong> Pole CL</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section id="referensi" aria-label="Referensi">
+      <div class="hero-card">
+        <h2>Referensi Utama</h2>
+        <ul class="ref-list">
+          <li>Ogata, K. (2010). <em>Modern Control Engineering</em> (5th ed.). Prentice Hall. — Bab 10: <strong>Pole Placement and State-Space Design</strong>.</li>
+          <li>Dorf, R. C., &amp; Bishop, R. H. (2016). <em>Modern Control Systems</em> (13th ed.). Pearson.</li>
+          <li>Franklin, G. F., Powell, J. D., &amp; Emami-Naeini, A. (2019). <em>Feedback Control of Dynamic Systems</em> (8th ed.). Pearson.</li>
+          <li>Åström, K. J., &amp; Murray, R. M. (2021). <em>Feedback Systems: An Introduction for Scientists and Engineers</em> (2nd ed.). Princeton University Press.</li>
+        </ul>
+
+      </div>
+    </section>
+
+    <div class="footer">
+      &copy; 2026 Ariadie Chandra Nugraha &mdash; Simulasi Pole Placement
+    </div>
+
+  </main>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-pole");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-pole", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Dropdown toggle
+    document.querySelectorAll(".dropdown").forEach(function(dd) {
+      var btn = dd.querySelector(".dd-btn");
+      btn.addEventListener("click", function(e) { e.stopPropagation(); dd.classList.toggle("show"); });
+    });
+    document.addEventListener("click", function() {
+      document.querySelectorAll(".dropdown.show").forEach(function(dd) { dd.classList.remove("show"); });
+    });
+
+    // --- Pole Placement Simulation ---
+    const sysMSD = { m: 1, b: 0.5, k: 2 };
+    const sysRLC = { L: 1, R: 2, C: 0.5 };
+
+    function getCurrentSys() {
+      return document.getElementById("sysSelect").value;
+    }
+
+    function getAB() {
+      if (getCurrentSys() === "rlc") {
+        // RLC state: x1 = v_c, x2 = i
+        // dx1/dt = x2/C, dx2/dt = (-1/L)x1 + (-R/L)x2 + (1/L)v_in
+        const a = [[0, 1/sysRLC.C], [-1/sysRLC.L, -sysRLC.R/sysRLC.L]];
+        const b = [[0], [1/sysRLC.L]];
+        return { A: a, B: b };
+      }
+      // MSD state: x1 = x, x2 = v
+      const a = [[0, 1], [-sysMSD.k/sysMSD.m, -sysMSD.b/sysMSD.m]];
+      const b = [[0], [1/sysMSD.m]];
+      return { A: a, B: b };
+    }
+
+    // Matrix helpers
+    function matMul(A, B) {
+      const m = A.length, n = B[0].length, p = B.length;
+      const R = Array.from({length: m}, () => new Array(n).fill(0));
+      for (let i = 0; i < m; i++)
+        for (let j = 0; j < n; j++)
+          for (let k = 0; k < p; k++)
+            R[i][j] += A[i][k] * B[k][j];
+      return R;
+    }
+    function matAdd(A, B) {
+      return A.map((r,i) => r.map((v,j) => v + B[i][j]));
+    }
+    function matScale(A, s) {
+      return A.map(r => r.map(v => v * s));
+    }
+    function matIdentity(n) {
+      return Array.from({length: n}, (_, i) => Array.from({length: n}, (_, j) => i === j ? 1 : 0));
+    }
+    function matDet2(A) { return A[0][0]*A[1][1] - A[0][1]*A[1][0]; }
+    function matInv2(A) {
+      const d = matDet2(A);
+      return [[A[1][1]/d, -A[0][1]/d], [-A[1][0]/d, A[0][0]/d]];
+    }
+
+    // Ackermann formula for 2nd order SISO
+    function ackermann(A, B, p1, p2) {
+      // Desired polynomial: (s-p1)(s-p2) = s^2 + d1*s + d0
+      const d0 = p1 * p2;
+      const d1 = -(p1 + p2);
+      // φ(A) = A^2 + d1*A + d0*I
+      const A2 = matMul(A, A);
+      const I = matIdentity(2);
+      const phiA = matAdd(matAdd(A2, matScale(A, d1)), matScale(I, d0));
+      // Controllability: Cm = [B, A*B]
+      const AB = matMul(A, B);
+      const Cm = [[B[0][0], AB[0][0]], [B[1][0], AB[1][0]]];
+      // K = [0 1] * Cm^-1 * φ(A)
+      const CmInv = matInv2(Cm);
+      // row vector [0,1] * CmInv = CmInv[1]
+      const row = [CmInv[1][0], CmInv[1][1]];
+      // row * phiA
+      const K0 = row[0]*phiA[0][0] + row[1]*phiA[1][0];
+      const K1 = row[0]*phiA[0][1] + row[1]*phiA[1][1];
+      return [K0, K1];
+    }
+
+    // Step response simulation (Euler integration)
+    function simulateStep(A, B, K, N, C, T, dt) {
+      // Closed-loop: x_dot = (A-BK)x + B*N*u, y = C*x
+      const n = A.length;
+      const CL = Array.from({length: n}, (_, i) =>
+        Array.from({length: n}, (_, j) => A[i][j] - B[i][0]*K[j])
+      );
+      const BN = B.map(r => [r[0] * N]);
+      const steps = Math.floor(T / dt);
+      const y = new Array(steps).fill(0);
+      const u = new Array(steps).fill(0);
+      const t = new Array(steps).fill(0);
+      let x = [0, 0]; // zero initial state
+      const r = 1; // step input
+      for (let i = 0; i < steps; i++) {
+        t[i] = i * dt;
+        y[i] = C[0]*x[0] + C[1]*x[1];
+        u[i] = -K[0]*x[0] - K[1]*x[1] + N*r;
+        // x_dot = CL*x + BN*r
+        const xd0 = CL[0][0]*x[0] + CL[0][1]*x[1] + BN[0][0]*r;
+        const xd1 = CL[1][0]*x[0] + CL[1][1]*x[1] + BN[1][0]*r;
+        x[0] += xd0 * dt;
+        x[1] += xd1 * dt;
+      }
+      return { t, y, u };
+    }
+
+    // Compute precompensator N for zero steady-state error to step
+    function computeN(A, B, K, C) {
+      const n = A.length;
+      const CL = Array.from({length: n}, (_, i) =>
+        Array.from({length: n}, (_, j) => A[i][j] - B[i][0]*K[j])
+      );
+      // DC gain = -C * CL^-1 * B
+      // For 2x2: invert CL, compute
+      const detCL = matDet2(CL);
+      const CLinv = matInv2(CL);
+      const MinvB = [CLinv[0][0]*B[0][0] + CLinv[0][1]*B[1][0],
+                     CLinv[1][0]*B[0][0] + CLinv[1][1]*B[1][0]];
+      const DCgain = -(C[0]*MinvB[0] + C[1]*MinvB[1]);
+      return DCgain !== 0 ? 1 / DCgain : 1;
+    }
+
+    // Compute step response characteristics
+    function stepCharacteristics(t, y, finalVal) {
+      const eps = 0.02 * finalVal;
+      let ts = t[t.length - 1];
+      for (let i = t.length - 1; i >= 0; i--) {
+        if (Math.abs(y[i] - finalVal) > eps) { ts = t[Math.min(i+1, t.length-1)]; break; }
+      }
+      let peak = 0, tp = 0;
+      for (let i = 0; i < y.length; i++) {
+        if (y[i] > peak) { peak = y[i]; tp = t[i]; }
+      }
+      const PO = finalVal > 0 ? Math.max(0, (peak - finalVal) / finalVal * 100) : 0;
+      const ess = Math.abs(y[y.length-1] - 1);
+      return { PO, Ts: ts, Ess: ess, peak, tp };
+    }
+
+    // Drawing helpers
+    function getCSS(varName) {
+      return getComputedStyle(root).getPropertyValue(varName).trim();
+    }
+
+    // Step response canvas
+    const stepCanvas = document.getElementById("stepCanvas");
+    const sCtx = stepCanvas.getContext("2d");
+    sCtx.imageSmoothingEnabled = false;
+
+    // Pole canvas
+    const poleCanvas = document.getElementById("poleCanvas");
+    const pCtx = poleCanvas.getContext("2d");
+    pCtx.imageSmoothingEnabled = false;
+
+    // Animation canvas
+    const animCanvas = document.getElementById("animCanvas");
+    const aCtx = animCanvas.getContext("2d");
+    aCtx.imageSmoothingEnabled = false;
+
+    let simData = null;
+    let currentK = [3, 4.2];
+    let animTime = 0;
+
+    function drawStepResponse(data, K) {
+      const W = stepCanvas.width, H = stepCanvas.height;
+      const padL = 50, padR = 16, padT = 20, padB = 28;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+
+      sCtx.clearRect(0, 0, W, H);
+      sCtx.fillStyle = getCSS("--card-solid");
+      sCtx.fillRect(0, 0, W, H);
+
+      // Grid
+      sCtx.strokeStyle = getCSS("--line");
+      sCtx.lineWidth = 0.5;
+      for (let i = 0; i <= 5; i++) {
+        const f = i / 5;
+        const gx = padL + f * plotW;
+        sCtx.beginPath(); sCtx.moveTo(gx, padT); sCtx.lineTo(gx, H - padB); sCtx.stroke();
+        const gy = padT + f * plotH;
+        sCtx.beginPath(); sCtx.moveTo(padL, gy); sCtx.lineTo(W - padR, gy); sCtx.stroke();
+      }
+
+      // Reference
+      sCtx.strokeStyle = "rgba(148,163,184,0.5)";
+      sCtx.setLineDash([4,4]);
+      sCtx.beginPath(); sCtx.moveTo(padL, padT + 0.02*plotH); sCtx.lineTo(W-padR, padT + 0.02*plotH);
+      sCtx.stroke();
+      sCtx.setLineDash([]);
+
+      if (!data) return;
+
+      const maxT = data.t[data.t.length - 1];
+      const yMax = Math.max(1.0, ...data.y.map(Math.abs)) * 1.12;
+      const yMin = Math.min(0, ...data.y) - 0.05;
+
+      function toXY(tVal, yVal) {
+        return [padL + (tVal / maxT) * plotW, padT + (1 - (yVal - yMin) / (yMax - yMin)) * plotH];
+      }
+
+      // Step response curve
+      sCtx.beginPath();
+      for (let i = 0; i < data.t.length; i++) {
+        const [px, py] = toXY(data.t[i], data.y[i]);
+        if (i === 0) sCtx.moveTo(px, py);
+        else sCtx.lineTo(px, py);
+      }
+      sCtx.strokeStyle = getCSS("--primary");
+      sCtx.lineWidth = 2.5;
+      sCtx.stroke();
+
+      // Control effort (dashed)
+      sCtx.beginPath();
+      for (let i = 0; i < data.t.length; i++) {
+        const [px, py] = toXY(data.t[i], data.u[i] * 0.15);
+        if (i === 0) sCtx.moveTo(px, py);
+        else sCtx.lineTo(px, py);
+      }
+      sCtx.strokeStyle = getCSS("--accent");
+      sCtx.lineWidth = 1.2;
+      sCtx.setLineDash([3,3]);
+      sCtx.stroke();
+      sCtx.setLineDash([]);
+
+      // Labels
+      sCtx.fillStyle = getCSS("--muted");
+      sCtx.font = "9px Inter, sans-serif";
+      sCtx.textAlign = "center";
+      for (let i = 0; i <= 4; i++) {
+        const tVal = (i / 4) * maxT;
+        const [px, _] = toXY(tVal, 0);
+        sCtx.fillText(tVal.toFixed(1), px, H - 6);
+      }
+      sCtx.textAlign = "right";
+      for (let i = 0; i <= 4; i++) {
+        const yVal = yMin + (i / 4) * (yMax - yMin);
+        const [_, py] = toXY(0, yVal);
+        sCtx.fillText(yVal.toFixed(1), padL - 6, py + 3);
+      }
+      sCtx.font = "10px Inter, sans-serif";
+      sCtx.textAlign = "center";
+      sCtx.fillText("Waktu (s)", W / 2, H - 6);
+      sCtx.save(); sCtx.translate(10, H/2); sCtx.rotate(-Math.PI/2);
+      sCtx.fillText("Output y(t)", 0, 0); sCtx.restore();
+
+      // Legend
+      const lx = padL + 10, ly = padT + 12;
+      sCtx.fillStyle = getCSS("--primary"); sCtx.fillRect(lx, ly, 16, 3);
+      sCtx.fillStyle = getCSS("--muted"); sCtx.font = "9px Inter, sans-serif"; sCtx.textAlign = "left";
+      sCtx.fillText("Output", lx + 20, ly + 4);
+      sCtx.strokeStyle = getCSS("--accent"); sCtx.setLineDash([3,3]); sCtx.lineWidth = 1.2;
+      sCtx.beginPath(); sCtx.moveTo(lx, ly + 16); sCtx.lineTo(lx + 16, ly + 16); sCtx.stroke();
+      sCtx.setLineDash([]);
+      sCtx.fillStyle = getCSS("--muted"); sCtx.fillText("u × 0.15", lx + 20, ly + 20);
+    }
+
+    function drawPoleMap(K, poles) {
+      const W = poleCanvas.width, H = poleCanvas.height;
+      const padL = 40, padR = 16, padT = 20, padB = 16;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+      const halfH = plotH / 2;
+
+      pCtx.clearRect(0, 0, W, H);
+      pCtx.fillStyle = getCSS("--card-solid");
+      pCtx.fillRect(0, 0, W, H);
+
+      // s-plane
+      const scale = plotW / 12;
+      const cx = padL + plotW * 0.35;
+      const cy = padT + halfH;
+
+      // Grid
+      pCtx.strokeStyle = getCSS("--line");
+      pCtx.lineWidth = 0.5;
+      for (let r = 1; r <= 5; r++) {
+        pCtx.beginPath(); pCtx.arc(cx, cy, r * scale, 0, Math.PI * 2); pCtx.stroke();
+      }
+      pCtx.beginPath(); pCtx.moveTo(cx - 5.5*scale, cy); pCtx.lineTo(cx + 5.5*scale, cy); pCtx.stroke();
+      pCtx.beginPath(); pCtx.moveTo(cx, padT); pCtx.lineTo(cx, padT + plotH); pCtx.stroke();
+
+      // Labels
+      pCtx.fillStyle = getCSS("--muted-2");
+      pCtx.font = "8px Inter, sans-serif";
+      pCtx.textAlign = "center";
+      pCtx.fillText("Re", cx + 5.2*scale, cy + 4);
+      pCtx.fillText("Im", cx + 3, padT + 4);
+
+      // Mark real axis ticks
+      pCtx.textAlign = "center"; pCtx.textBaseline = "top";
+      for (let v = -5; v <= 0; v++) {
+        pCtx.fillText(v.toString(), cx + v * scale, cy + 4);
+      }
+
+      // Desired poles
+      if (poles) {
+        const r = 6;
+        for (const p of poles) {
+          const px = cx + p[0] * scale;
+          const py = cy - p[1] * scale;
+          pCtx.beginPath(); pCtx.arc(px, py, r, 0, Math.PI * 2);
+          pCtx.fillStyle = getCSS("--danger");
+          pCtx.fill();
+          pCtx.strokeStyle = "#fff"; pCtx.lineWidth = 2;
+          pCtx.stroke();
+          // Cross mark
+          pCtx.beginPath(); pCtx.moveTo(px-r, py-r); pCtx.lineTo(px+r, py+r);
+          pCtx.moveTo(px+r, py-r); pCtx.lineTo(px-r, py+r);
+          pCtx.strokeStyle = "#fff"; pCtx.lineWidth = 2;
+          pCtx.stroke();
+        }
+      }
+
+      // Actual closed-loop poles
+      if (K) {
+        const ab = getAB();
+        const A = ab.A, B = ab.B;
+        const CL = Array.from({length: 2}, (_, i) =>
+          Array.from({length: 2}, (_, j) => A[i][j] - B[i][0]*K[j])
+        );
+        // eigenvalues of CL
+        const tr = CL[0][0] + CL[1][1];
+        const det = CL[0][0]*CL[1][1] - CL[0][1]*CL[1][0];
+        const disc = tr*tr - 4*det;
+        let eig;
+        if (disc >= 0) {
+          eig = [(-tr + Math.sqrt(disc))/2, (-tr - Math.sqrt(disc))/2];
+          eig = [{re: eig[0], im: 0}, {re: eig[1], im: 0}];
+        } else {
+          eig = [{re: -tr/2, im: Math.sqrt(-disc)/2}, {re: -tr/2, im: -Math.sqrt(-disc)/2}];
+        }
+
+        for (const e of eig) {
+          const px = cx + e.re * scale;
+          const py = cy - e.im * scale;
+          pCtx.beginPath(); pCtx.arc(px, py, 5, 0, Math.PI * 2);
+          pCtx.fillStyle = getCSS("--accent-2");
+          pCtx.fill();
+          pCtx.strokeStyle = "#fff"; pCtx.lineWidth = 1.5;
+          pCtx.stroke();
+        }
+        // Update stat
+        const poleStr = eig.map(e => e.im >= 0 ? `${e.re.toFixed(2)}+${e.im.toFixed(2)}j` : `${e.re.toFixed(2)}${e.im.toFixed(2)}j`).join(", ");
+        document.getElementById("statPoles").textContent = poleStr;
+      }
+
+      // Legend
+      const lx = padL + 10, ly = padT + 10;
+      pCtx.beginPath(); pCtx.arc(lx+6, ly+3, 4, 0, Math.PI*2);
+      pCtx.fillStyle = getCSS("--danger"); pCtx.fill();
+      pCtx.fillStyle = getCSS("--muted"); pCtx.font = "9px Inter, sans-serif"; pCtx.textAlign = "left";
+      pCtx.fillText("Diinginkan", lx + 16, ly + 6);
+      pCtx.beginPath(); pCtx.arc(lx+6, ly+18, 4, 0, Math.PI*2);
+      pCtx.fillStyle = getCSS("--accent-2"); pCtx.fill();
+      pCtx.fillStyle = getCSS("--muted"); pCtx.fillText("Aktual CL", lx + 16, ly + 22);
+
+      pCtx.textBaseline = "alphabetic";
+    }
+
+    function drawAnimationMSD(pos) {
+      const W = animCanvas.width, H = animCanvas.height;
+      const groundY = H - 30;
+      const wallX = 50;
+      const massW = 50, massH = 36;
+
+      // Ground
+      aCtx.fillStyle = getCSS("--line");
+      aCtx.fillRect(0, groundY, W, 2);
+      aCtx.strokeStyle = getCSS("--line");
+      aCtx.lineWidth = 1;
+      for (let x = 0; x < W; x += 12) {
+        aCtx.beginPath(); aCtx.moveTo(x, groundY+2); aCtx.lineTo(x+6, groundY+10); aCtx.stroke();
+      }
+
+      // Wall
+      aCtx.fillStyle = getCSS("--muted-2");
+      aCtx.fillRect(wallX - 6, groundY - 60, 8, 60);
+
+      // Mass position
+      const massCX = wallX + 40 + pos * 80;
+      const clampedX = Math.max(wallX + 20, Math.min(W - massW - 10, massCX - massW/2));
+
+      // Spring
+      const springStartX = wallX + 4;
+      const springEndX = clampedX;
+      const springMidY = groundY - massH - 8;
+      aCtx.strokeStyle = getCSS("--muted");
+      aCtx.lineWidth = 2;
+      aCtx.beginPath();
+      aCtx.moveTo(springStartX, springMidY);
+      for (let i = 1; i <= 10; i++) {
+        const fx = springStartX + (springEndX - springStartX) * i / 10;
+        aCtx.lineTo(fx, springMidY + (i % 2 === 0 ? 8 : -8));
+      }
+      aCtx.stroke();
+
+      // Damper
+      const dashX = (springStartX + springEndX) / 2;
+      aCtx.fillStyle = getCSS("--muted");
+      aCtx.fillRect(dashX - 4, springMidY + 16, 8, 14);
+      aCtx.beginPath(); aCtx.moveTo(dashX, groundY - 8); aCtx.lineTo(dashX, springMidY + 16); aCtx.stroke();
+
+      // Mass
+      aCtx.fillStyle = getCSS("--primary");
+      aCtx.shadowColor = "rgba(37,99,235,0.2)"; aCtx.shadowBlur = 8;
+      aCtx.fillRect(clampedX, groundY - massH - 4, massW, massH);
+      aCtx.shadowBlur = 0;
+      aCtx.strokeStyle = getCSS("--primary-2"); aCtx.lineWidth = 2;
+      aCtx.strokeRect(clampedX, groundY - massH - 4, massW, massH);
+      aCtx.fillStyle = "#fff";
+      aCtx.font = "bold 13px Inter, sans-serif"; aCtx.textAlign = "center";
+      aCtx.fillText("m", clampedX + massW/2, groundY - massH/2);
+
+      // Arrow
+      const arrowY = groundY - massH - 18;
+      aCtx.strokeStyle = getCSS("--accent"); aCtx.lineWidth = 2;
+      aCtx.beginPath(); aCtx.moveTo(clampedX + massW/2 - 20, arrowY);
+      aCtx.lineTo(clampedX + massW/2 + 20, arrowY); aCtx.stroke();
+      aCtx.beginPath(); aCtx.moveTo(clampedX + massW/2 + 20, arrowY);
+      aCtx.lineTo(clampedX + massW/2 + 14, arrowY - 4);
+      aCtx.moveTo(clampedX + massW/2 + 20, arrowY);
+      aCtx.lineTo(clampedX + massW/2 + 14, arrowY + 4); aCtx.stroke();
+
+      // Labels
+      aCtx.fillStyle = getCSS("--muted-2"); aCtx.font = "10px Inter, sans-serif"; aCtx.textAlign = "left";
+      aCtx.fillText("x(t)", wallX + 4, groundY - 64);
+      aCtx.fillText("u(t)", clampedX + massW/2 + 26, arrowY + 4);
+    }
+
+    function drawAnimationRLC(pos) {
+      const W = animCanvas.width, H = animCanvas.height;
+      // Layout: source on left vertical, R-L-C along top, return on bottom
+      const xL = 55, xR = W - 40, yT = 55, yB = 160;
+      const midY = (yT + yB) / 2;
+      // Component centers along top wire
+      const xRc = xL + (xR - xL) * 0.30;  // R ~ 30%
+      const xLc = xL + (xR - xL) * 0.55;  // L ~ 55%
+      const xCc = xL + (xR - xL) * 0.80;  // C ~ 80%
+      const halfW = 50;                    // half-width of each component
+      const line = getCSS("--line"), muted = getCSS("--muted");
+      const m2 = getCSS("--muted-2"), prim = getCSS("--primary"), p2 = getCSS("--primary-2");
+      const acc = getCSS("--accent"), text = getCSS("--text");
+
+      aCtx.clearRect(0, 0, W, H);
+      aCtx.fillStyle = getCSS("--card-solid");
+      aCtx.fillRect(0, 0, W, H);
+
+      // ---- Wires (rectangular loop) ----
+      aCtx.strokeStyle = muted; aCtx.lineWidth = 2.5;
+      aCtx.beginPath();
+      aCtx.moveTo(xL, yT);
+      aCtx.lineTo(xR, yT);
+      aCtx.lineTo(xR, yB);
+      aCtx.lineTo(xL, yB);
+      aCtx.closePath();
+      aCtx.stroke();
+
+      // ---- Voltage source (left vertical) ----
+      const srcR = 20;
+      aCtx.strokeStyle = prim; aCtx.lineWidth = 2.5;
+      aCtx.beginPath(); aCtx.arc(xL, midY, srcR, 0, Math.PI*2); aCtx.stroke();
+      // Sine wave inside
+      aCtx.strokeStyle = acc; aCtx.lineWidth = 1.8;
+      aCtx.beginPath();
+      for (let t = -0.55; t <= 0.55; t += 0.04) {
+        const px = xL + t * 28;
+        const py = midY - 9 * Math.sin(t * 9 + pos * 5);
+        t === -0.55 ? aCtx.moveTo(px, py) : aCtx.lineTo(px, py);
+      }
+      aCtx.stroke();
+      // +/- labels
+      aCtx.fillStyle = text; aCtx.font = "bold 11px Inter, sans-serif"; aCtx.textAlign = "center";
+      aCtx.fillText("+", xL, midY - srcR - 8);
+      aCtx.fillText("−", xL, midY + srcR + 14);
+
+      // ---- Resistor (top wire, zigzag) ----
+      const rX0 = xRc - halfW, rX1 = xRc + halfW;
+      aCtx.strokeStyle = muted; aCtx.lineWidth = 2.5;
+      aCtx.beginPath(); aCtx.moveTo(rX0, yT);
+      const rSegs = 8, rAmp = 14;
+      for (let i = 1; i <= rSegs; i++) {
+        const fx = rX0 + (rX1 - rX0) * i / rSegs;
+        aCtx.lineTo(fx, yT + (i % 2 === 0 ? 0 : rAmp));
+      }
+      aCtx.stroke();
+
+      // ---- Inductor (top wire, coils) ----
+      const lX0 = xLc - halfW, lX1 = xLc + halfW;
+      aCtx.strokeStyle = muted; aCtx.lineWidth = 2.5;
+      aCtx.beginPath(); aCtx.moveTo(lX0, yT);
+      const nCoils = 5, coR = 10;
+      for (let i = 0; i < nCoils; i++) {
+        const cx = lX0 + (lX1 - lX0) * (i + 0.5) / nCoils;
+        aCtx.quadraticCurveTo(cx - coR*0.6, yT - coR*1.3, cx, yT);
+        aCtx.quadraticCurveTo(cx + coR*0.6, yT + coR*1.3, cx + (lX1-lX0)/(nCoils*2), yT);
+      }
+      aCtx.stroke();
+
+      // ---- Capacitor (top wire, plates) ----
+      const plateHalf = 16;
+      const vc = Math.max(0, Math.min(1, pos));
+      aCtx.fillStyle = prim;
+      aCtx.fillRect(xCc - 3, yT - plateHalf, 4, plateHalf * 2);
+      aCtx.fillStyle = p2;
+      aCtx.fillRect(xCc + 3, yT - plateHalf, 4, plateHalf * 2);
+      // voltage fill bar on right plate
+      aCtx.fillStyle = "rgba(20,184,166,0.2)";
+      aCtx.fillRect(xCc + 3, yT + plateHalf - vc * (plateHalf * 2 - 4), 4, vc * (plateHalf * 2 - 4));
+      aCtx.fillStyle = vc > 0.3 ? "#fff" : m2;
+      aCtx.font = "bold 9px Inter, sans-serif"; aCtx.textAlign = "center";
+      aCtx.fillText("+", xCc - 7, yT + 4);
+      aCtx.fillText("−", xCc + 7, yT + 4);
+
+      // ---- Moving charge dots ----
+      const nDots = 16;
+      const dotR = 3;
+      const totalLen = 2 * (xR - xL) + 2 * (yB - yT);
+      const lenT = xR - xL, lenB = xR - xL;
+      const lenL = yB - yT, lenR = yB - yT;
+      const tStart = 0, tTR = lenT / totalLen;
+      const tRR = tTR + lenR / totalLen;
+      const tRB = tRR + lenB / totalLen;
+      const tRL = tRB + lenL / totalLen; // = 1
+
+      aCtx.fillStyle = acc;
+      for (let i = 0; i < nDots; i++) {
+        const ph = (i / nDots + pos * 0.5) % 1;
+        let dx, dy;
+        if (ph < tTR) {                         // top (L→R)
+          const f = ph / tTR;
+          dx = xL + f * (xR - xL);
+          dy = yT;
+        } else if (ph < tRR) {                  // right (top→bottom)
+          const f = (ph - tTR) / (tRR - tTR);
+          dx = xR;
+          dy = yT + f * (yB - yT);
+        } else if (ph < tRB) {                  // bottom (R→L)
+          const f = (ph - tRR) / (tRB - tRR);
+          dx = xR - f * (xR - xL);
+          dy = yB;
+        } else {                                 // left (bottom→top)
+          const f = (ph - tRB) / (tRL - tRB);
+          dx = xL;
+          dy = yB - f * (yB - yT);
+        }
+        // skip dots inside source circle
+        const dist = Math.sqrt((dx - xL) ** 2 + (dy - midY) ** 2);
+        if (dist < srcR - 2) continue;
+        aCtx.beginPath(); aCtx.arc(dx, dy, dotR, 0, Math.PI * 2); aCtx.fill();
+      }
+
+      // ---- Voltage readout ----
+      const vcPos = Math.min(1.2, Math.max(-0.1, pos));
+      aCtx.fillStyle = text; aCtx.font = "bold 13px Inter, sans-serif"; aCtx.textAlign = "left";
+      aCtx.fillText("v_c(t) = " + vcPos.toFixed(3) + " V", xL, 24);
+      aCtx.fillStyle = line; aCtx.fillRect(xL, 30, 150, 6);
+      aCtx.fillStyle = prim;
+      aCtx.fillRect(xL, 30, Math.min(150, Math.max(0, vcPos * 150)), 6);
+
+      // ---- Labels ----
+      aCtx.fillStyle = m2; aCtx.font = "bold 10px Inter, sans-serif"; aCtx.textAlign = "center";
+      aCtx.fillText("V_in", xL, yB + 22);
+      aCtx.fillText("R", xRc, yB + 22);
+      aCtx.fillText("L", xLc, yB + 22);
+      aCtx.fillText("C", xCc, yB + 22);
+    }
+
+    function drawAnimation(pos) {
+      aCtx.clearRect(0, 0, animCanvas.width, animCanvas.height);
+      aCtx.fillStyle = getCSS("--card-solid");
+      aCtx.fillRect(0, 0, animCanvas.width, animCanvas.height);
+      if (getCurrentSys() === "rlc") {
+        drawAnimationRLC(pos);
+      } else {
+        drawAnimationMSD(pos);
+      }
+    }
+
+    computeAndDraw = function() {
+      const zeta = parseFloat(document.getElementById("zetaSlider").value);
+      const wn = parseFloat(document.getElementById("wnSlider").value);
+      document.getElementById("zetaVal").textContent = zeta.toFixed(2);
+      document.getElementById("wnVal").textContent = wn.toFixed(1);
+
+      // Desired polynomial: s^2 + d1*s + d0 = 0
+      let d1, d0;
+      if (zeta < 1) {
+        const sigma = zeta * wn;
+        const wd = wn * Math.sqrt(1 - zeta*zeta);
+        d1 = 2 * sigma;
+        d0 = sigma*sigma + wd*wd;
+      } else if (zeta === 1) {
+        d1 = 2 * wn;
+        d0 = wn * wn;
+      } else {
+        const r1 = wn * (zeta + Math.sqrt(zeta*zeta - 1));
+        const r2 = wn * (zeta - Math.sqrt(zeta*zeta - 1));
+        d1 = r1 + r2;
+        d0 = r1 * r2;
+      }
+
+      // Poles display
+      let poleStr1, poleStr2;
+      if (zeta < 1) {
+        const wd = wn * Math.sqrt(1 - zeta*zeta);
+        poleStr1 = `${(-zeta*wn).toFixed(2)} + ${wd.toFixed(2)}j`;
+        poleStr2 = `${(-zeta*wn).toFixed(2)} - ${wd.toFixed(2)}j`;
+      } else if (zeta === 1) {
+        poleStr1 = `${(-wn).toFixed(2)} (double)`;
+        poleStr2 = "";
+      } else {
+        const r1 = wn * (zeta + Math.sqrt(zeta*zeta - 1));
+        const r2 = wn * (zeta - Math.sqrt(zeta*zeta - 1));
+        poleStr1 = `${(-r1).toFixed(2)}`;
+        poleStr2 = `${(-r2).toFixed(2)}`;
+      }
+      document.getElementById("poleDisplay").textContent = poleStr2 ? poleStr1 + ", " + poleStr2 : poleStr1;
+
+      const ab = getAB();
+      const A = ab.A, B = ab.B;
+      const C = [1, 0];
+
+      // Ackermann
+      const I = matIdentity(2);
+      const A2 = matMul(A, A);
+      const phiA = matAdd(matAdd(A2, matScale(A, d1)), matScale(I, d0));
+      const AB = matMul(A, B);
+      const Cm = [[B[0][0], AB[0][0]], [B[1][0], AB[1][0]]];
+      const CmInv = matInv2(Cm);
+      const row = [CmInv[1][0], CmInv[1][1]];
+      const K = [row[0]*phiA[0][0] + row[1]*phiA[1][0],
+                 row[0]*phiA[0][1] + row[1]*phiA[1][1]];
+      currentK = K;
+      document.getElementById("kDisplay").textContent = `[${K[0].toFixed(3)}, ${K[1].toFixed(3)}]`;
+
+      const N = computeN(A, B, K, C);
+      const T = 6;
+      const dt = 0.005;
+      simData = simulateStep(A, B, K, N, C, T, dt);
+
+      drawStepResponse(simData, K);
+
+      // Poles for map
+      const re1 = zeta < 1 ? -zeta*wn : (zeta === 1 ? -wn : -wn*(zeta + Math.sqrt(zeta*zeta-1)));
+      const im1 = zeta < 1 ? wn*Math.sqrt(1-zeta*zeta) : 0;
+      const re2 = zeta < 1 ? -zeta*wn : (zeta === 1 ? -wn : -wn*(zeta - Math.sqrt(zeta*zeta-1)));
+      const im2 = zeta < 1 ? -wn*Math.sqrt(1-zeta*zeta) : 0;
+      drawPoleMap(K, [[re1, im1], [re2, im2]]);
+
+      const finalVal = simData.y[simData.y.length - 1];
+      const chars = stepCharacteristics(simData.t, simData.y, finalVal);
+      document.getElementById("statPO").textContent = chars.PO.toFixed(1) + "%";
+      document.getElementById("statTs").textContent = chars.Ts.toFixed(2) + " s";
+      document.getElementById("statEss").textContent = chars.Ess.toFixed(4);
+
+      if (!simData || animTime === 0) drawAnimation(0);
+    };
+
+    // System selector
+    document.getElementById("sysSelect").addEventListener("change", function() {
+      const isRLC = getCurrentSys() === "rlc";
+      document.getElementById("msdParams").style.display = isRLC ? "none" : "";
+      document.getElementById("rlcParams").style.display = isRLC ? "" : "none";
+      resetAnim();
+    });
+
+    // Slider events
+    document.getElementById("zetaSlider").addEventListener("input", computeAndDraw);
+    document.getElementById("wnSlider").addEventListener("input", computeAndDraw);
+
+    // Animation buttons
+    let animTimer = null;
+    let animRunning = false;
+
+    function animStep() {
+      if (!simData) return;
+      animTime += 0.008;
+      if (animTime > simData.t[simData.t.length - 1]) animTime = 0;
+      let idx = 0;
+      for (let i = 0; i < simData.t.length - 1; i++) {
+        if (simData.t[i] <= animTime && simData.t[i+1] >= animTime) { idx = i; break; }
+      }
+      const frac = (animTime - simData.t[idx]) / (simData.t[idx+1] - simData.t[idx] || 1);
+      drawAnimation(simData.y[idx] + frac * (simData.y[idx+1] - simData.y[idx]));
+    }
+
+    function startAnim() {
+      if (animTimer) return;
+      animRunning = true; animTime = 0;
+      animTimer = setInterval(animStep, 30);
+      document.getElementById("btnStart").disabled = true;
+      document.getElementById("btnPause").disabled = false;
+    }
+    function stopAnim() {
+      animRunning = false;
+      if (animTimer) { clearInterval(animTimer); animTimer = null; }
+      document.getElementById("btnStart").disabled = false;
+      document.getElementById("btnPause").disabled = true;
+    }
+    function resetAnim() {
+      stopAnim(); animTime = 0; computeAndDraw();
+    }
+
+    document.getElementById("btnStart").addEventListener("click", startAnim);
+    document.getElementById("btnPause").addEventListener("click", stopAnim);
+    document.getElementById("btnReset").addEventListener("click", resetAnim);
+
+    // Init
+    computeAndDraw();
+  </script>
+</body>
+</html>

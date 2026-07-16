@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 3b: Transformasi Fourier</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#9b59b6;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(155,89,182,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#9b59b6;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(155,89,182,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#9b59b6;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #9b59b6;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#7d3c98;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #9b59b6;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px)scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#f5eefb 0%,#e8daef 100%);}
+        .concept-card h4{color:#7d3c98;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#9b59b6;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#9b59b6,#e67e22,#f1c40f);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#9b59b6;box-shadow:0 0 0 3px rgba(155,89,182,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(155,89,182,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(155,89,182,.4);background:linear-gradient(135deg,#8e44ad,#9b59b6);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        .references{margin-top:40px;padding-top:30px;border-top:2px solid #e9ecef;animation:fadeIn 1s ease-in;}
+        .reference-item{margin-bottom:20px;padding:15px;background:#f8f9fa;border-radius:6px;border-left:3px solid #6c757d;transition:all .3s ease;animation:slideIn .5s ease-out forwards;opacity:0;}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .reference-item:hover{background:#e9ecef;transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,.1);}
+        .reference-item strong{color:#2c3e50;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#9b59b6,#e67e22,#f1c40f,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(155,89,182,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #9b59b6;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#9b59b6;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#9b59b6;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 3 (Bagian 2)</h1>
+            <div class="subtitle">Transformasi Fourier (Fourier Transform) &mdash; Catatan Sarjana &amp; Pascasarjana</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <a class="navbtn" href="intro.html" title="Bab 1">&#8592; Bab 1</a>
+            <a class="navbtn" href="chapter3a.html" title="Sebelumnya: Bab 3a">&#8592; Bab 3a</a>
+            <span class="navcur">Bab 3b</span>
+            <a class="navbtn" href="chapter4a.html" title="Lanjut: Bab 4a">Bab 4a &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#ctft">CT Fourier Transform</a>
+            <a href="#dtft">DT Fourier Transform</a>
+            <a href="#properties">Sifat-Sifat</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+            <a href="#references">Referensi</a>
+        </nav>
+
+        <div class="content">
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 3b: Transformasi Fourier</h2>
+                <p>Bagian ini (Bab 3b) memperluas <a href="chapter3a.html">Bab 3a</a> dari sinyal periodik ke <strong>sinyal aperiodik</strong>. Ide inti: anggap sinyal aperiodik sebagai sinyal periodik dengan periode <em>T → ∞</em>. Maka jarak antarfrekuensi fundamental menyempit, dan jumlah diskrit koefisien menjadi kontinu &mdash; kita memperoleh <span class="highlight">Transformasi Fourier (Fourier Transform)</span> <em>X(jω)</em>.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">∫</span>CTFT</h4>
+                        <p><em>X(jω) = ∫ x(t)e<sup>&minus;jωt</sup>dt</em> &mdash; spektrum kontinu untuk sinyal waktu-kontinyu.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">∑</span>DTFT</h4>
+                        <p><em>X(e<sup>jω</sup>) = Σ x[n]e<sup>&minus;jωn</sup></em> &mdash; kontinu tapi <em>periodik</em> (periode 2π).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">⚡</span>Duality</h4>
+                        <p>Hubungan simetri antara domain waktu &amp; frekuensi &mdash; alat penyederhanaan yang kuat.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Tujuan pembelajaran (S1/S2):</strong> (i) menurunkan &amp; menghitung CTFT/DTFT, (ii) memahami inverse transform, (iii) menggunakan sifat (linearitas, pergeseran, konvolusi, parsing), dan (iv) mengenali duality.
+                </div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#ctft">Continuous-Time Fourier Transform (CTFT)</a></li>
+                        <li><a href="#dtft">Discrete-Time Fourier Transform (DTFT)</a></li>
+                        <li><a href="#properties">Sifat-Sifat Penting</a></li>
+                        <li><a href="#simulation">Simulasi Interaktif</a></li>
+                        <li><a href="#exercises">Latihan Terselesaikan</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="ctft" class="section" style="--delay:1s;">
+                <h2>🌊 Continuous-Time Fourier Transform (CTFT)</h2>
+                <p>Untuk sinyal aperiodik <em>x(t)</em>:</p>
+                <div class="math">\[ X(j\omega) = \int_{-\infty}^{\infty} x(t)\, e^{-j\omega t}\, dt \]<span class="eq-label">(3.7)</span></div>
+                <p>Inverse (sintesis) mengembalikan sinyal:</p>
+                <div class="math">\[ x(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} X(j\omega)\, e^{j\omega t}\, d\omega \]<span class="eq-label">(3.8)</span></div>
+                <p>Pasangan (3.7)&ndash;(3.8) sering ditulis <em>x(t) ↔ X(jω)</em>.</p>
+
+                <h3>3.1 Contoh Kunci: Impuls &amp; Gate</h3>
+                <div class="math">\[ \delta(t) \;\leftrightarrow\; 1 \]<span class="eq-label">(3.9)</span></div>
+                <div class="math">\[ \text{rect}\!\left(\frac{t}{\tau}\right) \;\leftrightarrow\; \tau\,\text{sinc}\!\left(\frac{\omega\tau}{2}\right),\quad \text{sinc}(x)=\frac{\sin x}{x} \]<span class="eq-label">(3.10)</span></div>
+                <p>Gunakan (3.9) dan linearity: eksponensial <em>e<sup>jω₀t</sup> ↔ 2π δ(ω &minus; ω₀)</span>, menyambungkan kembali ke eigenfunction Bab 2.</p>
+            </div>
+
+            <div id="dtft" class="section" style="--delay:1.2s;">
+                <h2>📊 Discrete-Time Fourier Transform (DTFT)</h2>
+                <p>Untuk sinyal diskrit <em>x[n]</em>:</p>
+                <div class="math">\[ X(e^{j\omega}) = \sum_{n=-\infty}^{\infty} x[n]\, e^{-j\omega n} \]<span class="eq-label">(3.11)</span></div>
+                <div class="math">\[ x[n] = \frac{1}{2\pi} \int_{2\pi} X(e^{j\omega})\, e^{j\omega n}\, d\omega \]<span class="eq-label">(3.12)</span></div>
+                <p><strong>Penting:</strong> DTFT selalu <em>periodik</em> dengan periode <em>2π</em> dalam <em>ω</em> &mdash; karena <em>e<sup>j(ω+2π)n</sup> = e<sup>jωn</sup></em>. Ini berbeda dengan CTFT yang umumnya non-periodik. Keterbatasan ini mengarah ke DFT (Bab 5) dan aliasing (Bab 4).</p>
+                <div class="math">\[ \delta[n] \;\leftrightarrow\; 1,\qquad e^{j\omega_0 n} \;\leftrightarrow\; 2\pi \sum_k \delta(\omega - \omega_0 - 2\pi k) \]<span class="eq-label">(3.13)</span></div>
+            </div>
+
+            <div id="properties" class="section" style="--delay:1.4s;">
+                <h2>⚙️ Sifat-Sifat Penting</h2>
+                <table>
+                    <tr><th>Sifat</th><th>Waktu</th><th>Frekuensi (CTFT)</th></tr>
+                    <tr><td>Linearitas</td><td><em>a x₁ + b x₂</em></td><td><em>a X₁ + b X₂</em></td></tr>
+                    <tr><td>Pergeseran waktu</td><td><em>x(t &minus; t₀)</em></td><td><em>e<sup>&minus;jωt₀</sup> X(jω)</em></td></tr>
+                    <tr><td>Pergeseran frekuensi</td><td><em>e<sup>jω₀t</sup> x(t)</em></td><td><em>X(j(ω &minus; ω₀))</em></td></tr>
+                    <tr><td>Konvolusi</td><td><em>x₁ * x₂</em></td><td><em>X₁(jω) X₂(jω)</em></td></tr>
+                    <tr><td>Perkalian</td><td><em>x₁(t) x₂(t)</em></td><td><em>(1/2π) X₁ * X₂</em></td></tr>
+                    <tr><td>Diferensial waktu</td><td><em>dx/dt</em></td><td><em>jω X(jω)</em></td></tr>
+                    <tr><td>Parsing (konjugasi)</td><td><em>x*(t)</em></td><td><em>X*(&minus;jω)</em></td></tr>
+                </table>
+                <div class="note"><strong>Duality (Dwikutub):</strong> Karena bentuk analisis &amp; sintesis CTFT identik (kecuali faktor 1/2π &amp; tanda), jika <em>x(t) ↔ X(jω)</em> maka <em>X(jt) ↔ 2π x(&minus;ω)</em>. Sifat ini sangat berguna: bukti satu sisi otomatis memberi sisi lain.</div>
+
+                <h3>3.2 Parseval &amp; Energi</h3>
+                <div class="math">\[ \int_{-\infty}^{\infty} |x(t)|^2\,dt = \frac{1}{2\pi}\int_{-\infty}^{\infty} |X(j\omega)|^2\,d\omega \]<span class="eq-label">(3.14)</span></div>
+                <p>Kuantitas <em>|X(jω)|²</em> disebut <strong>densitas spektral energi</strong>. Energi terkonservasi antara domain waktu dan frekuensi.</p>
+            </div>
+
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>🎮 Transformasi Fourier Interaktif</h2>
+                <p>Lihat pasangan waktu&ndash;frekuensi. Pilih sinyal dan lihat spektrumnya <em>|X(jω)|</em> (magnitudo). Perhatikan how penyempitan pulsa di waktu ⇒ spektrum melebar (duality / uncertainty).</p>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="sigType">Sinyal x(t)</label>
+                        <select id="sigType">
+                            <option value="rect">Pulsa persegi (gate)</option>
+                            <option value="tri">Segitiga</option>
+                            <option value="exp">Eksponensial e^(-a|t|)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="widthCtrl">Lebar/Parameter</label>
+                        <input type="range" id="widthCtrl" min="0.3" max="3" step="0.1" value="1">
+                        <div class="value-display" id="widthVal">1.0</div>
+                    </div>
+                    <button class="btn" onclick="resetFT()">Reset</button>
+                </div>
+                <div class="simulation-container">
+                    <canvas id="ftTime" width="900" height="180"></canvas>
+                    <canvas id="ftFreq" width="900" height="220"></canvas>
+                </div>
+                <p style="text-align:center;margin-top:15px;color:#6c757d;">
+                    <strong>Coba:</strong> Perbesar lebar pulsa ⇒ spektrum menyempit (dan sebaliknya). Ini ilustrasi duality.
+                </p>
+            </div>
+
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; CTFT dari eksponensial satukutu</h4>
+                    <p>Hitung CTFT dari <em>x(t) = e<sup>&minus;at</sup>u(t)</em>, <em>a &gt; 0</em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <div class="math">\[ X(j\omega) = \int_0^\infty e^{-at} e^{-j\omega t} dt = \int_0^\infty e^{-(a+j\omega)t} dt = \frac{1}{a + j\omega} \]</div>
+                            <p>Bandingkan dengan eigenvalue Bab 2b (<em>H(s)=1/(s+a)</em>): menetapkan <em>s=jω</em> memberi <em>H(jω)=X(jω)</em> untuk sistem dengan <em>h(t)=x(t)</em>. Ini menunjukkan frequency response adalah Fourier transform dari impulse response.</p>
+                        </div>
+                    </details>
+                </div>
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Sifat pergeseran</h4>
+                    <p>Jika <em>x(t) ↔ X(jω)</em>, buktikan <em>x(t&minus;t₀) ↔ e<sup>&minus;jωt₀</sup> X(jω)</em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Ganti <em>τ = t &minus; t₀</em> pada integral analisis:</p>
+                            <div class="math">\[ \int x(t-t_0)e^{-j\omega t}dt = e^{-j\omega t_0}\int x(\tau)e^{-j\omega \tau}d\tau = e^{-j\omega t_0}X(j\omega) \]</div>
+                            <p>Jadi pergeseran waktu ⇒ fasa linear di frekuensi (magnitudo tak berubah).</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Transformasi Fourier</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>CTFT</strong>: <em>X(jω)=∫x(t)e<sup>&minus;jωt</sup>dt</em>; spektrum kontinu non-periodik.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>DTFT</strong>: <em>X(e<sup>jω</sup>)=Σx[n]e<sup>&minus;jωn</sup></em>; kontinu tapi periodik 2π.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Sifat</strong>: linearitas, pergeseran, konvolusi⇔perkalian, diferensial⇔jω, dan duality.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Parseval</strong>: energi = integral |X|²/2π (konservasi energi).</div></div>
+                </div>
+                <p>Transformasi Fourier menutup Bab 3: dari deret (periodik) ke transform (aperiodik), domain frekuensi kini alat analisis utama. Kembali ke <a href="chapter3a.html">Bab 3a</a> untuk deret Fourier.</p>
+            </div>
+
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+                <div class="reference-item">
+                    <strong>Oppenheim, A.V., Willsky, A.S., &amp; Nawab, S.H.</strong> (1996). <em>Signals and Systems</em>. Ed. ke-2. Prentice Hall. Bab 3 &mdash; Fourier Series &amp; Fourier Transform (Bagian Transformasi). ISBN: 0132085550.
+                </div>
+                <div class="reference-item">
+                    <strong>Sumber tambahan:</strong>
+                    <ul style="margin-top:10px;padding-left:20px;">
+                        <li><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/" target="_blank">MIT OCW – Signals &amp; Systems</a></li>
+                        <li><a href="https://en.wikipedia.org/wiki/Fourier_transform" target="_blank">Wikipedia – Fourier Transform</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Panduan Interaktif Oppenheim Signals &amp; Systems | Bab 3b</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">Transformasi Fourier &mdash; representasi frekuensi kontinu untuk sinyal aperiodik.</p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <a class="navbtn" href="intro.html" title="Bab 1">&#8592; Bab 1</a>
+                    <a class="navbtn" href="chapter3a.html" title="Sebelumnya: Bab 3a">&#8592; Bab 3a</a>
+                    <span class="navcur">Bab 3b</span>
+                    <a class="navbtn" href="chapter4a.html" title="Lanjut: Bab 4a">Bab 4a &#8594;</a>
+                </div>
+                <p style="margin-top:15px;"><button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button></p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    const ftTime = document.getElementById('ftTime');
+    const ftFreq = document.getElementById('ftFreq');
+    const ctxT = ftTime.getContext('2d');
+    const ctxF = ftFreq.getContext('2d');
+    const W = ftTime.width, H = ftTime.height, HT = ftTime.height, HF = ftFreq.height;
+    const midT = HT / 2, midF = HF / 2;
+    const WSPAN = 8; // time axis -4..4
+    const WSPANF = 20; // freq axis -10..10
+
+    function sigVal(type, t, p) {
+        if (type === 'rect') return (Math.abs(t) <= p / 2) ? 1 : 0;
+        if (type === 'tri') return (Math.abs(t) <= p) ? (1 - Math.abs(t) / p) : 0;
+        if (type === 'exp') return Math.exp(-p * Math.abs(t));
+        return 0;
+    }
+    function mag(type, w, p) {
+        if (type === 'rect') return p * Math.abs(Math.sinc(w * p / 2)); // |sinc| ; sinc defined below
+        if (type === 'tri') return p * p / 2 * Math.pow(Math.sinc(w * p / 2), 2);
+        if (type === 'exp') return 2 * p / (p * p + w * w);
+        return 0;
+    }
+    Math.sinc = function (x) { return x === 0 ? 1 : Math.sin(x) / x; };
+
+    function drawFT() {
+        const type = document.getElementById('sigType').value;
+        const p = parseFloat(document.getElementById('widthCtrl').value);
+        document.getElementById('widthVal').textContent = p.toFixed(1);
+        // time plot
+        ctxT.clearRect(0, 0, W, HT);
+        ctxT.strokeStyle = '#495057'; ctxT.lineWidth = 2;
+        ctxT.beginPath(); ctxT.moveTo(0, midT); ctxT.lineTo(W, midT); ctxT.stroke();
+        ctxT.beginPath(); ctxT.strokeStyle = '#9b59b6'; ctxT.lineWidth = 3;
+        for (let px = 0; px <= W; px++) {
+            const t = (px / W) * WSPAN - WSPAN / 2;
+            const y = midT - sigVal(type, t, p) * (HT / 3);
+            if (px === 0) ctxT.moveTo(px, y); else ctxT.lineTo(px, y);
+        }
+        ctxT.stroke();
+        ctxT.fillStyle = '#9b59b6'; ctxT.font = 'bold 13px Arial';
+        ctxT.fillText('x(t)', 12, 24);
+
+        // freq plot (magnitude)
+        ctxF.clearRect(0, 0, W, HF);
+        ctxF.strokeStyle = '#495057'; ctxF.lineWidth = 2;
+        ctxF.beginPath(); ctxF.moveTo(0, midF); ctxF.lineTo(W, midF); ctxF.stroke();
+        // freq grid at 0
+        ctxF.strokeStyle = '#e9ecef'; ctxF.lineWidth = 1;
+        for (let gx = 0; gx <= W; gx += W / 10) { ctxF.beginPath(); ctxF.moveTo(gx, 0); ctxF.lineTo(gx, HF); ctxF.stroke(); }
+        let maxMag = 0;
+        for (let px = 0; px <= W; px++) {
+            const w = (px / W) * WSPANF - WSPANF / 2;
+            maxMag = Math.max(maxMag, mag(type, w, p));
+        }
+        ctxF.beginPath(); ctxF.strokeStyle = '#e67e22'; ctxF.lineWidth = 3;
+        for (let px = 0; px <= W; px++) {
+            const w = (px / W) * WSPANF - WSPANF / 2;
+            const y = midF - (mag(type, w, p) / (maxMag || 1)) * (HF / 2 - 10);
+            if (px === 0) ctxF.moveTo(px, y); else ctxF.lineTo(px, y);
+        }
+        ctxF.stroke();
+        ctxF.fillStyle = '#e67e22'; ctxF.font = 'bold 13px Arial';
+        ctxF.fillText('|X(jω)|', 12, 24);
+    }
+
+    function resetFT() {
+        document.getElementById('widthCtrl').value = 1;
+        document.getElementById('widthVal').textContent = '1.0';
+        drawFT();
+    }
+
+    document.getElementById('sigType').addEventListener('change', drawFT);
+    document.getElementById('widthCtrl').addEventListener('input', drawFT);
+    drawFT();
+</script>
+</body>
+</html>

@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOO-MRPP Documentation — Multi-Objective Optimization for Multi-Robot Path Planning</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7c3aed;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --text: #334155;
+            --text-light: #64748b;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --code-bg: #f1f5f9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--dark);
+            color: #fff;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-header .version {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            font-family: monospace;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-list li {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-list a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: block;
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .nav-list a:hover,
+        .nav-list a.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: 300px;
+            flex: 1;
+            max-width: 900px;
+            padding: 3rem 4rem;
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
+            color: #fff;
+            padding: 4rem;
+            border-radius: 1rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .hero .subtitle {
+            font-size: 1.125rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 2rem;
+        }
+
+        .hero .badges {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-family: monospace;
+        }
+
+        /* Content Sections */
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section h2 {
+            font-size: 1.875rem;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section h3 {
+            font-size: 1.375rem;
+            color: var(--dark-light);
+            margin: 2rem 0 1rem;
+        }
+
+        .section h4 {
+            font-size: 1.125rem;
+            color: var(--text);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        .section p {
+            margin-bottom: 1rem;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .card h4 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0;
+        }
+
+        /* Tables */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: var(--dark);
+            color: #fff;
+            padding: 0.875rem 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover td {
+            background: var(--bg);
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--dark);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin: 1.5rem 0;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875em;
+            color: var(--danger);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0 1rem 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Callouts */
+        .callout {
+            padding: 1.25rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .callout.info {
+            background: #eff6ff;
+            border-color: var(--primary);
+        }
+
+        .callout.warning {
+            background: #fffbeb;
+            border-color: var(--warning);
+        }
+
+        .callout.success {
+            background: #ecfdf5;
+            border-color: var(--success);
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Flowchart placeholder */
+        .flowchart {
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            color: var(--text-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* Mermaid */
+        .mermaid {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        /* Anchor offset */
+        [id] {
+            scroll-margin-top: 2rem;
+        }
+
+        /* Paper timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--bg);
+        }
+
+        .timeline-item.published::before {
+            background: var(--success);
+        }
+
+        .timeline-item.submitted::before {
+            background: var(--warning);
+        }
+
+        .timeline-item.draft::before {
+            background: var(--text-light);
+        }
+
+        .timeline-item h4 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .status-badge.published {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.submitted {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.draft {
+            background: #e2e8f0;
+            color: #475569;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>MOO-MRPP</h1>
+                <div class="version">v3.7.0 | Python 3.8+</div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Getting Started</div>
+                <ul class="nav-list">
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#installation">Installation</a></li>
+                    <li><a href="#quick-start">Quick Start</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Core Concepts</div>
+                <ul class="nav-list">
+                    <li><a href="#architecture">Architecture</a></li>
+                    <li><a href="#framework-flow">Framework Flow</a></li>
+                    <li><a href="#chromosome">Chromosome Structure</a></li>
+                    <li><a href="#formulations">Optimization Formulations</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Configuration</div>
+                <ul class="nav-list">
+                    <li><a href="#robot-model">Robot Model</a></li>
+                    <li><a href="#map-selection">Map Selection</a></li>
+                    <li><a href="#pathfinder">Pathfinding</a></li>
+                    <li><a href="#algorithms">Optimization Algorithms</a></li>
+                    <li><a href="#operators">Genetic Operators</a></li>
+                    <li><a href="#preferred-solution">Preferred Solution</a></li>
+                    <li><a href="#moving-obstacles">Moving Obstacles</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Tools & Utilities</div>
+                <ul class="nav-list">
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#batch-runner">Batch Runner</a></li>
+                    <li><a href="#animation">Animation</a></li>
+                    <li><a href="#scripts">Utility Scripts</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Research</div>
+                <ul class="nav-list">
+                    <li><a href="#papers">Paper Roadmap</a></li>
+                    <li><a href="#releases">Release History</a></li>
+                    <li><a href="#reproducibility">Reproducibility</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Hero -->
+            <div class="hero">
+                <h1>MOO-MRPP</h1>
+                <p class="subtitle">Multi-Objective Optimization for Multi-Robot Path Planning</p>
+                <div class="badges">
+                    <span class="badge">v3.7.0</span>
+                    <span class="badge">Python 3.8+</span>
+                    <span class="badge">NSGA-II / NSGA-III / SPEA2</span>
+                    <span class="badge">A* / RRT / RRT*</span>
+                </div>
+            </div>
+
+            <!-- Overview -->
+            <section class="section" id="overview">
+                <h2>Overview</h2>
+                <p>
+                    <strong>MOO-MRPP</strong> is a comprehensive research framework that implements multi-objective evolutionary optimization for multi-robot path planning. It goes far beyond a simple "A* → NSGA-II → select solution" pipeline, offering a rich architecture with configurable pathfinders, multiple optimization algorithms, diverse problem formulations, and extensive visualization capabilities.
+                </p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>🔧 Configurable Pathfinders</h4>
+                        <p>Choose from A* (deterministic, optimal), RRT (fast, diverse), or RRT* (balanced quality and diversity) for initial path generation.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🧬 Multiple Optimizers</h4>
+                        <p>NSGA-II for baseline, NSGA-III for many-objective problems, and SPEA2 with external archive for academic comparison.</p>
+                    </div>
+                    <div class="card">
+                        <h4>📊 Three Formulations</h4>
+                        <p>Aggregate objectives only, per-agent objectives with constraints, or per-agent objectives without constraints.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🤖 Robot Models</h4>
+                        <p>Support for differential-drive mobile robots (DDMR 4-dir) and omnidirectional robots with proper kinematic expansion.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🚧 Moving Obstacles</h4>
+                        <p>Dynamic obstacles with one-time or repeat modes, time-delayed activation, and full collision integration.</p>
+                    </div>
+                    <div class="card">
+                        <h4>📈 Interactive Dashboard</h4>
+                        <p>Streamlit-based web dashboard for run comparison, optimization launching, and batch experiment management.</p>
+                    </div>
+                </div>
+
+                <h3>Main Entry Points</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Entry Point</th><th>Purpose</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>moo_multi.py run</code></td><td>Single-scenario optimization run</td></tr>
+                            <tr><td><code>run_multi.py</code></td><td>Batch experiments from YAML sweep config</td></tr>
+                            <tr><td><code>dashboard.py</code></td><td>Streamlit dashboard for inspection and launching</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Installation -->
+            <section class="section" id="installation">
+                <h2>Installation</h2>
+                <ol>
+                    <li>Create a Python 3.8+ virtual environment (recommended)</li>
+                    <li>Install dependencies:</li>
+                </ol>
+                <pre><code>pip install -r requirements.txt</code></pre>
+                <p>For dashboard support, also install:</p>
+                <pre><code>pip install streamlit plotly pillow matplotlib</code></pre>
+                <div class="callout info">
+                    <div class="callout-title">💡 Tip</div>
+                    <p>For a reproducible environment, pin package versions or use a tool like <code>pip freeze</code> / <code>venv</code> / <code>conda</code>.</p>
+                </div>
+            </section>
+
+            <!-- Quick Start -->
+            <section class="section" id="quick-start">
+                <h2>Quick Start</h2>
+
+                <h3>Single Run</h3>
+                <pre><code>python moo_multi.py run \
+  --agent conf_agent4_v001.yaml \
+  --config conf_proc_v007.yaml \
+  --seed 1 \
+  --auto-continue 1</code></pre>
+                <p>Each run creates a timestamped folder under <code>logs/</code> containing optimization artifacts (npz, csv, yaml), snapshot config files, run_history.yaml, and generated plots.</p>
+
+                <h3>Rerun from Previous Log</h3>
+                <pre><code>python moo_multi.py run \
+  --from-log .\logs\Scenario_16-5R-Map2-agg_obj_only \
+  --formulation agg_obj_only \
+  --auto-continue 1 \
+  --enable-console-output 0 \
+  --n-max-gen 100 \
+  --seed 1</code></pre>
+
+                <h3>Batch Experiments</h3>
+                <pre><code>python run_multi.py --config conf_rm/run_multi_config.yaml</code></pre>
+
+                <h3>Interactive Dashboard</h3>
+                <pre><code>streamlit run dashboard.py
+# or on Windows:
+"Start Dashboard.cmd"</code></pre>
+                <p>Opens <code>http://localhost:8501</code> with run comparison, optimization launcher, and batch run management.</p>
+            </section>
+
+            <!-- Architecture -->
+            <section class="section" id="architecture">
+                <h2>Architecture</h2>
+                <p>The framework operates in four conceptual layers:</p>
+                <ol>
+                    <li><strong>Configuration and Reproducibility Layer</strong> — reads config, seed, overrides, logging, and output folders</li>
+                    <li><strong>Problem Construction Layer</strong> — builds environment, agents, optional moving obstacles, initial paths, and chromosome structure</li>
+                    <li><strong>Evolutionary Optimization Layer</strong> — runs NSGA-II or NSGA-III with crossover and mutation operators specialized for path planning</li>
+                    <li><strong>Selection and Reporting Layer</strong> — forms the Pareto front, selects one representative solution, then saves and visualizes results</li>
+                </ol>
+
+                <h3>Core Components</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Component</th><th>File</th><th>Role</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>CLI Entry</td><td><code>moo_multi.py</code></td><td>Command-line interface for running experiments</td></tr>
+                            <tr><td>Simulator</td><td><code>core/simulator.py</code></td><td>Manages setup, optimization, persistence, and visualization</td></tr>
+                            <tr><td>Config</td><td><code>core/config.py</code></td><td>RuntimeConfig — loads, normalizes, and resolves config</td></tr>
+                            <tr><td>Environment</td><td><code>core/environment.py</code></td><td>Map loading, motion code decoding, path caching</td></tr>
+                            <tr><td>Agents</td><td><code>core/agents.py</code></td><td>Agent, MovingObstacle, and Agents container</td></tr>
+                            <tr><td>Optimizer Setup</td><td><code>optimization/setup_opt.py</code></td><td>Builds initial paths, sampling, algorithm construction</td></tr>
+                            <tr><td>Problem</td><td><code>problems/mrpp_problem.py</code></td><td>pymoo problem definition with parallelization modes</td></tr>
+                            <tr><td>Selection</td><td><code>optimization/selection.py</code></td><td>Preferred-solution strategies from Pareto front</td></tr>
+                            <tr><td>Callback</td><td><code>callbacks/opt_callback.py</code></td><td>Per-generation data and convergence tracking</td></tr>
+                            <tr><td>Persistence</td><td><code>postprocessing/result_persistence.py</code></td><td>Pareto extraction, solution selection, result saving</td></tr>
+                            <tr><td>Visualization</td><td><code>visualization/post_optimization.py</code></td><td>Final path plots, Pareto plots, convergence charts</td></tr>
+                            <tr><td>Visualizer</td><td><code>visualization/visualizer.py</code></td><td>MapVisualizer — map rendering and path overlays</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Framework Flow -->
+            <section class="section" id="framework-flow">
+                <h2>Framework Flow</h2>
+                <p>The current implementation flow is orchestrated by the <code>Simulator</code> class:</p>
+
+                <div class="mermaid">
+flowchart TD
+    A([Start]) --> B["Load CLI arguments and YAML configs<br/>agent + process + visualization + map + seed + overrides"]
+    B --> C["Prepare runtime folder, logging, run metadata,<br/>and reproducibility settings"]
+    C --> D["Load map and initialize environment"]
+    D --> E["Initialize agents and optional moving obstacles"]
+    E --> F["Compute initial path for each agent<br/>using selected pathfinder: A* / RRT / RRT*"]
+    F --> G["Convert paths to chromosomes,<br/>set per-agent n_var and padding"]
+    G --> H["Visualize initial map and initial paths"]
+    H --> I{"Initial collisions found?"}
+    I -- "No" --> J{"Auto-continue enabled?"}
+    J -- "No" --> K{"User wants to continue?"}
+    J -- "Yes" --> L["Continue to optimization setup"]
+    K -- "Yes" --> L
+    K -- "No" --> AB
+    I -- "Yes" --> L
+    L --> M["Build optimization components:<br/>sampling, crossover, mutation,<br/>termination, algorithm"]
+    M --> N{"Select optimizer"}
+    N -- "nsga2" --> O["Create NSGA-II"]
+    N -- "nsga3" --> P["Create NSGA-III with reference directions"]
+    O --> Q["Create MRPP problem:<br/>formulation + objective dimension + constraints + parallel mode"]
+    P --> Q
+    Q --> R["Evaluate baseline chromosome"]
+    R --> S["Run evolutionary optimization with pymoo minimize()"]
+    S --> T["Per generation:<br/>evaluate population,<br/>track convergence,<br/>save generation data,<br/>plot best generation solution"]
+    T --> U{"Termination reached?"}
+    U -- "No" --> S
+    U -- "Yes" --> V["Extract final population F and X"]
+    V --> W["Split Pareto front vs dominated solutions"]
+    W --> X["Select one representative solution<br/>from Pareto front using lexicographic strategy"]
+    X --> Y["Reconstruct best path coordinates<br/>and compute final metrics"]
+    Y --> Z["Save outputs:<br/>results.npz, pareto csv, best solution yaml,<br/>optimization log, summary, path data"]
+    Z --> AA["Post-optimization visualization:<br/>final path plot, Pareto plot,<br/>convergence plot, cache stats"]
+    AA --> AB([Stop])
+                </div>
+            </section>
+
+            <!-- Chromosome Structure -->
+            <section class="section" id="chromosome">
+                <h2>Chromosome Structure</h2>
+                <p>Each chromosome is a 1D integer array concatenating all agents' path encodings:</p>
+                <pre><code>chromosome = [agent0_moves | agent1_moves | ... | agentN_moves]</code></pre>
+
+                <p>Each agent segment contains:</p>
+                <ul>
+                    <li><strong>Protected prefix (t_start):</strong> Leading zeros representing the agent's delayed start</li>
+                    <li><strong>Active segment:</strong> Sequence of movement codes:
+                        <ul>
+                            <li><code>0</code> = stay / wait</li>
+                            <li><code>1</code> = right</li>
+                            <li><code>2</code> = left</li>
+                            <li><code>3</code> = up</li>
+                            <li><code>4</code> = down</li>
+                        </ul>
+                    </li>
+                    <li><strong>Padding suffix:</strong> Trailing zeros allowing path extension during evolution</li>
+                </ul>
+
+                <p>The per-robot chromosome length is fixed at <code>ceil(1.5 × |A* path|)</code>, ensuring capacity for path modifications through crossover and mutation.</p>
+
+                <h3>From Paper to Runtime</h3>
+                <p>The framework uses a multi-layer representation pipeline:</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Layer</th><th>Symbol</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Planner</td><td><code>u_r</code></td><td>Spatial waypoint sequence from pathfinder</td></tr>
+                            <tr><td>Chromosome</td><td><code>v_r</code></td><td>Per-robot motion-code vector (what GA stores and mutates)</td></tr>
+                            <tr><td>Kinematic Expansion</td><td><code>v_x</code></td><td>Execution-expanded actions with turn delays for DDMR</td></tr>
+                            <tr><td>Displacement</td><td><code>w_r</code></td><td>Per-step displacement primitives (dx, dy)</td></tr>
+                            <tr><td>Execution</td><td><code>c_r(t)</code></td><td>Time-indexed spatio-temporal trajectory for collision check</td></tr>
+                            <tr><td>Time</td><td><code>T_r</code></td><td>Total execution time including kinematic delays</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Formulations -->
+            <section class="section" id="formulations">
+                <h2>Optimization Formulations</h2>
+                <p>The framework supports three configurable formulations:</p>
+
+                <h3>1. agg_obj_only (Classic Aggregate)</h3>
+                <pre><code>F = [f1, f2, f3]
+  f1: total residual distance to goals
+  f2: number of inter-agent collisions  
+  f3: total travel time</code></pre>
+
+                <h3>2. agent_obj_with_constr (Per-Agent with Constraints)</h3>
+                <pre><code>F = [travel_time_agent_1, ..., travel_time_agent_n]
+G = [f1, f2]  # aggregate constraints</code></pre>
+
+                <h3>3. agent_obj_without_constr (Combined)</h3>
+                <pre><code>F = [f1, f2, travel_time_agent_1, ..., travel_time_agent_n]</code></pre>
+
+                <div class="callout warning">
+                    <div class="callout-title">⚠️ Important</div>
+                    <p>Legacy names (<code>hybrid_all_obj</code>, <code>agent_obj_no_constr</code>) are automatically normalized to <code>agent_obj_without_constr</code>. <code>N_OBJ</code> and <code>N_CONSTR</code> are derived automatically from the active formulation.</p>
+                </div>
+            </section>
+
+            <!-- Robot Model -->
+            <section class="section" id="robot-model">
+                <h2>Robot Model</h2>
+                <p>Agent configuration supports a top-level default <code>robot_model</code> and per-agent overrides.</p>
+
+                <h3>Supported Models</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Model</th><th>Description</th><th>Turn Delay</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>ddmr_4dir</code></td><td>Differential-drive mobile robot, 4 cardinal directions</td><td>90° = 1 tick, 180° = 2 ticks</td></tr>
+                            <tr><td><code>omniwheel</code></td><td>Omnidirectional robot</td><td>None</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Configuration Example</h3>
+                <pre><code>robot_model: ddmr_4dir
+preferred_map: map041_size50x50_warehouse.bmp
+
+agents:
+  - name: agent0
+    start: [1, 1]
+    goal: [5, 1]
+    initial_dir: 0
+
+  - name: agent1
+    start: [1, 3]
+    goal: [5, 3]
+    robot_model: omniwheel
+    initial_dir: 135</code></pre>
+
+                <p>For <code>ddmr_4dir</code>, valid <code>initial_dir</code> values are <code>0</code>, <code>90</code>, <code>180</code>, <code>270</code> (360 = alias of 0). In plots and animations, <code>ddmr_4dir</code> renders with a single heading marker; <code>omniwheel</code> renders with four cardinal markers and does not visually rotate.</p>
+            </section>
+
+            <!-- Map Selection -->
+            <section class="section" id="map-selection">
+                <h2>Map Selection</h2>
+                <p>Map selection follows a clear priority order:</p>
+                <ol>
+                    <li><code>--map</code> from CLI (numeric = 0-based index into <code>map_list</code>; filename/path = resolved by searching <code>maps/</code>, <code>conf/</code>, then repo root)</li>
+                    <li>Map snapshot resolved from <code>--from-log</code>, if provided</li>
+                    <li><code>preferred_map</code> from the agent config, if present</li>
+                    <li><code>MAP_NUM</code> from the process config resolved against <code>map_list</code></li>
+                </ol>
+
+                <h3>Available Map Series</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Series</th><th>Size</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>agent2_map_v04</td><td>7×7</td><td>Small maps with 2 agents for sanity checks</td></tr>
+                            <tr><td>map011–013</td><td>6–7×7</td><td>Tiny maps with simple obstacles</td></tr>
+                            <tr><td>map021</td><td>29×29</td><td>Complex corridor layout</td></tr>
+                            <tr><td>map031–033</td><td>25×25</td><td>Medium maps with bottleneck structures</td></tr>
+                            <tr><td>map041–044</td><td>50×50</td><td>AGV warehouse, cross-dock, loop, random</td></tr>
+                            <tr><td>map061–064</td><td>100×100</td><td>Large-scale maps for scalability testing</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Pathfinding -->
+            <section class="section" id="pathfinder">
+                <h2>Pathfinding Algorithms</h2>
+                <p>Initial population sampling supports multiple pathfinders:</p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>A* (Default)</h4>
+                        <p>Deterministic, optimal paths. Best for controlled experiments and reproducible baselines.</p>
+                    </div>
+                    <div class="card">
+                        <h4>RRT</h4>
+                        <p>Fast, diverse, exploration-focused. Good for large open spaces.</p>
+                    </div>
+                    <div class="card">
+                        <h4>RRT*</h4>
+                        <p>Balanced quality and diversity. Asymptotically optimal variant.</p>
+                    </div>
+                </div>
+
+                <h3>Configuration</h3>
+                <pre><code># Use A* (default)
+PATHFINDER: 'astar'
+
+# Use RRT / RRT*
+PATHFINDER: 'rrt'
+RRT_PARAMS:
+  MAX_ITERATIONS: 3000
+  USE_RRT_STAR: false   # true = RRT*
+  STEP_SIZE: 1
+  GOAL_SAMPLE_RATE: 0.1
+  GOAL_TOLERANCE: 1.5
+  REWIRE_RADIUS: 3.0</code></pre>
+            </section>
+
+            <!-- Algorithms -->
+            <section class="section" id="algorithms">
+                <h2>Optimization Algorithms</h2>
+                <p>The framework supports three multi-objective optimizers via pymoo:</p>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Algorithm</th><th>Best For</th><th>Diversity Mechanism</th><th>External Archive</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>NSGA-II</strong></td><td>2–3 objectives, strong baseline</td><td>Crowding distance</td><td>No</td></tr>
+                            <tr><td><strong>NSGA-III</strong></td><td>Many objectives, even front distribution</td><td>Reference directions + niching</td><td>No</td></tr>
+                            <tr><td><strong>SPEA2</strong></td><td>2–4 objectives, academic comparison</td><td>k-th nearest neighbor density</td><td>Yes (fixed size)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Configuration Examples</h3>
+                <pre><code># NSGA-II (default)
+ALGORITHM:
+  NAME: 'nsga2'
+
+# NSGA-III
+ALGORITHM:
+  NAME: 'nsga3'
+  NSGA3:
+    REF_DIR_METHOD: 'das-dennis'
+    N_PARTITIONS: 12
+    POP_SIZE: null
+
+# SPEA2
+ALGORITHM:
+  NAME: 'spea2'</code></pre>
+
+                <div class="callout info">
+                    <div class="callout-title">💡 Note</div>
+                    <p>For NSGA-III, <code>POP_SIZE</code> is automatically adjusted upward to be at least as large as the number of reference directions. Mismatches between <code>N_OBJ</code> and reference direction dimensionality fail early with a clear pymoo error.</p>
+                </div>
+            </section>
+
+            <!-- Operators -->
+            <section class="section" id="operators">
+                <h2>Genetic Operators</h2>
+                <p>Domain-specific crossover and mutation operators designed for path planning.</p>
+
+                <h3>Crossover Operators</h3>
+                <p>Configured in the <code>XOVER_PARAM</code> block. Both operators are <strong>mutually exclusive per-agent per mating</strong>.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Operator</th><th>Cost</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Whole-Path Swap (WPS)</strong></td><td>Cheap (array copy)</td><td>Swaps entire active segment between two parents</td></tr>
+                            <tr><td><strong>Partial-Path Swap (PPS)</strong></td><td>Expensive (A* stitching)</td><td>Coordinate-domain crossover with A* gap repair</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Mutation Operators</h3>
+                <p>Configured in the <code>MUT_PARAM</code> block. Multiple mutations can fire on the same individual.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Operator</th><th>Effect</th><th>Dependency</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Insert-Zero (INS)</strong></td><td>Path becomes longer</td><td>None</td></tr>
+                            <tr><td><strong>Delete-Zero (DEL)</strong></td><td>Path becomes shorter</td><td>Requires INS to create zeros</td></tr>
+                            <tr><td><strong>Swap-Direction (SWD)</strong></td><td>Changes path shape, same length</td><td>None</td></tr>
+                            <tr><td><strong>Wait-Detour (WTD)</strong></td><td>Inserts 2-move out-and-back detour</td><td>None</td></tr>
+                            <tr><td><strong>Path-Detour</strong></td><td>Replaces 1 move with 3-move detour</td><td>Disabled by default</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout warning">
+                    <div class="callout-title">⚠️ Caveat</div>
+                    <p><code>delete_zero</code> is structurally a no-op without <code>insert_zero</code> being active — enable both together or neither.</p>
+                </div>
+            </section>
+
+            <!-- Preferred Solution -->
+            <section class="section" id="preferred-solution">
+                <h2>Preferred Solution Selection</h2>
+                <p>An explicit decision layer chooses one representative solution from the Pareto front. The selection strategy is configured via:</p>
+                <pre><code>PREFERRED_SOLUTION:
+  STRATEGY: min_total_travel_time</code></pre>
+
+                <h3>Available Strategies</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Strategy</th><th>Description</th><th>Best For</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>min_total_travel_time</code></td><td>Minimizes fleet-wide sum of travel times</td><td>Efficiency-focused missions</td></tr>
+                            <tr><td><code>min_max_travel_time</code></td><td>Minimizes maximum individual travel time (makespan)</td><td>Time-critical missions</td></tr>
+                            <tr><td><code>augmented_chebyshev</code></td><td>Balanced compromise near the ideal point</td><td>Mathematically balanced</td></tr>
+                            <tr><td><code>knee_point</code></td><td>Emphasizes bend-point trade-off solutions</td><td>General compromise</td></tr>
+                            <tr><td><code>lexicographic</code></td><td>Priority-based selection by objective order</td><td>Strict objective hierarchy</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Safety Overrides</h3>
+                <p>Before applying the requested strategy, the system filters the Pareto front to a "Safe Subset":</p>
+                <ol>
+                    <li><strong>Zero Collisions</strong> — solutions with collisions are penalized or excluded</li>
+                    <li><strong>Minimum Residual Distance</strong> — solutions where agents reached their goals are prioritized</li>
+                </ol>
+                <p>If the requested strategy fails, the system automatically falls back to <strong>Lexicographic Safe Subset</strong> selection.</p>
+            </section>
+
+            <!-- Moving Obstacles -->
+            <section class="section" id="moving-obstacles">
+                <h2>Moving Obstacles</h2>
+                <p>Moving obstacles are defined alongside agents in the agent config:</p>
+                <pre><code>moving_obstacles:
+  - name: movobs0
+    t_start: 0
+    mode: repeat          # 'one-time' or 'repeat'
+    path: [[16, 5], [17, 5], [18, 5], [19, 5], [20, 5]]
+  - name: movobs1
+    t_start: 15
+    mode: one-time
+    path: [[13, 17], [13, 16], [13, 15], [13, 14]]</code></pre>
+
+                <h3>Key Behaviors</h3>
+                <ul>
+                    <li><code>mode: one-time</code> — travels the path once, then holds at the final position</li>
+                    <li><code>mode: repeat</code> — travels back and forth in a loop</li>
+                    <li><code>t_start</code> — timestep when the obstacle begins moving</li>
+                    <li>Paths are internally expanded to account for rotation delays (same kinematic model as agents)</li>
+                    <li>Visualized as dashed black overlays in path plots and dynamic markers in animations</li>
+                </ul>
+
+                <h3>Collision Detection</h3>
+                <p>The collision checker detects:</p>
+                <ul>
+                    <li><strong>Vertex collisions</strong> — two or more entities occupy the same cell at the same timestep</li>
+                    <li><strong>Edge collisions</strong> — two entities swap positions between consecutive timesteps</li>
+                </ul>
+                <p>Important: only collisions involving at least one agent are counted. Obstacle-obstacle collisions are ignored.</p>
+            </section>
+
+            <!-- Dashboard -->
+            <section class="section" id="dashboard">
+                <h2>Streamlit Dashboard</h2>
+                <p>The web-based dashboard is the primary interactive interface, providing three main capabilities:</p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>📊 Run Comparison (Tab 1)</h4>
+                        <p>Select 2–4 optimization runs from <code>logs/</code> and compare side-by-side with metrics tables, convergence curves, path images, and config diffs.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🚀 Run Launcher (Tab 2)</h4>
+                        <p>Configure and launch <code>moo_multi.py run</code> through a graphical form with live CLI preview.</p>
+                    </div>
+                    <div class="card">
+                        <h4>📥 Batch Run (Tab 3)</h4>
+                        <p>Select, edit, save, and execute <code>run_multi_config_*.yaml</code> batch experiments with live console streaming.</p>
+                    </div>
+                </div>
+
+                <h3>Launch</h3>
+                <pre><code>streamlit run dashboard.py</code></pre>
+                <p>Opens at <code>http://localhost:8501</code></p>
+            </section>
+
+            <!-- Batch Runner -->
+            <section class="section" id="batch-runner">
+                <h2>Batch Experiment Runner</h2>
+                <p><code>run_multi.py</code> runs batch experiments from a YAML configuration file. A single config can contain multiple scenarios, repetition counts, seed strategies, and parameter sweeps.</p>
+
+                <h3>Quick Start</h3>
+                <pre><code>python run_multi.py --config conf_rm/run_multi_config.yaml</code></pre>
+
+                <h3>YAML Format</h3>
+                <pre><code>scenarios:
+  - name: "Scenario 1"
+    script: "moo_multi.py"
+    subcommand: "run"
+    args:
+      config: "conf_proc_v007.yaml"
+      agent: "conf_agent5_v001.yaml"
+      map: "map032_size25x25.bmp"
+      formulation: "agg_obj_only"
+      auto-continue: 1
+      enable-console-output: 0
+      n-max-gen: 2
+    repeats: 3
+    seed_strategy: "incremental"
+    base_seed: 1</code></pre>
+
+                <h3>Seed Strategies</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Strategy</th><th>Behavior</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>same</code></td><td>All repetitions use the same seed</td></tr>
+                            <tr><td><code>incremental</code></td><td>Seed increments by 1 per repetition</td></tr>
+                            <tr><td><code>random</code></td><td>Random seeds for each repetition</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Parameter Sweeps</h3>
+                <pre><code>sweep:
+  type: "grid"
+  params:
+    GA_PARAMS.MUTATION_PROB: [0.1, 0.2, 0.3]
+    GA_PARAMS.CROSSOVER_PROB: [0.8, 0.9]</code></pre>
+            </section>
+
+            <!-- Animation -->
+            <section class="section" id="animation">
+                <h2>Robot Animation</h2>
+                <p><code>scripts/animate.py</code> replays saved path artifacts and renders robot motion.</p>
+
+                <h3>Basic Usage</h3>
+                <pre><code># Replay both initial and optimized
+python scripts/animate.py logs/&lt;timestamp&gt; --mode both --fps 4
+
+# Export to GIF
+python scripts/animate.py logs/&lt;timestamp&gt; --mode both --output replay.gif
+
+# Headless export (no display window)
+python scripts/animate.py logs/&lt;timestamp&gt; --no-display</code></pre>
+
+                <h3>CLI Arguments</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Argument</th><th>Default</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>log_dir</code></td><td>Latest in <code>logs/</code></td><td>Target log directory</td></tr>
+                            <tr><td><code>--fps</code></td><td>4</td><td>Logical timesteps per second</td></tr>
+                            <tr><td><code>--sub-steps</code></td><td>8</td><td>Interpolation frames per timestep</td></tr>
+                            <tr><td><code>--mode</code></td><td>both</td><td>initial / optimized / both</td></tr>
+                            <tr><td><code>--output</code>, <code>-o</code></td><td>none</td><td>Output path (.mp4 or .gif)</td></tr>
+                            <tr><td><code>--no-display</code></td><td>false</td><td>Disable interactive window</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Scripts -->
+            <section class="section" id="scripts">
+                <h2>Utility Scripts</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Script</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>scripts/result_analysis.py</code></td><td>Analyze optimization results from CSV — statistics, box plots, Pareto analysis</td></tr>
+                            <tr><td><code>scripts/redraw_outputs.py</code></td><td>Regenerate visualization artifacts from log data without rerunning</td></tr>
+                            <tr><td><code>scripts/generate_all_scenarios.py</code></td><td>Generate visual catalog of valid map/agent scenarios</td></tr>
+                            <tr><td><code>scripts/animate.py</code></td><td>Playback and export robot motion animations</td></tr>
+                            <tr><td><code>scripts/analyze_population_history.py</code></td><td>Analyze population progression and genetic diversity</td></tr>
+                            <tr><td><code>scripts/benchmark_parallelization.py</code></td><td>Benchmark MRPP_Problem evaluation modes</td></tr>
+                            <tr><td><code>scripts/export_comparison_tables_xlsx.py</code></td><td>Compile multi-algorithm stats to Excel</td></tr>
+                            <tr><td><code>scripts/reproducibility_audit_runner.py</code></td><td>Audit Pareto front identity across environments</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Parallelization -->
+            <section class="section" id="parallelization">
+                <h2>Parallelization Modes</h2>
+                <p>The framework supports multiple evaluation modes:</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Mode</th><th>Best For</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>sequential</code></td><td>Small populations, debugging, baseline correctness</td></tr>
+                            <tr><td><code>vectorized</code></td><td>Medium-large populations, closest to pymoo philosophy</td></tr>
+                            <tr><td><code>threads</code></td><td>Heavy per-individual evaluation</td></tr>
+                            <tr><td><code>joblib</code></td><td>Flexible backend (threading/loky/multiprocessing)</td></tr>
+                            <tr><td><code>hybrid</code></td><td>Experimental — benchmark before using</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p>Recommendation: start with <code>sequential</code> for baseline, try <code>vectorized</code> first for speedup, use <code>threads</code> only if benchmark shows benefit.</p>
+            </section>
+
+            <!-- Papers -->
+            <section class="section" id="papers">
+                <h2>Paper Roadmap</h2>
+                <p>This framework supports an ongoing dissertation research program with six papers:</p>
+
+                <div class="timeline">
+                    <div class="timeline-item published">
+                        <h4>Paper #01 — Foundation <span class="status-badge published">Published (Conference)</span></h4>
+                        <p>Foundation approach using NSGA-II. Historical baseline for the research program.</p>
+                    </div>
+                    <div class="timeline-item published">
+                        <h4>Paper #02 — Two-Robot Baseline <span class="status-badge published">Published (Conference)</span></h4>
+                        <p>Baseline with two robots using NSGA-II. Proof that MOGA is viable for static MRPP.</p>
+                    </div>
+                    <div class="timeline-item submitted">
+                        <h4>Paper #03 — Formulation Comparison <span class="status-badge submitted">Journal</span></h4>
+                        <p>Compares three formulations: <code>agg_obj_only</code>, <code>agent_obj_with_constr</code>, and <code>agent_obj_without_constr</code>. Main recommendation: <code>agent_obj_with_constr</code> for full feasibility and interpretable per-agent trade-offs.</p>
+                    </div>
+                    <div class="timeline-item draft">
+                        <h4>Paper #04 — Operator Rate Analysis <span class="status-badge draft">Journal / JRC</span></h4>
+                        <p>OFAT and Taguchi analysis of crossover and mutation operator rates. Determines effective operator profiles.</p>
+                    </div>
+                    <div class="timeline-item draft">
+                        <h4>Paper #05 — Optimizer Comparison <span class="status-badge draft">Journal</span></h4>
+                        <p>Compares NSGA-II, NSGA-III, and SPEA2 on the selected formulation with locked operator profile.</p>
+                    </div>
+                    <div class="timeline-item draft">
+                        <h4>Paper #06 — Moving Obstacles <span class="status-badge draft">ASSET / Submitted</span></h4>
+                        <p>Validates the best method on dynamic environments with moving obstacles.</p>
+                    </div>
+                </div>
+
+                <h3>Dissertation Narrative</h3>
+                <ol>
+                    <li>Archive Paper #01 and #02 as published historical foundation</li>
+                    <li>Show formulation choice matters (Paper #03)</li>
+                    <li>Lock operator profile through sensitivity analysis (Paper #04)</li>
+                    <li>Compare optimizers with locked settings (Paper #05)</li>
+                    <li>Validate on dynamic environments (Paper #06)</li>
+                    <li>Synthesize into dissertation narrative: static simple → dynamic complex</li>
+                </ol>
+            </section>
+
+            <!-- Releases -->
+            <section class="section" id="releases">
+                <h2>Release History</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Version</th><th>Date</th><th>Highlights</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>v3.7.0</strong></td><td>2026-07-11</td><td>Continuous path planning (experimental), standalone Priority-A* & CBS v2.1.0, multi-format exports (PNG/PDF/SVG), visualizer conflict-avoidance, Excel exporter, reproducibility audit runner, TUI removal</td></tr>
+                            <tr><td>v3.6.0</td><td>2026-06-21</td><td>Standalone CBS baseline, N_EVAL_ONLY termination, moving obstacle start/goal schema, visual diagnostics, termination-reason consistency</td></tr>
+                            <tr><td>v3.5.0</td><td>2026-04-30</td><td>Algorithm registry, MOEA/D integration, scenario preview, batch cataloging, canonical naming, preferred-solution fix</td></tr>
+                            <tr><td>v3.4.0</td><td>2026-04-26</td><td>Granular redraw CLI, clean map exports, shared start/goal rendering, Pareto readability, ELIMINATE_DUPS control</td></tr>
+                            <tr><td>v3.3.0</td><td>2026-04-24</td><td>Preferred-solution decision layer, N_GEN_ONLY exact budget, summary YAML, per-generation Pareto snapshots</td></tr>
+                            <tr><td>v3.2.0</td><td>2026-04-19</td><td>TUI launcher, optimized collision mode, timing-aware run_history.yaml</td></tr>
+                            <tr><td>v3.1.0</td><td>2026-04-15</td><td>Graphics standardization, filename registry, OUTPUT_IMAGES config, batch animation processing</td></tr>
+                            <tr><td>v3.0.0</td><td>2026-04-12</td><td>Goal-dwelling collision fix, MobileEntity base class, kinematic unification, t_start scheduling</td></tr>
+                            <tr><td>v2.8.0</td><td>2026-04-02</td><td>Streamlit dashboard, SPEA2 algorithm, result persistence refactoring</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reproducibility -->
+            <section class="section" id="reproducibility">
+                <h2>Reproducibility</h2>
+                <p>Every run automatically logs complete execution information:</p>
+                <ul>
+                    <li><strong>Root history:</strong> <code>run_history.yaml</code> (append mode, all runs)</li>
+                    <li><strong>Per-run snapshot:</strong> <code>logs/&lt;timestamp&gt;/run_history.yaml</code></li>
+                </ul>
+
+                <h3>Saved Config Snapshots</h3>
+                <p>Each run folder contains exact copies of the configs used:</p>
+                <ul>
+                    <li><code>used_agent_conf.yaml</code></li>
+                    <li><code>used_proc_conf.yaml</code></li>
+                    <li><code>used_viz_conf.yaml</code></li>
+                    <li><code>used_map.*</code></li>
+                </ul>
+
+                <h3>Key Artifacts</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Artifact</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>initial_paths_data.yaml</code></td><td>Initial pathfinder output with collision info</td></tr>
+                            <tr><td><code>best_solution_X.yaml</code></td><td>Selected best chromosome with selection metadata</td></tr>
+                            <tr><td><code>best_solution_paths_data.yaml</code></td><td>Optimized path coordinates and objective values</td></tr>
+                            <tr><td><code>summary_{ts}.yaml</code></td><td>Run metadata, results, hypervolume indicator</td></tr>
+                            <tr><td><code>generation_XXX_pareto.npz</code></td><td>Per-generation Pareto fronts for post-hoc analysis</td></tr>
+                            <tr><td><code>convergence_log.csv</code></td><td>Per-generation convergence metrics</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout success">
+                    <div class="callout-title">✅ Determinism</div>
+                    <p><code>--seed</code> sets RNGs (numpy, python) for reproducibility. For statistical claims in papers, run multiple seeds via <code>run_multi.py</code> — not single runs.</p>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer style="margin-top: 6rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--text-light); font-size: 0.875rem;">
+                <p>Generated from moo-mrpp markdown documentation. Last updated: 2026-07-15.</p>
+                <p>For the latest version, see the <a href="https://github.com/ariadie/moo-mrpp" style="color: var(--primary);">GitHub repository</a>.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Active nav link highlighting on scroll
+        const sections = document.querySelectorAll('.section[id]');
+        const navLinks = document.querySelectorAll('.nav-list a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

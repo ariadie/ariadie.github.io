@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 4b: Aliasing, Rekonstruksi &amp; Pemrosesan Diskrit</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#16a085,#1abc9c);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#1abc9c;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #1abc9c;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#117a65;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #1abc9c;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px)scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#e8f8f5 0%,#d1f2eb 100%);}
+        .concept-card h4{color:#117a65;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#1abc9c;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#1abc9c,#16a085,#f1c40f);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#1abc9c;box-shadow:0 0 0 3px rgba(26,188,156,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#1abc9c,#16a085);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(26,188,156,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,188,156,.4);background:linear-gradient(135deg,#16a085,#1abc9c);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position-relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        .references{margin-top:40px;padding-top:30px;border-top:2px solid #e9ecef;animation:fadeIn 1s ease-in;}
+        .reference-item{margin-bottom:20px;padding:15px;background:#f8f9fa;border-radius:6px;border-left:3px solid #6c757d;transition:all .3s ease;animation:slideIn .5s ease-out forwards;opacity:0;}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .reference-item:hover{background:#e9ecef;transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,.1);}
+        .reference-item strong{color:#2c3e50;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1abc9c,#16a085,#f1c40f,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(26,188,156,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #1abc9c;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#e0f7fa,#b2ebf2);border-left:5px solid #00acc1;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#00838f;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #00acc1;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#00838f;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#1abc9c;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#1abc9c;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 4 (Bagian 2)</h1>
+            <div class="subtitle">Aliasing, Rekonstruksi &amp; Pemrosesan Diskrit &mdash; Catatan Sarjana &amp; Pascasarjana</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <a class="navbtn" href="chapter3b.html" title="Bab 3b">&#8592; Bab 3b</a>
+            <a class="navbtn" href="chapter4a.html" title="Sebelumnya: Bab 4a">&#8592; Bab 4a</a>
+            <span class="navcur">Bab 4b</span>
+            <span class="navbtn navdisabled" title="Segera hadir">Bab 5 &#8594;</span>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#aliasing">Aliasing</a>
+            <a href="#recon">Rekonstruksi</a>
+            <a href="#dtproc">Pemrosesan Diskrit</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+            <a href="#references">Referensi</a>
+        </nav>
+
+        <div class="content">
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 4b: Aliasing &amp; Rekonstruksi</h2>
+                <p>Melanjutkan <a href="chapter4a.html">Bab 4a</a>, bagian ini membahas apa yang terjadi bila syarat Nyquist <em>tidak</em> dipenuhi (aliasing), cara merekonstruksi sinyal asli dari sampel (interpolasi), dan arsitektur <strong>pemrosesan sinyal waktu-kontinyu lewat sistem diskrit</strong> (CT &rarr; sampler &rarr; DT system &rarr; reconstructor &rarr; CT).</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">⚠</span>Aliasing</h4>
+                        <p>Tumpang tindih spektrum saat <em>f<sub>s</sub> ≤ 2f<sub>M</sub></em>; frekuensi tinggi "menyamar" jadi rendah.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">⌇</span>Rekonstruksi</h4>
+                        <p>Low-pass ideal atas spektrum sampel &rarr; interpolasi <em>sinc</em> &rarr; <em>x(t)</em> utuh.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">⇄</span>DT Processing</h4>
+                        <p>Sistem diskrit memproses sinyal CT via sampling &amp; rekonstruksi; setara filter CT tertentu.</p>
+                    </div>
+                </div>
+                <div class="note"><strong>Tujuan (S1/S2):</strong> (i) jelaskan mekanisme aliasing, (ii) rumuskan rekonstruksi via sinc, (iii) pahami blok pemrosesan diskrit &amp; respons frekuensi ekuivalennya.</div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#aliasing">Aliasing &amp; Pelipatan Frekuensi</a></li>
+                        <li><a href="#recon">Rekonstruksi (Interpolasi Sinc)</a></li>
+                        <li><a href="#dtproc">Pemrosesan CT via Sistem Diskrit</a></li>
+                        <li><a href="#simulation">Simulasi Interaktif</a></li>
+                        <li><a href="#exercises">Latihan Terselesaikan</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="aliasing" class="section" style="--delay:1s;">
+                <h2>⚠ Aliasing &amp; Pelipatan Frekuensi</h2>
+                <p>Bila <em>x(t)</em> band-limited <em>|ω|&lt;ω<sub>M</sub></em> namun <em>ω<sub>s</sub> ≤ 2ω<sub>M</sub></em>, salinan spektrum di (4.6) Bab 4a bertumpang tindih. Komponen pada frekuensi <em>ω<sub>0</sub></em> muncul di spektrum sampel pada lokasi <em>ω<sub>0</sub> &minus; kω<sub>s</sub></em> terdekat &mdash; "terlipat" ke dalam dasar <em>[&minus;ω<sub>s</sub>/2, ω<sub>s</sub>/2]</em>.</p>
+                <div class="math">\[ \omega_{\text{alias}} = \omega_0 - k\omega_s,\quad \text{dengan } |\omega_{\text{alias}}| \le \frac{\omega_s}{2} \]<span class="eq-label">(4.8)</span></div>
+                <div class="warning"><strong>Dampak:</strong> Setelah aliasing terjadi, informasi frekuensi asli <em>tidak dapat dipulihkan</em> &mdash; sebab itulah anti-aliasing low-pass (sebelum sampler) wajib saat <em>f<sub>s</sub></em> tak bisa dinaikkan.</div>
+
+                <h3>4.3 Pencegahan</h3>
+                <ul>
+                    <li>Naikkan <em>f<sub>s</sub></em> di atas Nyquist rate (praktik: &gt; 2.5&times; <em>f<sub>M</sub></em>).</li>
+                    <li>Atau pasang <strong>anti-aliasing filter</strong> (LP ideal/approx) sebelum sampling untuk membatasi <em>f<sub>M</sub></em>.</li>
+                </ul>
+            </div>
+
+            <div id="recon" class="section" style="--delay:1.2s;">
+                <h2>⌇ Rekonstruksi (Interpolasi Sinc)</h2>
+                <p>Jika sampling bebas aliasing, keluarkan pita dasar dengan LP ideal <em>H<sub>r</sub>(jω)=T</em> untuk <em>|ω|&lt;ω<sub>s</sub>/2</em>. Di domain waktu:</p>
+                <div class="math">\[ x_r(t) = \sum_{n=-\infty}^{\infty} x(nT)\, \frac{\sin\big(\omega_s(t-nT)/2\big)}{\omega_s(t-nT)/2} = \sum_{n} x(nT)\,\text{sinc}\!\left(\frac{t-nT}{T}\right) \]<span class="eq-label">(4.9)</span></div>
+                <p>dengan <em>sinc(u)=sin(πu)/(πu)</em>. Setiap sampel dikalikan <em>sinc</em> yang nol di sampel lain &rarr; interpolasi sempurna (jika <em>h<sub>r</sub></em> ideal &amp; tak terhingga).</p>
+                <div class="note"><strong>Praktis:</strong> LP ideal tak kausal; implementasi nyata pakai <em>zero-order hold</em> (tangga) atau <em>first-order hold</em>, lalu dikompensasi &mdash; pendekatan, bukan eksak.</div>
+            </div>
+
+            <div id="dtproc" class="section" style="--delay:1.4s;">
+                <h2>⇄ Pemrosesan CT via Sistem Diskrit</h2>
+                <p>Arsitektur: <em>x(t) → (sampler T) → x[n]=x(nT) → (DT system H(e<sup>jΩ</sup>)) → y[n] → (rekonstruksi) → y(t)</em>. Respons frekuensi total sistem CT ekuivalen:</p>
+                <div class="math">\[ H_{\text{eq}}(j\omega) = H_r(j\omega)\, H(e^{j\omega T})\, H_a(j\omega),\quad |\omega|<\frac{\omega_s}{2} \]<span class="eq-label">(4.10)</span></div>
+                <p>di mana <em>H<sub>a</sub></em> = anti-aliasing (pra-sampling), <em>H(e<sup>jΩ</sup>)</em> = DT system, <em>H<sub>r</sub></em> = rekonstruksi. Di dalam dasar <em>[&minus;ω<sub>s</sub>/2, ω<sub>s</sub>/2]</em>, frekuensi diskrit <em>Ω=ωT</em> memetakan pita CT ke pita DT <em>[&minus;π,π]</em>.</p>
+                <div class="warning"><strong>Penting:</strong> Pemetaan <em>Ω=ωT</em> berarti pita lolos DT <em>[&minus;Ω<sub>c</sub>,Ω<sub>c</sub>]</em> setara pita CT <em>[&minus;Ω<sub>c</sub>/T, Ω<sub>c</sub>/T]</em>. Semakin kecil <em>T</em> (sampling lebih cepat), semakin lebar pita CT yang diproses.</div>
+            </div>
+
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>🎮 Aliasing pada Sinyal Waktu</h2>
+                <p>Lihat sinyal kontinyu asli (biru) vs sinyal yang "terlihat" setelah sampling terlalu lambat (oranye). Turunkan <em>f<sub>s</sub></em> hingga di bawah Nyquist &mdash; gelombang pulih terlihat lebih lambat (frekuensi alias).</p>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="fSig">Frekuensi sinyal f<sub>0</sub> (Hz)</label>
+                        <input type="range" id="fSig" min="0.5" max="4" step="0.1" value="1.5">
+                        <div class="value-display" id="fSigVal">1.5</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="fSamp">Laju sampling f<sub>s</sub> (Hz)</label>
+                        <input type="range" id="fSamp" min="1" max="20" step="0.1" value="12">
+                        <div class="value-display" id="fSampVal">12.0</div>
+                    </div>
+                    <button class="btn" onclick="resetAlias()">Reset</button>
+                </div>
+                <div class="simulation-container">
+                    <canvas id="aliasCanvas" width="900" height="320"></canvas>
+                </div>
+                <p style="text-align:center;margin-top:15px;color:#6c757d;">
+                    <strong>Coba:</strong> Alias terlihat = |f<sub>0</sub> &minus; k·f<sub>s</sub>| terdekat. Turunkan f<sub>s</sub> hingga mendekati f<sub>0</sub>.
+                </p>
+            </div>
+
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Frekuensi alias</h4>
+                    <p>Sinyal <em>f<sub>0</sub>=9</em> kHz disampling pada <em>f<sub>s</sub>=10</em> kHz. Frekuensi apa yang terlihat?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Cari <em>k</em> sehingga <em>|9 &minus; k·10|</em> minimum: <em>k=1</em> &rarr; <em>|9&minus;10|=1</em> kHz. Jadi sinyal 9 kHz tampak sebagai 1 kHz (alias). Nyquist rate = 18 kHz, tapi kita pakai 10 kHz &rarr; aliasing.</p>
+                        </div>
+                    </details>
+                </div>
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Rumus rekonstruksi</h4>
+                    <p>Tulis ulang (4.9) untuk <em>T=1</em> dan jelaskan arti <em>sinc(t&minus;n)</em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Untuk <em>T=1</em>: <em>x<sub>r</sub>(t)=Σ x(n) sinc(t&minus;n)</em>. Fungsi <em>sinc(t&minus;n)=sin(π(t&minus;n))/(π(t&minus;n))</em> bernilai 1 di <em>t=n</em> dan 0 di semua sampel integer lain &rarr; setiap sampel "mengisi" celah secara halus tanpa ganggu sampel tetangga.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Bab 4b</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Aliasing</strong>: terjadi bila <em>f<sub>s</sub> ≤ 2f<sub>M</sub></em>; frekuensi terlipat (Pers. 4.8), tak dapat dipulihkan.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Rekonstruksi</strong>: interpolasi sinc (Pers. 4.9) via LP ideal; praktis pakai hold + kompensasi.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>DT processing</strong>: CT → sampler → DT system → rekonstruksi; <em>Ω=ωT</em> (Pers. 4.10).</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Anti-aliasing</strong>: LP pra-sampling wajib bila <em>f<sub>s</sub></em> tak bisa dinaikkan.</div></div>
+                </div>
+                <p>Bab 4 lengkap: filtering &amp; sampling CT. Lanjut ke Bab 5 (transformasi diskrit: DTFT/Laplace/z) &mdash; segera hadir.</p>
+            </div>
+
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+                <div class="reference-item">
+                    <strong>Oppenheim, A.V., Willsky, A.S., &amp; Nawab, S.H.</strong> (1996). <em>Signals and Systems</em>. Ed. ke-2. Prentice Hall. Bab 4 &mdash; Filtering &amp; Sampling (Bagian 2: Aliasing, Reconstruction, Discrete-Time Processing). ISBN: 0132085550.
+                </div>
+                <div class="reference-item">
+                    <strong>Sumber tambahan:</strong>
+                    <ul style="margin-top:10px;padding-left:20px;">
+                        <li><a href="https://en.wikipedia.org/wiki/Aliasing" target="_blank">Wikipedia – Aliasing</a></li>
+                        <li><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/" target="_blank">MIT OCW – Signals &amp; Systems</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Panduan Interaktif Oppenheim Signals &amp; Systems | Bab 4b</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">Aliasing, Rekonstruksi &amp; Pemrosesan Diskrit &mdash; penyelesaian sampling waktu-kontinyu.</p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <a class="navbtn" href="chapter4a.html" title="Sebelumnya: Bab 4a">&#8592; Bab 4a</a>
+                    <span class="navcur">Bab 4b</span>
+                </div>
+                <p style="margin-top:15px;"><button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button></p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    const aliasCanvas = document.getElementById('aliasCanvas');
+    const ctxA = aliasCanvas.getContext('2d');
+    const W = aliasCanvas.width, H = aliasCanvas.height, mid = H / 2;
+    const TSPAN = 4; // time axis 0..4 s (we show window)
+
+    function drawAlias() {
+        const f0 = parseFloat(document.getElementById('fSig').value);
+        const fs = parseFloat(document.getElementById('fSamp').value);
+        document.getElementById('fSigVal').textContent = f0.toFixed(1);
+        document.getElementById('fSampVal').textContent = fs.toFixed(1);
+        ctxA.clearRect(0, 0, W, H);
+        ctxA.strokeStyle = '#495057'; ctxA.lineWidth = 2;
+        ctxA.beginPath(); ctxA.moveTo(0, mid); ctxA.lineTo(W, mid); ctxA.stroke();
+        // true continuous signal
+        ctxA.beginPath(); ctxA.strokeStyle = '#2980b9'; ctxA.lineWidth = 3;
+        for (let px = 0; px <= W; px++) {
+            const t = (px / W) * TSPAN;
+            const y = mid - Math.sin(2 * Math.PI * f0 * t) * (H / 3);
+            if (px === 0) ctxA.moveTo(px, y); else ctxA.lineTo(px, y);
+        }
+        ctxA.stroke();
+        ctxA.fillStyle = '#2980b9'; ctxA.font = 'bold 13px Arial';
+        ctxA.fillText('Sinyal asli x(t)', 12, 24);
+        // sampled then reconstructed (alias) signal: connect samples with lines
+        const Ts = 1 / fs;
+        const aliasF = Math.abs(f0 - Math.round(f0 / fs) * fs);
+        ctxA.beginPath(); ctxA.strokeStyle = '#e67e22'; ctxA.lineWidth = 2;
+        let first = true;
+        for (let t = 0; t <= TSPAN + 1e-9; t += Ts) {
+            const y = mid - Math.sin(2 * Math.PI * aliasF * t) * (H / 3);
+            const px = (t / TSPAN) * W;
+            if (first) { ctxA.moveTo(px, y); first = false; } else ctxA.lineTo(px, y);
+            // sample dot
+        }
+        ctxA.stroke();
+        // sample dots
+        for (let t = 0; t <= TSPAN + 1e-9; t += Ts) {
+            const px = (t / TSPAN) * W;
+            const y = mid - Math.sin(2 * Math.PI * aliasF * t) * (H / 3);
+            ctxA.fillStyle = '#e67e22';
+            ctxA.beginPath(); ctxA.arc(px, y, 3, 0, 2 * Math.PI); ctxA.fill();
+        }
+        ctxA.fillStyle = '#e67e22'; ctxA.font = 'bold 13px Arial';
+        const label = (fs <= 2 * f0) ? ('Terlihat (alias) f=' + aliasF.toFixed(2) + ' Hz') : 'Terlihat f=' + aliasF.toFixed(2) + ' Hz';
+        ctxA.fillText(label, 12, 44);
+    }
+
+    function resetAlias() {
+        document.getElementById('fSig').value = 1.5;
+        document.getElementById('fSamp').value = 12;
+        document.getElementById('fSigVal').textContent = '1.5';
+        document.getElementById('fSampVal').textContent = '12.0';
+        drawAlias();
+    }
+
+    document.getElementById('fSig').addEventListener('input', drawAlias);
+    document.getElementById('fSamp').addEventListener('input', drawAlias);
+    drawAlias();
+</script>
+</body>
+</html>
