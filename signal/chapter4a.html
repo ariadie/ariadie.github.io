@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 4a: Filtering &amp; Sampling Waktu-Kontinyu</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#16a085,#1abc9c);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#1abc9c;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #1abc9c;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#117a65;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #1abc9c;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px)scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#e8f8f5 0%,#d1f2eb 100%);}
+        .concept-card h4{color:#117a65;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#1abc9c;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#1abc9c,#16a085,#f1c40f);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#1abc9c;box-shadow:0 0 0 3px rgba(26,188,156,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#1abc9c,#16a085);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(26,188,156,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,188,156,.4);background:linear-gradient(135deg,#16a085,#1abc9c);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position-relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        .references{margin-top:40px;padding-top:30px;border-top:2px solid #e9ecef;animation:fadeIn 1s ease-in;}
+        .reference-item{margin-bottom:20px;padding:15px;background:#f8f9fa;border-radius:6px;border-left:3px solid #6c757d;transition:all .3s ease;animation:slideIn .5s ease-out forwards;opacity:0;}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .reference-item:hover{background:#e9ecef;transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,.1);}
+        .reference-item strong{color:#2c3e50;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1abc9c,#16a085,#f1c40f,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(26,188,156,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #1abc9c;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#e0f7fa,#b2ebf2);border-left:5px solid #00acc1;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#00838f;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #00acc1;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#00838f;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#1abc9c;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#1abc9c;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 4 (Bagian 1)</h1>
+            <div class="subtitle">Filtering &amp; Sampling Waktu-Kontinyu &mdash; Catatan Sarjana &amp; Pascasarjana</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <a class="navbtn" href="chapter3a.html" title="Bab 3a">&#8592; Bab 3a</a>
+            <a class="navbtn" href="chapter3b.html" title="Sebelumnya: Bab 3b">&#8592; Bab 3b</a>
+            <span class="navcur">Bab 4a</span>
+            <a class="navbtn" href="chapter4b.html" title="Lanjut: Bab 4b">Bab 4b &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#filtering">Filtering</a>
+            <a href="#ideal">Filter Ideal</a>
+            <a href="#sampling">Sampling CT</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+            <a href="#references">Referensi</a>
+        </nav>
+
+        <div class="content">
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 4a: Filtering &amp; Sampling</h2>
+                <p>Bab 4 (Oppenheim ed. 2) membahas bagaimana kita <strong>memanipulasi spektrum</strong> lewat sistem LTI (filtering) dan bagaimana sinyal waktu-kontinyu (continuous-time, CT) dapat diwakilkan oleh sampel-sampelnya (sampling). Bagian ini (<strong>Bab 4a</strong>) membagi dua tema utama:</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">⛛</span>Filtering</h4>
+                        <p>Sistem LTI dengan <em>H(jω)</em> memilih/menekan pita frekuensi. Dasar low-pass (LP), high-pass (HP), band-pass (BP).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">⊞</span>Sampling</h4>
+                        <p>Pengambilan nilai <em>x(t)</em> tiap <em>T</em> &mdash; teorema sampling Nyquist menjamin rekonstruksi tanpa kehilangan.</p>
+                    </div>
+                </div>
+                <div class="note"><strong>Tujuan (S1/S2):</strong> (i) menghubungkan respons frekuensi <em>H(jω)</em> dengan bentuk filtering, (ii) memahami filtering ideal &amp; distorsi fasa, (iii) menurunkan &amp; menerapkan teorema sampling CT.</div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#filtering">Filtering &amp; Frequency Response</a></li>
+                        <li><a href="#ideal">Filter Ideal (LP/HP/BP) &amp; Distorsi</a></li>
+                        <li><a href="#sampling">Teorema Sampling Waktu-Kontinyu</a></li>
+                        <li><a href="#simulation">Simulasi Interaktif</a></li>
+                        <li><a href="#exercises">Latihan Terselesaikan</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="filtering" class="section" style="--delay:1s;">
+                <h2>🌊 Filtering &amp; Frequency Response</h2>
+                <p>Dari <a href="chapter2b.html">Bab 2b</a>, eksponensial kompleks <em>e<sup>jωt</sup></em> adalah eigenfunction sistem LTI: keluarannya <em>H(jω)e<sup>jωt</sup></em>, dengan <em>H(jω)</em> = frequency response = CTFT dari impulse response <em>h(t)</em>:</p>
+                <div class="math">\[ H(j\omega) = \int_{-\infty}^{\infty} h(t)\, e^{-j\omega t}\, dt \]<span class="eq-label">(4.1)</span></div>
+                <p>Untuk sinyal sembarang <em>x(t)</em> (spektrum <em>X(jω)</em>), keluaran <em>y(t)</em> memilik spektrum:</p>
+                <div class="math">\[ Y(j\omega) = H(j\omega)\, X(j\omega) \]<span class="eq-label">(4.2)</span></div>
+                <p>Inilah inti filtering: sistem LTI <strong>mengalikan</strong> spektrum masukan dengan respons frekuensinya (sifat konvolusi⇔perkalian dari <a href="chapter3b.html">Bab 3b</a>).</p>
+                <h3>4.1 Magnitudo &amp; Fasa</h3>
+                <div class="math">\[ H(j\omega) = |H(j\omega)|\, e^{j\angle H(j\omega)} \]<span class="eq-label">(4.3)</span></div>
+                <p>Untuk menjaga bentuk gelombang (tanpa distorsi amplitudo), kita inginkan <em>|H(jω)|</em> konstan pada pita lolos dan <em>∠H(jω) = &minus;ω t<sub>d</sub></em> (fasa linear ⇒ semua frekuensi tertunda sama).</p>
+            </div>
+
+            <div id="ideal" class="section" style="--delay:1.2s;">
+                <h2>⛛ Filter Ideal</h2>
+                <p><strong>Low-pass (LP) ideal</strong> dengan frekuensi cut-off <em>ω<sub>c</sub></em>:</p>
+                <div class="math">\[ H_{LP}(j\omega) = \begin{cases} 1, & |\omega| \le \omega_c \\ 0, & |\omega| > \omega_c \end{cases} \quad\Longleftrightarrow\quad h_{LP}(t) = \frac{\sin(\omega_c t)}{\pi t} \]<span class="eq-label">(4.4)</span></div>
+                <p>Impulse response ini non-kausal (bernilai untuk <em>t &lt; 0</em>) &amp; berdurasi tak hingga &mdash; filter ideal tak dapat diimplementasikan secara eksak secara waktu-kontinyu nyata, tapi sangat berguna sebagai acuan teoretis.</p>
+                <table>
+                    <tr><th>Filter</th><th><em>H(jω)</em></th><th><em>h(t)</em></th></tr>
+                    <tr><td>LP</td><td>gate <em>|ω| ≤ ω<sub>c</sub></em></td><td><em>sin(ω<sub>c</sub>t)/(πt)</em></td></tr>
+                    <tr><td>HP</td><td>1 &minus; LP</td><td><em>δ(t) &minus; sin(ω<sub>c</sub>t)/(πt)</em></td></tr>
+                    <tr><td>BP</td><td>LP(<em>ω<sub>c2</sub></em>) &minus; LP(<em>ω<sub>c1</sub></em>)</td><td>selisih dua sinc</td></tr>
+                </table>
+                <div class="warning"><strong>Distorsi fasa:</strong> Meski <em>|H|</em> rata, fasa non-linear membuat komponen frekuensi berbeda tertunda tak sama ⇒ bentuk sinyal berubah (distorsi). Fasa linear penting untuk bentuk asli.</div>
+            </div>
+
+            <div id="sampling" class="section" style="--delay:1.4s;">
+                <h2>⊞ Teorema Sampling Waktu-Kontinyu</h2>
+                <p>Sampling periodik dengan periode <em>T</em> (<em>ω<sub>s</sub>=2π/T</em>) menghasilkan deret impuls:</p>
+                <div class="math">\[ x_p(t) = x(t)\, p(t),\quad p(t)=\sum_{n=-\infty}^{\infty}\delta(t-nT) = \frac{1}{T}\sum_{k=-\infty}^{\infty}e^{jk\omega_s t} \]<span class="eq-label">(4.5)</span></div>
+                <p>Di domain frekuensi, spektrum sampel adalah <strong>repetisi</strong> spektrum asli tiap <em>ω<sub>s</sub></em>:</p>
+                <div class="math">\[ X_p(j\omega) = \frac{1}{T}\sum_{k=-\infty}^{\infty} X\big(j(\omega-k\omega_s)\big) \]<span class="eq-label">(4.6)</span></div>
+
+                <h3>4.2 Syarat Nyquist</h3>
+                <div class="math">\[ \omega_s > 2\omega_M \quad\Longleftrightarrow\quad f_s > 2f_M \]<span class="eq-label">(4.7)</span></div>
+                <p>Jika <em>x(t)</em> <strong>band-limited</strong> (nol untuk <em>|ω|&gt;ω<sub>M</sub></em>) dan laju sampling memenuhi (4.7), repetisi spektrum tak tumpang tindih &mdash; pita asli dapat diisolasi dengan low-pass ideal (rekonstruksi sempurna). Laju <em>2f<sub>M</sub></em> disebut <strong>Nyquist rate</strong>.</p>
+                <div class="warning"><strong>Aliasing:</strong> Bila <em>ω<sub>s</sub> ≤ 2ω<sub>M</sub></em>, repetisi bertumpang tindih ⇒ frekuensi tinggi "menyamar" sebagai frekuensi rendah. Pembahasan lengkap di <a href="chapter4b.html">Bab 4b</a>.</div>
+            </div>
+
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>🎮 Sampling &amp; Aliasing Interaktif</h2>
+                <p>Lihat spektrum sinyal band-limited dan repetisinya saat di-sample. Turunkan laju sampling hingga <em>f<sub>s</sub> ≤ 2f<sub>M</sub></em> &mdash; perhatikan tumpang tindih (aliasing) muncul.</p>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="fmCtrl">Frekuensi sinyal f<sub>M</sub> (Hz)</label>
+                        <input type="range" id="fmCtrl" min="0.5" max="4" step="0.1" value="1.5">
+                        <div class="value-display" id="fmVal">1.5</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="fsCtrl">Laju sampling f<sub>s</sub> (Hz)</label>
+                        <input type="range" id="fsCtrl" min="1" max="12" step="0.1" value="6">
+                        <div class="value-display" id="fsVal">6.0</div>
+                    </div>
+                    <button class="btn" onclick="resetSamp()">Reset</button>
+                </div>
+                <div class="simulation-container">
+                    <canvas id="sampCanvas" width="900" height="300"></canvas>
+                </div>
+                <p style="text-align:center;margin-top:15px;color:#6c757d;">
+                    <strong>Coba:</strong> Nyquist rate = 2·f<sub>M</sub>. Turunkan f<sub>s</sub> di bawah itu untuk melihat aliasing (garis oranye bertumpuk).
+                </p>
+            </div>
+
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Nyquist rate</h4>
+                    <p>Sinyal <em>x(t) = sin(100πt)</em>. Berapa laju sampling minimum (Nyquist rate)?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Frekuensi <em>f<sub>M</sub> = 50</em> Hz. Maka Nyquist rate <em>f<sub>s</sub> &gt; 2f<sub>M</sub> = 100</em> Hz. Jadi minimum 100 sampel/detik (batas; praktis >100).</p>
+                        </div>
+                    </details>
+                </div>
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Impulse response LP ideal</h4>
+                    <p>Verifikasi CTFT dari <em>h(t)=sin(ω<sub>c</sub>t)/(πt)</em> adalah gate <em>|ω|≤ω<sub>c</sub></em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Gunakan inverse CTFT: <em>(1/2π)∫<sub>&minus;ω<sub>c</sub></sub><sup>ω<sub>c</sub></sup> e<sup>jωt</sup>dω = (1/2π)[e<sup>jωt</sup>/(jt)]<sub>&minus;ω<sub>c</sub></sub><sup>ω<sub>c</sub></sup> = sin(ω<sub>c</sub>t)/(πt)</em>. Terbukti (lihat juga (3.10) Bab 3b).</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Bab 4a</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Filtering</strong>: <em>Y(jω)=H(jω)X(jω)</em>; <em>H</em> memilih pita frekuensi.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Filter ideal</strong>: LP/HP/BP dengan <em>h(t)</em> non-kausal (sinc); fasa linear cegah distorsi.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Sampling CT</strong>: spektrum diulang tiap <em>ω<sub>s</sub></em> (Pers. 4.6).</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Nyquist</strong>: <em>f<sub>s</sub> &gt; 2f<sub>M</sub></em> agar tak ada aliasing (rekonstruksi sempurna).</div></div>
+                </div>
+                <p>Aliasing, rekonstruksi (interpolasi), dan pemrosesan CT via sistem diskrit dibahas di <a href="chapter4b.html">Bab 4b</a>.</p>
+            </div>
+
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+                <div class="reference-item">
+                    <strong>Oppenheim, A.V., Willsky, A.S., &amp; Nawab, S.H.</strong> (1996). <em>Signals and Systems</em>. Ed. ke-2. Prentice Hall. Bab 4 &mdash; Filtering &amp; Sampling (Bagian 1: Filtering, Sampling CT). ISBN: 0132085550.
+                </div>
+                <div class="reference-item">
+                    <strong>Sumber tambahan:</strong>
+                    <ul style="margin-top:10px;padding-left:20px;">
+                        <li><a href="https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem" target="_blank">Wikipedia – Nyquist–Shannon Sampling Theorem</a></li>
+                        <li><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/" target="_blank">MIT OCW – Signals &amp; Systems</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Panduan Interaktif Oppenheim Signals &amp; Systems | Bab 4a</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">Filtering &amp; Sampling Waktu-Kontinyu &mdash; manipulasi spektrum &amp; teorema Nyquist.</p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <a class="navbtn" href="chapter3b.html" title="Sebelumnya: Bab 3b">&#8592; Bab 3b</a>
+                    <span class="navcur">Bab 4a</span>
+                    <a class="navbtn" href="chapter4b.html" title="Lanjut: Bab 4b">Bab 4b &#8594;</a>
+                </div>
+                <p style="margin-top:15px;"><button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button></p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    const sampCanvas = document.getElementById('sampCanvas');
+    const ctxS = sampCanvas.getContext('2d');
+    const W = sampCanvas.width, H = sampCanvas.height, mid = H / 2;
+    const WSPANF = 14; // freq axis -7..7
+
+    function drawSamp() {
+        const fM = parseFloat(document.getElementById('fmCtrl').value);
+        const fs = parseFloat(document.getElementById('fsCtrl').value);
+        document.getElementById('fmVal').textContent = fM.toFixed(1);
+        document.getElementById('fsVal').textContent = fs.toFixed(1);
+        ctxS.clearRect(0, 0, W, H);
+        // axes
+        ctxS.strokeStyle = '#495057'; ctxS.lineWidth = 2;
+        ctxS.beginPath(); ctxS.moveTo(0, mid); ctxS.lineTo(W, mid); ctxS.stroke();
+        ctxS.fillStyle = '#495057'; ctxS.font = '12px Arial';
+        ctxS.fillText('ω →', W - 30, mid - 8);
+        // original spectrum (band-limited triangles at +-fM)
+        function drawBand(centerF, color, lw, dash) {
+            ctxS.strokeStyle = color; ctxS.lineWidth = lw;
+            if (dash) ctxS.setLineDash([5, 4]); else ctxS.setLineDash([]);
+            ctxS.beginPath();
+            for (let px = 0; px <= W; px++) {
+                const w = (px / W) * WSPANF - WSPANF / 2;
+                const dist = Math.abs(w - centerF);
+                const amp = dist <= fM ? (1 - dist / fM) * (H / 3) : 0;
+                const y = mid - amp;
+                if (px === 0) ctxS.moveTo(px, y); else ctxS.lineTo(px, y);
+            }
+            ctxS.stroke();
+        }
+        // repeated copies every fs
+        for (let k = -3; k <= 3; k++) {
+            const c = k * fs;
+            if (c + fM < -WSPANF / 2 || c - fM > WSPANF / 2) continue;
+            drawBand(c, '#1abc9c', 2, false);
+        }
+        // highlight overlap region (aliasing) if fs <= 2fM
+        ctxS.setLineDash([]);
+        if (fs <= 2 * fM) {
+            ctxS.fillStyle = 'rgba(230,126,34,.25)';
+            for (let k = -2; k <= 2; k++) {
+                const c = k * fs;
+                const x0 = ((c - fM + WSPANF / 2) / WSPANF) * W;
+                const x1 = ((c + fM + WSPANF / 2) / WSPANF) * W;
+                const x2 = ((c - 2 * fM + fM + WSPANF / 2) / WSPANF) * W;
+                ctxS.fillRect(Math.min(x0, x2), 0, Math.abs(x1 - x0), H);
+            }
+            ctxS.fillStyle = '#e67e22'; ctxS.font = 'bold 13px Arial';
+            ctxS.fillText('Aliasing! (fs ≤ 2fM)', 12, 24);
+        } else {
+            ctxS.fillStyle = '#1abc9c'; ctxS.font = 'bold 13px Arial';
+            ctxS.fillText('No aliasing (fs > 2fM)', 12, 24);
+        }
+    }
+
+    function resetSamp() {
+        document.getElementById('fmCtrl').value = 1.5;
+        document.getElementById('fsCtrl').value = 6;
+        document.getElementById('fmVal').textContent = '1.5';
+        document.getElementById('fsVal').textContent = '6.0';
+        drawSamp();
+    }
+
+    document.getElementById('fmCtrl').addEventListener('input', drawSamp);
+    document.getElementById('fsCtrl').addEventListener('input', drawSamp);
+    drawSamp();
+</script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Kumpulan materi interaktif tentang Sistem Kendali — Pole Placement, State Feedback, dan topik kontrol lainnya." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <title>Sistem Kendali — Materi Interaktif</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f0faf9;
+      --bg-soft: #e6f7f5;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #0d9488;
+      --primary-2: #14b8a6;
+      --accent: #06b6d4;
+      --accent-2: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 32px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0b1a1a;
+      --bg-soft: #112626;
+      --card: rgba(30,59,59,0.72);
+      --card-solid: #1a3333;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --muted-2: #64748b;
+      --line: rgba(71,105,105,0.44);
+      --primary: #14b8a6;
+      --primary-2: #2dd4bf;
+      --accent: #22d3ee;
+      --shadow: 0 24px 80px rgba(0,0,0,0.4);
+      --shadow-soft: 0 10px 30px rgba(0,0,0,0.28);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 72px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-mark {
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.75rem;
+    }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-title { font-weight: 800; font-size: 0.95rem; letter-spacing: -0.02em; }
+    .brand-subtitle { font-size: 0.75rem; color: var(--muted-2); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex: none; }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .page { max-width: 1100px; margin: 0 auto; padding: 0 26px 60px; }
+
+    .hero {
+      padding: 70px 0 40px;
+      text-align: center;
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: 2.6rem;
+      letter-spacing: -0.055em;
+      line-height: 1.15;
+    }
+    .hero p {
+      margin: 0 auto;
+      max-width: 600px;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 14px;
+    }
+    .topic-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 30px 30px 26px;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+    }
+    .topic-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-soft);
+      border-color: var(--primary);
+    }
+    .topic-card .icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--primary) 14%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 14px;
+    }
+    .topic-card h3 { margin: 0 0 6px; font-size: 1.15rem; letter-spacing: -0.02em; }
+    .topic-card p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
+    .topic-card .tag {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--primary);
+    }
+
+    .footer {
+      padding: 50px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 680px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.8rem; }
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">Sistem Kendali</span>
+          <span class="brand-subtitle">Control Systems</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="./pole-placement.html">Pole Place</a>
+        <a class="btn" href="./pid.html">PID</a>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <section class="hero">
+      <h1>Sistem Kendali</h1>
+      <p>Materi interaktif tentang perancangan sistem kendali — mencakup state feedback, pole placement, dan teknik kontrol klasik与现代.</p>
+    </section>
+
+      <div class="card-grid">
+        <a class="topic-card" href="./pole-placement.html">
+          <div class="icon">⚙️</div>
+          <h3>Pole Placement</h3>
+          <p>Perancangan kontrol state feedback menggunakan Formula Ackermann. Tempatkan pole sistem loop tertutup pada lokasi yang diinginkan untuk mencapai spesifikasi respons transien tertentu.</p>
+          <span class="tag">State Feedback &rarr;</span>
+        </a>
+        <a class="topic-card" href="./pid.html">
+          <div class="icon">🎛️</div>
+          <h3>Kontrol PID</h3>
+          <p>Proportional-Integral-Derivative control — metode kontrol umpan balik paling luas di industri. Simulasi step response dengan adjustable gain untuk berbagai jenis plant.</p>
+          <span class="tag">PID Tuning &rarr;</span>
+        </a>
+      </div>
+
+    <div class="footer">
+      &copy; 2026 Ariadie Chandra Nugraha — Sistem Kendali
+    </div>
+
+  </main>
+
+  <script>
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-site2");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-site2", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+  </script>
+</body>
+</html>

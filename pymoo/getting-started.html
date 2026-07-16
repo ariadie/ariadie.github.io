@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Panduan Memulai Cepat (Getting Started) Pymoo dalam Bahasa Indonesia - Formulasi dan Optimasi NSGA-II.">
+  <title>Memulai Cepat dengan Pymoo - Optimasi Multiobjektif</title>
+  <link rel="icon" href="images/favicon.ico">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Style -->
+  <link rel="stylesheet" href="style.css">
+  <!-- MathJax -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="images/logo.svg" alt="Pymoo Logo" class="sidebar-logo">
+        <span class="sidebar-title">pymoo Docs</span>
+      </div>
+      <ul class="sidebar-menu">
+        <li class="menu-label">Pengantar</li>
+        <li class="menu-item"><a href="index.html">🏠 Beranda</a></li>
+        <li class="menu-item active"><a href="getting-started.html">🚀 Memulai Cepat</a></li>
+        
+        <li class="menu-label">Penggunaan</li>
+        <li class="menu-item"><a href="problems.html">🧩 Formulasi Masalah</a></li>
+        <li class="menu-item"><a href="algorithms.html">🧬 Daftar Algoritme</a></li>
+        <li class="menu-item"><a href="decision-making.html">🎯 MCDM &amp; Kinerja</a></li>
+        <li class="menu-item"><a href="visualization.html">📊 Visualisasi Front</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <span>v0.6.2 (ID)</span>
+        <a href="https://github.com/anyoptimization/pymoo" target="_blank">GitHub</a>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <!-- Header -->
+      <header class="header">
+        <button class="menu-toggle" id="hamBtn">☰</button>
+        <span class="header-title-mobile">pymoo Docs</span>
+        <div class="header-actions">
+          <a href="../index.html" class="back-to-hub">⬅️ <span>Kembali ke Hub</span></a>
+          <button class="theme-toggle" id="themeToggle">🌙 <span>Mode Gelap</span></button>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="content">
+        <h1>Panduan Memulai Cepat (Quick Start)</h1>
+        
+        <p>Panduan ini akan menuntun Anda melalui langkah-langkah dasar penyelesaian masalah optimasi multiobjektif menggunakan <strong>pymoo</strong>. Kita akan memformulasikan masalah matematika dengan kendala (constraints) dan menyelesaikannya menggunakan algoritme genetika populer, <strong>NSGA-II</strong>.</p>
+
+        <h2>1. Formulasi Masalah Matematika</h2>
+        <p>Kita akan menyelesaikan masalah optimasi dua objektif (bi-objective) dengan dua kendala pertidaksamaan (inequality constraints) berikut:</p>
+        
+        <p style="text-align: center; margin: 1.5rem 0;">
+          $$\begin{align*}
+          \min \quad & f_1(x) = 100 \, (x_1^2 + x_2^2) \\
+          \max \quad & f_2(x) = -(x_1-1)^2 - x_2^2 \\
+          \text{s.t.} \quad & g_1(x) = 2 \, (x_1 - 0.1) \, (x_1 - 0.9) \le 0 \\
+          & g_2(x) = 20 \, (x_1 - 0.4) \, (x_1 - 0.6) \ge 0 \\
+          \text{bounds} \quad & -2 \le x_1, x_2 \le 2
+          \end{align*}$$
+        </p>
+
+        <div class="alert alert-warning">
+          <span class="alert-icon">⚠️</span>
+          <div class="alert-content">
+            <p><strong>Standarisasi Pymoo:</strong> Pymoo mengasumsikan semua fungsi objektif harus <strong>diminimalkan</strong>, dan semua kendala harus berbentuk <strong>$$g(x) \le 0$$</strong>. Oleh karena itu, kita perlu memodifikasi formulasi asli kita:</p>
+            <ul>
+              <li>Maksimalkan $$f_2(x)$$ diubah menjadi Minimalkan $$-f_2(x)$$ yaitu $$(x_1-1)^2 + x_2^2$$.</li>
+              <li>Pertidaksamaan $$g_2(x) \ge 0$$ dikalikan $$-1$$ menjadi $$-g_2(x) \le 0$$.</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>Formulasi standar Pymoo yang akan diimplementasikan:</p>
+        <p style="text-align: center; margin: 1.5rem 0;">
+          $$\begin{align*}
+          \min \quad & f_1(x) = 100 \, (x_1^2 + x_2^2) \\
+          \min \quad & f_2(x) = (x_1-1)^2 + x_2^2 \\
+          \text{s.t.} \quad & g_1(x) = 2 \, (x_1 - 0.1) \, (x_1 - 0.9) \, / \, 0.18 \le 0 \quad \text{(ternormalisasi)} \\
+          & g_2(x) = -20 \, (x_1 - 0.4) \, (x_1 - 0.6) \, / \, 4.8 \le 0 \quad \text{(ternormalisasi)}
+          \end{align*}$$
+        </p>
+
+        <div class="doc-img-wrapper">
+          <img src="images/getting_started_part_1_17_0.png" alt="Objektif Space &amp; Daerah Feasible" class="doc-img" style="max-width: 480px;">
+          <div class="doc-img-caption">Visualisasi Contour Kontinu dari Masalah Optimasi dengan Daerah Kendala (Feasible Region terbagi dua oleh g1 dan g2)</div>
+        </div>
+
+        <h2>2. Implementasi dalam Python</h2>
+        <p>Gunakan kelas <code>ElementwiseProblem</code> dari Pymoo untuk mendefinisikan masalah ini:</p>
+
+        <pre><code><span class="py-keyword">import</span> numpy <span class="py-keyword">as</span> np
+<span class="py-keyword">from</span> pymoo.core.problem <span class="py-keyword">import</span> ElementwiseProblem
+
+<span class="py-keyword">class</span> <span class="py-class">MyProblem</span>(ElementwiseProblem):
+
+    <span class="py-keyword">def</span> <span class="py-func">__init__</span>(<span class="py-builtin">self</span>):
+        <span class="py-builtin">super</span>().<span class="py-func">__init__</span>(n_var=<span class="py-number">2</span>,
+                         n_obj=<span class="py-number">2</span>,
+                         n_ieq_constr=<span class="py-number">2</span>,
+                         xl=np.array([-<span class="py-number">2.0</span>, -<span class="py-number">2.0</span>]),
+                         xu=np.array([<span class="py-number">2.0</span>, <span class="py-number">2.0</span>]))
+
+    <span class="py-keyword">def</span> <span class="py-func">_evaluate</span>(<span class="py-builtin">self</span>, x, out, *args, **kwargs):
+        f1 = <span class="py-number">100</span> * (x[<span class="py-number">0</span>]**<span class="py-number">2</span> + x[<span class="py-number">1</span>]**<span class="py-number">2</span>)
+        f2 = (x[<span class="py-number">0</span>]-<span class="py-number">1</span>)**<span class="py-number">2</span> + x[<span class="py-number">1</span>]**<span class="py-number">2</span>
+
+        g1 = <span class="py-number">2</span>*(x[<span class="py-number">0</span>]-<span class="py-number">0.1</span>) * (x[<span class="py-number">0</span>]-<span class="py-number">0.9</span>) / <span class="py-number">0.18</span>
+        g2 = -<span class="py-number">20</span>*(x[<span class="py-number">0</span>]-<span class="py-number">0.4</span>) * (x[<span class="py-number">0</span>]-<span class="py-number">0.6</span>) / <span class="py-number">4.8</span>
+
+        out[<span class="py-string">"F"</span>] = [f1, f2]
+        out[<span class="py-string">"G"</span>] = [g1, g2]
+
+problem = MyProblem()</code></pre>
+
+        <h2>3. Konfigurasi Algoritme NSGA-II</h2>
+        <p>Inisialisasi algoritme NSGA-II lengkap dengan operator evolusinya (Sampling, Crossover, dan Mutation):</p>
+
+        <pre><code><span class="py-keyword">from</span> pymoo.algorithms.moo.nsga2 <span class="py-keyword">import</span> NSGA2
+<span class="py-keyword">from</span> pymoo.operators.crossover.sbx <span class="py-keyword">import</span> SBX
+<span class="py-keyword">from</span> pymoo.operators.mutation.pm <span class="py-keyword">import</span> PM
+<span class="py-keyword">from</span> pymoo.operators.sampling.rnd <span class="py-keyword">import</span> FloatRandomSampling
+
+algorithm = NSGA2(
+    pop_size=<span class="py-number">40</span>,
+    sampling=FloatRandomSampling(),
+    crossover=SBX(prob=<span class="py-number">0.9</span>, eta=<span class="py-number">15</span>),
+    mutation=PM(eta=<span class="py-number">20</span>),
+    eliminate_duplicates=<span class="py-builtin">True</span>
+)</code></pre>
+
+        <h2>4. Eksekusi Optimasi</h2>
+        <p>Tentukan kriteria terminasi (misal: 40 generasi) dan panggil fungsi <code>minimize()</code>:</p>
+
+        <pre><code><span class="py-keyword">from</span> pymoo.optimize <span class="py-keyword">import</span> minimize
+<span class="py-keyword">from</span> pymoo.termination <span class="py-keyword">import</span> get_termination
+
+termination = get_termination(<span class="py-string">"n_gen"</span>, <span class="py-number">40</span>)
+
+res = minimize(problem,
+               algorithm,
+               termination,
+               seed=<span class="py-number">1</span>,
+               save_history=<span class="py-builtin">True</span>,
+               verbose=<span class="py-builtin">True</span>)
+
+<span class="py-builtin">print</span>(<span class="py-string">"Solusi keputusan (X):"</span>, res.X)
+<span class="py-builtin">print</span>(<span class="py-string">"Nilai objektif (F):"</span>, res.F)</code></pre>
+
+        <div class="doc-img-wrapper">
+          <img src="images/getting_started_part_2_34_0.png" alt="Pareto Front Hasil NSGA-II" class="doc-img" style="max-width: 480px;">
+          <div class="doc-img-caption">Hasil Pareto Front yang Diperoleh (Biru) Dibandingkan dengan Front Teoritis (Oranye)</div>
+        </div>
+
+        <h2>5. Pengambilan Keputusan &amp; Analisis Konvergensi</h2>
+        <p>Setelah mendapatkan Pareto Front, Anda dapat menyaring satu solusi terbaik berdasarkan bobot prioritas menggunakan <strong>Pseudo-Weights</strong> atau mengukur kualitas konvergensi melalui nilai <strong>Hypervolume</strong>.</p>
+        <p>Pelajari metode ini secara mendalam di halaman <a href="decision-making.html">Multi-Criteria Decision Making (MCDM)</a>.</p>
+      </main>
+    </div>
+  </div>
+
+  <!-- Shared Script -->
+  <script src="common.js"></script>
+</body>
+</html>

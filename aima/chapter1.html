@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 1: Introduction to AI &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#e74c3c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(231,76,60,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#e74c3c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(231,76,60,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#e74c3c;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #e74c3c;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#c0392b;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #e74c3c;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#fdedec 0%,#f5b7b1 100%);}
+        .concept-card h4{color:#c0392b;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#e74c3c;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#e74c3c,#f39c12,#2ecc71);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(231,76,60,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(231,76,60,.4);background:linear-gradient(135deg,#c0392b,#e74c3c);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e74c3c,#f39c12,#2ecc71,#3498db);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(231,76,60,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #e74c3c;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#e74c3c;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .timeline{position:relative;padding:20px 0 20px 40px;margin:20px 0;}
+        .timeline::before{content:'';position:absolute;left:18px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e74c3c,#3498db,#2ecc71);}
+        .timeline-item{position:relative;margin-bottom:25px;padding-left:30px;}
+        .timeline-item::before{content:'';position:absolute;left:-28px;top:8px;width:16px;height:16px;border-radius:50%;border:3px solid #e74c3c;background:#fff;}
+        .timeline-item.done::before{background:#e74c3c;}
+        .timeline-year{font-weight:700;color:#e74c3c;font-size:1.1em;}
+        .timeline-text{margin-top:5px;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 1</h1>
+            <div class="subtitle">Introduction &mdash; Artificial Intelligence: A Modern Approach</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 1</span>
+            <a class="navbtn" href="chapter3a.html" title="Lanjut: Bab 3a">Bab 3a &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#what">Definisi AI</a>
+            <a href="#approaches">Pendekatan</a>
+            <a href="#history">Sejarah</a>
+            <a href="#agents">Agen &amp; PEAS</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- WHAT IS AI -->
+            <div id="what" class="section" style="--delay:0s;">
+                <h2>1.1 Apa Itu AI?</h2>
+                <p>Tidak ada satu definisi yang diterima secara universal tentang kecerdasan buatan. Russell &amp; Norvig mengidentifikasi <strong>empat dimensi</strong> untuk mendefinisikan AI:</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">T</span> Thinking vs Acting</h4>
+                        <p>Apakah AI harus meniru proses berpikir manusia, atau cukup menunjukkan perilaku cerdas? Dimensi ini membedakan <em>cognitive modeling</em> dari <em>behavioral approach</em>.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">H</span> Human vs Rational</h4>
+                        <p>Apakah AI harus meniru manusia (bahkan dengan bias-nya), atau harus rasional (selalu benar secara logis)?</p>
+                    </div>
+                </div>
+
+                <h3>Empat Kategori Definisi AI</h3>
+                <table>
+                    <tr><th></th><th>Meniru Manusia</th><th>Berdasarkan Rasionalitas</th></tr>
+                    <tr><td><strong>Berpikir</strong></td><td>1a. Perancahan kognitif<br><em>"Apakah komputer berpikir?"</em></td><td>1b. Agen rasional<br><em>"Apa yang seharusnya komputer lakukan?"</em></td></tr>
+                    <tr><td><strong>Bertindak</strong></td><td>2a. Uji Turing<br><em>"Apakah komputer bertindak seperti manusia?"</em></td><td>2b. Agen rasional<br><em>"Apa yang seharusnya komputer lakukan?"</em></td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Pendekatan buku ini:</strong> Russell &amp; Norvig memilih <strong>definisi 1b &mdash; agen rasional</strong> sebagai fondasi utama. Namun, dimensi "meniru manusia" tetap penting, terutama di bidang pembelajaran mesin dan pengolahan bahasa alami.
+                </div>
+            </div>
+
+            <!-- APPROACHES -->
+            <div id="approaches" class="section" style="--delay:0.3s;">
+                <h2>1.2 Pendekatan &amp; Kondisi Rasionalitas</h2>
+
+                <h3>Agen Rasional</h3>
+                <p>Agen rasional adalah agen yang melakukan <strong>tindakan yang benar</strong>. Tindakan yang benar adalah tindakan yang menghasilkan hasil terbaik bagi agen, berdasarkan <em>performance measure</em> yang telah ditentukan.</p>
+
+                <h3>Kondisi Rasionalitas &mdash; Apa yang Dibutuhkan?</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Performance Measure</h4>
+                        <p>Kriteria yang menentukan seberapa sukses agen bertindak. Harus ditentukan berdasarkan <em>apa yang terjadi di lingkungan</em>, bukan berdasarkan apa yang dipikirkan agen.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">2</span> Persepsi Lingkungan</h4>
+                        <p>Momen saat ini, riwayat persepsi lengkap, dan kemampuan agen untuk mengenali persepsi harus diketahui.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">3</span> Pengetahuan Agen</h4>
+                        <p>Agen harus memiliki beberapa representasi tentang lingkungan dan kemampuan untuk menarik kesimpulan baru dari informasi yang diperoleh.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.25s">
+                        <h4><span class="icon">4</span> Aksi Tersedia</h4>
+                        <p>Daftar aksi yang dapat dilakukan agen di setiap keadaan lingkungan.</p>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Peringatan:</strong> Rasionalitas <strong>bukan</strong> omniscience. Agen rasional tidak harus "tahu segalanya" &mdash; ia harus membuat keputusan terbaik dengan informasi yang tersedia, atau memperoleh informasi tambahan jika biayanya lebih rendah dari nilai informasi tersebut.
+                </div>
+
+                <h3>Epistemologis vs Ontologis</h3>
+                <p>Ontologis: "Apa yang ada di dunia?" Epistemologis: "Apa yang agen ketahui?" AI berfokus pada pertanyaan epistemologis &mdash; bagaimana merepresentasikan dan menalar dengan pengetahuan yang terbatas.</p>
+            </div>
+
+            <!-- HISTORY -->
+            <div id="history" class="section" style="--delay:0.6s;">
+                <h2>1.3 Sejarah AI</h2>
+                <p>Perkembangan AI sebagai bidang ilmu dimulai pada tahun 1940-an hingga sekarang, dengan pasang surut yang signifikan.</p>
+
+                <div class="timeline">
+                    <div class="timeline-item done">
+                        <div class="timeline-year">1943 &mdash; McCulloch &amp; Pitts</div>
+                        <div class="timeline-text">Model neuron logika boolean pertama &mdash; jembatan antara neurologi dan logika formal.</div>
+                    </div>
+                    <div class="timeline-item done">
+                        <div class="timeline-year">1950 &mdash; Turing</div>
+                        <div class="timeline-text">Menerbitkan "Computing Machinery and Intelligence" &mdash; mengusulkan Uji Turing. Menulis program catur pertama (dipublikasikan 1952).</div>
+                    </div>
+                    <div class="timeline-item done">
+                        <div class="timeline-year">1956 &mdash; Konferensi Dartmouth</div>
+                        <div class="timeline-text">"Kecerdasan buatan" didefinisikan sebagai bidang riset. McCarthy, Minsky, Newell, Shannon, dan Simon mendirikan bidang ini.</div>
+                    </div>
+                    <div class="timeline-item done">
+                        <div class="timeline-year">1956&ndash;1974 &mdash; Golden Age</div>
+                        <div class="timeline-text">General Problem Solver (Newell &amp; Simon), program algebraic (SAM), ELIZA chatbot (Weizenbaum), program vision pertama (MIT).</div>
+                    </div>
+                    <div class="timeline-item done">
+                        <div class="timeline-year">1974&ndash;1980 &mdash; AI Winter I</div>
+                        <div class="timeline-text">Lighthill Report (1973): kritik terhadap hype AI. Dana riset dipotong signifikan di Inggris dan AS.</div>
+                    </div>
+                    <div class="timeline-item done">
+                        <div class="timeline-year">1980-an &mdash; Expert Systems</div>
+                        <div class="timeline-text">Expert systems komersial (MYCIN, R1/XCON) mengembalikan minat industri. Revolusi mesin Jepang (Fifth Generation) memicu persaingan global.</div>
+                    </div>
+                    <div class="timeline-item done">
+                        <div class="timeline-year">1987&ndash;1993 &mdash; AI Winter II</div>
+                        <div class="timeline-text">Kejatuhan mesin Lisp, kegagalan expert systems dalam scaling, laporan AI Winter kedua.</div>
+                    </div>
+                    <div class="timeline-item done">
+                        <div class="timeline-year">1990-an &mdash; Pembelajaran Mesin</div>
+                        <div class="timeline-text">Jaringan saraf tiruan kembali (backpropagation), k-nearest neighbors, Naive Bayes, decision trees. Pemenang komputer catur Kasparov (Deep Blue, 1997).</div>
+                    </div>
+                    <div class="timeline-item done">
+                        <div class="timeline-year">2000-an &mdash; Probabilistik &amp; Big Data</div>
+                        <div class="timeline-text">Probabilistic reasoning, graphical models, dan pendekatan data-driven mendominasi. Internet menghasilkan data besar-besaran.</div>
+                    </div>
+                    <div class="timeline-item done">
+                        <div class="timeline-year">2011&ndash;sekarang &mdash; Deep Learning</div>
+                        <div class="timeline-text">AlexNet (2012), AlphaGo (2016), GPT/LLM (2018&ndash;2024). Deep learning mentransformasi vision, NLP, robotics, dan science.</div>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Pola berulang:</strong> AI mengalami siklus hype &rarr; ekspektasi tinggi &rarr; kekecewaan &rarr; kemajuan nyata. Setiap "winter" menghasilkan teknik yang lebih matang dan realistis.
+                </div>
+            </div>
+
+            <!-- AGENTS & PEAS -->
+            <div id="agents" class="section" style="--delay:0.9s;">
+                <h2>1.4 Agen &amp; Lingkungan</h2>
+                <p>Konsep inti dalam AI modern: <strong>agen</strong> &mdash; entitas yang mempersepsi lingkungan dan bertindak berdasarkan persepsi tersebut.</p>
+
+                <h3>Tipe-tipe Agen</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">SA</span> Simple Reflex Agent</h4>
+                        <p>Merespons hanya berdasarkan persepsi saat ini, mengabaikan riwayat. Berfungsi hanya jika lingkungan dapat diwakili oleh kondisi yang sepenuhnya terlihat.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">RA</span> Reflex Agent with State</h4>
+                        <p>Mempertahankan status internal tentang lingkungan &mdash; informasi yang tidak tersedia dari persepsi saat ini. Memodelkan bagaimana dunia berubah.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">GA</span> Goal-Based Agent</h4>
+                        <p>Menggunakan informasi tujuan untuk memilih aksi. Informasi tentang masa depan membantu memilih antara aksi yang memuaskan saat ini.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.25s">
+                        <h4><span class="icon">UA</span> Utility-Based Agent</h4>
+                        <p>Menggunakan fungsi utilitas untuk menentukan seberapa "puas" suatu keadaan. Memungkinkan perbandingan antara keadaan yang berbeda derajat kepuasannya.</p>
+                    </div>
+                </div>
+
+                <h3>PEAS &mdash; Spesifikasi Agen</h3>
+                <p>Setiap agen harus didefinisikan dengan 4 komponen PEAS:</p>
+
+                <table>
+                    <tr><th>Elemen</th><th>Arti</th><th>Contoh (Taxi Driver)</th></tr>
+                    <tr><td><strong>P</strong>erformance Measure</td><th>Apa yang harus dioptimasi?</th><td>Keamanan, kecepatan, kenyamanan, legalitas, profit</td></tr>
+                    <tr><td><strong>E</strong>nvironment</th><td>Apa yang dihadapi agen?</th><td>Jalan raya, pejalan kaki, kendaraan lain, cuaca, penumpang</td></tr>
+                    <tr><td><strong>A</strong>ctuators</th><td>Apa yang dapat dilakukan agen?</th><td>Setir, pedal gas/rem, klakson, lampu sein, jendela</td></tr>
+                    <tr><td><strong>S</strong>ensors</th><th>Apa yang dirasakan agen?</th><td>Kamera, GPS, sonar, speedometer, odometer, sensor sentuh, mikrofon</td></tr>
+                </table>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:1.2s;">
+                <h2>Simulasi Interaktif: PEAS Builder</h2>
+                <p>Jelajahi bagaimana agen AI yang berbeda didefinisikan dengan framework PEAS. Pilih lingkungan untuk melihat komponen PEAS yang sesuai.</p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="envSelect">Lingkungan Agen</label>
+                        <select id="envSelect">
+                            <option value="taxi">Taxi Driver</option>
+                            <option value="vacuum">Vacuum Cleaner</option>
+                            <option value="chess">Chess Player</option>
+                            <option value="medical">Medical Diagnosis</option>
+                            <option value="autonomous">Autonomous Car</option>
+                            <option value="recommender">Recommender System</option>
+                            <option value="roomba">Roomba Vacuum</option>
+                            <option value="chatbot">Customer Service Bot</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="showPEAS()">Tampilkan PEAS</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="peasCanvas" width="800" height="400"></canvas>
+                </div>
+
+                <div id="peasDetail" style="margin-top:20px;"></div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:1.5s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Mengapa buku ini memilih agen rasional?</h4>
+                    <p>Jelaskan mengapa Russell &amp; Norvig memilih definisi "agen rasional" alih-alih "meniru manusia" sebagai pendekatan utama.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Agen rasional memiliki beberapa keunggulan: (1) lebih umum &mdash; tidak terbatas pada perilaku manusia; (2) memiliki standar objektif &mdash; berbeda dari pendekatan antropomorfik yang subjektif; (3) dapat melebihi kemampuan manusia dalam许多 domain. Rasionalitas juga merupakan konsep yang lebih dapat diukur dan diverifikasi secara formal.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; PEAS untuk Robot Pemadam Kebakaran</h4>
+                    <p>Tuliskan komponen PEAS untuk agen robot pemadam kebakaran.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>P</strong>erformance: Memadamkan api dengan cepat, meminimalkan kerusakan properti, menjaga keselamatan manusia, efisiensi air, mematuhi protokol keselamatan.</p>
+                            <p><strong>E</strong>nvironment: Api, asap, suhu tinggi, bangunan, orang, selang, akses jalan, cuaca, material yang mudah terbakar.</p>
+                            <p><strong>A</strong>ctuators: Nozzle, pompa air, robot arm, kamera pan-tilt, sirine, lampu, gerakan (roda/tracks), intercom.</p>
+                            <p><strong>S</strong>ensors: Termal camera, smoke detector, gas sensor, kamera RGB, LiDAR, GPS, microphone (teriakan/minta tolong), gyroscopic sensor.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Rasional vs Omniscience</h4>
+                    <p>Seorang petani rasional tidak memiliki pengetahuan tentang cuaca masa depan tetapi tetap memutuskan untuk menanam padi. Apakah ini rasional? Mengapa?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Ya, ini rasional. Rasionalitas <strong>bukan</strong> berarti mengetahui segalanya (omniscience). Rasionalitas berarti <strong>bertindak sebaik mungkin berdasarkan informasi yang tersedia</strong>. Jika petani memiliki informasi tentang musim, kelembaban tanah, dan sejarah cuaca, maka keputusan menanam padi adalah rasional &mdash; bahkan jika hasilnya tidak sempurna karena prediksi cuaca yang salah.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Lingkungan Partially Observable</h4>
+                    <p>Berikan contoh lingkungan yang partially observable, dan jelaskan bagaimana agen dapat mengatasinya.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Contoh:</strong> Permainan poker &mdash; agen tidak dapat melihat kartu lawan, tetapi dapat menyimpulkan informasi dari pola taruhan. <strong>Solusi:</strong> Agen dapat menggunakan <em>belief state</em> (himpunan keadaan yang mungkin) alih-alih keadaan tunggal, atau menggunakan model probabilistik untuk memperkirakan keadaan tersembunyi dari bukti yang tersedia.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:2s;">
+                <h2>Ringkasan Bab 1</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>AI</strong> adalah studi tentang agen yang menerima persepsi dari lingkungan dan mengambil tindakan. Definisi utama: <em>agen rasional</em>.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Empat dimensi AI:</strong> Thinking vs Acting, Human vs Rational. Buku ini berfokus pada <em>thinking rationally</em> (hukum rasionalitas) dan <em>acting rationally</em> (agen rasional).</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>PEAS:</strong> Performance, Environment, Actuators, Sensors &mdash; kerangka kerja untuk mendefinisikan spesifikasi agen.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Empat tipe agen:</strong> Simple Reflex, Reflex with State, Goal-Based, Utility-Based &mdash; dari yang paling sederhana hingga yang paling kompleks.</div>
+                    </div>
+                </div>
+                <p>Lanjut ke <a href="chapter3a.html">Bab 3a</a> (Problem Formulation &amp; Uninformed Search) atau <a href="index.html">Beranda</a>.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 1</p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 1</span>
+                    <a class="navbtn" href="chapter3a.html" title="Lanjut: Bab 3a">Bab 3a &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== PEAS DATA =====
+const peasData = {
+    taxi: {
+        name: 'Taxi Driver',
+        P: { title: 'Performance Measure', items: ['Keselamatan penumpang', 'Kecepatan', 'Kenyamanan', 'Legalitas', 'Profit', 'Hemat bahan bakar'] },
+        E: { title: 'Environment', items: ['Jalan raya & lalu lintas', 'Pejalan kaki & pesepeda', 'Kendaraan lain', 'Cuaca & visibilitas', 'Penumpang', 'Rambu lalu lintas'] },
+        A: { title: 'Actuators', items: ['Setir', 'Pedal gas/rem', 'Klakson', 'Lampu sein & hazard', 'Jendela', 'Layar navigasi'] },
+        S: { title: 'Sensors', items: ['Kamera depan & belakang', 'GPS & navigasi', 'Sonar & radar', 'Speedometer', 'Odometer', 'Sensor sentuh', 'Mikrofon'] }
+    },
+    vacuum: {
+        name: 'Vacuum Cleaner',
+        P: { title: 'Performance Measure', items: ['Kebersihan lantai', 'Waktu pembersihan', 'Konsumsi energi', 'Kerusakan furniture', 'Area terjangkau'] },
+        E: { title: 'Environment', items: ['Ruangan dengan kotoran', 'Sudut & obstacle', 'Lantai keras/karpet', 'Furniture', 'Hewan peliharaan'] },
+        A: { title: 'Actuators', items: ['Roda (gerakan)', 'Sikat pembersih', 'Hisapan vakum', 'Tombol power', 'Lampu indikator'] },
+        S: { title: 'Sensors', items: ['Sensor kotoran', 'Inframerah (obstacle)', 'Gyro & accelerometer', 'Sensor jatuh (cliff)', 'Baterai level'] }
+    },
+    chess: {
+        name: 'Chess Player',
+        P: { title: 'Performance Measure', items: ['Menang', 'Imbang', 'Waktu per giliran', 'Kedalaman analisis', 'Efisiensi perhitungan'] },
+        E: { title: 'Environment', items: ['Papan 8x8', '32 bidak', 'Pemain lawan', 'Aturan catur', 'Timer permainan'] },
+        A: { title: 'Actuators', items: ['Input gerakan bidak', 'Analisis posisi', 'Evaluasi posisi', 'Kalkulasi evaluasi'] },
+        S: { title: 'Sensors', items: ['Input papan (state)', 'Lawan moves', 'Timer', 'Database pembukaan'] }
+    },
+    medical: {
+        name: 'Medical Diagnosis',
+        P: { title: 'Performance Measure', items: ['Akurasi diagnosis', 'Tepat waktu', 'Biaya pengobatan', 'Kepuasan pasien', 'Mengurangi mortalitas'] },
+        E: { title: 'Environment', items: ['Pasien', 'Gejala & riwayat', 'Hasil lab & imaging', 'Obat & prosedur', 'Protokol medis'] },
+        A: { title: 'Actuators', items: ['Rekomendasi diagnosis', 'Resep obat', 'Rujukan spesialis', 'Saran tindakan lanjut'] },
+        S: { title: 'Sensors', items: ['Data medis pasien', 'Input dokter/nurse', 'Database medis', 'Hasil tes laboratorium'] }
+    },
+    autonomous: {
+        name: 'Autonomous Car',
+        P: { title: 'Performance Measure', items: ['Keselamatan (zero accident)', 'Kecepatan optimal', 'Kenyamanan penumpang', 'Hemat energi', 'Legalitas & etika'] },
+        E: { title: 'Environment', items: ['Jalan & marka', 'Kendaraan lain', 'Pejalan kaki & pesepeda', 'Cuaca & pencahayaan', 'Sinyal & rambu', 'Road work'] },
+        A: { title: 'Actuators', items: ['Setir (drive-by-wire)', 'Pedal gas/rem (elektrik)', 'Lampu & sinyal', 'Klakson', 'Komunikasi V2X'] },
+        S: { title: 'Sensors', items: ['LiDAR 360°', 'Kamera stereoskopis', 'Radar', 'Ultrasonik', 'GPS RTK', 'IMU & wheel speed', 'HD Map'] }
+    },
+    recommender: {
+        name: 'Recommender System',
+        P: { title: 'Performance Measure', items: ['Click-through rate', 'Waktu tonton/klik', 'Rating pengguna', 'Diversitas rekomendasi', 'Revenue (conversion)'] },
+        E: { title: 'Environment', items: ['Pengguna (preferensi)', 'Item (katalog)', 'Riwayat interaksi', 'Konteks (waktu/perangkat)', 'Tren & popularity'] },
+        A: { title: 'Actuators', items: ['Tampilkan rekomendasi', 'Urutan ranking', 'Personalisasi UI', 'Notifikasi push'] },
+        S: { title: 'Sensors', items: ['Clickstream data', 'Rating & review', 'Purchase history', 'Session data', 'Collaborative signals'] }
+    },
+    roomba: {
+        name: 'Roomba Vacuum',
+        P: { title: 'Performance Measure', items: ['Persentase area bersih', 'Waktu pembersihan', 'Baterai efficiency', 'Tidak menabrak furniture'] },
+        E: { title: 'Environment', items: ['Satu ruangan', 'Lantai datar', 'Rintangan statis', 'Kabel & objek kecil'] },
+        A: { title: 'Actuators', items: ['Roda kiri/kanan', 'Sikat pembersih', 'Vakum motor', 'Lampu LED'] },
+        S: { title: 'Sensors', items: ['Bumper sensor', 'Cliff sensor (jatuh)', 'IR sensor', 'Gyro', 'Baterai level'] }
+    },
+    chatbot: {
+        name: 'Customer Service Bot',
+        P: { title: 'Performance Measure', items: ['Resolusi masalah', 'Waktu respons', 'Kepuasan pelanggan', 'Escalation rate (rendah)', 'Biaya operasional'] },
+        E: { title: 'Environment', items: ['Pertanyaan pelanggan', 'Knowledge base', 'Basis data produk', 'Sistem ticketing', 'CRM'] },
+        A: { title: 'Actuators', items: ['Respons teks', 'Saran solusi', 'Transfer ke human agent', 'Formulir tindak lanjut', 'FAQ otomatis'] },
+        S: { title: 'Sensors', items: ['Input teks/voice pelanggan', 'Intent recognition', 'Sentiment analysis', 'Riwayat percakapan', 'User profile'] }
+    }
+};
+
+// ===== PEAS CANVAS VISUALIZATION =====
+const peasCvs = document.getElementById('peasCanvas');
+const peasCtx = peasCvs.getContext('2d');
+const CW = peasCvs.width, CH = peasCvs.height;
+
+function showPEAS() {
+    const env = document.getElementById('envSelect').value;
+    const data = peasData[env];
+    if (!data) return;
+
+    peasCtx.clearRect(0, 0, CW, CH);
+
+    // Draw agent center
+    const cx = CW / 2, cy = CH / 2;
+    peasCtx.beginPath();
+    peasCtx.arc(cx, cy, 50, 0, 2 * Math.PI);
+    peasCtx.fillStyle = '#e74c3c';
+    peasCtx.fill();
+    peasCtx.strokeStyle = '#c0392b';
+    peasCtx.lineWidth = 3;
+    peasCtx.stroke();
+
+    peasCtx.fillStyle = '#fff';
+    peasCtx.font = 'bold 13px Arial';
+    peasCtx.textAlign = 'center';
+    peasCtx.textBaseline = 'middle';
+    peasCtx.fillText('AGENT', cx, cy - 8);
+    peasCtx.font = '11px Arial';
+    peasCtx.fillText(data.name, cx, cy + 10);
+
+    // PEAS positions (top-left, top-right, bottom-left, bottom-right)
+    const positions = [
+        { key: 'P', x: 120, y: 60, color: '#3498db', label: 'Performance' },
+        { key: 'E', x: CW - 120, y: 60, color: '#2ecc71', label: 'Environment' },
+        { key: 'A', x: 120, y: CH - 60, color: '#f39c12', label: 'Actuators' },
+        { key: 'S', x: CW - 120, y: CH - 60, color: '#9b59b6', label: 'Sensors' }
+    ];
+
+    positions.forEach(pos => {
+        const pea = data[pos.key];
+
+        // Draw connection line
+        peasCtx.beginPath();
+        peasCtx.moveTo(cx, cy);
+        peasCtx.lineTo(pos.x, pos.y);
+        peasCtx.strokeStyle = pos.color + '40';
+        peasCtx.lineWidth = 2;
+        peasCtx.setLineDash([5, 5]);
+        peasCtx.stroke();
+        peasCtx.setLineDash([]);
+
+        // Draw box
+        const bw = 200, bh = 120;
+        const bx = pos.x - bw / 2, by = pos.y - bh / 2;
+        peasCtx.fillStyle = pos.color + '15';
+        peasCtx.strokeStyle = pos.color;
+        peasCtx.lineWidth = 2;
+        peasCtx.beginPath();
+        peasCtx.roundRect(bx, by, bw, bh, 8);
+        peasCtx.fill();
+        peasCtx.stroke();
+
+        // Title
+        peasCtx.fillStyle = pos.color;
+        peasCtx.font = 'bold 12px Arial';
+        peasCtx.textAlign = 'center';
+        peasCtx.textBaseline = 'top';
+        peasCtx.fillText(pea.title, pos.x, by + 8);
+
+        // Items
+        peasCtx.fillStyle = '#2c3e50';
+        peasCtx.font = '11px Arial';
+        pea.items.forEach((item, i) => {
+            peasCtx.fillText('• ' + item, pos.x, by + 28 + i * 15);
+        });
+    });
+
+    peasCtx.textAlign = 'start';
+    peasCtx.textBaseline = 'alphabetic';
+
+    // Update detail section
+    const detail = document.getElementById('peasDetail');
+    detail.innerHTML = `
+        <div class="concept-grid">
+            <div class="concept-card" style="--card-delay:0s;border-left-color:#3498db;">
+                <h4 style="color:#3498db;"><span class="icon" style="background:#3498db;">P</span> ${data.P.title}</h4>
+                <ul>${data.P.items.map(i => '<li>' + i + '</li>').join('')}</ul>
+            </div>
+            <div class="concept-card" style="--card-delay:0.05s;border-left-color:#2ecc71;">
+                <h4 style="color:#2ecc71;"><span class="icon" style="background:#2ecc71;">E</span> ${data.E.title}</h4>
+                <ul>${data.E.items.map(i => '<li>' + i + '</li>').join('')}</ul>
+            </div>
+            <div class="concept-card" style="--card-delay:0.1s;border-left-color:#f39c12;">
+                <h4 style="color:#f39c12;"><span class="icon" style="background:#f39c12;">A</span> ${data.A.title}</h4>
+                <ul>${data.A.items.map(i => '<li>' + i + '</li>').join('')}</ul>
+            </div>
+            <div class="concept-card" style="--card-delay:0.15s;border-left-color:#9b59b6;">
+                <h4 style="color:#9b59b6;"><span class="icon" style="background:#9b59b6;">S</span> ${data.S.title}</h4>
+                <ul>${data.S.items.map(i => '<li>' + i + '</li>').join('')}</ul>
+            </div>
+        </div>
+    `;
+}
+
+// Initial draw
+showPEAS();
+</script>
+</body>
+</html>

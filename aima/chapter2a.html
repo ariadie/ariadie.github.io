@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 2a: Intelligent Agents &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#16a085,#1abc9c);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#1abc9c;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #1abc9c;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#117a65;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #1abc9c;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#e0f7f4 0%,#b2dfdb 100%);}
+        .concept-card h4{color:#117a65;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#1abc9c;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#1abc9c,#2ecc71,#f39c12);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#1abc9c;box-shadow:0 0 0 3px rgba(26,188,156,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#1abc9c,#16a085);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(26,188,156,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,188,156,.4);background:linear-gradient(135deg,#16a085,#1abc9c);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1abc9c,#2ecc71,#f39c12,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(26,188,156,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #1abc9c;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#1abc9c;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 2 (Bagian 1)</h1>
+            <div class="subtitle">Intelligent Agents: Agent Types, Rationality &amp; Environments</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter1.html" title="Sebelumnya: Bab 1">&#8592; Bab 1</a>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 2a</span>
+            <a class="navbtn" href="chapter2b.html" title="Lanjut: Bab 2b">Bab 2b &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#types">Tipe Agen</a>
+            <a href="#function">Agent Function</a>
+            <a href="#rational">Rasionalitas</a>
+            <a href="#environments">Lingkungan</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Bab ini memperdalam konsep <strong>agen cerdas</strong> yang diperkenalkan di Bab 1. Kita akan memahami apa itu agen, bagaimana agen berinteraksi dengan lingkungan, dan apa yang membuat agen bersifat rasional.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">A</span> Agen (Agent)</h4>
+                        <p>Entitas yang mempersepsi lingkungan melalui <em>sensors</em> dan bertindak melalui <em>actuators</em>. Manusia sendiri adalah agen: mata/ telinga = sensors, tangan/kaki = actuators.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">PE</span> Lingkungan</h4>
+                        <p>Segala sesuatu di luar agen. Didefinisikan oleh sifat-sifatnya: observable vs partial, deterministic vs stochastic, episodic vs sequential, dan lain-lain.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">f</span> Agent Function</h4>
+                        <p>Fungsi abstrak yang memetakan <em>percept sequence</em> ke aksi: \(f: P^* \to A\). Implementasinya adalah <em>agent program</em> yang berjalan pada arsitektur fisik.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AGENT TYPES -->
+            <div id="types" class="section" style="--delay:0.3s;">
+                <h2>2.1 Tipe-Tipe Agen</h2>
+                <p>Agen dapat dikelompokkan berdasarkan kompleksitasnya:</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Human Agent</h4>
+                        <p>Sensor: mata, telinga, hidung, kulit (sentuh). Actuators: mulut, tangan, kaki, organ tubuh lainnya.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">2</span> Robotic Agent</h4>
+                        <p>Sensor: kamera, LiDAR, sonar, inframerah, accelerometer. Actuators: motor, roda, lengan robotik, gripper.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">3</span> Software Agent</h4>
+                        <p>Sensor: keystrokes, file contents, network data, database queries. Actuators: display, file writes, network packets, API calls.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Penting:</strong> Perbedaan antara "agen" dan "program" bersifat gradasi, bukan kategoris tajam. Semua agen cerdas adalah program, tetapi tidak semua program adalah agen &mdash; program harus memiliki akses ke <em>sensors</em> dan <em>actuators</em> untuk berinteraksi dengan lingkungan.
+                </div>
+            </div>
+
+            <!-- AGENT FUNCTION -->
+            <div id="function" class="section" style="--delay:0.6s;">
+                <h2>2.2 Agent Function</h2>
+                <p>Agent function adalah entitas abstrak yang merupakan spesifikasi teknis dari agen. Ia memetakan setiap <em>percept sequence</em> ke aksi:</p>
+
+                <div class="math">
+                    \[ f: P^* \to A \]
+                    <p style="margin-top:8px;font-size:.95em;">
+                        \(P^*\) = himpunan semua kemungkinan percept sequence (tak hingga)<br>
+                        \(A\) = himpunan aksi yang tersedia
+                    </p>
+                </div>
+
+                <h3>Agent Program &ne; Agent Function</h3>
+                <p><strong>Agent function</strong> adalah spesifikasi matematika (tabel tak hingga). <strong>Agent program</strong> adalah implementasi konkret yang berjalan pada arsitektur agen &mdash; sebuah program komputer yang merealisasikan agent function.</p>
+
+                <h3>Contoh: Agent Tabel Sederhana</h3>
+                <p>Misalnya agen vacuum sederhana dengan 2 lokasi (A, B) dan 2 kondisi (bersih/kotor):</p>
+                <table>
+                    <tr><th>Percept Sequence</th><th>Aksi</th></tr>
+                    <tr><td>\([Loc_A, Clean]\)</td><td>Right</td></tr>
+                    <tr><td>\([Loc_A, Dirty]\)</td><td>Suck</td></tr>
+                    <tr><td>\([Loc_B, Clean]\)</td><td>Left</td></tr>
+                    <tr><td>\([Loc_B, Dirty]\)</td><td>Suck</td></tr>
+                    <tr><td>\([Loc_A, Clean, Loc_B, Clean]\)</td><td>Right</td></tr>
+                    <tr><td>... (tak hingga kombinasi)</td><td>...</td></tr>
+                </table>
+
+                <div class="warning">
+                    <strong>Masalah:</strong> Jumlah kemungkinan percept sequence adalah \(|P|^n\) di mana \(n\) = panjang sequence. Untuk vacuum dengan 2 lokasi dan 2 kondisi: \(4^1 + 4^2 + 4^3 + \ldots\) &mdash; tak hingga! Kita butuh pendekatan yang lebih cerdas daripada tabel tak hingga.
+                </div>
+            </div>
+
+            <!-- RATIONALITY -->
+            <div id="rational" class="section" style="--delay:0.9s;">
+                <h2>2.3 Agen Rasional</h2>
+                <p>Agen rasional adalah agen yang melakukan tindakan yang benar. "Tindakan yang benar" didefinisikan berdasarkan <strong>performance measure</strong> yang telah ditentukan &mdash; bukan berdasarkan apa yang agen "pikirkan" atau "inginkan".</p>
+
+                <div class="math">
+                    \[ \text{agent}^* = \arg\max_{a \in A} \sum_{t=1}^{\infty} U_t \cdot \pi_t(a) \]
+                    <p style="margin-top:8px;font-size:.95em;">
+                        Di mana \(U_t\) = utilitas dari timestep \(t\), \(\pi_t(a)\) = probabilitas aksi \(a\) pada waktu \(t\).
+                    </p>
+                </div>
+
+                <h3>Kondisi Rasionalitas</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">P</span> Performance Measure</h4>
+                        <p>Kriteria yang menentukan keberhasilan. Harus ditentukan oleh <em>pembuat desain</em>, bukan oleh agen. Berdasarkan apa yang terjadi di lingkungan, bukan berdasarkan apa yang dipikirkan agen.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">E</span> Persepsi Lingkungan</h4>
+                        <p>Agen harus memiliki akses ke seluruh riwayat persepsi untuk membuat keputusan yang benar. Momen saat ini saja tidak cukup untuk banyak masalah.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">K</span> Pengetahuan Agen</h4>
+                        <p>Agen harus memiliki pengetahuan tentang bagaimana lingkungan bekerja &mdash; termasuk model transisi, aturan, dan hukum fisik yang relevan.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.25s">
+                        <h4><span class="icon">A</span> Aksi Tersedia</h4>
+                        <p>Daftar aksi yang dapat dilakukan agen di setiap keadaan. Aksi ini harus komplit dan representatif untuk semua kemungkinan tindakan.</p>
+                    </div>
+                </div>
+
+                <h3>Rasionalitas vs Omniscience</h3>
+                <div class="note">
+                    <strong>Kunci:</strong> Rasionalitas <strong>bukan</strong> omniscience. Agen rasional tidak harus tahu segalanya &mdash; ia harus membuat keputusan terbaik dengan informasi yang tersedia. Jika informasi tambahan dapat diperoleh dengan biaya lebih rendah dari nilainya, agen rasional akan memperolehnya.
+                </div>
+
+                <h3>Autonomous vs Non-Autonomous</h3>
+                <p>Agen yang keputusannya <strong>bergantung hanya pada</strong> persepsi sendiri (tanpa campur tangan eksternal) disebut <strong>autonomous</strong>. Sebaliknya, agen yang didesain oleh penciptanya (seperti GPS navigator) bersifat <strong>non-autonomous</strong>.</p>
+            </div>
+
+            <!-- ENVIRONMENTS -->
+            <div id="environments" class="section" style="--delay:1.2s;">
+                <h2>2.4 Sifat-Sifat Lingkungan</h2>
+                <p>Pemilihan agen yang tepat memerlukan pemahaman tentang sifat lingkungan. Berikut adalah properti-properti kunci:</p>
+
+                <div class="simulation-container">
+                    <canvas id="envCanvas" width="850" height="450"></canvas>
+                </div>
+
+                <h3>1. Fully Observable vs Partially Observable</h3>
+                <p><strong>Fully:</strong> Sensor agen mendeteksi <em>semua aspek</em> dari keadaan lingkungan. <strong>Partial:</strong> Agen hanya melihat sebagian keadaan (perlu model internal).</p>
+
+                <h3>2. Deterministic vs Stochastic</h3>
+                <p><strong>Deterministic:</strong> Hasil aksi selanjutnya sepenuhnya ditentukan oleh keadaan saat ini dan aksi yang dilakukan. <strong>Stochastic:</strong> Hasil aksi melibatkan <em>ketidakpastian</em> (probabilistik).</p>
+
+                <h3>3. Episodic vs Sequential</h3>
+                <p><strong>Episodic:</strong> Pengalaman agen terbagi dalam <em>episode</em> terpisah &mdash; aksi di satu episode tidak mempengaruhi episode selanjutnya. <strong>Sequential:</strong> Keputusan saat ini mempengaruhi masa depan.</p>
+
+                <h3>4. Static vs Dynamic vs Semidynamic</h3>
+                <p><strong>Static:</strong> Lingkungan tidak berubah saat agen berpikir. <strong>Dynamic:</strong> Lingkungan berubah secara real-time. <strong>Semidynamic:</strong> Lingkungan berubah, tapi performance measure tidak.</p>
+
+                <h3>5. Discrete vs Continuous</h3>
+                <p><strong>Discrete:</strong> Keadaan dan aksi berjumlah terbatas/hitung. <strong>Continuous:</strong> Keadaan dan aksi bernilai kontinu (real number).</p>
+
+                <h3>6. Single Agent vs Multiagent</h3>
+                <p><strong>Single:</strong> Agen beroperasi sendiri. <strong>Multiagent:</strong> Ada beberapa agen yang berinteraksi &mdash; bisa kooperatif atau kompetitif.</p>
+
+                <table>
+                    <tr>
+                        <th>Contoh Lingkungan</th>
+                        <th>Observable</th>
+                        <th>Deterministic</th>
+                        <th>Episodic</th>
+                        <th>Static</th>
+                        <th>Discrete</th>
+                        <th>Agent</th>
+                    </tr>
+                    <tr><td>Tic-tac-toe</td><td>Full</td><td>Deterministic</td><td>Sequential</td><td>Static</td><td>Discrete</td><td>Multi</td></tr>
+                    <tr><td>Chess</td><td>Full</td><td>Deterministic</td><td>Sequential</td><td>Static</td><td>Discrete</td><td>Multi</td></tr>
+                    <tr><td>Backgammon</td><td>Full</td><td>Stochastic</td><td>Sequential</td><td>Static</td><td>Discrete</td><td>Multi</td></tr>
+                    <tr><td>Poker</td><td>Partial</td><td>Stochastic</td><td>Sequential</td><td>Static</td><td>Discrete</td><td>Multi</td></tr>
+                    <tr><td>Autonomous driving</td><td>Partial</td><td>Stochastic</td><td>Sequential</td><td>Dynamic</td><td>Continuous</td><td>Multi</td></tr>
+                    <tr><td>Image classification</td><td>Full</td><td>Deterministic</td><td>Episodic</td><td>Static</td><td>Continuous</td><td>Single</td></tr>
+                    <tr><td>Medical diagnosis</td><td>Partial</td><td>Stochastic</td><td>Sequential</td><td>Dynamic</td><td>Continuous</td><td>Multi</td></tr>
+                </table>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:1.8s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Agent Function vs Agent Program</h4>
+                    <p>Jelaskan perbedaan antara agent function dan agent program. Berikan analogi.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Agent function</strong> adalah spesifikasi matematika abstrak &mdash; tabel tak hingga yang memetakan <em>setiap</em> kemungkinan percept sequence ke aksi. <strong>Agent program</strong> adalah implementasi konkret yang berjalan pada arsitektur fisik &mdash; sebuah program komputer yang merealisasikan agent function (mungkin secara parsial, untuk sequence yang mungkin dihadapi).</p>
+                            <p><strong>Analogi:</strong> Agent function seperti "buku resep lengkap" (tak hingga), sedangkan agent program seperti "koki ahli" yang menghasilkan masakan serupa tanpa harus membaca seluruh buku resep.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Sifat Lingkungan</h4>
+                    <p>Sebutkan minimal 3 contoh lingkungan untuk masing-masing kategori: (a) fully observable, (b) partially observable, (c) deterministic, (d) stochastic.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Fully observable:</strong> Chess, Tic-tac-toe, Image classification, Sudoku.</p>
+                            <p><strong>Partially observable:</strong> Poker, Autonomous driving, Medical diagnosis, Trading stock.</p>
+                            <p><strong>Deterministic:</strong> Chess, Tic-tac-toe, Sudoku, Math problems.</p>
+                            <p><strong>Stochastic:</strong> Poker, Backgammon, Weather forecasting, Robotics (real world).</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Mengapa Performance Measure Ditentukan Pembuat Desain?</h4>
+                    <p>Mengapa performance measure harus ditentukan oleh pembuat desain, bukan oleh agen sendiri?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Jika agen yang menentukan performance measure-nya sendiri, agen dapat memanipulasi definisi "keberhasilan" untuk mempermudah pencapaiannya. Performance measure harus objektif dan tercermin dari <em>apa yang benar-benar penting</em> bagi pengguna/pembuat desain. Ini memastikan agen bekerja untuk kepentingan manusia, bukan kepentingannya sendiri.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:2.1s;">
+                <h2>Ringkasan Bab 2a</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Agen</strong> adalah entitas yang mempersepsi (sensors) dan bertindak (actuators) di lingkungan. Tiga tipe: human, robotic, software.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Agent function</strong> \(f: P^* \to A\) adalah spesifikasi abstrak. <strong>Agent program</strong> adalah implementasi konkret pada arsitektur fisik.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Rasionalitas</strong> bukan omniscience. Agen rasional membuat keputusan terbaik berdasarkan informasi yang tersedia, dengan performance measure yang ditetapkan pembuat desain.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Sifat lingkungan</strong> menentukan jenis agen yang tepat: observable, deterministic, episodic, static, discrete, dan jumlah agent.</div>
+                    </div>
+                </div>
+                <p>Lanjut ke <a href="chapter2b.html">Bab 2b</a> untuk Struktur Agen (Simple Reflex, Goal-Based, Utility-Based, Learning Agent) dan simulasi interaktif.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 2a</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter1.html" title="Sebelumnya: Bab 1">&#8592; Bab 1</a>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 2a</span>
+                    <a class="navbtn" href="chapter2b.html" title="Lanjut: Bab 2b">Bab 2b &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== ENVIRONMENT PROPERTIES CANVAS =====
+const cvs = document.getElementById('envCanvas');
+const ctx = cvs.getContext('2d');
+const CW = cvs.width, CH = cvs.height;
+
+const envProps = [
+    { x: 80, y: 80, r: 55, color: '#3498db', label: 'Fully\nObservable', icon: '👁' },
+    { x: 250, y: 80, r: 55, color: '#e74c3c', label: 'Partially\nObservable', icon: '🔍' },
+    { x: 420, y: 80, r: 55, color: '#2ecc71', label: 'Deterministic', icon: '✓' },
+    { x: 590, y: 80, r: 55, color: '#f39c12', label: 'Stochastic', icon: '?' },
+    { x: 760, y: 80, r: 55, color: '#9b59b6', label: 'Episodic', icon: '⏹' },
+    { x: 80, y: 260, r: 55, color: '#1abc9c', label: 'Sequential', icon: '⛓' },
+    { x: 250, y: 260, r: 55, color: '#e67e22', label: 'Static', icon: '⏸' },
+    { x: 420, y: 260, r: 55, color: '#c0392b', label: 'Dynamic', icon: '▶' },
+    { x: 590, y: 260, r: 55, color: '#27ae60', label: 'Discrete', icon: '🔢' },
+    { x: 760, y: 260, r: 55, color: '#2980b9', label: 'Continuous', icon: '∞' }
+];
+
+let hoveredProp = -1;
+let selectedProp = -1;
+
+const propDetails = [
+    { title: 'Fully Observable', desc: 'Sensor mendeteksi SEMUA aspek keadaan lingkungan. Agen tidak perlu model internal.\n\nContoh: Chess, Tic-tac-toe, Sudoku', examples: 'Chess, Tic-tac-toe, Image classification, Sudoku' },
+    { title: 'Partially Observable', desc: 'Agen hanya melihat SEBAGIAN keadaan. Memerlukan model internal (belief state) untuk menyimpulkan keadaan tersembunyi.\n\nContoh: Poker, Driving, Medical diagnosis', examples: 'Poker, Autonomous driving, Medical diagnosis, Trading' },
+    { title: 'Deterministic', desc: 'Hasil aksi SEPUHNYA ditentukan oleh keadaan saat ini + aksi. Tidak ada ketidakpastian.\n\nContoh: Chess, Tic-tac-toe, Math problems', examples: 'Chess, Tic-tac-toe, Sudoku, Math, Rubik cube' },
+    { title: 'Stochastic', desc: 'Hasil aksi melibatkan KETIDAKPASTIAN (probabilistik). Agen harus mempertimbangkan probabilitas.\n\nContoh: Poker, Backgammon, Real world', examples: 'Poker, Backgammon, Weather, Robotics, Economy' },
+    { title: 'Episodic', desc: 'Pengalaman terbagi dalam EPISODE terpisah. Aksi di satu episode TIDAK mempengaruhi episode berikutnya.\n\nContoh: Image classification, Spelling checker', examples: 'Image classification, Spam filter, Spelling checker' },
+    { title: 'Sequential', desc: 'Keputusan SAAT INI mempengaruhi MASA DEPAN. Agen harus mempertimbangkan konsekuensi jangka panjang.\n\nContoh: Chess, Driving, Investment', examples: 'Chess, Poker, Driving, Investment, Robotics' },
+    { title: 'Static', desc: 'Lingkungan TIDAK BERUBAH saat agen berpikir. Agen punya waktu untuk menghitung.\n\nContoh: Chess, Sudoku, Tax planning', examples: 'Chess, Sudoku, Tax planning, Crossword' },
+    { title: 'Dynamic', desc: 'Lingkungan BERUBAH secara real-time. Agen harus bertindak cepat atau ketinggalan.\n\nContoh: Driving, Trading, Real-time games', examples: 'Autonomous driving, Stock trading, Air traffic control' },
+    { title: 'Discrete', desc: 'Keadaan dan aksi berJUMLAH TERBATAS atau HINGGA. Dapat direpresentasikan sebagai graph.\n\nContoh: Chess, Tic-tac-toe, Board games', examples: 'Chess, Tic-tac-toe, Backgammon, Checkers' },
+    { title: 'Continuous', desc: 'Keadaan dan aksi bernilai KONTINU (real number). Memerlukan representasi yang berbeda.\n\nContoh: Driving, Robot control, Physics simulation', examples: 'Autonomous driving, Robot arm control, Flight control' }
+];
+
+function drawEnvProps() {
+    ctx.clearRect(0, 0, CW, CH);
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, CW, CH);
+
+    // Title
+    ctx.fillStyle = '#2c3e50';
+    ctx.font = 'bold 16px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Sifat-Sifat Lingkungan Agen', CW/2, 30);
+
+    ctx.font = '12px Segoe UI';
+    ctx.fillStyle = '#7f8c8d';
+    ctx.fillText('Klik untuk detail', CW/2, 50);
+
+    envProps.forEach((prop, i) => {
+        const isHovered = i === hoveredProp;
+        const isSelected = i === selectedProp;
+        const r = prop.r + (isHovered ? 8 : 0) + (isSelected ? 5 : 0);
+
+        // Glow
+        if (isHovered || isSelected) {
+            ctx.beginPath();
+            ctx.arc(prop.x, prop.y, r + 10, 0, 2*Math.PI);
+            ctx.fillStyle = prop.color + '20';
+            ctx.fill();
+        }
+
+        // Circle
+        ctx.beginPath();
+        ctx.arc(prop.x, prop.y, r, 0, 2*Math.PI);
+        ctx.fillStyle = isSelected ? prop.color : (isHovered ? prop.color + 'dd' : prop.color + '99');
+        ctx.fill();
+        ctx.strokeStyle = prop.color;
+        ctx.lineWidth = isSelected ? 4 : 2;
+        ctx.stroke();
+
+        // Icon
+        ctx.fillStyle = '#fff';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(prop.icon, prop.x, prop.y - 12);
+
+        // Label
+        ctx.font = 'bold 11px Segoe UI';
+        const lines = prop.label.split('\n');
+        lines.forEach((line, li) => {
+            ctx.fillText(line, prop.x, prop.y + 8 + li * 14);
+        });
+    });
+
+    // Detail panel
+    if (selectedProp >= 0) {
+        const d = propDetails[selectedProp];
+        const px = 100, py = 370, pw = CW - 200, ph = 70;
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = envProps[selectedProp].color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(px, py, pw, ph, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = envProps[selectedProp].color;
+        ctx.font = 'bold 13px Segoe UI';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(d.title, px + 15, py + 10);
+
+        ctx.fillStyle = '#333';
+        ctx.font = '11px Segoe UI';
+        ctx.fillText(d.examples, px + 15, py + 30);
+    }
+
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+}
+
+cvs.addEventListener('mousemove', (e) => {
+    const rect = cvs.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (CW / rect.width);
+    const my = (e.clientY - rect.top) * (CH / rect.height);
+    hoveredProp = -1;
+    envProps.forEach((prop, i) => {
+        const dx = mx - prop.x, dy = my - prop.y;
+        if (dx*dx + dy*dy < prop.r*prop.r) hoveredProp = i;
+    });
+    cvs.style.cursor = hoveredProp >= 0 ? 'pointer' : 'default';
+    drawEnvProps();
+});
+
+cvs.addEventListener('click', (e) => {
+    if (hoveredProp >= 0) {
+        selectedProp = (selectedProp === hoveredProp) ? -1 : hoveredProp;
+        drawEnvProps();
+    }
+});
+
+drawEnvProps();
+</script>
+</body>
+</html>

@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif Kontrol PID — Proportional, Integral, Derivative control dengan simulasi step response." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Kontrol PID — Proportional-Integral-Derivative" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap Kontrol PID untuk sistem kendali." />
+  <meta property="og:type" content="website" />
+  <title>Kontrol PID — Proportional-Integral-Derivative</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f0fa;
+      --bg-soft: #efe6f7;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #7c3aed;
+      --primary-2: #8b5cf6;
+      --accent: #06b6d4;
+      --accent-2: #10b981;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 32px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #130b1a;
+      --bg-soft: #1e1129;
+      --card: rgba(40,30,50,0.72);
+      --card-solid: #2a1e35;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --muted-2: #64748b;
+      --line: rgba(100,80,120,0.44);
+      --primary: #8b5cf6;
+      --primary-2: #a78bfa;
+      --accent: #22d3ee;
+      --shadow: 0 24px 80px rgba(0,0,0,0.4);
+      --shadow-soft: 0 10px 30px rgba(0,0,0,0.28);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 26px;
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 72px; gap: 18px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none; color: var(--text); flex-shrink: 0;
+    }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.75rem;
+    }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-title { font-weight: 800; font-size: 0.95rem; letter-spacing: -0.02em; }
+    .brand-subtitle { font-size: 0.75rem; color: var(--muted-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex: none; }
+    .btn, .icon-btn {
+      border: 1px solid var(--line); background: var(--card); color: var(--text);
+      border-radius: 999px; text-decoration: none; display: inline-flex;
+      align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+    .btn-primary:hover { border-color: transparent; }
+
+    .page { max-width: 1100px; margin: 0 auto; padding: 0 26px 60px; }
+
+    .hero { padding: 50px 0 30px; text-align: center; }
+    .hero h1 { margin: 0 0 10px; font-size: 2.4rem; letter-spacing: -0.055em; line-height: 1.2; }
+    .hero p { margin: 0 auto; max-width: 640px; color: var(--muted); font-size: 1.05rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 26px; }
+
+    .hero-card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 34px 36px;
+      backdrop-filter: blur(6px); text-align: left;
+    }
+
+    section { margin-top: 48px; }
+    section h2 { font-size: 1.5rem; letter-spacing: -0.03em; margin: 0 0 18px; }
+    section h3 { font-size: 1.15rem; letter-spacing: -0.02em; margin: 24px 0 10px; color: var(--muted); }
+    section p, section li { color: var(--muted); line-height: 1.7; }
+    section ul { padding-left: 22px; }
+    section li { margin-bottom: 6px; }
+
+    .formula-box {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius-sm); padding: 16px 20px;
+      margin: 14px 0; overflow-x: auto; font-size: 0.95rem;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .sim-card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 26px;
+      backdrop-filter: blur(6px);
+    }
+    .sim-card h3 { margin: 0 0 14px; font-size: 1.05rem; letter-spacing: -0.02em; }
+    .sim-label {
+      font-size: 0.72rem; color: var(--muted-2);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      font-weight: 700; margin-bottom: 8px;
+    }
+
+    .control-row {
+      display: flex; flex-wrap: wrap; gap: 14px 22px;
+      align-items: center; margin-bottom: 14px;
+    }
+    .control-group { display: flex; flex-direction: column; gap: 3px; }
+    .control-group label { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+    .control-group input[type="range"] {
+      width: 140px; accent-color: var(--primary); cursor: pointer;
+    }
+    .control-group .value {
+      font-size: 0.85rem; font-weight: 700; color: var(--primary);
+      min-width: 44px; text-align: right;
+    }
+    .control-group select {
+      padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+      background: var(--card); color: var(--text); font-weight: 700;
+      font-size: 0.85rem; cursor: pointer;
+    }
+
+    canvas {
+      display: block; width: 100%; border-radius: var(--radius-sm);
+      background: var(--card-solid); border: 1px solid var(--line);
+      margin-bottom: 6px;
+    }
+
+    .stats-grid {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;
+    }
+    .stat-item {
+      background: var(--bg-soft); padding: 9px 14px;
+      border-radius: var(--radius-sm); font-size: 0.82rem;
+    }
+    .stat-item strong { display: block; font-size: 0.92rem; color: var(--text); }
+
+    .pid-viz {
+      display: flex; gap: 0; margin: 6px 0 14px;
+      height: 14px; border-radius: 7px; overflow: hidden;
+    }
+    .pid-viz div { transition: width 0.15s; }
+
+    .ref-list { padding-left: 0; list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .ref-list li:last-child { border-bottom: none; }
+
+    .footer {
+      padding: 44px 0 54px; color: var(--muted-2);
+      text-align: center; font-size: 0.92rem;
+    }
+
+    @media (max-width: 780px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.7rem; }
+      .nav-actions .btn:not(.dd-btn) { display: none; }
+      .nav-actions { gap: 6px; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+    }
+    @media print {
+      .nav, .sim-card, .footer { display: none !important; }
+      body { background: white; color: black; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','pre','code','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">Kontrol PID</span>
+          <span class="brand-subtitle">Proportional-Integral-Derivative</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#simulasi">Simulasi</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <a class="btn" href="./pole-placement.html">Pole Place</a>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar PID">
+      <h1>Kontrol PID</h1>
+      <p>Metode kontrol umpan balik yang paling banyak digunakan di industri — menggabungkan aksi <strong>Proportional</strong>, <strong>Integral</strong>, dan <strong>Derivative</strong> untuk mencapai respons sistem yang diinginkan.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
+        <a class="btn" href="./pole-placement.html">⚙️ Pole Placement</a>
+      </div>
+    </section>
+
+    <!-- PENJELASAN -->
+    <section id="penjelasan" aria-label="Penjelasan PID">
+      <div class="hero-card">
+        <h2>Apa itu Kontrol PID?</h2>
+        <p>
+          <strong>Kontrol PID</strong> (<em>Proportional-Integral-Derivative</em>) adalah mekanisme kontrol umpan balik
+          yang menghitung sinyal kontrol \( u(t) \) berdasarkan <em>error</em> \( e(t) = r(t) - y(t) \), yaitu
+          selisih antara <em>setpoint</em> (nilai yang diinginkan) dan output aktual sistem.
+        </p>
+
+        <h3>Hukum Kontrol PID</h3>
+        <div class="formula-box">
+          \[
+          u(t) = K_p \, e(t) + K_i \int_0^t e(\tau)\,d\tau + K_d \frac{de(t)}{dt}
+          \]
+        </div>
+        <p>Dalam domain frekuensi (transformasi Laplace):</p>
+        <div class="formula-box">
+          \[
+          C(s) = \frac{U(s)}{E(s)} = K_p + \frac{K_i}{s} + K_d s
+          \]
+        </div>
+
+        <h3>Efek Masing-Masing Aksi</h3>
+        <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:0.9rem;">
+          <tr style="border-bottom:1px solid var(--line);">
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:0.8rem;">Aksi</th>
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:0.8rem;">Rumus</th>
+            <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:0.8rem;">Pengaruh</th>
+          </tr>
+          <tr style="border-bottom:1px solid var(--line);">
+            <td style="padding:8px 10px;font-weight:700;color:#ef4444;">P</td>
+            <td style="padding:8px 10px;font-family:monospace;">K<sub>p</sub> &middot; e(t)</td>
+            <td style="padding:8px 10px;color:var(--muted);">Mempercepat respons, mengurangi error steady-state, tetapi dapat menyebabkan overshoot.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--line);">
+            <td style="padding:8px 10px;font-weight:700;color:#2563eb;">I</td>
+            <td style="padding:8px 10px;font-family:monospace;">K<sub>i</sub> &middot; &int;e dt</td>
+            <td style="padding:8px 10px;color:var(--muted);">Menghilangkan error steady-state, tetapi dapat memperlambat respons dan menyebabkan osilasi.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;font-weight:700;color:#059669;">D</td>
+            <td style="padding:8px 10px;font-family:monospace;">K<sub>d</sub> &middot; de/dt</td>
+            <td style="padding:8px 10px;color:var(--muted);">Meredam overshoot, meningkatkan stabilitas, tetapi sensitif terhadap noise.</td>
+          </tr>
+        </table>
+
+        <h3>Metode Penyetelan (Tuning)</h3>
+        <p>Beberapa metode klasik untuk menentukan nilai \( K_p, K_i, K_d \):</p>
+        <ul>
+          <li><strong>Ziegler-Nichols</strong> — berdasarkan ultimate gain \( K_u \) dan ultimate period \( T_u \) dari osilasi sistem loop terbuka.</li>
+          <li><strong>Cohen-Coon</strong> — berdasarkan respons step sistem loop terbuka (proses self-regulating).</li>
+          <li><strong>Trial &amp; Error / Manual Tuning</strong> — atur \( K_p \) hingga respons cepat, tambah \( K_i \) untuk menghilangkan error steady-state, tambah \( K_d \) untuk meredam overshoot.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section id="simulasi" aria-label="Simulasi PID">
+      <h2>Simulasi Interaktif</h2>
+      <p style="margin-bottom:18px;">Pilih plant, atur gain \( K_p, K_i, K_d \), dan amati perubahan respons step sistem loop tertutup secara real-time.</p>
+
+      <div class="sim-card">
+        <div class="sim-label">Plant &amp; Kontrol</div>
+        <div class="control-row">
+          <div class="control-group">
+            <label for="plantSelect">Jenis Plant</label>
+            <select id="plantSelect">
+              <option value="p1">Orde 1 — \( \frac{1}{s+1} \)</option>
+              <option value="p2">Orde 2 — \( \frac{9}{s^2 + 1.8s + 9} \) (ζ=0.3)</option>
+              <option value="p3">Orde 2 — \( \frac{9}{s^2 + 3.6s + 9} \) (ζ=0.6)</option>
+              <option value="p4">Integrator — \( \frac{1}{s} \)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div class="control-group">
+            <label for="kpSlider" style="color:#ef4444;">\( K_p \) (Proportional)</label>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="range" id="kpSlider" min="0" max="10" step="0.1" value="2">
+              <span class="value" id="kpVal" style="color:#ef4444;">2.0</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="kiSlider" style="color:#2563eb;">\( K_i \) (Integral)</label>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="range" id="kiSlider" min="0" max="5" step="0.1" value="0">
+              <span class="value" id="kiVal" style="color:#2563eb;">0.0</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="kdSlider" style="color:#059669;">\( K_d \) (Derivative)</label>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="range" id="kdSlider" min="0" max="5" step="0.1" value="0">
+              <span class="value" id="kdVal" style="color:#059669;">0.0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pid-viz">
+          <div id="pidBarP" style="width:0%;background:#ef4444;"></div>
+          <div id="pidBarI" style="width:0%;background:#2563eb;"></div>
+          <div id="pidBarD" style="width:0%;background:#059669;"></div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="sim-label">Step Response</div>
+            <canvas id="stepCanvas" width="500" height="280"></canvas>
+          </div>
+          <div>
+            <div class="sim-label">Control Effort \( u(t) \)</div>
+            <canvas id="ctrlCanvas" width="500" height="280"></canvas>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-item"><strong id="statPO">0.0%</strong> Overshoot</div>
+          <div class="stat-item"><strong id="statTr">0.00 s</strong> Rise Time (10–90%)</div>
+          <div class="stat-item"><strong id="statTs">0.00 s</strong> Settling Time (2%)</div>
+          <div class="stat-item"><strong id="statEss">0.000</strong> Error SS</div>
+          <div class="stat-item"><strong id="statKp">0.0</strong> \( K_p \)</div>
+          <div class="stat-item"><strong id="statKi">0.0</strong> \( K_i \)</div>
+          <div class="stat-item"><strong id="statKd">0.0</strong> \( K_d \)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section id="referensi" aria-label="Referensi">
+      <div class="hero-card">
+        <h2>Referensi Utama</h2>
+        <ul class="ref-list">
+          <li>Ogata, K. (2010). <em>Modern Control Engineering</em> (5th ed.). Prentice Hall. — Bab 8: <strong>PID Control and Tuning</strong>.</li>
+          <li>Åström, K. J., &amp; Hägglund, T. (1995). <em>PID Controllers: Theory, Design, and Tuning</em> (2nd ed.). ISA.</li>
+          <li>Dorf, R. C., &amp; Bishop, R. H. (2016). <em>Modern Control Systems</em> (13th ed.). Pearson.</li>
+          <li>Franklin, G. F., Powell, J. D., &amp; Emami-Naeini, A. (2019). <em>Feedback Control of Dynamic Systems</em> (8th ed.). Pearson.</li>
+        </ul>
+        <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);">
+          Lihat juga: <a href="./pole-placement.html" style="font-weight:700;">Pole Placement</a> &middot;
+          <a href="./index.html" style="font-weight:700;">Sistem Kendali</a>
+        </p>
+      </div>
+    </section>
+
+    <div class="footer">
+      &copy; 2026 Ariadie Chandra Nugraha &mdash; Simulasi Kontrol PID
+    </div>
+
+  </main>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-pid");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-pid", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // --- PID Simulation ---
+    const stepCanvas = document.getElementById("stepCanvas");
+    const sCtx = stepCanvas.getContext("2d");
+    sCtx.imageSmoothingEnabled = false;
+    const ctrlCanvas = document.getElementById("ctrlCanvas");
+    const cCtx = ctrlCanvas.getContext("2d");
+    cCtx.imageSmoothingEnabled = false;
+
+    function getCSS(v) { return getComputedStyle(root).getPropertyValue(v).trim(); }
+
+    // Plant definitions: returns { A, B, C, D, label }
+    function getPlant(id) {
+      switch (id) {
+        case "p1": return { A: [[-1]], B: [[1]], C: [[1]], D: [[0]], label: "1/(s+1)" };
+        case "p2": return { A: [[0,1],[-9,-1.8]], B: [[0],[9]], C: [[1,0]], D: [[0]], label: "9/(s²+1.8s+9)" };
+        case "p3": return { A: [[0,1],[-9,-3.6]], B: [[0],[9]], C: [[1,0]], D: [[0]], label: "9/(s²+3.6s+9)" };
+        case "p4": return { A: [[0]], B: [[1]], C: [[1]], D: [[0]], label: "1/s" };
+      }
+    }
+
+    function matMulVec(A, x) {
+      return A.map(r => r.reduce((s, v, i) => s + v * x[i], 0));
+    }
+
+    function simulatePID(plantID, Kp, Ki, Kd, T, dt) {
+      const plant = getPlant(plantID);
+      const n = plant.A.length;
+      const steps = Math.floor(T / dt);
+      const t = new Array(steps);
+      const y = new Array(steps);
+      const u = new Array(steps);
+      const pComp = new Array(steps); // P contribution
+      const iComp = new Array(steps); // I contribution
+      const dComp = new Array(steps); // D contribution
+      const x = new Array(n).fill(0);
+      let e_int = 0, e_prev = 0;
+      const r = 1; // step input
+
+      for (let i = 0; i < steps; i++) {
+        t[i] = i * dt;
+        // output
+        y[i] = plant.C[0].reduce((s, v, j) => s + v * x[j], 0);
+        // error
+        const e = r - y[i];
+        e_int += e * dt;
+        const e_dot = i === 0 ? 0 : (e - e_prev) / dt;
+        // PID contributions
+        const uP = Kp * e;
+        const uI = Ki * e_int;
+        const uD = Kd * e_dot;
+        const uVal = uP + uI + uD;
+        u[i] = uVal;
+        pComp[i] = uP;
+        iComp[i] = uI;
+        dComp[i] = uD;
+
+        // Plant update: x_dot = A*x + B*u
+        const Ax = matMulVec(plant.A, x);
+        const Bu = plant.B.map(r => r[0] * uVal);
+        for (let j = 0; j < n; j++) x[j] += (Ax[j] + Bu[j]) * dt;
+
+        e_prev = e;
+      }
+      return { t, y, u, pComp, iComp, dComp };
+    }
+
+    function stepMetrics(t, y, finalVal) {
+      // Rise time 10-90%
+      const y10 = 0.1 * finalVal, y90 = 0.9 * finalVal;
+      let t10 = 0, t90 = 0;
+      for (let i = 0; i < t.length; i++) {
+        if (y[i] >= y10 && t10 === 0) t10 = t[i];
+        if (y[i] >= y90) { t90 = t[i]; break; }
+      }
+      const tr = t90 - t10;
+      // Overshoot
+      let peak = 0;
+      for (let i = 0; i < y.length; i++) if (y[i] > peak) peak = y[i];
+      const PO = finalVal > 0 ? Math.max(0, (peak - finalVal) / finalVal * 100) : 0;
+      // Settling time 2%
+      const eps = 0.02 * finalVal;
+      let ts = t[t.length - 1];
+      for (let i = t.length - 1; i >= 0; i--) {
+        if (Math.abs(y[i] - finalVal) > eps) { ts = t[Math.min(i+1, t.length-1)]; break; }
+      }
+      const ess = Math.abs(y[y.length-1] - 1);
+      return { tr, PO, Ts: ts, Ess: ess, peak };
+    }
+
+    function drawPlot(ctx, canvas, data, label, color, showRef) {
+      const W = canvas.width, H = canvas.height;
+      const padL = 50, padR = 16, padT = 20, padB = 28;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = getCSS("--card-solid");
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid
+      ctx.strokeStyle = getCSS("--line"); ctx.lineWidth = 0.5;
+      for (let i = 0; i <= 5; i++) {
+        const f = i / 5;
+        const gx = padL + f * plotW; ctx.beginPath(); ctx.moveTo(gx, padT); ctx.lineTo(gx, H-padB); ctx.stroke();
+        const gy = padT + f * plotH; ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(W-padR, gy); ctx.stroke();
+      }
+
+      if (!data || !data.t) return;
+
+      const maxT = data.t[data.t.length-1];
+      const yMax = Math.max(1.2, ...data.y.map(Math.abs)) * 1.1;
+      const yMin = Math.min(0, ...data.y) - 0.1;
+
+      // Reference
+      if (showRef) {
+        ctx.strokeStyle = "rgba(148,163,184,0.5)"; ctx.setLineDash([4,4]);
+        ctx.beginPath(); ctx.moveTo(padL, padT + (1 - 1/(yMax-yMin)) * plotH);
+        ctx.lineTo(W-padR, padT + (1 - 1/(yMax-yMin)) * plotH); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      function toXY(tv, yv) {
+        return [padL + (tv/maxT)*plotW, padT + (1 - (yv-yMin)/(yMax-yMin))*plotH];
+      }
+
+      // Curve
+      ctx.beginPath();
+      for (let i = 0; i < data.t.length; i++) {
+        const [px, py] = toXY(data.t[i], data.y[i]);
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+
+      // Axes labels
+      ctx.fillStyle = getCSS("--muted"); ctx.font = "9px Inter, sans-serif";
+      ctx.textAlign = "center";
+      for (let i = 0; i <= 4; i++) ctx.fillText((i/4*maxT).toFixed(1), padL+(i/4)*plotW, H-6);
+      ctx.textAlign = "right";
+      for (let i = 0; i <= 4; i++) {
+        const v = yMin + (i/4)*(yMax-yMin);
+        ctx.fillText(v.toFixed(1), padL-6, padT+(1-i/4)*plotH+3);
+      }
+      ctx.font = "10px Inter, sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("Waktu (s)", W/2, H-6);
+      ctx.save(); ctx.translate(10, H/2); ctx.rotate(-Math.PI/2); ctx.fillText(label, 0, 0); ctx.restore();
+    }
+
+    let simData = null;
+
+    function computeAndDraw() {
+      const plantID = document.getElementById("plantSelect").value;
+      const Kp = parseFloat(document.getElementById("kpSlider").value);
+      const Ki = parseFloat(document.getElementById("kiSlider").value);
+      const Kd = parseFloat(document.getElementById("kdSlider").value);
+
+      document.getElementById("kpVal").textContent = Kp.toFixed(1);
+      document.getElementById("kiVal").textContent = Ki.toFixed(1);
+      document.getElementById("kdVal").textContent = Kd.toFixed(1);
+
+      // PID contribution bar
+      const total = Math.abs(Kp) + Math.abs(Ki) + Math.abs(Kd) || 1;
+      document.getElementById("pidBarP").style.width = (Math.abs(Kp)/total*100)+"%";
+      document.getElementById("pidBarI").style.width = (Math.abs(Ki)/total*100)+"%";
+      document.getElementById("pidBarD").style.width = (Math.abs(Kd)/total*100)+"%";
+
+      const T = 8, dt = 0.002;
+      simData = simulatePID(plantID, Kp, Ki, Kd, T, dt);
+
+      // Step response
+      drawPlot(sCtx, stepCanvas, simData, "y(t)", getCSS("--primary"), true);
+
+      // Control effort
+      const cData = { t: simData.t, y: simData.u };
+      drawPlot(cCtx, ctrlCanvas, cData, "u(t)", getCSS("--accent"), false);
+
+      // Metrics
+      const finalVal = simData.y[simData.y.length-1];
+      const m = stepMetrics(simData.t, simData.y, finalVal);
+      document.getElementById("statPO").textContent = m.PO.toFixed(1)+"%";
+      document.getElementById("statTr").textContent = Math.max(0, m.tr).toFixed(2)+" s";
+      document.getElementById("statTs").textContent = m.Ts.toFixed(2)+" s";
+      document.getElementById("statEss").textContent = m.Ess.toFixed(4);
+      document.getElementById("statKp").textContent = Kp.toFixed(1);
+      document.getElementById("statKi").textContent = Ki.toFixed(1);
+      document.getElementById("statKd").textContent = Kd.toFixed(1);
+    }
+
+    // Events
+    document.getElementById("plantSelect").addEventListener("change", computeAndDraw);
+    document.getElementById("kpSlider").addEventListener("input", computeAndDraw);
+    document.getElementById("kiSlider").addEventListener("input", computeAndDraw);
+    document.getElementById("kdSlider").addEventListener("input", computeAndDraw);
+
+    // Init
+    computeAndDraw();
+  </script>
+</body>
+</html>

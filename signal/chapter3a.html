@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 3a: Deret Fourier</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#9b59b6;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(155,89,182,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#9b59b6;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(155,89,182,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#9b59b6;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #9b59b6;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#7d3c98;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #9b59b6;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px)scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#f5eefb 0%,#e8daef 100%);}
+        .concept-card h4{color:#7d3c98;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#9b59b6;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#9b59b6,#e67e22,#f1c40f);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#9b59b6;box-shadow:0 0 0 3px rgba(155,89,182,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(155,89,182,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(155,89,182,.4);background:linear-gradient(135deg,#8e44ad,#9b59b6);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        .references{margin-top:40px;padding-top:30px;border-top:2px solid #e9ecef;animation:fadeIn 1s ease-in;}
+        .reference-item{margin-bottom:20px;padding:15px;background:#f8f9fa;border-radius:6px;border-left:3px solid #6c757d;transition:all .3s ease;animation:slideIn .5s ease-out forwards;opacity:0;}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .reference-item:hover{background:#e9ecef;transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,.1);}
+        .reference-item strong{color:#2c3e50;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#9b59b6,#e67e22,#f1c40f,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(155,89,182,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #9b59b6;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#9b59b6;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#9b59b6;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 3 (Bagian 1)</h1>
+            <div class="subtitle">Deret Fourier (Fourier Series) &mdash; Catatan Sarjana &amp; Pascasarjana</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <a class="navbtn" href="intro.html" title="Bab 1">&#8592; Bab 1</a>
+            <a class="navbtn" href="chapter2b.html" title="Bab 2b">&#8592; Bab 2b</a>
+            <span class="navcur">Bab 3a</span>
+            <a class="navbtn" href="chapter3b.html" title="Lanjut: Bab 3b">Bab 3b &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#ctfs">CT Fourier Series</a>
+            <a href="#dtfs">DT Fourier Series</a>
+            <a href="#convergence">Konvergensi</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+            <a href="#references">Referensi</a>
+        </nav>
+
+        <div class="content">
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 3a: Deret Fourier</h2>
+                <p>Setelah Bab 2 memperkenalkan convolution dan eigenfunction (eksponensial kompleks sebagai eigenfunction sistem LTI), Bab 3 membawa kita ke <span class="highlight">domain frekuensi (frequency domain)</span>. Deret Fourier menjawab: <em>bisakah sinyal periodik dinyatakan sebagai superposisi eksponensial kompleks (atau sinusoida)?</em> Jawabannya ya &mdash; dan koefisiennya adalah "berat" tiap frekuensi.</p>
+
+                <p>Bagian ini (Bab 3a) membahas sinyal <strong>periodik</strong>: continuous-time Fourier series (CTFS) dan discrete-time Fourier series (DTFS). Bagian frekuensi untuk sinyal aperiodik (Fourier transform) dibahas di <a href="chapter3b.html">Bab 3b</a>.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">Σ</span>Superposisi</h4>
+                        <p>Sinyal periodik = jumlah tak-hingga eksponensial kompleks pada frekuensi kelipatan fundamental.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">aₖ</span>Koefisien</h4>
+                        <p>Koefisien <em>aₖ</em> / <em>Aₖ</em> memberi amplitudo &amp; fasa tiap komponen frekuensi &mdash; yaitu spektrum diskrit.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">↔</span>Konvolusi ⇔ Perkalian</h4>
+                        <p>Dalam domain frekuensi, convolution waktu menjadi perkalian koefisien &mdash; dasar filtering.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Tujuan pembelajaran (S1/S2):</strong> (i) menghitung koefisien CTFS/DTFS, (ii) memahami spektrum diskret, (iii) menjelaskan kondisi konvergensi (Dirichlet), dan (iv) menggunakan sifat simetri untuk menyederhanakan perhitungan.
+                </div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#ctfs">Continuous-Time Fourier Series (CTFS)</a></li>
+                        <li><a href="#dtfs">Discrete-Time Fourier Series (DTFS)</a></li>
+                        <li><a href="#convergence">Konvergensi &amp; Kondisi Dirichlet</a></li>
+                        <li><a href="#simulation">Simulasi Interaktif</a></li>
+                        <li><a href="#exercises">Latihan Terselesaikan</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="ctfs" class="section" style="--delay:1s;">
+                <h2>🔢 Continuous-Time Fourier Series (CTFS)</h2>
+                <p>Sinyal periodik kontinyu <em>x(t)</em> dengan periode <em>T</em> (frekuensi fundamental <em>ω₀ = 2π/T</em>) dapat didekomposisi menjadi:</p>
+                <div class="math">\[ x(t) = \sum_{k=-\infty}^{\infty} a_k\, e^{j k \omega_0 t} \]<span class="eq-label">(3.1)</span></div>
+                <p>Koefisien Fourier <em>aₖ</em> dihitung dengan analisis integral:</p>
+                <div class="math">\[ a_k = \frac{1}{T} \int_{T} x(t)\, e^{-j k \omega_0 t}\, dt \]<span class="eq-label">(3.2)</span></div>
+                <p>Integral diambil atas satu periode berapa pun. Pasangan (3.1)&ndash;(3.2) disebut <strong>persamaan sintesis</strong> dan <strong>persamaan analisis</strong>.</p>
+
+                <h3>3.1 Bentuk Sinusoida &amp; Kosinus</h3>
+                <p>Untuk <em>x(t)</em> real, kita sering tulis sebagai komponen sinus/kosinus:</p>
+                <div class="math">\[ x(t) = A_0 + \sum_{k=1}^{\infty} A_k \cos(k\omega_0 t + \phi_k) \]<span class="eq-label">(3.3)</span></div>
+                <p>dengan <em>aₖ = (Aₖ/2) e^{jφₖ}</em> untuk <em>k&gt;0</em> dan <em>A₀ = a₀</em>.</p>
+
+                <h3>3.2 Sifat Spektrum</h3>
+                <table>
+                    <tr><th>Properti sinyal</th><th>Dampak pada <em>aₖ</em></th></tr>
+                    <tr><td>Real</td><td><em>a<sub>&minus;k</sub> = a<sub>k</sub>*</em> (konjugat-simetris)</td></tr>
+                    <tr><td>Genap (even)</td><td><em>aₖ</em> real &amp; genap</td></tr>
+                    <tr><td>Ganjil (odd)</td><td><em>aₖ</em> imajiner &amp; ganjil</td></tr>
+                    <tr><td>Real + genap</td><td><em>aₖ</em> real &amp; genap</td></tr>
+                </table>
+            </div>
+
+            <div id="dtfs" class="section" style="--delay:1.2s;">
+                <h2>📊 Discrete-Time Fourier Series (DTFS)</h2>
+                <p>Sinyal periodik diskrit <em>x[n]</em> dengan periode <em>N</em> memiliki <strong>jumlah komponen terhingga</strong> (karena spektrum diskrit periodik):</p>
+                <div class="math">\[ x[n] = \sum_{k=\langle N \rangle} a_k\, e^{j k (2\pi/N) n} \]<span class="eq-label">(3.4)</span></div>
+                <div class="math">\[ a_k = \frac{1}{N} \sum_{n=\langle N \rangle} x[n]\, e^{-j k (2\pi/N) n} \]<span class="eq-label">(3.5)</span></div>
+                <p>Notasi <em>Σ<sub>k=&lt;N&gt;</sub></em> berarti menjumlahkan <em>N</em> nilai berturutan (mis. <em>k = 0&hellip;N&minus;1</em>). Penting: <em>a<sub>k+N</sub> = aₖ</em> &mdash; spektrum diskrit periodik, berbeda dengan CTFS yang spektrumnya bukan periodik.</p>
+
+                <div class="note"><strong>Subtlety diskrit:</strong> Karena <em>e^{j(k+N)2πn/N} = e^{jk2πn/N}</em>, hanya <em>N</em> frekuensi berbeda yang mungkin. Inilah sebabnya DTFS hanya punya <em>N</em> koefisien bebas &mdash; kunci untuk DFT (Bab 5).</div>
+            </div>
+
+            <div id="convergence" class="section" style="--delay:1.4s;">
+                <h2>⚠️ Konvergensi &amp; Kondisi Dirichlet</h2>
+                <p>Deret Fourier tidak selalu konvergen ke <em>x(t)</em> di setiap titik. <strong>Kondisi Dirichlet</strong> menjamin konvergensi jika dalam satu periode sinyal:</p>
+                <ul>
+                    <li>Absolut terintegral: <em>∫|x(t)| dt &lt; ∞</em> (berarti jumlah nilai maksimum terhingga &mdash; bounded variation), dan</li>
+                    <li>Memiliki jumlah titik diskontinu terhingga, dan jumlah ekstremum terhingga.</li>
+                </ul>
+                <p>Di titik diskontinu, deret konvergen ke <strong>rata-rata nilai kiri-kanan</strong>:</p>
+                <div class="math">\[ x(t_d) = \tfrac{1}{2}\big[x(t_d^+) + x(t_d^-)\big] \]<span class="eq-label">(3.6)</span></div>
+                <p>Fenomena osilasi dekat diskontinu disebut <span class="highlight">fenomena Gibbs (Gibbs phenomenon)</span> &mdash; overshoot tak hilang meski jumlah harmonik bertambah (hanya menyempit).</p>
+            </div>
+
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>🎮 Deret Fourier Interaktif</h2>
+                <p>Lihat bagaimana penjumlahan parsial <em>x_N(t)</em> mendekati sinyal periodik saat jumlah harmonik <em>K</em> bertambah. Pilih bentuk gelombang dan geser slider jumlah harmonik.</p>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="waveType">Bentuk Gelombang</label>
+                        <select id="waveType">
+                            <option value="square">Persegi (square)</option>
+                            <option value="sawtooth">Gerigi (sawtooth)</option>
+                            <option value="triangle">Segitiga (triangle)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="harmK">Jumlah harmonik K</label>
+                        <input type="range" id="harmK" min="1" max="40" step="1" value="5">
+                        <div class="value-display" id="harmVal">K = 5</div>
+                    </div>
+                    <button class="btn" onclick="resetFS()">Reset</button>
+                </div>
+                <div class="simulation-container">
+                    <canvas id="fsCanvas" width="900" height="320"></canvas>
+                </div>
+                <p style="text-align:center;margin-top:15px;color:#6c757d;">
+                    <strong>Coba:</strong> Pada gelombang persegi, perhatikan overshoot dekat transisi (Gibbs). Tambah <em>K</em> untuk melihat aproksimasi membaik.
+                </p>
+            </div>
+
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; CTFS dari gelombang persegi simetris</h4>
+                    <p>Untuk <em>x(t) = 1</em> pada <em>0 &lt; t &lt; T/2</em> dan <em>x(t) = &minus;1</em> pada <em>&minus;T/2 &lt; t &lt; 0</em> (periodik, ganjil), tentukan <em>aₖ</em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Karena ganjil, <em>aₖ</em> imajiner ganjil dan <em>a₀ = 0</em>. Untuk <em>k ≠ 0</em>:</p>
+                            <div class="math">\[ a_k = \frac{1}{T}\left( \int_0^{T/2} e^{-jk\omega_0 t}dt - \int_{-T/2}^{0} e^{-jk\omega_0 t}dt \right) = \frac{2}{j k \pi}(1 - \cos k\pi) \]</div>
+                            <p>Jadi <em>aₖ = 2/(j kπ)</em> untuk <em>k</em> ganjil, dan <em>0</em> untuk <em>k</em> genap. Ini seri ganjil dari sinus &mdash; aproksimasi gelombang persegi.</p>
+                        </div>
+                    </details>
+                </div>
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; DTFS dari eksponensial diskrit</h4>
+                    <p>Untuk <em>x[n] = cos(πn/4)</em> (periodik dengan <em>N = 8</em>), tentukan koefisien <em>aₖ</em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Tulis <em>cos(πn/4) = ½ e^{jπn/4} + ½ e^{&minus;jπn/4}</em>. Karena <em>2π/N = 2π/8 = π/4</em>, bentuk <em>e^{jk(2π/8)n}</em> memberi <em>k = ±1</em>. Maka <em>a₁ = a₇ = ½</em>, sisanya nol (ingat <em>a<sub>k+8</sub>=aₖ</em>).</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Deret Fourier</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Superposisi</strong>: Sinyal periodik = jumlah eksponensial kompleks pada kelipatan <em>ω₀</em>.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>CTFS</strong>: <em>aₖ</em> dari integral (3.2); spektrum tak periodik.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>DTFS</strong>: hanya <em>N</em> koefisien bebas; spektrum periodik <em>a<sub>k+N</sub>=aₖ</em>.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Konvergensi</strong>: Kondisi Dirichlet; di diskontinu ke rata-rata (Gibbs).</div></div>
+                </div>
+                <p>Deret Fourier mengubah sinyal periodik dari domain waktu ke spektrum frekuensi diskrit. Lanjut ke <a href="chapter3b.html">Bab 3b</a> untuk transformasi Fourier sinyal aperiodik.</p>
+            </div>
+
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+                <div class="reference-item">
+                    <strong>Oppenheim, A.V., Willsky, A.S., &amp; Nawab, S.H.</strong> (1996). <em>Signals and Systems</em>. Ed. ke-2. Prentice Hall. Bab 3 &mdash; Fourier Series (Bagian Deret Fourier). ISBN: 0132085550.
+                </div>
+                <div class="reference-item">
+                    <strong>Sumber tambahan:</strong>
+                    <ul style="margin-top:10px;padding-left:20px;">
+                        <li><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/" target="_blank">MIT OCW – Signals &amp; Systems</a></li>
+                        <li><a href="https://en.wikipedia.org/wiki/Fourier_series" target="_blank">Wikipedia – Fourier Series</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Panduan Interaktif Oppenheim Signals &amp; Systems | Bab 3a</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">Deret Fourier &mdash; representasi frekuensi diskrit untuk sinyal periodik.</p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <a class="navbtn" href="intro.html" title="Bab 1">&#8592; Bab 1</a>
+                    <a class="navbtn" href="chapter2b.html" title="Bab 2b">&#8592; Bab 2b</a>
+                    <span class="navcur">Bab 3a</span>
+                    <a class="navbtn" href="chapter3b.html" title="Lanjut: Bab 3b">Bab 3b &#8594;</a>
+                </div>
+                <p style="margin-top:15px;"><button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button></p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    const fsCanvas = document.getElementById('fsCanvas');
+    const fsCtx = fsCanvas.getContext('2d');
+    const W = fsCanvas.width, H = fsCanvas.height, midY = H / 2, T_MAX = 4; // show 2 periods (T=2)
+    const omega0 = Math.PI; // T = 2
+
+    function waveVal(type, t) {
+        // period 2 (T=2), omega0 = pi
+        const tt = ((t % 2) + 2) % 2; // 0..2
+        if (type === 'square') return tt < 1 ? 1 : -1;
+        if (type === 'sawtooth') return (tt / 2) * 2 - 1; // -1..1 ramp
+        if (type === 'triangle') return tt < 1 ? (2 * tt - 1) : (3 - 2 * tt);
+        return 0;
+    }
+    // Compute the real-valued partial Fourier sum x_N(t) for given wave type and harmonic count K.
+    function fsPartial(type, t, K) {
+        let s = 0;
+        // Use trig forms: sum over odd k of A_k sin/cos terms (all real coefficients).
+        for (let k = 1; k <= K; k++) {
+            const phi = k * omega0 * t;
+            if (type === 'square') {
+                // x(t) = (4/pi) sum_{k odd} (1/k) sin(k w0 t)
+                if (k % 2 === 1) s += (4 / (Math.PI * k)) * Math.sin(phi);
+            } else if (type === 'sawtooth') {
+                // x(t) = (2/pi) sum_{k odd} ((-1)^(k-1)/k) sin(k w0 t)
+                if (k % 2 === 1) s += (2 / (Math.PI * k)) * ((k % 4 === 1) ? 1 : -1) * Math.sin(phi);
+            } else if (type === 'triangle') {
+                // x(t) = (8/pi^2) sum_{k odd} ((-1)^((k-1)/2)/k^2) cos(k w0 t)
+                if (k % 2 === 1) s += (8 / (Math.PI * Math.PI * k * k)) * ((Math.round((k - 1) / 2) % 2 === 0) ? 1 : -1) * Math.cos(phi);
+            }
+        }
+        return s;
+    }
+
+    function drawFS() {
+        const type = document.getElementById('waveType').value;
+        const K = parseInt(document.getElementById('harmK').value, 10);
+        document.getElementById('harmVal').textContent = 'K = ' + K;
+        fsCtx.clearRect(0, 0, W, H);
+        fsCtx.strokeStyle = '#495057'; fsCtx.lineWidth = 2;
+        fsCtx.beginPath(); fsCtx.moveTo(0, midY); fsCtx.lineTo(W, midY); fsCtx.stroke();
+        fsCtx.strokeStyle = '#e9ecef'; fsCtx.lineWidth = 1;
+        for (let gx = 0; gx <= W; gx += W / 8) { fsCtx.beginPath(); fsCtx.moveTo(gx, 0); fsCtx.lineTo(gx, H); fsCtx.stroke(); }
+        const yScale = H / 6;
+        // original (light, dashed)
+        fsCtx.beginPath(); fsCtx.strokeStyle = 'rgba(149,165,166,.6)'; fsCtx.lineWidth = 2; fsCtx.setLineDash([5,4]);
+        for (let px = 0; px <= W; px++) {
+            const t = (px / W) * T_MAX;
+            const y = midY - waveVal(type, t) * yScale;
+            if (px === 0) fsCtx.moveTo(px, y); else fsCtx.lineTo(px, y);
+        }
+        fsCtx.stroke(); fsCtx.setLineDash([]);
+        // partial sum (purple)
+        fsCtx.beginPath(); fsCtx.strokeStyle = '#9b59b6'; fsCtx.lineWidth = 3;
+        for (let px = 0; px <= W; px++) {
+            const t = (px / W) * T_MAX;
+            const v = fsPartial(type, t, K);
+            const y = midY - v * yScale;
+            if (px === 0) fsCtx.moveTo(px, y); else fsCtx.lineTo(px, y);
+        }
+        fsCtx.stroke();
+        fsCtx.fillStyle = '#9b59b6'; fsCtx.font = 'bold 13px Arial';
+        fsCtx.fillText('x_N(t)  (K=' + K + ')', 12, 24);
+        fsCtx.fillStyle = 'rgba(149,165,166,.9)';
+        fsCtx.fillText('x(t) asli (garis putus)', 12, 44);
+    }
+
+    function resetFS() {
+        document.getElementById('harmK').value = 5;
+        document.getElementById('harmVal').textContent = 'K = 5';
+        drawFS();
+    }
+
+    document.getElementById('waveType').addEventListener('change', drawFS);
+    document.getElementById('harmK').addEventListener('input', drawFS);
+    drawFS();
+</script>
+</body>
+</html>

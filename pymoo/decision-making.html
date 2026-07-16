@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Metode Pengambilan Keputusan Multikriteria (MCDM) dan Metrik Evaluasi Kinerja (Hypervolume, IGD) di Pymoo (Bahasa Indonesia).">
+  <title>Pengambilan Keputusan &amp; Indikator Kinerja — Pymoo</title>
+  <link rel="icon" href="images/favicon.ico">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Style -->
+  <link rel="stylesheet" href="style.css">
+  <!-- MathJax -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="images/logo.svg" alt="Pymoo Logo" class="sidebar-logo">
+        <span class="sidebar-title">pymoo Docs</span>
+      </div>
+      <ul class="sidebar-menu">
+        <li class="menu-label">Pengantar</li>
+        <li class="menu-item"><a href="index.html">🏠 Beranda</a></li>
+        <li class="menu-item"><a href="getting-started.html">🚀 Memulai Cepat</a></li>
+        
+        <li class="menu-label">Penggunaan</li>
+        <li class="menu-item"><a href="problems.html">🧩 Formulasi Masalah</a></li>
+        <li class="menu-item"><a href="algorithms.html">🧬 Daftar Algoritme</a></li>
+        <li class="menu-item active"><a href="decision-making.html">🎯 MCDM &amp; Kinerja</a></li>
+        <li class="menu-item"><a href="visualization.html">📊 Visualisasi Front</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <span>v0.6.2 (ID)</span>
+        <a href="https://github.com/anyoptimization/pymoo" target="_blank">GitHub</a>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <!-- Header -->
+      <header class="header">
+        <button class="menu-toggle" id="hamBtn">☰</button>
+        <span class="header-title-mobile">pymoo Docs</span>
+        <div class="header-actions">
+          <a href="../index.html" class="back-to-hub">⬅️ <span>Kembali ke Hub</span></a>
+          <button class="theme-toggle" id="themeToggle">🌙 <span>Mode Gelap</span></button>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="content">
+        <h1>Pengambilan Keputusan (MCDM) &amp; Kinerja</h1>
+        
+        <p>Dalam optimasi multiobjektif, hasil akhir yang kita peroleh bukanlah satu solusi tunggal melainkan sekumpulan solusi non-dominasi (Pareto Front). Di sini, kita akan membahas cara menyaring solusi terbaik (MCDM) dan mengevaluasi kinerja algoritme evolusioner.</p>
+
+        <h2>Pentingnya Normalisasi</h2>
+        <div class="alert alert-warning">
+          <span class="alert-icon">⚠️</span>
+          <div class="alert-content">
+            <p><strong>Jangan Bandingkan Apel dengan Jeruk:</strong> Jika fungsi objektif $$f_1(x)$$ berkisar antara 0 hingga 100, sedangkan $$f_2(x)$$ berkisar antara 0 hingga 1, maka $$f_1$$ akan mendominasi seluruh perhitungan jarak. Kita wajib menormalisasi nilai objektif terlebih dahulu sebelum melakukan analisis MCDM atau jarak.</p>
+          </div>
+        </div>
+
+        <p>Normalisasi dilakukan dengan mencari batas bawah (Ideal Point $z^*$) dan batas atas (Nadir Point $z^{nad}$):</p>
+        <p style="text-align: center; margin: 1rem 0;">
+          $$nF_i = \frac{F_i - z^*}{z^{nad} - z^*}$$
+        </p>
+
+        <h2>1. Pseudo-Weights (Bobot Semu)</h2>
+        <p>Pseudo-weights mengukur kontribusi relatif dari setiap solusi terhadap masing-masing objektif. Persamaan pseudo-weight $w_i$ untuk objektif ke-$i$ adalah:</p>
+        <p style="text-align: center; margin: 1rem 0;">
+          $$w_i = \frac{(z_i^{nad} - f_i(x)) / (z_i^{nad} - z_i^*)}{\sum_{j=1}^{M} (z_j^{nad} - f_j(x)) / (z_j^{nad} - z_j^*)}$$
+        </p>
+
+        <pre><code><span class="py-keyword">from</span> pymoo.mcdm.pseudo_weights <span class="py-keyword">import</span> PseudoWeights
+
+<span class="py-comment"># Misalkan kita memberikan bobot prioritas seimbang [0.5, 0.5]</span>
+weights = np.array([<span class="py-number">0.5</span>, <span class="py-number">0.5</span>])
+
+<span class="py-comment"># Mendapatkan indeks solusi terdekat dengan kriteria bobot kita</span>
+i = PseudoWeights(weights).do(res.F).argmin()
+best_solution_x = res.X[i]
+best_solution_f = res.F[i]</code></pre>
+
+        <div class="doc-img-wrapper">
+          <img src="images/getting_started_part_3_14_0.png" alt="Pemilihan Solusi MCDM" class="doc-img" style="max-width: 480px;">
+          <div class="doc-img-caption">Hasil Pemilihan Titik Knee/Kompromi Terbaik (Merah) Menggunakan Pseudo-Weights di Tengah Pareto Front</div>
+        </div>
+
+        <h2>2. Compromise Programming (ASF)</h2>
+        <p>Pendekatan lain menggunakan fungsi skalarisasi pencapaian (Achievement Scalarization Function / ASF) untuk mencari solusi yang paling dekat dengan titik ideal berdasarkan arah preferensi.</p>
+
+        <pre><code><span class="py-keyword">from</span> pymoo.decomposition.asf <span class="py-keyword">import</span> ASF
+
+<span class="py-comment"># Normalisasi Pareto Front</span>
+approx_ideal = res.F.min(axis=<span class="py-number">0</span>)
+approx_nadir = res.F.max(axis=<span class="py-number">0</span>)
+nF = (res.F - approx_ideal) / (approx_nadir - approx_ideal)
+
+<span class="py-comment"># Mencari solusi terbaik dengan ASF</span>
+weights = np.array([<span class="py-number">0.5</span>, <span class="py-number">0.5</span>])
+i = ASF().do(nF, weights).argmin()</code></pre>
+
+        <h2>Indikator Kinerja Evolusioner</h2>
+        <p>Bagaimana kita tahu jika suatu algoritme konvergen dengan baik? Pymoo menyediakan metrik berikut:</p>
+
+        <div class="cards-grid">
+          <div class="card">
+            <h3 class="card-title">📐 Hypervolume (HV)</h3>
+            <p class="card-desc">Mengukur volume ruang objektif yang didominasi oleh set solusi non-dominasi kita dibandingkan dengan suatu titik referensi (Reference Point). Nilai Hypervolume yang lebih besar menunjukkan penyebaran dan konvergensi solusi yang lebih baik.</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">📉 Inverted Generational Distance (IGD / IGD+)</h3>
+            <p class="card-desc">Mengukur jarak rata-rata dari titik-titik pada Pareto Front teoritis (ideal) ke solusi yang diperoleh. IGD yang lebih kecil mendekati 0 menunjukkan akurasi optimasi yang sangat tinggi.</p>
+          </div>
+        </div>
+
+        <pre><code><span class="py-keyword">from</span> pymoo.indicators.hv <span class="py-keyword">import</span> Hypervolume
+
+<span class="py-comment"># Menghitung Hypervolume</span>
+metric = Hypervolume(ref_point=np.array([<span class="py-number">1.2</span>, <span class="py-number">1.2</span>]))
+hv_value = metric.do(nF)
+<span class="py-builtin">print</span>(<span class="py-string">"Hypervolume Terhadap Titik Acuan:"</span>, hv_value)</code></pre>
+
+        <div class="doc-img-wrapper">
+          <img src="images/getting_started_part_4_12_0.png" alt="Kurva Konvergensi Hypervolume" class="doc-img" style="max-width: 480px;">
+          <div class="doc-img-caption">Kurva Analisis Konvergensi Nilai Hypervolume Terhadap Jumlah Generasi NSGA-II</div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Shared Script -->
+  <script src="common.js"></script>
+</body>
+</html>
