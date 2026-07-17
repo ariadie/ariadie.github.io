@@ -71,7 +71,7 @@
                     <button class="success" id="btn-start">▶ Start</button>
                     <button class="danger" id="btn-reset">↺ Reset</button>
                     <label><input type="checkbox" id="chk-trail" checked> Tampilkan jejak</label>
-                    <label>Speed: <input type="range" id="speed" min="1" max="20" value="8"></label>
+                    <label>Speed: <input type="range" id="speed" min="1" max="10" value="5"></label>
                 </div>
                 <div class="algo-desc" id="algo-desc">
                     <strong>Bug0:</strong> Gerak lurus ke goal. Jika terhalang, ikuti kontur obstacle (kiri). Lanjut lurus lagi saat bisa.
@@ -166,8 +166,8 @@ function directionToGoal() {
 
 function canMoveToGoal() {
     const ang = directionToGoal();
-    const nx = robot.x + Math.cos(ang) * 4;
-    const ny = robot.y + Math.sin(ang) * 4;
+    const nx = robot.x + Math.cos(ang);
+    const ny = robot.y + Math.sin(ang);
     return !collides(nx, ny);
 }
 
@@ -188,7 +188,7 @@ function followContourDir() {
         const ny = robot.y + aa.dy * 4;
         if (collides(nx, ny)) continue;
         const od = nearestObstacleDist(nx, ny);
-        if (od < 20 && od > 0) {
+        if (od < 8 && od > 0) {
             const score = 100 - od;
             if (score > bestScore) { bestScore = score; best = aa; }
         }
@@ -214,21 +214,21 @@ function stepBug() {
         if (canMoveToGoal()) {
             mode = 'go-to-goal';
             const ang = directionToGoal();
-            robot.x += Math.cos(ang) * 3;
-            robot.y += Math.sin(ang) * 3;
+            robot.x += Math.cos(ang);
+            robot.y += Math.sin(ang);
         } else {
             mode = 'follow-contour';
             const ang = followContourDir();
-            robot.x += Math.cos(ang) * 2.5;
-            robot.y += Math.sin(ang) * 2.5;
+            robot.x += Math.cos(ang) * 0.8;
+            robot.y += Math.sin(ang) * 0.8;
         }
         // Bug0 can get stuck
     } else if (algo === 'bug1') {
         if (bug1Phase === 'go-to-goal') {
             if (canMoveToGoal()) {
                 const ang = directionToGoal();
-                robot.x += Math.cos(ang) * 3;
-                robot.y += Math.sin(ang) * 3;
+                robot.x += Math.cos(ang);
+                robot.y += Math.sin(ang);
                 mode = 'go-to-goal';
             } else {
                 bug1Phase = 'explore-contour';
@@ -240,8 +240,8 @@ function stepBug() {
             }
         } else if (bug1Phase === 'explore-contour') {
             const ang = followContourDir();
-            robot.x += Math.cos(ang) * 2.5;
-            robot.y += Math.sin(ang) * 2.5;
+            robot.x += Math.cos(ang) * 0.8;
+            robot.y += Math.sin(ang) * 0.8;
             mode = 'follow-contour';
             const d = dist2(robot, goal);
             if (d < closestDist) {
@@ -262,8 +262,8 @@ function stepBug() {
         } else if (bug1Phase === 'return-to-closest') {
             // move along contour to closest point
             const ang = Math.atan2(closestPoint.y - robot.y, closestPoint.x - robot.x);
-            robot.x += Math.cos(ang) * 3;
-            robot.y += Math.sin(ang) * 3;
+            robot.x += Math.cos(ang);
+            robot.y += Math.sin(ang);
             mode = 'go-to-goal';
             if (dist2(robot, closestPoint) < 8) {
                 bug1Phase = 'go-to-goal';
@@ -277,8 +277,8 @@ function stepBug() {
         if (bug2Phase === 'go-to-goal') {
             if (canMoveToGoal()) {
                 const ang = directionToGoal();
-                robot.x += Math.cos(ang) * 3;
-                robot.y += Math.sin(ang) * 3;
+                robot.x += Math.cos(ang);
+                robot.y += Math.sin(ang);
                 mode = 'go-to-goal';
             } else {
                 bug2Phase = 'follow-contour';
@@ -288,8 +288,8 @@ function stepBug() {
             }
         } else if (bug2Phase === 'follow-contour') {
             const ang = followContourDir();
-            robot.x += Math.cos(ang) * 2.5;
-            robot.y += Math.sin(ang) * 2.5;
+            robot.x += Math.cos(ang) * 0.8;
+            robot.y += Math.sin(ang) * 0.8;
             mode = 'follow-contour';
             // check if we crossed the main line and are closer
             const curD = dist2(robot, goal);
@@ -313,7 +313,7 @@ function stepBug() {
 
 function resetSim() {
     running = false;
-    if (animId) cancelAnimationFrame(animId);
+    if (animId) clearTimeout(animId);
     mode = 'go-to-goal';
     stepCount = 0; trail = [];
     bug1Phase = 'go-to-goal';
@@ -395,23 +395,24 @@ function draw() {
 
 function loop() {
     if (!running) return;
-    const speed = +document.getElementById('speed').value;
-    for (let i = 0; i < speed; i++) {
-        if (mode === 'done' || mode === 'stuck') {
-            running = false;
-            document.getElementById('btn-start').textContent = '▶ Start';
-            document.getElementById('btn-start').disabled = false;
-            if (mode === 'done') setStatus('✅ Robot mencapai goal!', true);
-            else setStatus('⚠️ Robot tidak bisa mencapai goal (terjebak/tidak ada path).', false);
-            draw(); updateInfo(); return;
-        }
-        const prev = {x: robot.x, y: robot.y, follow: mode === 'follow-contour'};
-        stepBug();
-        stepCount++;
-        trail.push(prev);
+    if (mode === 'done' || mode === 'stuck') {
+        running = false;
+        document.getElementById('btn-start').textContent = '▶ Start';
+        document.getElementById('btn-start').disabled = false;
+        if (mode === 'done') setStatus('✅ Robot mencapai goal!', true);
+        else setStatus('⚠️ Robot tidak bisa mencapai goal (terjebak/tidak ada path).', false);
+        draw(); updateInfo(); return;
     }
+    const prev = {x: robot.x, y: robot.y, follow: mode === 'follow-contour'};
+    stepBug();
+    stepCount++;
+    trail.push(prev);
     draw(); updateInfo();
-    animId = requestAnimationFrame(loop);
+    // slider 1..10 -> 10..100 px per detik
+    const speed = +document.getElementById('speed').value;
+    const pxPerSec = 10 * speed;
+    const delay = 1000 / pxPerSec;
+    animId = setTimeout(loop, delay);
 }
 
 function startSim() {
@@ -427,33 +428,50 @@ function startSim() {
 }
 
 // Events
-let dragStart = null;
+let dragStart = null, dragging = false;
+function canvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: (e.clientX - rect.left) * (W / rect.width),
+        y: (e.clientY - rect.top) * (H / rect.height)
+    };
+}
 canvas.addEventListener('mousedown', e => {
     if (running) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (W / rect.width);
-    const y = (e.clientY - rect.top) * (H / rect.height);
+    const p = canvasPos(e);
     if (e.button === 0) {
-        dragStart = {x, y};
+        dragStart = p; dragging = false;
     } else if (e.button === 2) {
-        goal = {x, y}; mainLine = null;
+        goal = {x: p.x, y: p.y}; mainLine = null;
         if (algo === 'bug2' && start) mainLine = {ax: start.x, ay: start.y, bx: goal.x, by: goal.y};
         setStatus('Goal (G) ditempatkan.');
         draw();
     }
 });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('mousemove', e => {
+    if (!dragStart || running) return;
+    const p = canvasPos(e);
+    if (Math.abs(p.x - dragStart.x) > 5 && Math.abs(p.y - dragStart.y) > 5) dragging = true;
+    draw();
+    if (dragging) {
+        const ox = Math.min(dragStart.x, p.x), oy = Math.min(dragStart.y, p.y);
+        const ow = Math.abs(p.x - dragStart.x), oh = Math.abs(p.y - dragStart.y);
+        ctx.fillStyle = 'rgba(51,51,51,.25)';
+        ctx.fillRect(ox, oy, ow, oh);
+        ctx.strokeStyle = 'rgba(51,51,51,.6)';
+        ctx.lineWidth = 1; ctx.strokeRect(ox, oy, ow, oh);
+    }
+});
 canvas.addEventListener('mouseup', e => {
-    if (running) { dragStart = null; return; }
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (W / rect.width);
-    const y = (e.clientY - rect.top) * (H / rect.height);
+    if (running) { dragStart = null; dragging = false; return; }
+    const p = canvasPos(e);
     if (!dragStart) return;
     if (e.button === 0) {
         // klik kiri tanpa drag = start; drag = obstacle
-        if (Math.abs(x - dragStart.x) > 5 && Math.abs(y - dragStart.y) > 5) {
-            const ox = Math.min(dragStart.x, x), oy = Math.min(dragStart.y, y);
-            obstacles.push({x: ox, y: oy, w: Math.abs(x-dragStart.x), h: Math.abs(y-dragStart.y)});
+        if (Math.abs(p.x - dragStart.x) > 5 && Math.abs(p.y - dragStart.y) > 5) {
+            const ox = Math.min(dragStart.x, p.x), oy = Math.min(dragStart.y, p.y);
+            obstacles.push({x: ox, y: oy, w: Math.abs(p.x-dragStart.x), h: Math.abs(p.y-dragStart.y)});
             setStatus('Obstacle ditambahkan.');
             draw();
         } else {
@@ -465,8 +483,9 @@ canvas.addEventListener('mouseup', e => {
             draw(); updateInfo();
         }
     }
-    dragStart = null;
+    dragStart = null; dragging = false;
 });
+canvas.addEventListener('mouseleave', () => { dragStart = null; dragging = false; });
 
 // Tabs
 document.querySelectorAll('.tabs button').forEach(btn => {

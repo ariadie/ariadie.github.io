@@ -84,7 +84,7 @@
                 <div class="algo-desc" id="algo-desc">
                     <strong>A*:</strong> Urutkan open list berdasarkan \(f = g + h\) (cost-to-here + heuristic). Complete &amp; optimal jika heuristik admissible.
                 </div>
-                <div class="status" id="status-msg">Klik kiri = start (S), klik kanan = goal (G). Klik sel kosong untuk toggle obstacle.</div>
+                <div class="status" id="status-msg">Klik kiri = start (S), klik kanan = goal (G). Ctrl + klik kiri = toggle obstacle.</div>
             </div>
             <div class="sim-right">
                 <div class="panel">
@@ -92,7 +92,7 @@
                     <ul style="margin:0;padding-left:1.2em;font-size:.82em;">
                         <li><strong>Klik kiri</strong> &rarr; start (S)</li>
                         <li><strong>Klik kanan</strong> &rarr; goal (G)</li>
-                        <li><strong>Klik sel lain</strong> &rarr; toggle obstacle</li>
+                        <li><strong>Ctrl + klik kiri</strong> &rarr; toggle obstacle</li>
                         <li><strong>Scroll</strong> &rarr; zoom tidak tersedia</li>
                     </ul>
                 </div>
@@ -511,21 +511,6 @@ canvas.addEventListener('contextmenu', e => {
     goal = {r, c};
     resetSearch();
     setStatus('Goal (G) ditempatkan.');
-    draw();
-});
-
-// Also allow click + ctrl for obstacle
-canvas.addEventListener('mousedown', e => {
-    if (e.button !== 0 || running) return;
-    if (!e.ctrlKey && !e.metaKey) return;
-    const rect = canvas.getBoundingClientRect();
-    const c = Math.floor((e.clientX - rect.left) * (W / rect.width) / CELL);
-    const r = Math.floor((e.clientY - rect.top) * (H / rect.height) / CELL);
-    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
-    if (start && start.r === r && start.c === c) return;
-    if (goal && goal.r === r && goal.c === c) return;
-    grid[r][c] = grid[r][c] === 1 ? 0 : 1;
-    resetSearch();
     draw();
 });
 

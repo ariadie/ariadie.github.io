@@ -316,46 +316,62 @@ function resetSim() {
 }
 
 // Events
-let dragStart = null;
+let dragStart = null, dragging = false;
+function canvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: (e.clientX - rect.left) * (W / rect.width),
+        y: (e.clientY - rect.top) * (H / rect.height)
+    };
+}
 canvas.addEventListener('mousedown', e => {
     if (running) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (W / rect.width);
-    const y = (e.clientY - rect.top) * (H / rect.height);
+    const p = canvasPos(e);
     if (e.button === 0) {
-        start = {x, y}; resetSim();
-        setStatus('Start (S) ditempatkan. Klik kanan untuk goal.');
-        draw();
+        dragStart = p; dragging = false;
     } else if (e.button === 2) {
-        goal = {x, y}; resetSim();
+        goal = {x: p.x, y: p.y}; resetSim();
         setStatus('Goal (G) ditempatkan. Drag untuk obstacle, lalu Run.');
         draw();
     }
 });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
-canvas.addEventListener('mousedown', e => {
-    if (e.button !== 0 || running) return;
-    const rect = canvas.getBoundingClientRect();
-    dragStart = {
-        x: (e.clientX - rect.left) * (W / rect.width),
-        y: (e.clientY - rect.top) * (H / rect.height)
-    };
+canvas.addEventListener('mousemove', e => {
+    if (!dragStart || running) return;
+    const p = canvasPos(e);
+    if (Math.abs(p.x - dragStart.x) > 5 && Math.abs(p.y - dragStart.y) > 5) dragging = true;
+    draw();
+    if (dragging) {
+        const ox = Math.min(dragStart.x, p.x), oy = Math.min(dragStart.y, p.y);
+        const ow = Math.abs(p.x - dragStart.x), oh = Math.abs(p.y - dragStart.y);
+        ctx.fillStyle = 'rgba(51,51,51,.25)';
+        ctx.fillRect(ox, oy, ow, oh);
+        ctx.strokeStyle = 'rgba(51,51,51,.6)';
+        ctx.lineWidth = 1; ctx.strokeRect(ox, oy, ow, oh);
+    }
 });
 canvas.addEventListener('mouseup', e => {
-    if (!dragStart || running) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (W / rect.width);
-    const y = (e.clientY - rect.top) * (H / rect.height);
-    const ox = Math.min(dragStart.x, x), oy = Math.min(dragStart.y, y);
-    const ow = Math.abs(x - dragStart.x), oh = Math.abs(y - dragStart.y);
-    if (ow > 5 && oh > 5) {
-        obstacles.push({x: ox, y: oy, w: ow, h: oh});
-        resetSim();
-        setStatus('Obstacle ditambahkan.');
-        draw();
+    if (!dragStart || running) { dragStart = null; dragging = false; return; }
+    const p = canvasPos(e);
+    if (e.button === 0) {
+        if (dragging) {
+            const ox = Math.min(dragStart.x, p.x), oy = Math.min(dragStart.y, p.y);
+            const ow = Math.abs(p.x - dragStart.x), oh = Math.abs(p.y - dragStart.y);
+            if (ow > 5 && oh > 5) {
+                obstacles.push({x: ox, y: oy, w: ow, h: oh});
+                resetSim();
+                setStatus('Obstacle ditambahkan.');
+                draw();
+            }
+        } else {
+            start = {x: dragStart.x, y: dragStart.y}; resetSim();
+            setStatus('Start (S) ditempatkan. Klik kanan untuk goal.');
+            draw();
+        }
     }
-    dragStart = null;
+    dragStart = null; dragging = false;
 });
+canvas.addEventListener('mouseleave', () => { dragStart = null; dragging = false; });
 
 document.getElementById('btn-run').addEventListener('click', runSim);
 document.getElementById('btn-reset').addEventListener('click', resetSim);

@@ -257,32 +257,56 @@ function draw() {
 }
 
 // Events
-let dragStart = null;
-canvas.addEventListener('mousedown', e => {
+let dragStart = null, dragging = false;
+function canvasPos(e) {
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (W / rect.width);
-    const y = (e.clientY - rect.top) * (H / rect.height);
+    return {
+        x: (e.clientX - rect.left) * (W / rect.width),
+        y: (e.clientY - rect.top) * (H / rect.height)
+    };
+}
+canvas.addEventListener('mousedown', e => {
+    const p = canvasPos(e);
     if (e.button === 0) {
-        if (e.shiftKey) { dragStart = {x, y}; return; }
-        start = {x, y}; setStatus('Start (S) ditempatkan.'); draw();
+        dragStart = p; dragging = false;
     } else if (e.button === 2) {
-        goal = {x, y}; setStatus('Goal (G) ditempatkan.'); draw();
+        goal = {x: p.x, y: p.y}; setStatus('Goal (G) ditempatkan.'); draw();
     }
 });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
-canvas.addEventListener('mouseup', e => {
+canvas.addEventListener('mousemove', e => {
     if (!dragStart) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (W / rect.width);
-    const y = (e.clientY - rect.top) * (H / rect.height);
-    const ox = Math.min(dragStart.x, x), oy = Math.min(dragStart.y, y);
-    if (Math.abs(x - dragStart.x) > 5 && Math.abs(y - dragStart.y) > 5) {
-        obstacles.push({x: ox, y: oy, w: Math.abs(x-dragStart.x), h: Math.abs(y-dragStart.y)});
-        setStatus('Obstacle ditambahkan.');
-        draw();
+    const p = canvasPos(e);
+    if (Math.abs(p.x - dragStart.x) > 5 && Math.abs(p.y - dragStart.y) > 5) dragging = true;
+    draw();
+    if (dragging) {
+        const ox = Math.min(dragStart.x, p.x), oy = Math.min(dragStart.y, p.y);
+        const ow = Math.abs(p.x - dragStart.x), oh = Math.abs(p.y - dragStart.y);
+        ctx.fillStyle = 'rgba(51,51,51,.25)';
+        ctx.fillRect(ox, oy, ow, oh);
+        ctx.strokeStyle = 'rgba(51,51,51,.6)';
+        ctx.lineWidth = 1; ctx.strokeRect(ox, oy, ow, oh);
     }
-    dragStart = null;
 });
+canvas.addEventListener('mouseup', e => {
+    if (!dragStart) { dragging = false; return; }
+    const p = canvasPos(e);
+    if (e.button === 0) {
+        if (dragging) {
+            const ox = Math.min(dragStart.x, p.x), oy = Math.min(dragStart.y, p.y);
+            const ow = Math.abs(p.x - dragStart.x), oh = Math.abs(p.y - dragStart.y);
+            if (ow > 5 && oh > 5) {
+                obstacles.push({x: ox, y: oy, w: ow, h: oh});
+                setStatus('Obstacle ditambahkan.');
+                draw();
+            }
+        } else {
+            start = {x: dragStart.x, y: dragStart.y}; setStatus('Start (S) ditempatkan.'); draw();
+        }
+    }
+    dragStart = null; dragging = false;
+});
+canvas.addEventListener('mouseleave', () => { dragStart = null; dragging = false; });
 
 document.getElementById('btn-learn').addEventListener('click', buildPRM);
 document.getElementById('btn-query').addEventListener('click', queryPath);

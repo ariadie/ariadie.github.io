@@ -66,14 +66,15 @@
                     <button id="btn-pause" disabled>⏸ Pause</button>
                     <button class="danger" id="btn-reset">↺ Reset</button>
                     <label><input type="checkbox" id="chk-field" checked> Tampilkan medan</label>
+                    <label><input type="checkbox" id="chk-trail" checked> Tampilkan jejak</label>
                 </div>
                 <div class="ctrl">
-                    <label>k<sub>attr</sub>: <input type="range" id="kattr" min="0.5" max="10" step="0.5" value="3"></label>
-                    <label>k<sub>rep</sub>: <input type="range" id="krep" min="10" max="500" step="10" value="200"></label>
-                    <label>D₀: <input type="range" id="d0" min="30" max="200" step="5" value="100"></label>
+                    <label>k_attr: <input type="range" id="kattr" min="0.1" max="5" step="0.1" value="2.5"> <span id="kattr-label">2.5</span></label>
+                    <label>k_rep: <input type="range" id="krep" min="200" max="80000" step="200" value="40000"> <span id="krep-label">40000</span></label>
+                    <label>D₀: <input type="range" id="d0" min="30" max="300" step="5" value="165"> <span id="d0-label">165</span></label>
                 </div>
                 <div class="ctrl">
-                    <label>Speed: <input type="range" id="speed-slider" min="1" max="10" step="1" value="1"> <span id="speed-label">1</span></label>
+                    <label>Speed: <input type="range" id="speed-slider" min="1" max="10" step="1" value="5"> <span id="speed-label">5</span></label>
                 </div>
                 <div class="status" id="status-msg">Klik canvas untuk menempatkan goal (G) dan obstacle. Klik Start untuk menjalankan robot.</div>
             </div>
@@ -105,9 +106,11 @@
                         <hr style="border:none;border-top:1px solid #ddd;margin:6px 0;">
                         <p style="margin-bottom:6px;"><strong>\(k_{\text{rep}}\)</strong> — konstanta gaya tolak. Semakin besar, robot makin kuat menjauhi obstacle.</p>
                         <p style="margin-bottom:4px;">\[U_{\text{rep}}(q) = \begin{cases} \frac12 k_{\text{rep}}\!\left(\frac{1}{D} - \frac{1}{D_0}\right)^2 & D \le D_0 \\ 0 & D > D_0 \end{cases}\]</p>
-                        <p style="margin-bottom:6px;">\[-\nabla U_{\text{rep}} = k_{\text{rep}}\!\left(\frac{1}{D} - \frac{1}{D_0}\right)\!\frac{1}{D^3}\,(q - q_{\text{obst}})\]</p>
+                        <p style="margin-bottom:6px;">\[-\nabla U_{\text{rep}} = k_{\text{rep}}\!\left(\frac{1}{D} - \frac{1}{D_0}\right)\!\frac{1}{D^2}\,(q - q_{\text{obst}})\]</p>
                         <hr style="border:none;border-top:1px solid #ddd;margin:6px 0;">
                         <p style="margin-bottom:2px;"><strong>\(D_0\)</strong> — radius threshold tolakan. Di luar radius ini, obstacle tidak memberi gaya.</p>
+                        <hr style="border:none;border-top:1px solid #ddd;margin:6px 0;">
+                        <p style="font-size:.9em;color:#666;"><em>Catatan:</em> Simulasi ini menggunakan \(\frac{1}{d^2}\) (bukan \(\frac{1}{d^3}\) dari paper) agar jangkauan tolakan lebih panjang. Default: \(k_{\text{attr}}=2.5,\ k_{\text{rep}}=40000,\ D_0=165\). Robot mulai berbelok \(\sim\)15 px dari tepi obstacle.</p>
                     </div>
                 </div>
                 <div class="panel">
@@ -137,7 +140,8 @@ let robot = {x: 50, y: 50};
 let goal = null;
 let obstacles = [];
 let running = false, paused = false, animId = null, iterCount = 0;
-let kattr = 3, krep = 200, D0 = 100;
+let trail = [];
+let kattr = 2.5, krep = 40000, D0 = 165;
 
 const OBST_R = 20;
 const ROBOT_R = 6;
@@ -155,21 +159,22 @@ function computeForces() {
     const dg = dist(robot, goal);
     if (dg < 8) return null;
     // --- Attractive force (conical: capped at ATTR_THRESH) ---
-    const ATTR_THRESH = 200;
+    const ATTR_THRESH = 100;
     const attrMag = dg > ATTR_THRESH ? kattr * ATTR_THRESH : kattr * dg;
     const attrDirX = (goal.x - robot.x) / dg;
     const attrDirY = (goal.y - robot.y) / dg;
     const attrX = attrDirX * attrMag;
     const attrY = attrDirY * attrMag;
 
-    // --- Repulsive force (formula from paper §4.2.4) ---
-    // -∇U_rep = k_rep · (1/d - 1/D₀) · (1/d³) · (q - q_obst)
+    // --- Repulsive force (gradien medan potensial tolak) ---
+    // -∇U_rep = k_rep · (1/d - 1/D₀) · (1/d²) · (q - q_obst)
+    // (menggunakan 1/d² bukan 1/d³ agar jangkauan lebih panjang)
     let repX = 0, repY = 0;
     for (const o of obstacles) {
         const dc = dist(robot, o);
         const de = Math.max(1, dc - OBST_R);  // jarak ke tepi obstacle
         if (de < D0) {
-            const mag = krep * (1/de - 1/D0) / (de * de * de);
+            const mag = krep * (1/de - 1/D0) / (de * de);
             const ux = (robot.x - o.x) / dc;
             const uy = (robot.y - o.y) / dc;
             repX += ux * mag;
@@ -209,6 +214,7 @@ function step() {
             robot.x += (ff.total.x / ff.total.mag) * stepSize;
             robot.y += (ff.total.y / ff.total.mag) * stepSize;
         }
+        trail.push({x: robot.x, y: robot.y});
         if (robot.x < 0) robot.x = 0;
         if (robot.x > W) robot.x = W;
         if (robot.y < 0) robot.y = 0;
@@ -336,9 +342,12 @@ function draw() {
         drawArrow(robot.x, robot.y, lastForces.rep.x, lastForces.rep.y, 'rgba(231,76,60,.8)', 'F_rep');
         drawArrow(robot.x, robot.y, lastForces.total.x, lastForces.total.y, 'rgba(52,152,219,.9)', 'F_total');
     }
-    // path trail
-    ctx.fillStyle = 'rgba(46,204,113,.15)';
-    ctx.beginPath(); ctx.arc(robot.x, robot.y, 3, 0, Math.PI * 2); ctx.fill();
+    // trail
+    if (document.getElementById('chk-trail').checked && trail.length > 1) {
+        ctx.beginPath(); ctx.moveTo(trail[0].x, trail[0].y);
+        for (let i = 1; i < trail.length; i++) ctx.lineTo(trail[i].x, trail[i].y);
+        ctx.strokeStyle = 'rgba(46,204,113,.35)'; ctx.lineWidth = 2; ctx.stroke();
+    }
     ctx.font = '11px sans-serif';
     ctx.fillStyle = '#2ecc71'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
     ctx.fillText('● Robot', robot.x + 10, robot.y - 10);
@@ -358,7 +367,7 @@ function updateInfo(ff) {
 function resetSim() {
     running = false; paused = false;
     if (animId) cancelAnimationFrame(animId);
-    robot = {x: 50, y: 50}; iterCount = 0; lastForces = null;
+    robot = {x: 50, y: 50}; iterCount = 0; lastForces = null; trail = [];
     document.getElementById('btn-start').disabled = false;
     document.getElementById('btn-pause').disabled = true;
     document.getElementById('btn-pause').textContent = '⏸ Pause';
@@ -391,10 +400,12 @@ canvas.addEventListener('mousedown', e => {
     const y = (e.clientY - rect.top) * scaleY;
     if (e.button === 0) { // left = goal
         goal = {x, y};
+        lastForces = computeForces(); drawForces(lastForces);
         setStatus('Goal ditempatkan. Klik kanan untuk obstacle, lalu Start.');
-        draw(); updateInfo(null);
+        draw(); updateInfo(lastForces);
     } else if (e.button === 2) { // right = obstacle
         obstacles.push({x, y});
+        if (goal) { lastForces = computeForces(); drawForces(lastForces); }
         setStatus('Obstacle ditambahkan. Tambah lagi atau klik Start.');
         draw();
     }
@@ -404,15 +415,34 @@ document.getElementById('btn-start').addEventListener('click', toggleStart);
 document.getElementById('btn-pause').addEventListener('click', togglePause);
 document.getElementById('btn-reset').addEventListener('click', resetSim);
 document.getElementById('chk-field').addEventListener('change', draw);
-document.getElementById('kattr').addEventListener('input', function() { kattr = +this.value; draw(); });
-document.getElementById('krep').addEventListener('input', function() { krep = +this.value; draw(); });
-document.getElementById('d0').addEventListener('input', function() { D0 = +this.value; draw(); });
+document.getElementById('chk-trail').addEventListener('change', draw);
+function updateVectors() {
+    if (goal && !running) {
+        lastForces = computeForces(); drawForces(lastForces);
+        updateInfo(lastForces); draw();
+    } else { draw(); }
+}
+document.getElementById('kattr').addEventListener('input', function() {
+    kattr = +this.value;
+    document.getElementById('kattr-label').textContent = this.value;
+    updateVectors();
+});
+document.getElementById('krep').addEventListener('input', function() {
+    krep = +this.value;
+    document.getElementById('krep-label').textContent = this.value;
+    updateVectors();
+});
+document.getElementById('d0').addEventListener('input', function() {
+    D0 = +this.value;
+    document.getElementById('d0-label').textContent = this.value;
+    updateVectors();
+});
 document.getElementById('speed-slider').addEventListener('input', function() {
     document.getElementById('speed-label').textContent = this.value;
 });
 
+if (goal) { lastForces = computeForces(); drawForces(lastForces); updateInfo(lastForces); }
 draw();
-updateInfo(null);
 </script>
 </body>
 </html>
