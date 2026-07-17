@@ -44,6 +44,15 @@
         footer{background:#2c3e50;color:#fff;text-align:center;padding:20px;margin-top:30px;font-size:.85em;}
         footer a{color:#7fd1ff;}
         @media(max-width:700px){.sim-left{min-width:unset;}canvas.grid-canvas{max-width:100%;}}
+        .mobile-tools{display:none;}
+        @media(max-width:768px){
+        .mobile-tools{display:flex;gap:6px;margin:8px 0;justify-content:center;}
+        .mobile-tools button{padding:10px 0;border:2px solid #ccc;border-radius:8px;font-weight:700;font-size:.85em;background:#f5f7fa;cursor:pointer;flex:1;text-align:center;color:#555;transition:.2s;}
+        .mobile-tools button.active{border-color:#3498db;background:#e3f2fd;color:#3498db;}
+        .mobile-tools button.goal.active{background:#fde8e8;color:#e74c3c;border-color:#e74c3c;}
+        .mobile-tools button.obstacle.active{background:#eee;color:#000;border-color:#000;}
+        .mobile-tools button.start.active{background:#d5f5e3;color:#27ae60;border-color:#27ae60;}
+        }
     </style>
 </head>
 <body>
@@ -64,6 +73,11 @@
         <div class="sim-row">
             <div class="sim-left">
                 <canvas id="canvas" class="grid-canvas" width="600" height="600"></canvas>
+                <div class="mobile-tools">
+                    <button data-mode="start" class="start">S Start</button>
+                    <button data-mode="goal" class="goal active">G Goal</button>
+                    <button data-mode="obstacle" class="obstacle">■ Obstacle</button>
+                </div>
                 <div class="ctrl">
                     <select id="algo-select">
                         <option value="bfs">BFS (Breadth-First)</option>
@@ -134,6 +148,8 @@ let openList = [], closedList = [], path = [];
 let searchSteps = 0, found = false, running = false, animId = null;
 let parent = {}, gScore = {}, fScore = {};
 let searchDone = false;
+
+let toolMode = 'goal';
 
 // IDDFS specific
 let iddfsDepth = 0, iddfsVisited = new Set();
@@ -478,8 +494,10 @@ function resetSearch() {
 canvas.addEventListener('click', e => {
     if (running) return;
     const rect = canvas.getBoundingClientRect();
-    const c = Math.floor((e.clientX - rect.left) * (W / rect.width) / CELL);
-    const r = Math.floor((e.clientY - rect.top) * (H / rect.height) / CELL);
+    const x = (e.clientX - rect.left) * (W / rect.width);
+    const y = (e.clientY - rect.top) * (H / rect.height);
+    const c = Math.floor(x / CELL);
+    const r = Math.floor(y / CELL);
     if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
 
     if (e.button === 0) {
@@ -492,26 +510,16 @@ canvas.addEventListener('click', e => {
             setStatus(`Obstacle di (${r},${c}) di-toggle.`);
             draw(); return;
         }
-        // set start
-        if (grid[r][c] === 1) return;
-        start = {r, c};
-        resetSearch();
-        setStatus('Start (S) ditempatkan.');
-        draw();
+        handleCanvasClick(x, y);
     }
 });
 canvas.addEventListener('contextmenu', e => {
     e.preventDefault();
     if (running) return;
     const rect = canvas.getBoundingClientRect();
-    const c = Math.floor((e.clientX - rect.left) * (W / rect.width) / CELL);
-    const r = Math.floor((e.clientY - rect.top) * (H / rect.height) / CELL);
-    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
-    if (grid[r][c] === 1) return;
-    goal = {r, c};
-    resetSearch();
-    setStatus('Goal (G) ditempatkan.');
-    draw();
+    const x = (e.clientX - rect.left) * (W / rect.width);
+    const y = (e.clientY - rect.top) * (H / rect.height);
+    handleCanvasClick(x, y);
 });
 
 // Algorithm descriptions
@@ -528,6 +536,40 @@ document.getElementById('algo-select').addEventListener('change', function() {
     document.getElementById('algo-desc').innerHTML = algoDescs[this.value] || '';
     resetSearch();
 });
+
+document.querySelectorAll('.mobile-tools button').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.mobile-tools button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        toolMode = this.dataset.mode;
+    });
+});
+function handleCanvasClick(x, y) {
+    const c = Math.floor(x / CELL);
+    const r = Math.floor(y / CELL);
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+    if (toolMode === 'start') {
+        if (grid[r][c] === 1) return;
+        start = {r, c}; resetSearch(); setStatus('Start (S) ditempatkan.'); draw();
+    } else if (toolMode === 'goal') {
+        if (grid[r][c] === 1) return;
+        goal = {r, c}; resetSearch(); setStatus('Goal (G) ditempatkan.'); draw();
+    } else if (toolMode === 'obstacle') {
+        if (start && start.r === r && start.c === c) return;
+        if (goal && goal.r === r && goal.c === c) return;
+        grid[r][c] = grid[r][c] === 1 ? 0 : 1;
+        resetSearch(); draw();
+    }
+}
+canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (running) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * (W / rect.width);
+    const y = (touch.clientY - rect.top) * (H / rect.height);
+    handleCanvasClick(x, y);
+}, {passive: false});
 
 document.getElementById('btn-search').addEventListener('click', runSearch);
 document.getElementById('btn-step').addEventListener('click', stepOnce);

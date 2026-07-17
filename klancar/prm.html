@@ -40,6 +40,15 @@
         footer{background:#2c3e50;color:#fff;text-align:center;padding:20px;margin-top:30px;font-size:.85em;}
         footer a{color:#7fd1ff;}
         @media(max-width:700px){.sim-left{min-width:unset;}canvas{max-width:100%;}}
+        .mobile-tools{display:none;}
+        @media(max-width:768px){
+        .mobile-tools{display:flex;gap:6px;margin:8px 0;justify-content:center;}
+        .mobile-tools button{padding:10px 0;border:2px solid #ccc;border-radius:8px;font-weight:700;font-size:.85em;background:#f5f7fa;cursor:pointer;flex:1;text-align:center;color:#555;transition:.2s;}
+        .mobile-tools button.active{border-color:#3498db;background:#e3f2fd;color:#3498db;}
+        .mobile-tools button.goal.active{background:#fde8e8;color:#e74c3c;border-color:#e74c3c;}
+        .mobile-tools button.obstacle.active{background:#eee;color:#000;border-color:#000;}
+        .mobile-tools button.start.active{background:#d5f5e3;color:#27ae60;border-color:#27ae60;}
+        }
     </style>
 </head>
 <body>
@@ -60,6 +69,11 @@
         <div class="sim-row">
             <div class="sim-left">
                 <canvas id="canvas" width="600" height="600"></canvas>
+                <div class="mobile-tools">
+                    <button data-mode="start" class="start">S Start</button>
+                    <button data-mode="goal" class="goal active">G Goal</button>
+                    <button data-mode="obstacle" class="obstacle">■ Obstacle</button>
+                </div>
                 <div class="ctrl">
                     <button class="success" id="btn-learn">📚 Learning Phase</button>
                     <button class="warning" id="btn-query">🔍 Query Path</button>
@@ -111,6 +125,7 @@ const W = 600, H = 600;
 let start = null, goal = null;
 let obstacles = [];
 let graphNodes = [], graphEdges = [], pathNodes = [];
+let toolMode = 'goal';
 
 function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 
@@ -270,7 +285,7 @@ canvas.addEventListener('mousedown', e => {
     if (e.button === 0) {
         dragStart = p; dragging = false;
     } else if (e.button === 2) {
-        goal = {x: p.x, y: p.y}; setStatus('Goal (G) ditempatkan.'); draw();
+        toolMode = 'goal'; handleCanvasClick(p.x, p.y);
     }
 });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
@@ -301,12 +316,37 @@ canvas.addEventListener('mouseup', e => {
                 draw();
             }
         } else {
-            start = {x: dragStart.x, y: dragStart.y}; setStatus('Start (S) ditempatkan.'); draw();
+            toolMode = 'start'; handleCanvasClick(dragStart.x, dragStart.y);
         }
     }
     dragStart = null; dragging = false;
 });
 canvas.addEventListener('mouseleave', () => { dragStart = null; dragging = false; });
+
+document.querySelectorAll('.mobile-tools button').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.mobile-tools button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        toolMode = this.dataset.mode;
+    });
+});
+function handleCanvasClick(x, y) {
+    if (toolMode === 'start') {
+        start = {x, y}; setStatus('Start (S) ditempatkan.'); draw();
+    } else if (toolMode === 'goal') {
+        goal = {x, y}; setStatus('Goal (G) ditempatkan.'); draw();
+    } else if (toolMode === 'obstacle') {
+        obstacles.push({x: x-10, y: y-10, w: 20, h: 20}); setStatus('Obstacle ditambahkan.'); draw();
+    }
+}
+canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * (W / rect.width);
+    const y = (touch.clientY - rect.top) * (H / rect.height);
+    handleCanvasClick(x, y);
+}, {passive: false});
 
 document.getElementById('btn-learn').addEventListener('click', buildPRM);
 document.getElementById('btn-query').addEventListener('click', queryPath);

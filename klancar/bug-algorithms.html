@@ -42,6 +42,15 @@
         footer{background:#2c3e50;color:#fff;text-align:center;padding:20px;margin-top:30px;font-size:.85em;}
         footer a{color:#7fd1ff;}
         @media(max-width:700px){.sim-left{min-width:unset;}canvas{max-width:100%;}}
+        .mobile-tools{display:none;}
+        @media(max-width:768px){
+        .mobile-tools{display:flex;gap:6px;margin:8px 0;justify-content:center;}
+        .mobile-tools button{padding:10px 0;border:2px solid #ccc;border-radius:8px;font-weight:700;font-size:.85em;background:#f5f7fa;cursor:pointer;flex:1;text-align:center;color:#555;transition:.2s;}
+        .mobile-tools button.active{border-color:#3498db;background:#e3f2fd;color:#3498db;}
+        .mobile-tools button.goal.active{background:#fde8e8;color:#e74c3c;border-color:#e74c3c;}
+        .mobile-tools button.obstacle.active{background:#eee;color:#000;border-color:#000;}
+        .mobile-tools button.start.active{background:#d5f5e3;color:#27ae60;border-color:#27ae60;}
+        }
     </style>
 </head>
 <body>
@@ -67,6 +76,11 @@
                     <button data-algo="bug2">Bug2</button>
                 </div>
                 <canvas id="canvas" width="600" height="600"></canvas>
+                <div class="mobile-tools">
+                    <button data-mode="start" class="start">S Start</button>
+                    <button data-mode="goal" class="goal active">G Goal</button>
+                    <button data-mode="obstacle" class="obstacle">■ Obstacle</button>
+                </div>
                 <div class="ctrl">
                     <button class="success" id="btn-start">▶ Start</button>
                     <button class="danger" id="btn-reset">↺ Reset</button>
@@ -122,6 +136,7 @@ let robot = {x: 0, y: 0};
 let mode = 'go-to-goal'; // 'go-to-goal' | 'follow-contour' | 'done' | 'stuck'
 let stepCount = 0;
 let algo = 'bug0';
+let toolMode = 'goal';
 let contourStart = null, closestPoint = null, closestDist = Infinity;
 let mainLine = null;
 let hitPoint = null;
@@ -442,10 +457,7 @@ canvas.addEventListener('mousedown', e => {
     if (e.button === 0) {
         dragStart = p; dragging = false;
     } else if (e.button === 2) {
-        goal = {x: p.x, y: p.y}; mainLine = null;
-        if (algo === 'bug2' && start) mainLine = {ax: start.x, ay: start.y, bx: goal.x, by: goal.y};
-        setStatus('Goal (G) ditempatkan.');
-        draw();
+        toolMode = 'goal'; handleCanvasClick(p.x, p.y);
     }
 });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
@@ -475,17 +487,42 @@ canvas.addEventListener('mouseup', e => {
             setStatus('Obstacle ditambahkan.');
             draw();
         } else {
-            start = dragStart; robot = {x: dragStart.x, y: dragStart.y};
-            trail = []; stepCount = 0;
-            mode = 'go-to-goal';
-            bug1Phase = 'go-to-goal'; bug2Phase = 'go-to-goal'; mainLine = null;
-            setStatus('Start (S) ditempatkan.');
-            draw(); updateInfo();
+            toolMode = 'start'; handleCanvasClick(dragStart.x, dragStart.y);
         }
     }
     dragStart = null; dragging = false;
 });
 canvas.addEventListener('mouseleave', () => { dragStart = null; dragging = false; });
+
+document.querySelectorAll('.mobile-tools button').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.mobile-tools button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        toolMode = this.dataset.mode;
+    });
+});
+function handleCanvasClick(x, y) {
+    if (toolMode === 'start') {
+        start = {x, y}; robot = {x, y}; trail = []; stepCount = 0; mode = 'go-to-goal';
+        bug1Phase = 'go-to-goal'; bug2Phase = 'go-to-goal'; mainLine = null;
+        setStatus('Start (S) ditempatkan.'); draw(); updateInfo();
+    } else if (toolMode === 'goal') {
+        goal = {x, y}; mainLine = null;
+        if (algo === 'bug2' && start) mainLine = {ax: start.x, ay: start.y, bx: goal.x, by: goal.y};
+        setStatus('Goal (G) ditempatkan.'); draw();
+    } else if (toolMode === 'obstacle') {
+        obstacles.push({x: x-10, y: y-10, w: 20, h: 20}); setStatus('Obstacle ditambahkan.'); draw();
+    }
+}
+canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (running) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * (W / rect.width);
+    const y = (touch.clientY - rect.top) * (H / rect.height);
+    handleCanvasClick(x, y);
+}, {passive: false});
 
 // Tabs
 document.querySelectorAll('.tabs button').forEach(btn => {
