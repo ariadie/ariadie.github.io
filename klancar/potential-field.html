@@ -40,7 +40,14 @@
         .status{background:#fff3cd;border-left:4px solid #ffc107;padding:8px 12px;border-radius:4px;font-size:.88em;margin:8px 0;}
         footer{background:#2c3e50;color:#fff;text-align:center;padding:20px;margin-top:30px;font-size:.85em;}
         footer a{color:#7fd1ff;}
-        @media(max-width:700px){.sim-left{min-width:unset;}canvas{max-width:100%;}}
+        .mobile-tools{display:none;}
+        @media(max-width:768px){.sim-left{min-width:unset;}canvas{max-width:100%;}
+        .mobile-tools{display:flex;gap:6px;margin:8px 0;justify-content:center;}
+        .mobile-tools button{padding:10px 0;border:2px solid #ccc;border-radius:8px;font-weight:700;font-size:.85em;background:#f5f7fa;cursor:pointer;flex:1;text-align:center;color:#555;transition:.2s;}
+        .mobile-tools button.active{border-color:#3498db;background:#e3f2fd;color:#3498db;}
+        .mobile-tools button.goal{border-color:#e74c3c;}.mobile-tools button.goal.active{background:#fde8e8;color:#e74c3c;border-color:#e74c3c;}
+        .mobile-tools button.obstacle{border-color:#333;}.mobile-tools button.obstacle.active{background:#eee;color:#000;border-color:#000;}
+        }
     </style>
 </head>
 <body>
@@ -61,6 +68,11 @@
         <div class="sim-row">
             <div class="sim-left">
                 <canvas id="canvas" width="600" height="600"></canvas>
+                <div class="mobile-tools">
+                    <button data-mode="start" class="start">S Start</button>
+                    <button data-mode="goal" class="goal active">G Goal</button>
+                    <button data-mode="obstacle" class="obstacle">■ Obstacle</button>
+                </div>
                 <div class="ctrl">
                     <button class="success" id="btn-start">▶ Start</button>
                     <button id="btn-pause" disabled>⏸ Pause</button>
@@ -142,6 +154,7 @@ let obstacles = [];
 let running = false, paused = false, animId = null, iterCount = 0;
 let trail = [];
 let kattr = 2.5, krep = 40000, D0 = 165;
+let toolMode = 'goal';
 
 const OBST_R = 20;
 const ROBOT_R = 6;
@@ -390,26 +403,48 @@ function togglePause() {
     if (!paused && running) step();
 }
 
+// Tool mode (mobile)
+document.querySelectorAll('.mobile-tools button').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.mobile-tools button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        toolMode = this.dataset.mode;
+    });
+});
+
+function handleCanvasClick(x, y) {
+    if (toolMode === 'goal') {
+        goal = {x, y};
+        lastForces = computeForces(); drawForces(lastForces);
+        setStatus('Goal ditempatkan. Pilih Start/Obstacle, lalu Start.');
+        draw(); updateInfo(lastForces);
+    } else if (toolMode === 'obstacle') {
+        obstacles.push({x, y});
+        if (goal) { lastForces = computeForces(); drawForces(lastForces); }
+        setStatus('Obstacle ditambahkan.');
+        draw();
+    }
+}
+
 // Events
 canvas.addEventListener('contextmenu', e => e.preventDefault());
 canvas.addEventListener('mousedown', e => {
     if (running) return;
     const rect = canvas.getBoundingClientRect();
-    const scaleX = W / rect.width, scaleY = H / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
-    if (e.button === 0) { // left = goal
-        goal = {x, y};
-        lastForces = computeForces(); drawForces(lastForces);
-        setStatus('Goal ditempatkan. Klik kanan untuk obstacle, lalu Start.');
-        draw(); updateInfo(lastForces);
-    } else if (e.button === 2) { // right = obstacle
-        obstacles.push({x, y});
-        if (goal) { lastForces = computeForces(); drawForces(lastForces); }
-        setStatus('Obstacle ditambahkan. Tambah lagi atau klik Start.');
-        draw();
-    }
+    const x = (e.clientX - rect.left) * (W / rect.width);
+    const y = (e.clientY - rect.top) * (H / rect.height);
+    if (e.button === 0) handleCanvasClick(x, y);
+    else if (e.button === 2) handleCanvasClick(x, y);
 });
+canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (running) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * (W / rect.width);
+    const y = (touch.clientY - rect.top) * (H / rect.height);
+    handleCanvasClick(x, y);
+}, {passive: false});
 
 document.getElementById('btn-start').addEventListener('click', toggleStart);
 document.getElementById('btn-pause').addEventListener('click', togglePause);

@@ -18,18 +18,23 @@
         .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
         .content{padding:40px;}
         .intro{text-align:center;max-width:820px;margin:0 auto 35px;font-size:1.08em;color:#495057;}
-        .section-title{font-size:1.3em;color:#2c3e50;border-bottom:2px solid #3498db;padding-bottom:6px;margin:35px 0 18px;}
-        .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin-top:15px;}
-        .chapter-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);border-radius:12px;padding:24px;border-left:5px solid #3498db;transition:all .3s ease;text-decoration:none;color:#333;display:block;position:relative;}
+        .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:28px;margin-top:20px;}
+        .chapter-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);border-radius:12px;padding:24px;border-left:5px solid #3498db;transition:all .3s ease;color:#333;position:relative;}
         .chapter-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 14px 30px rgba(0,0,0,.18);background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);}
-        .chapter-card .num{display:inline-block;background:#3498db;color:#fff;font-weight:700;border-radius:50%;width:38px;height:38px;line-height:38px;text-align:center;font-size:1.1em;margin-bottom:10px;}
-        .chapter-card h3{margin:0 0 8px;color:#2c3e50;font-size:1.15em;}
-        .chapter-card p{margin:0;color:#495057;font-size:.92em;}
+        .chapter-card .num{display:inline-block;background:#3498db;color:#fff;font-weight:700;border-radius:50%;width:40px;height:40px;line-height:40px;text-align:center;font-size:1.15em;margin-bottom:10px;}
+        .chapter-card h3{margin:0 0 8px;color:#2c3e50;font-size:1.18em;}
+        .chapter-card p{margin:0;color:#495057;font-size:.92em;line-height:1.55;}
         .chapter-card ul{margin:6px 0 0;padding-left:1.1em;font-size:.88em;color:#495057;}
-        .chapter-card ul li{margin-bottom:2px;}
-        .chapter-card .go{margin-top:10px;display:inline-block;font-weight:700;}
-        .badge-sim{display:inline-block;background:#27ae60;color:#fff;font-size:.7em;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;margin-left:8px;vertical-align:middle;}
-        .note{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:15px 20px;margin:30px auto 0;max-width:820px;border-radius:8px;}
+        .chapter-card ul li{margin-bottom:3px;line-height:1.45;}
+        .chapter-card .sim-link{display:inline-block;margin-top:14px;padding:7px 18px;background:#27ae60;color:#fff;border-radius:6px;font-weight:700;font-size:.85em;text-decoration:none;transition:.2s;}
+        .chapter-card .sim-link:hover{background:#1e8449;transform:scale(1.05);}
+        .chapter-card .badge{display:inline-block;font-size:.68em;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.4px;margin-left:8px;vertical-align:middle;}
+        .chapter-card .badge.pf{background:#e67e22;color:#fff;}
+        .chapter-card .badge.rrt{background:#9b59b6;color:#fff;}
+        .chapter-card .badge.prm{background:#2c3e50;color:#fff;}
+        .chapter-card .badge.bug{background:#e74c3c;color:#fff;}
+        .chapter-card .badge.gs{background:#3498db;color:#fff;}
+        .note{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:15px 20px;margin:35px auto 0;max-width:820px;border-radius:8px;}
         .pdf-wrap{margin-top:40px;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.1);}
         .pdf-wrap h2{margin:0;background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff;text-align:center;padding:16px;font-size:1.3em;letter-spacing:.5px;}
         .pdf-body{background:#f5f5f5;padding:16px;}
@@ -59,118 +64,113 @@
 
         <div class="content">
             <p class="intro">
-                Ringkasan Bab 4 buku <em>Wheeled Mobile Robotics</em> yang mencakup representasi lingkungan,
-                perencanaan jalur berbasis sampling, algoritma Bug, dan metode pencarian berbasis graf.
-                Dilengkapi <strong>simulasi interaktif</strong> dan viewer PDF.
+                Ringkasan lengkap Bab 4 buku <em>Wheeled Mobile Robotics</em> yang mencakup representasi lingkungan,
+                perencanaan jalur berbasis sampling (RRT, PRM), algoritma Bug, dan metode pencarian berbasis graf
+                (BFS, DFS, Dijkstra, A*). Setiap topik dilengkapi <strong>simulasi interaktif</strong> dan viewer PDF.
             </p>
 
-            <h2 class="section-title">🎮 Simulasi Interaktif</h2>
             <div class="card-grid">
-                <a class="chapter-card" href="potential-field.html" style="border-left-color:#e67e22;">
-                    <span class="num" style="background:#e67e22;">PF</span>
-                    <h3>Potential Field <span class="badge-sim">Simulasi</span></h3>
-                    <p>Medan potensial tarik-tolak dengan gradien negatif. Atur parameter \(k_{\text{attr}}\), \(k_{\text{rep}}\), dan D₀. Saksikan robot mengikuti medan &mdash; dan terjebak local minimum.</p>
-                    <span class="go" style="color:#e67e22;">Buka Simulasi &#8594;</span>
-                </a>
 
-                <a class="chapter-card" href="rrt.html" style="border-left-color:#9b59b6;">
-                    <span class="num" style="background:#9b59b6;">RRT</span>
-                    <h3>RRT <span class="badge-sim">Simulasi</span></h3>
-                    <p>Tree ekspansi dengan sampling acak. Atur \(\varepsilon\), max iter, dan goal bias. Lihat pohon merambat dari start ke goal.</p>
-                    <span class="go" style="color:#9b59b6;">Buka Simulasi &#8594;</span>
-                </a>
-
-                <a class="chapter-card" href="prm.html" style="border-left-color:#2c3e50;">
-                    <span class="num" style="background:#2c3e50;">PRM</span>
-                    <h3>Probabilistic Roadmap <span class="badge-sim">Simulasi</span></h3>
-                    <p>Learning phase: sampel node, hubungkan tetangga. Query phase: cari path S&ndash;G di graf. Atur jumlah node dan radius koneksi.</p>
-                    <span class="go" style="color:#2c3e50;">Buka Simulasi &#8594;</span>
-                </a>
-
-                <a class="chapter-card" href="bug-algorithms.html" style="border-left-color:#e74c3c;">
-                    <span class="num" style="background:#e74c3c;">Bug</span>
-                    <h3>Bug Algorithms <span class="badge-sim">Simulasi</span></h3>
-                    <p>Bug0, Bug1, Bug2 dalam satu canvas. Pilih algoritma via tab, lihat perbedaan strategi follow-contour dan main line.</p>
-                    <span class="go" style="color:#e74c3c;">Buka Simulasi &#8594;</span>
-                </a>
-
-                <a class="chapter-card" href="graph-search.html" style="border-left-color:#3498db;">
-                    <span class="num" style="background:#3498db;">GS</span>
-                    <h3>Graph Search <span class="badge-sim">Simulasi</span></h3>
-                    <p>6 algoritma dalam satu grid: BFS, DFS, IDDFS, Dijkstra, A*, Greedy Best-First. Bandingkan frontier, open/closed list, dan optimalitas.</p>
-                    <span class="go" style="color:#3498db;">Buka Simulasi &#8594;</span>
-                </a>
-            </div>
-
-            <h2 class="section-title">📚 Ringkasan Materi</h2>
-            <div class="card-grid">
+                <!-- 1. Representasi Lingkungan -->
                 <div class="chapter-card" style="border-left-color:#e67e22;">
                     <span class="num" style="background:#e67e22;">1</span>
-                    <h3>Representasi Lingkungan</h3>
-                    <p>Metode memodelkan ruang bebas halangan:</p>
+                    <h3>Representasi Lingkungan <span class="badge pf">PF</span></h3>
+                    <p>Ruang konfigurasi robot harus dimodelkan sebelum pencarian jalur. Tiga pendekatan utama:</p>
                     <ul>
-                        <li><strong>Roadmap</strong> &mdash; visibility graph, Voronoi diagram</li>
-                        <li><strong>Cell Decomposition</strong> &mdash; Exact (trapezoidal) dan Approximate (grid / quadtree)</li>
-                        <li><strong>Potential Field</strong> &mdash; medan tarik-tolak, rawan local minimum</li>
+                        <li><strong>Roadmap</strong> &mdash; graf dari ruang bebas. <em>Visibility graph</em> menghubungkan simpul halangan yang saling terlihat &rarr; jalur terpendek namun menempel halangan. <em>Voronoi diagram</em> memaksimalkan jarak dari halangan &rarr; jalur lebih aman.</li>
+                        <li><strong>Cell Decomposition</strong> &mdash; ruang bebas dipecah menjadi sel. <em>Exact</em> (trapezoidal) mengikuti batas geometri; <em>Approximate</em> menggunakan grid seragam atau <em>quadtree</em> adaptif yang membagi sel hanya di daerah padat halangan.</li>
+                        <li><strong>Potential Field</strong> &mdash; medan potensial \(U(q)=U_{\text{attr}}+U_{\text{rep}}\). Robot mengikuti gradien negatif. Cepat namun rawan <em>local minimum</em> pada halangan cekung.</li>
                     </ul>
+                    <a class="sim-link" href="potential-field.html">Buka Simulasi &rarr;</a>
                 </div>
 
+                <!-- 2. Potential Field -->
                 <div class="chapter-card" style="border-left-color:#1abc9c;">
                     <span class="num" style="background:#1abc9c;">2</span>
-                    <h3>Potential Field</h3>
-                    <p>\(U(q)=U_{\text{attr}}(q)+U_{\text{rep}}(q)\)</p>
+                    <h3>Potential Field Method <span class="badge pf">PF</span></h3>
+                    <p>Robot bergerak dalam medan potensial buatan. Dua komponen gaya:</p>
                     <ul>
-                        <li>\(U_{\text{attr}}(q)=\frac12 k_{\text{attr}}\ d^2(q,q_{\text{goal}})\)</li>
-                        <li>\(U_{\text{rep}}(q)=\frac12 k_{\text{rep}}(\frac1D-\frac1{D_0})^2\) untuk \(D\le D_0\)</li>
-                        <li>Robot ikuti \(-\nabla U(q)\) &rarr; bisa local minimum</li>
+                        <li><strong>Gaya tarik (attractive)</strong> &rarr; menarik robot ke goal.
+                            \[U_{\text{attr}}(q)=\tfrac12 k_{\text{attr}}\,d^2(q,q_{\text{goal}})\quad\Rightarrow\quad F_{\text{attr}}=k_{\text{attr}}(q_{\text{goal}}-q)\]</li>
+                        <li><strong>Gaya tolak (repulsive)</strong> &rarr; menjauhkan robot dari halangan.
+                            \[U_{\text{rep}}(q)=\begin{cases}\tfrac12 k_{\text{rep}}\bigl(\frac1D-\frac1{D_0}\bigr)^2&D\le D_0\\0&D>D_0\end{cases}\]
+                            \[F_{\text{rep}}=k_{\text{rep}}\bigl(\frac1D-\frac1{D_0}\bigr)\frac1{D^2}\,(q-q_{\text{obst}})\]</li>
+                        <li>Robot mengikuti resultan \(F_{\text{total}} = F_{\text{attr}} + F_{\text{rep}}\). <strong>Masalah:</strong> local minimum pada halangan cekung &rarr; robot berhenti sebelum mencapai goal.</li>
                     </ul>
+                    <a class="sim-link" href="potential-field.html">Buka Simulasi &rarr;</a>
                 </div>
 
-                <div class="chapter-card" style="border-left-color:#9b59b6;">
-                    <span class="num" style="background:#9b59b6;">3</span>
-                    <h3>RRT</h3>
-                    <p>Tree dari start ke sampel acak. Cari \(q_{\text{near}}\), ekspansi \(\varepsilon\). Cepat jelajah area baru. Parameter: \(\varepsilon\), iterasi, goal bias.</p>
-                </div>
-
-                <div class="chapter-card" style="border-left-color:#2c3e50;">
-                    <span class="num" style="background:#2c3e50;">4</span>
-                    <h3>PRM</h3>
-                    <p><strong>Learning:</strong> sampel node di free space, hubungkan tetangga dalam radius D. <strong>Query:</strong> cari path S&ndash;G. Narrow passage: bridge test.</p>
-                </div>
-
+                <!-- 3. Bug Algorithms -->
                 <div class="chapter-card" style="border-left-color:#e74c3c;">
-                    <span class="num" style="background:#e74c3c;">5</span>
-                    <h3>Bug Algorithms</h3>
+                    <span class="num" style="background:#e74c3c;">3</span>
+                    <h3>Bug Algorithms <span class="badge bug">Bug</span></h3>
+                    <p>Algoritma paling sederhana: hanya butuh sensor jarak lokal dan posisi goal global. Dua perilaku dasar: gerak lurus ke goal dan <em>boundary following</em> (ikuti kontur halangan).</p>
                     <ul>
-                        <li><strong>Bug0</strong> &mdash; lurus ke goal, ikuti kontur jika terhalang</li>
-                        <li><strong>Bug1</strong> &mdash; telusuri seluruh kontur, cari titik terdekat. Complete.</li>
-                        <li><strong>Bug2</strong> &mdash; ikuti <em>main line</em>, lebih efisien</li>
+                        <li><strong>Bug0</strong> &mdash; lurus ke goal. Jika terhalang, ikuti kontur (kiri) sampai bisa lurus lagi. Paling sederhana, tapi <strong>tidak complete</strong> — bisa gagal pada halangan tertentu.</li>
+                        <li><strong>Bug1</strong> &mdash; saat terhalang, telusuri <em>seluruh</em> kontur, catat titik terdekat ke goal, lalu kembali ke sana. <strong>Complete</strong> &mdash; selalu menemukan path jika ada. Panjang path \(\le \frac32 L_{\text{obst}} + d_{\text{Euclid}}\).</li>
+                        <li><strong>Bug2</strong> &mdash; ikuti <em>main line</em> (garis start&ndash;goal). Saat terhalang, ikuti kontur sampai main line tercapai lagi dengan jarak lebih dekat. Lebih efisien dari Bug1, tapi bisa memutar halangan berulang kali.</li>
                     </ul>
+                    <a class="sim-link" href="bug-algorithms.html">Buka Simulasi &rarr;</a>
                 </div>
 
+                <!-- 4. RRT -->
+                <div class="chapter-card" style="border-left-color:#9b59b6;">
+                    <span class="num" style="background:#9b59b6;">4</span>
+                    <h3>RRT <span class="badge rrt">RRT</span></h3>
+                    <p><em>Rapidly-exploring Random Tree</em> &mdash; metode sampling-based untuk pencarian path dari satu start ke satu goal:</p>
+                    <ul>
+                        <li>Tree dimulai dari \(q_{\text{start}}\). Pada setiap iterasi: (a) sampel titik acak \(q_{\text{rand}}\), (b) cari node terdekat \(q_{\text{near}}\) di tree, (c) ekstensi sejauh \(\varepsilon\) ke arah \(q_{\text{rand}}\) &rarr; \(q_{\text{new}}\), (d) jika \(q_{\text{new}}\) dan koneksinya di ruang bebas, tambahkan ke tree.</li>
+                        <li><strong>Goal bias:</strong> dengan probabilitas tertentu (mis. 10%), \(q_{\text{rand}}\) diganti dengan \(q_{\text{goal}}\) untuk mempercepat konvergensi.</li>
+                        <li>Hanya dua parameter: ukuran langkah \(\varepsilon\) dan jumlah iterasi. Tree cepat meluas ke area yang belum dijelajahi (Gbr. 4.18 di paper).</li>
+                        <li>Efektif untuk ruang konfigurasi dimensi tinggi; <em>probabilistically complete</em>.</li>
+                    </ul>
+                    <a class="sim-link" href="rrt.html">Buka Simulasi &rarr;</a>
+                </div>
+
+                <!-- 5. PRM -->
+                <div class="chapter-card" style="border-left-color:#2c3e50;">
+                    <span class="num" style="background:#2c3e50;">5</span>
+                    <h3>PRM <span class="badge prm">PRM</span></h3>
+                    <p><em>Probabilistic Roadmap</em> &mdash; metode sampling-based untuk banyak query (multi-start, multi-goal):</p>
+                    <ul>
+                        <li><strong>Learning phase:</strong> bangun graf (roadmap) dengan mengambil \(N\) sampel acak di ruang bebas, lalu hubungkan setiap sampel ke \(K\) tetangga terdekat dalam radius \(D\). Semua edge diperiksa tabrakannya.</li>
+                        <li><strong>Query phase:</strong> hubungkan \(q_{\text{start}}\) dan \(q_{\text{goal}}\) ke node terdekat di graf, lalu cari path (misal BFS/A*).</li>
+                        <li><strong>Narrow passage:</strong> masalah umum PRM &mdash; daerah sempit jarang tersampel. Solusi: <em>bridge test</em> &mdash; tiga titik acak pada garis lurus; jika titik luar di halangan dan titik tengah di ruang bebas, tambahkan sebagai node.</li>
+                    </ul>
+                    <a class="sim-link" href="prm.html">Buka Simulasi &rarr;</a>
+                </div>
+
+                <!-- 6. Graph Search: Uninformed -->
                 <div class="chapter-card" style="border-left-color:#3498db;">
                     <span class="num" style="background:#3498db;">6</span>
-                    <h3>Graph Search: Uninformed</h3>
+                    <h3>Uninformed Graph Search <span class="badge gs">GS</span></h3>
+                    <p>Pencarian tanpa informasi tambahan selain definisi masalah. Menggunakan <em>open list</em> (node hidup) dan <em>closed list</em> (node sudah diperiksa):</p>
                     <ul>
-                        <li><strong>BFS</strong> &mdash; FIFO, complete, langkah minimal</li>
-                        <li><strong>DFS</strong> &mdash; LIFO, tidak complete, memori kecil</li>
-                        <li><strong>IDDFS</strong> &mdash; DFS depth-limited bertahap, complete</li>
+                        <li><strong>BFS (Breadth-First Search)</strong> &mdash; open list sebagai FIFO. Eksplorasi shallow nodes dulu. <strong>Complete</strong> &mdash; menemukan path dengan jumlah langkah terkecil. Tidak optimal jika biaya transisi bervariasi. Memori besar.</li>
+                        <li><strong>DFS (Depth-First Search)</strong> &mdash; open list sebagai LIFO. Eksplorasi node terdalam dulu. <strong>Tidak complete</strong> (bisa terjebak siklus/cabang tak terbatas). Memori kecil. Tidak optimal.</li>
+                        <li><strong>Iterative Deepening DFS</strong> &mdash; DFS dengan batas kedalaman dinaikkan bertahap. <strong>Complete</strong>, memori kecil, optimal jika biaya seragam. Kombinasi kelebihan BFS + DFS.</li>
                     </ul>
+                    <a class="sim-link" href="graph-search.html">Buka Simulasi &rarr;</a>
                 </div>
 
+                <!-- 7. Informed Search -->
                 <div class="chapter-card" style="border-left-color:#e67e22;">
                     <span class="num" style="background:#e67e22;">7</span>
-                    <h3>Informed Search</h3>
+                    <h3>Informed Graph Search <span class="badge gs">GS</span></h3>
+                    <p>Pencarian dengan fungsi heuristik \(h(n)\) yang memperkirakan biaya dari node \(n\) ke goal:</p>
                     <ul>
-                        <li><strong>Dijkstra</strong> &mdash; urut open list berdasarkan \(g\), optimal</li>
-                        <li><strong>A*</strong> &mdash; \(f=g+h\), optimal jika heuristik admissible</li>
-                        <li><strong>Greedy Best-First</strong> &mdash; hanya \(h\), cepat tapi tidak optimal</li>
+                        <li><strong>Dijkstra</strong> &mdash; open list diurutkan berdasarkan \(g(n)\) (cost-to-here). <strong>Complete &amp; optimal</strong> untuk bobot positif. Temukan jarak terpendek ke semua node. Bisa dihentikan lebih awal jika goal sudah di-closed.</li>
+                        <li><strong>A*</strong> &mdash; open list diurutkan berdasarkan \(f(n)=g(n)+h(n)\). <strong>Complete &amp; optimal</strong> jika \(h\) admissible (optimistic, tidak melebihbiayai). Heuristik umum: Euclidean distance, Manhattan distance. Lebih efisien dari Dijkstra karena terfokus ke goal.</li>
+                        <li><strong>Greedy Best-First Search</strong> &mdash; open list diurutkan hanya berdasarkan \(h(n)\). Sangat cepat (langsung ke goal), tapi <strong>tidak optimal</strong> &mdash; bisa menghasilkan path lebih panjang. Heuristik tidak perlu admissible.</li>
                     </ul>
+                    <a class="sim-link" href="graph-search.html">Buka Simulasi &rarr;</a>
                 </div>
+
             </div>
 
             <div class="note">
-                <strong>Referensi utama:</strong> LaValle (2006) <em>Planning Algorithms</em> &middot; LaValle &amp; Kuffner (2001) RRT &middot; Kavraki et al. (1996) PRM &middot; Dijkstra (1959) &middot; Lumelsky &amp; Stepanov (1986) Bug algorithms
+                <strong>Referensi utama:</strong> LaValle (2006) <em>Planning Algorithms</em> &middot; LaValle &amp; Kuffner (2001) RRT &middot; Kavraki et al. (1996) PRM &middot; Dijkstra (1959) A* &middot; Lumelsky &amp; Stepanov (1986) Bug algorithms &middot; Klančar et al. (2017) Bab 4 <em>Wheeled Mobile Robotics</em>.
+                Gunakan tombol <strong>Buka Simulasi</strong> untuk mencoba setiap algoritma secara interaktif.
             </div>
 
             <div class="pdf-wrap">
