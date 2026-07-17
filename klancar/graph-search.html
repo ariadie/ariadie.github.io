@@ -510,7 +510,7 @@ canvas.addEventListener('click', e => {
             setStatus(`Obstacle di (${r},${c}) di-toggle.`);
             draw(); return;
         }
-        handleCanvasClick(x, y);
+        toolMode = 'start'; handleCanvasClick(x, y);
     }
 });
 canvas.addEventListener('contextmenu', e => {
@@ -519,7 +519,7 @@ canvas.addEventListener('contextmenu', e => {
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX - rect.left) * (W / rect.width);
     const y = (e.clientY - rect.top) * (H / rect.height);
-    handleCanvasClick(x, y);
+    toolMode = 'goal'; handleCanvasClick(x, y);
 });
 
 // Algorithm descriptions

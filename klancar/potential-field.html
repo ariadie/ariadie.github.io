@@ -433,8 +433,8 @@ canvas.addEventListener('mousedown', e => {
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX - rect.left) * (W / rect.width);
     const y = (e.clientY - rect.top) * (H / rect.height);
-    if (e.button === 0) handleCanvasClick(x, y);
-    else if (e.button === 2) handleCanvasClick(x, y);
+    if (e.button === 0) { toolMode = 'goal'; handleCanvasClick(x, y); }
+    else if (e.button === 2) { toolMode = 'obstacle'; handleCanvasClick(x, y); }
 });
 canvas.addEventListener('touchstart', e => {
     e.preventDefault();
