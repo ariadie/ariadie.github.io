@@ -587,6 +587,7 @@
       </a>
       <div class="nav-actions">
         <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#dualitas-kkt">Dualitas &amp; KKT</a>
         <a class="btn" href="#simulasi">Simulasi</a>
         <a class="btn" href="#referensi">Referensi</a>
         <a class="btn" href="./moo.html">MOO</a>
@@ -670,7 +671,7 @@
             <li>
               <div>
                 <span class="step-title">Convex Function</span>
-                <span class="step-text">\(f: \mathbb{R}^n \to \mathbb{R}\) convex jika \(\text{dom } f\) convex dan \(f(\theta x + (1-\theta)y) \le \theta f(x) + (1-\theta)f(y)\) untuk semua \(x, y \in \text{dom } f\), \(\theta \in [0,1]\). Fungsi convex kontinu di seluruh domain relatif interiornya.</span>
+                <span class="step-text">\(f: \mathbb{R}^n \to \mathbb{R}\) convex jika \(\text{dom } f\) convex dan \(f(\theta x + (1-\theta)y) \le \theta f(x) + (1-\theta)f(y)\) untuk semua \(x, y \in \text{dom } f\), \(\theta \in [0,1]\). <strong>Epigraf</strong> (epigraph) didefinisikan sebagai himpunan \(\text{epi } f = \{(x, t) \mid f(x) \le t\}\); \(f\) convex ⇔ epigrafnya merupakan convex set. Fungsi convex kontinu di seluruh domain relatif interiornya.</span>
               </div>
             </li>
             <li>
@@ -688,13 +689,13 @@
             <li>
               <div>
                 <span class="step-title">Dualitas &amp; KKT</span>
-                <span class="step-text">Dual Lagrange memberikan <em>lower bound</em> pada nilai optimal. KKT conditions adalah syarat perlu dan cukup untuk optimum pada masalah convex dengan constraint qualification yang terpenuhi (mis. Slater's condition).</span>
+                <span class="step-text"><strong>Dualitas Lagrange</strong> (Lagrangian duality) memberikan <em>lower bound</em> pada nilai optimal melalui <em>fungsi dual</em>. <strong>KKT</strong> adalah singkatan dari <em>Karush–Kuhn–Tucker conditions</em> — syarat perlu (dan cukup, untuk masalah convex) untuk optimum ketika <em>constraint qualification</em> terpenuhi, misalnya <strong>Slater's condition</strong> (ada satu titik strictly feasible untuk kendala pertidaksamaan).</span>
               </div>
             </li>
             <li>
               <div>
                 <span class="step-title">Metode Solusi</span>
-                <span class="step-text">Algoritma seperti <em>gradient descent</em>, <em>Newton's method</em>, <em>interior-point methods</em>, dan <em>subgradient methods</em> dapat digunakan. Untuk kelas khusus (LP, QP, SOCP, SDP), solver yang sangat efisien telah tersedia.</span>
+                <span class="step-text">Algoritma seperti <em>gradient descent</em> (turun gradien), <em>Newton's method</em> (metode Newton), <em>interior-point methods</em> (metode titik-dalam — bergerak di dalam himpunan feasible dan mencapai optimum dengan melacak central path), dan <em>subgradient methods</em> (metode subgradien, untuk fungsi non-smooth) dapat digunakan. Untuk kelas khusus (LP, QP, SOCP, SDP), solver yang sangat efisien telah tersedia.</span>
               </div>
             </li>
           </ol>
@@ -710,12 +711,12 @@
               <p><strong>Akibat:</strong> Tidak diperlukan <em>multi-start</em> atau mekanisme diversitas. Cukup temukan satu titik yang memenuhi KKT.</p>
             </div>
             <table style="margin-top: 16px;">
-              <tr><th>Kelas</th><th>Fungsi Tujuan</th><th>Kendala</th></tr>
-              <tr><td>LP</td><td>Linear</td><td>Linear</td></tr>
-              <tr><td>QP</td><td>Quadratic convex</td><td>Linear</td></tr>
-              <tr><td>SOCP</td><td>Linear</td><td>Cone orde-2</td></tr>
-              <tr><td>SDP</td><td>Linear</td><td>PSD cone</td></tr>
-              <tr><td>GP</td><td>Posynomial (convex setelah transformasi log)</td><td>Monomial/Posynomial</td></tr>
+              <tr><th>Kelas</th><th>Kepanjangan</th><th>Fungsi Tujuan</th><th>Kendala</th></tr>
+              <tr><td>LP</td><td><em>Linear Program</em></td><td>Linear</td><td>Linear</td></tr>
+              <tr><td>QP</td><td><em>Quadratic Program</em></td><td>Quadratic convex</td><td>Linear</td></tr>
+              <tr><td>SOCP</td><td><em>Second-Order Cone Program</em></td><td>Linear</td><td>Cone orde-2 (second-order cone)</td></tr>
+              <tr><td>SDP</td><td><em>Semidefinite Program</em></td><td>Linear</td><td><em>Positive Semidefinite</em> (PSD) cone</td></tr>
+              <tr><td>GP</td><td><em>Geometric Program</em></td><td>Posynomial (convex setelah transformasi log)</td><td>Monomial/Posynomial</td></tr>
             </table>
           </div>
 
@@ -730,6 +731,71 @@ subject to  fᵢ(x) ≤ 0,   i = 1,...,m
               dengan \(f_0, \dots, f_m\) convex. Himpunan feasible adalah irisan domain fungsi dan
               polyhedron \(\{x \mid Ax = b\}\) → convex.
             </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DUALITAS & KKT -->
+    <section class="section" id="dualitas-kkt" aria-label="Dualitas dan KKT">
+      <div class="section-head">
+        <div>
+          <h2>Dualitas Lagrange &amp; KKT secara Rinci</h2>
+          <p class="section-desc">Bentuk standar di atas dapat dituliskan dalam notasi Lagrangian dan syarat optimalitas Karush–Kuhn–Tucker (KKT).</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="algo-card highlight" style="margin-bottom: 16px;">
+            <h3>Lagrangian &amp; Fungsi Dual</h3>
+            <p style="color: var(--muted); font-size: 0.95rem;">
+              Untuk masalah standar, bentuk <strong>Lagrangian</strong>-nya adalah
+              \[ \mathcal{L}(x, \lambda, \nu) = f_0(x) + \sum_{i=1}^{m} \lambda_i f_i(x) + \sum_{j=1}^{p} \nu_j\,(a_j^\top x - b_j), \]
+              dengan \(\lambda_i \ge 0\) (multiplier pertidaksamaan) dan \(\nu_j\) bebas (multiplier persamaan).
+              <strong>Fungsi dual</strong> (Lagrange dual function) adalah
+              \[ g(\lambda, \nu) = \inf_{x} \mathcal{L}(x, \lambda, \nu), \]
+              yang selalu <em>concave</em> terhadap \((\lambda, \nu)\) dan memberi <em>lower bound</em>: \(g(\lambda, \nu) \le p^\star\) (nilai optimum primal) bila \(\lambda \ge 0\).
+            </p>
+          </div>
+
+          <div class="algo-card">
+            <h3>KKT Conditions (Karush–Kuhn–Tucker)</h3>
+            <p style="color: var(--muted); font-size: 0.95rem;">
+              Pasangan \((x^\star, \lambda^\star, \nu^\star)\) memenuhi KKT bila:
+            </p>
+            <ol class="steps" style="margin-top: 8px;">
+              <li><div><span class="step-title">Stationarity</span><span class="step-text">\(\nabla_x \mathcal{L}(x^\star, \lambda^\star, \nu^\star) = 0\) (gradien Lagrangian terhadap \(x\) nol).</span></div></li>
+              <li><div><span class="step-title">Primal feasibility</span><span class="step-text">\(f_i(x^\star) \le 0,\; i=1,\dots,m\) dan \(a_j^\top x^\star = b_j,\; j=1,\dots,p\).</span></div></li>
+              <li><div><span class="step-title">Dual feasibility</span><span class="step-text">\(\lambda_i^\star \ge 0,\; i=1,\dots,m\).</span></div></li>
+              <li><div><span class="step-title">Complementary slackness</span><span class="step-text">\(\lambda_i^\star\, f_i(x^\star) = 0,\; i=1,\dots,m\) (kendala tak aktif ⇒ multiplier nol).</span></div></li>
+            </ol>
+            <div class="highlight-box" style="margin-top: 10px;">
+              <p>Untuk masalah <strong>convex</strong> dengan <em>constraint qualification</em> (mis. Slater's condition), KKT adalah syarat <strong>perlu dan cukup</strong>: memenuhi keempatnya ⇒ \(x^\star\) optimum global.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="algo-card">
+            <h3>Slater's Condition</h3>
+            <p style="color: var(--muted); font-size: 0.95rem;">
+              Syarat <strong>Slater</strong> berlaku bila terdapat \(x\) dengan \(f_i(x) < 0\) untuk semua \(i=1,\dots,m\) (kendala pertidaksamaan strictly feasible) dan persamaan terpenuhi. Ini menjamin <em>strong duality</em> (\(d^\star = p^\star\)) dan melegitimasi KKT sebagai syarat cukup.
+            </p>
+          </div>
+
+          <div class="algo-card" style="margin-top: 16px;">
+            <h3>Constraint Qualification</h3>
+            <p style="color: var(--muted); font-size: 0.95rem;">
+              <strong>Constraint qualification</strong> (kualifikasi kendala) adalah syarat agar KKT valid sebagai syarat perlu. Selain Slater, contoh lain: Linear Independence Constraint Qualification (LICQ) — gradien kendala aktif bebas linear. Tanpa ini, KKT bisa gagal menjadi syarat perlu.
+            </p>
+          </div>
+
+          <div class="algo-card" style="margin-top: 16px;">
+            <h3>Mengapa Ini Penting?</h3>
+            <div class="highlight-box">
+              <p>Solver modern (termasuk <em>interior-point methods</em>) pada dasarnya menyelesaikan sistem KKT. Memahami keempat kondisi di atas ⇒ kita bisa memverifikasi optimalitas, membangun dual problem, dan menganalisis sensitivitas (nilai optimal vs perubahan \(b_j\)).</p>
+            </div>
           </div>
         </div>
       </div>

@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 2: Convex Sets — Boyd & Vandenberghe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#3498db;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(52,152,219,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#3498db;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(52,152,219,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#3498db;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #3498db;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#1a73b5;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #3498db;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px)scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#d6eaf8 0%,#aed6f1 100%);}
+        .concept-card h4{color:#1a73b5;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#3498db;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#3498db,#2ecc71,#f39c12);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#3498db;box-shadow:0 0 0 3px rgba(52,152,219,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(52,152,219,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(52,152,219,.4);background:linear-gradient(135deg,#2980b9,#3498db);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        .references{margin-top:40px;padding-top:30px;border-top:2px solid #e9ecef;animation:fadeIn 1s ease-in;}
+        .reference-item{margin-bottom:20px;padding:15px;background:#f8f9fa;border-radius:6px;border-left:3px solid #6c757d;transition:all .3s ease;animation:slideIn .5s ease-out forwards;opacity:0;}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .reference-item:hover{background:#e9ecef;transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,.1);}
+        .reference-item strong{color:#2c3e50;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3498db,#2ecc71,#f39c12,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(52,152,219,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #3498db;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#3498db;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#3498db;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 2</h1>
+            <div class="subtitle">Convex Sets — Boyd & Vandenberghe</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="conv01.html" title="Sebelumnya: Bab 1">&#8592; Bab 1</a>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 2</span>
+            <a class="navbtn" href="conv03.html" title="Lanjut: Bab 3">Bab 3 &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#affine">Affine & Convex Sets</a>
+            <a href="#examples">Contoh Penting</a>
+            <a href="#operations">Operasi Pelestar Convexity</a>
+            <a href="#genineq">Generalized Inequalities</a>
+            <a href="#separation">Separating & Supporting Hyperplanes</a>
+            <a href="#dualcone">Dual Cones</a>
+            <a href="#minelem">Minimum & Minimal Elements</a>
+            <a href="#simulation">Simulasi Interaktif</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+        </nav>
+
+        <div class="content">
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 2</h2>
+                <p>Bab ini membahas <strong>convex sets</strong> — blok bangunan fundamental dari convex optimization. Feasible set dari convex optimization problem selalu merupakan convex set. Kita akan mempelajari definisi, contoh-contoh kanonik (hyperplane, halfspace, polyhedra, ball, ellipsoid, cone), operasi yang melestarikan convexity, generalized inequalities via proper cones, separating/supporting hyperplane theorems, dual cones, dan minimum vs minimal elements (Pareto optimality).</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">⬢</span>Definisi</h4>
+                        <p>Convex set: mengandung line segment antara dua titik manapun di dalamnya. Affine set: mengandung seluruh line.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">📐</span>Contoh Kanonik</h4>
+                        <p>Hyperplane, halfspace, polyhedra, Euclidean ball, ellipsoid, norm balls, positive semidefinite cone.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">🔧</span>Operasi Pelestar</h4>
+                        <p>Intersection, affine image/preimage, perspective/linear-fractional, Minkowski sum, convex hull.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.4s;">
+                        <h4><span class="icon">🔺</span>Cones & Inequalities</h4>
+                        <p>Proper cones definisikan generalized inequalities (componentwise, Loewner, second-order). Dual cone untuk duality.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Tujuan pembelajaran:</strong> Di akhir bab ini Anda seharusnya mampu (i) memverifikasi apakah suatu himpunan convex, (ii) mengenali contoh-contoh standar, (iii) menerapkan operasi pelestar convexity, (iv) memahami generalized inequalities via proper cones, (v) menerapkan separating hyperplane theorem, dan (vi) membedakan minimum vs minimal elements.
+                </div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#affine">2.1 Affine dan Convex Sets</a></li>
+                        <li><a href="#examples">2.2 Contoh Penting Convex Sets</a></li>
+                        <li><a href="#operations">2.3 Operasi yang Melestarikan Convexity</a></li>
+                        <li><a href="#genineq">2.4 Generalized Inequalities</a></li>
+                        <li><a href="#separation">2.5 Separating dan Supporting Hyperplanes</a></li>
+                        <li><a href="#dualcone">2.6 Dual Cones</a></li>
+                        <li><a href="#minelem">2.7 Minimum dan Minimal Elements</a></li>
+                        <li><a href="#simulation">Simulasi Interaktif: Convex Sets & Operations</a></li>
+                        <li><a href="#exercises">Latihan Terselesaikan</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="affine" class="section" style="--delay:1s;">
+                <h2>🔢 2.1 Affine dan Convex Sets</h2>
+
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Definition (Affine set):</strong> \(C \subseteq \mathbb{R}^n\) affine jika \(\forall x_1, x_2 \in C,\; \forall \theta \in \mathbb{R}\): \(\theta x_1 + (1-\theta) x_2 \in C\).
+                </div>
+                <p>Affine set mengandung <strong>seluruh line</strong> melalui dua titik manapun di dalamnya. Ekivalen: \(C = x_0 + V\) di mana \(V\) subspace, \(x_0 \in C\). Dimensi affine set = dimensi \(V\).</p>
+
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Definition (Convex set):</strong> \(C \subseteq \mathbb{R}^n\) convex jika \(\forall x_1, x_2 \in C,\; \forall \theta \in [0, 1]\): \(\theta x_1 + (1-\theta) x_2 \in C\).
+                </div>
+                <p>Convex set mengandung <strong>line segment</strong> antara dua titik manapun. Setiap affine set adalah convex; konversnya tidak selalu benar.</p>
+
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Convex combination:</strong> \(x = \theta_1 x_1 + \cdots + \theta_k x_k\) dengan \(\theta_i \ge 0,\; \sum \theta_i = 1\).
+                </div>
+
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Convex hull:</strong> \(\text{conv } C = \{ \sum \theta_i x_i \mid x_i \in C,\; \theta_i \ge 0,\; \sum \theta_i = 1 \}\). Convex set terkecil yang mengandung \(C\).
+                </div>
+
+                <div class="example" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Contoh Convex Hull di \(\mathbb{R}^2\):</strong> Convex hull dari 3 titik = segitiga (termasuk interior). Dari 2 titik = line segment.
+                </div>
+            </div>
+
+            <div id="examples" class="section" style="--delay:1.2s;">
+                <h2>📐 2.2 Contoh Penting Convex Sets</h2>
+
+                <h3>Hyperplanes dan Halfspaces</h3>
+                <p><strong>Hyperplane:</strong> \(\{x \mid a^T x = b\}\) dengan \(a \ne 0\). Affine (dan convex). Dimensi \(n-1\).</p>
+                <p><strong>Halfspace:</strong> \(\{x \mid a^T x \le b\}\) (closed) atau \(\{x \mid a^T x < b\}\) (open). Convex, bukan affine.</p>
+
+                <h3>Polyhedra dan Polytopes</h3>
+                <p><strong>Polyhedron:</strong> Intersection finitely many halfspaces/hyperplanes: \(P = \{x \mid Ax \le b,\; Cx = d\}\). Convex.</p>
+                <p><strong>Polytope:</strong> Bounded polyhedron. Ekivalen: convex hull dari finite set of points.</p>
+
+                <h3>Balls dan Ellipsoids</h3>
+                <p><strong>Euclidean ball:</strong> \(B(x_c, r) = \{x \mid \|x - x_c\|_2 \le r\}\). Center \(x_c\), radius \(r > 0\).</p>
+                <p><strong>Ellipsoid:</strong> \(\mathcal{E} = \{x \mid (x - x_c)^T P^{-1} (x - x_c) \le 1\}\) dengan \(P \in \mathbb{S}^n_{++}\). Alternatif: \(\mathcal{E} = \{x_c + A u \mid \|u\|_2 \le 1\}\) untuk \(A\) nonsingular.</p>
+
+                <h3>Norm Balls</h3>
+                <p>Untuk norm \(\|\cdot\|\) apa pun, \(\{x \mid \|x\| \le 1\}\) convex (triangle inequality + homogeneity). Unit ball of any norm is convex.</p>
+
+                <h3>Positive Semidefinite Cone</h3>
+                <p>\(\mathbb{S}^n_+ = \{X \in \mathbb{S}^n \mid X \succeq 0\}\) (symmetric PSD matrices). Convex <strong>cone</strong>. \(\mathbb{S}^n_{++} = \{X \mid X \succ 0\}\) — convex tapi bukan cone.</p>
+
+                <h3>Simplex</h3>
+                <p>Probability simplex di \(\mathbb{R}^n\): \(\Delta^n = \{x \mid \mathbf{1}^T x = 1,\; x \succeq 0\} = \text{conv}\{e_1, \dots, e_n\}\).</p>
+            </div>
+
+            <div id="operations" class="section" style="--delay:1.4s;">
+                <h2>🔧 2.3 Operasi yang Melestarikan Convexity</h2>
+
+                <div class="theorem" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Intersection:</strong> Intersection sembarang collection convex sets adalah convex. \(S = \bigcap_\alpha S_\alpha\) convex jika setiap \(S_\alpha\) convex.
+                </div>
+
+                <div class="theorem" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Affine image:</strong> Jika \(S\) convex dan \(f(x) = Ax + b\), maka \(f(S) = \{Ax + b \mid x \in S\}\) convex.
+                </div>
+
+                <div class="theorem" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Affine preimage:</strong> Jika \(S\) convex, maka \(f^{-1}(S) = \{x \mid Ax + b \in S\}\) convex.
+                </div>
+
+                <div class="theorem" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Perspective & linear-fractional:</strong> Perspective function \(P(x, t) = x/t\) (domain \(t > 0\)) memetakan convex sets ke convex sets. Linear-fractional \(f(x) = (Ax + b)/(c^T x + d)\) juga melestarikan convexity.
+                </div>
+
+                <div class="example" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Example — LMI set:</strong> \(\{x \mid x_1 A_1 + \cdots + x_m A_m \preceq B\}\) adalah convex (affine preimage of \(\mathbb{S}^n_+\)).
+                </div>
+
+                <h3>Minkowski Sum</h3>
+                <p>Jika \(S_1, S_2\) convex, sum \(S_1 + S_2 = \{x + y \mid x \in S_1, y \in S_2\}\) convex.</p>
+
+                <h3>Convex Hull</h3>
+                <p>Convex hull dari sembarang set adalah convex.</p>
+            </div>
+
+            <div id="genineq" class="section" style="--delay:1.6s;">
+                <h2>🔺 2.4 Generalized Inequalities</h2>
+
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Proper cone:</strong> \(K \subseteq \mathbb{R}^n\) proper cone jika: (1) convex, (2) closed, (3) solid (nonempty interior), (4) pointed (\(x \in K, -x \in K \Rightarrow x = 0\)).
+                </div>
+
+                <p>Proper cone induksi <strong>generalized inequality</strong>:</p>
+                <ul>
+                    <li>\(x \preceq_K y \iff y - x \in K\)</li>
+                    <li>\(x \prec_K y \iff y - x \in \text{int } K\)</li>
+                </ul>
+
+                <h3>Contoh Cone Umum</h3>
+                <table>
+                    <thead><tr><th>Cone</th><th>Notasi</th><th>Inequality</th></tr></thead>
+                    <tbody>
+                        <tr><td>Nonnegative orthant</td><td>\(\mathbb{R}^n_+\)</td><td>Componentwise \(x_i \le y_i\)</td></tr>
+                        <tr><td>Positive semidefinite</td><td>\(\mathbb{S}^n_+\)</td><td>Loewner \(X \preceq Y \iff Y-X \succeq 0\)</td></tr>
+                        <tr><td>Second-order (ice cream)</td><td>\(Q^n = \{(x,t) \mid \|x\|_2 \le t\}\)</td><td>\(\|x-y\|_2 \le s-t\)</td></tr>
+                        <tr><td>Nonnegative polynomials</td><td>Coeff cone of \(p(t) \ge 0\)</td><td>Polynomial inequality</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Minimum/Minimal elements:</strong> \(x \in S\) minimum jika \(x \preceq_K y\; \forall y \in S\). Minimal jika \(y \preceq_K x, y \in S \Rightarrow y = x\). Minimum \(\Rightarrow\) minimal; konvers holds jika \(S\) totally ordered (e.g., \(K = \mathbb{R}^n_+\)).
+                </div>
+            </div>
+
+            <div id="separation" class="section" style="--delay:1.8s;">
+                <h2>✂️ 2.5 Separating dan Supporting Hyperplanes</h2>
+
+                <div class="theorem" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Separating Hyperplane Theorem:</strong> Jika \(C, D \subseteq \mathbb{R}^n\) nonempty disjoint convex sets, \(\exists a \ne 0, b\) s.t. \(a^T x \le b\; \forall x \in C\) dan \(a^T x \ge b\; \forall x \in D\).
+                </div>
+
+                <div class="theorem" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Strict separation:</strong> Jika \(C\) closed, \(D\) compact, \(C \cap D = \emptyset\), maka \(\exists a \ne 0, b\) dgn \(a^T x < b\; \forall x \in C\), \(a^T x > b\; \forall x \in D\).
+                </div>
+
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Supporting hyperplane to \(C\) at \(x_0 \in \partial C\):</strong> \(a^T x \le a^T x_0\; \forall x \in C\) dgn \(a \ne 0\). Exist untuk setiap boundary point convex set.
+                </div>
+
+                <div class="theorem" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Supporting Hyperplane Theorem:</strong> Untuk nonempty convex \(C\) dan \(x_0 \in \partial C\), \(\exists\) supporting hyperplane to \(C\) at \(x_0\).
+                </div>
+
+                <div class="note">
+                    <strong>Intuisi:</strong> Separation theorems = fondasi geometri duality. "Disjoint convex sets can be separated by a hyperplane" — ide yang sama underlie duality gap & optimality conditions (KKT).
+                </div>
+            </div>
+
+            <div id="dualcone" class="section" style="--delay:2s;">
+                <h2>🔄 2.6 Dual Cones dan Generalized Inequalities</h2>
+
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Dual cone:</strong> \(K^* = \{y \mid y^T x \ge 0\; \forall x \in K\}\). Selalu closed convex cone (bahkan jika \(K\) tidak).
+                </div>
+
+                <p><strong>Properties:</strong></p>
+                <ul>
+                    <li>\(K^* = (\text{cl } K)^* = (\text{conv } K)^*\)</li>
+                    <li>\(K_1 \subseteq K_2 \Rightarrow K_2^* \subseteq K_1^*\)</li>
+                    <li>\(K^{**} = \text{cl}(\text{conv } K)\) (jadi \(K^{**} = K\) iff \(K\) closed convex cone)</li>
+                    <li>\(K\) proper \(\iff\) \(K^*\) proper</li>
+                </ul>
+
+                <h3>Dual Generalized Inequality</h3>
+                <p>\(x \preceq_K y \iff \lambda^T x \le \lambda^T y\; \forall \lambda \succeq_{K^*} 0\)</p>
+                <p>Ini menghubungkan generalized inequalities ke scalar inequalities — krusial untuk duality theory.</p>
+
+                <div class="example" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Dual cones (self-dual cones):</strong>
+                    <ul>
+                        <li>\((\mathbb{R}^n_+)^* = \mathbb{R}^n_+\)</li>
+                        <li>\((\mathbb{S}^n_+)^* = \mathbb{S}^n_+\) (di bawah trace inner product)</li>
+                        <li>\((Q^n)^* = Q^n\)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="minelem" class="section" style="--delay:2.2s;">
+                <h2>📊 2.7 Minimum dan Minimal Elements</h2>
+
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Minimum element of \(S\) w.r.t. \(\preceq_K\):</strong> \(x \in S\) minimum jika \(x \preceq_K y\; \forall y \in S\).
+                </div>
+                <div class="definition" style="background:#eff6ff;border-left:4px solid #3498db;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Minimal element:</strong> \(x \in S\) minimal jika \(y \preceq_K x, y \in S \Rightarrow y = x\).
+                </div>
+
+                <div class="theorem" style="background:#f0fdf4;border-left:4px solid #22c55e;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:0 8px 8px 0;">
+                    <strong>Characterization via dual cone:</strong> \(x\) minimum of \(S\) iff \(\lambda^T x = \inf_{z \in S} \lambda^T z\; \forall \lambda \succeq_{K^*} 0\). \(x\) minimal iff \(\exists \lambda \succ_{K^*} 0\) s.t. \(\lambda^T x = \inf_{z \in S} \lambda^T z\).
+                </div>
+
+                <div class="note">
+                    <strong>Pareto optimality:</strong> Untuk \(K = \mathbb{R}^m_+\), minimal elements = Pareto optimal points. Dual cone characterization: point Pareto optimal iff minimizes weighted sum \(\lambda^T x\) dengan \(\lambda > 0\) (weighted sum scalarization).
+                </div>
+            </div>
+
+            <div id="simulation" class="section" style="--delay:2.5s;">
+                <h2>🎮 2.8 Simulasi Interaktif: Convex Sets & Operasi</h2>
+
+                <p>Visualisasi di bawah memungkinkan Anda mengeksplorasi convex sets, operasi pelestar convexity, separating hyperplanes, dan Pareto frontier (minimal elements).</p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="setDemo">Mode Demo</label>
+                        <select id="setDemo">
+                            <option value="convex_check">Convexity Checker</option>
+                            <option value="shapes">Basic Convex Shapes</option>
+                            <option value="intersection">Intersection of Convex Sets</option>
+                            <option value="affine_map">Affine Image/Preimage</option>
+                            <option value="separating">Separating Hyperplane</option>
+                            <option value="pareto">Pareto Frontier (Minimal Elements)</option>
+                            <option value="dual_cone">Dual Cone Visualization</option>
+                        </select>
+                    </div>
+                    <div class="control-group" id="param1Group" style="display:none;">
+                        <label for="param1">Parameter 1</label>
+                        <input type="range" id="param1" min="0" max="100" value="50">
+                        <div class="value-display" id="param1Val">50</div>
+                    </div>
+                    <div class="control-group" id="param2Group" style="display:none;">
+                        <label for="param2">Parameter 2</label>
+                        <input type="range" id="param2" min="0" max="100" value="50">
+                        <div class="value-display" id="param2Val">50</div>
+                    </div>
+                    <div class="control-group" id="angleGroup" style="display:none;">
+                        <label for="angleInput">Rotation Angle</label>
+                        <input type="range" id="angleInput" min="0" max="360" value="0">
+                        <div class="value-display" id="angleVal">0°</div>
+                    </div>
+                    <button class="btn" onclick="resetSetDemo()">Reset</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="setCanvas" width="900" height="500"></canvas>
+                    <p style="text-align:center;color:#6c757d;margin-top:10px;font-size:0.9em;" id="demoInstructions">
+                        Pilih mode demo di atas. Klik pada canvas untuk menambahkan titik (Convexity Checker) atau menggeser separator (Separating Hyperplane).
+                    </p>
+                </div>
+
+                <div class="note" id="demoExplanation" style="display:none;">
+                    <strong>Penjelasan:</strong> <span id="demoExplanationText"></span>
+                </div>
+            </div>
+
+            <div id="exercises" class="section" style="--delay:3s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 — Convex Hull</h4>
+                    <p>Temukan convex hull dari set \(C = \{(x, y) \in \mathbb{R}^2 \mid x^2 + y^2 = 1\}\) (unit circle).</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Convex hull = closed unit disk: \(\text{conv } C = \{(x, y) \mid x^2 + y^2 \le 1\}\).</p>
+                            <p>Set \(C\) hanya boundary lingkaran. Convex hull mengisi interiornya karena line segment antara dua titik di boundary melewati interior.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 — Intersection of Halfspaces</h4>
+                    <p>Buktikan bahwa polyhedron \(P = \{x \mid Ax \le b,\; Cx = d\}\) adalah convex set.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Setiap row dari \(Ax \le b\) mendefinisikan halfspace \(\{x \mid a_i^T x \le b_i\}\) yang convex. Setiap equality \(c_j^T x = d_j\) adalah intersection dua halfspaces: \(\{x \mid c_j^T x \le d_j\} \cap \{x \mid -c_j^T x \le -d_j\}\), juga convex. \(P\) adalah intersection finitely many convex sets \(\Rightarrow\) convex (intersection preserves convexity).</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 — Separating Hyperplane</h4>
+                    <p>Diberikan \(C = \{x \in \mathbb{R}^2 \mid x_1^2 + x_2^2 \le 1\}\) dan \(D = \{x \in \mathbb{R}^2 \mid x_1 \ge 2\}\). Temukan separating hyperplane.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>\(C\) = unit disk centered at origin. \(D\) = halfspace \(x_1 \ge 2\). Distance between sets = 1.</p>
+                            <p>Separating hyperplane: \(x_1 = 1.5\) (i.e., \(a = (1, 0), b = 1.5\)).</p>
+                            <p>Check: \(\forall x \in C, x_1 \le 1 < 1.5\). \(\forall x \in D, x_1 \ge 2 > 1.5\). Strict separation holds karena \(C\) compact, \(D\) closed.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 4 — Dual Cone</h4>
+                    <p>Temukan dual cone dari second-order cone \(Q^n = \{(x, t) \in \mathbb{R}^n \times \mathbb{R} \mid \|x\|_2 \le t\}\).</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>\(Q^n\) self-dual: \((Q^n)^* = Q^n\).</p>
+                            <p>Proof sketch: \((y, s) \in (Q^n)^* \iff y^T x + s t \ge 0\; \forall (x, t) \text{ with } \|x\|_2 \le t\).</p>
+                            <p>Ambil \(x = -t \frac{y}{\|y\|_2}\) (untuk \(y \ne 0\)), maka \(y^T x + s t = -t \|y\|_2 + s t = t(s - \|y\|_2) \ge 0\) untuk \(t > 0\) \(\Rightarrow s \ge \|y\|_2\). Jadi \((y, s) \in Q^n\). Konvers juga holds.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 5 — Pareto Optimal</h4>
+                    <p>Diberikan feasible set \(S = \{(x_1, x_2) \mid x_1 + x_2 \ge 1,\; x_1, x_2 \ge 0\}\) dengan cone \(K = \mathbb{R}^2_+\). Temukan minimal elements (Pareto frontier).</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>\(S\) adalah region di atas line \(x_1 + x_2 = 1\) di kuadran pertama.</p>
+                            <p>Minimal elements w.r.t \(\mathbb{R}^2_+\): titik-titik yang tidak bisa diimprove satu punya \(y \preceq x\) dengan \(y \in S, y \ne x\).</p>
+                            <p>Pareto frontier = line segment \(x_1 + x_2 = 1,\; x_1, x_2 \ge 0\). Untuk \(x\) di line ini, tidak ada \(y \in S\) dengan \(y_1 \le x_1, y_2 \le x_2\) dan strict inequality untuk salah satunya.</p>
+                            <p>Verification via dual cone: \(\lambda = (\lambda_1, \lambda_2) > 0\). Minimize \(\lambda_1 x_1 + \lambda_2 x_2\) s.t. \(x_1 + x_2 \ge 1, x \ge 0\). Optimum at boundary \(x_1 + x_2 = 1\).</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div id="summary" class="section" style="--delay:3.5s;">
+                <h2>📝 Ringkasan Bab 2</h2>
+
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Convex sets:</strong> Mengandung line segment antara dua titik manapun. Affine set mengandung seluruh line.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Contoh kanonik:</strong> Hyperplane, halfspace, polyhedra, ball, ellipsoid, norm ball, PSD cone, simplex.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Operasi pelestar:</strong> Intersection, affine image/preimage, perspective/linear-fractional, Minkowski sum, convex hull.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Generalized inequalities:</strong> Proper cone \(K\) definisikan \(\preceq_K\). Contoh: componentwise (\(\mathbb{R}^n_+\)), Loewner (\(\mathbb{S}^n_+\)), second-order (\(Q^n\)).</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Separation theorems:</strong> Disjoint convex sets bisa dipisahkan hyperplane. Supporting hyperplane exist di setiap boundary point.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Dual cone \(K^*\):</strong> \(K^* = \{y \mid y^T x \ge 0\; \forall x \in K\}\). Self-dual: \(\mathbb{R}^n_+\), \(\mathbb{S}^n_+\), \(Q^n\).</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Minimum vs Minimal:</strong> Minimum \(\Rightarrow\) minimal. Untuk \(K = \mathbb{R}^m_+\), minimal = Pareto optimal. Karakterisasi via \(\lambda \succ_{K^*} 0\).</div>
+                    </div>
+                </div>
+
+                <p>Bab ini melengkapi teori himpunan convex. Lanjut ke <a href="conv03.html">Bab 3: Convex Functions</a> untuk teori fungsi convex — blok bangunan kedua dari convex optimization.</p>
+            </div>
+
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+
+                <div class="reference-item">
+                    <strong>Boyd, S. & Vandenberghe, L.</strong> (2004). <em>Convex Optimization</em>. Cambridge University Press. Chapter 2 — Convex Sets. ISBN: 0521833787. <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank">Free PDF</a>.
+                </div>
+                <div class="reference-item">
+                    <strong>Rockafellar, R.T.</strong> (1970). <em>Convex Analysis</em>. Princeton University Press. (Foundational text on convex sets & functions).
+                </div>
+                <div class="reference-item">
+                    <strong>Hiriart-Urruty, J.B. & Lemaréchal, C.</strong> (2001). <em>Fundamentals of Convex Analysis</em>. Springer. (Accessible introduction).
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Convex Optimization Interactive Notes | Bab 2</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">
+                    Boyd & Vandenberghe — Convex Sets, Affine/Convex, Operations, Generalized Inequalities, Separation, Dual Cones, Pareto Optimality
+                </p>
+                <div class="footernav">
+                    <a class="navbtn" href="conv01.html" title="Sebelumnya: Bab 1">&#8592; Bab 1</a>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 2</span>
+                    <a class="navbtn" href="conv03.html" title="Lanjut: Bab 3">Bab 3 &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================================
+        // SIMULASI INTERAKTIF: CONVEX SETS & OPERATIONS
+        // ============================================================
+
+        const canvas = document.getElementById('setCanvas');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        const margin = 50;
+        const plotW = W - 2 * margin;
+        const plotH = H - 2 * margin;
+
+        let demoMode = 'convex_check';
+        let userPoints = [];
+        let hullPoints = [];
+        let separatorX = 0.5;
+        let rotationAngle = 0;
+        let setA = { type: 'ellipse', cx: -0.5, cy: 0, rx: 0.8, ry: 0.5 };
+        let setB = { type: 'ellipse', cx: 1.5, cy: 0, rx: 0.8, ry: 0.5 };
+        let affineMatrix = [[1, 0.3], [-0.2, 1]];
+        let paretoPoints = [];
+
+        // Coordinate transforms: data coords [-2, 2] x [-1.5, 1.5] -> canvas
+        function dx(x) { return margin + (x + 2) / 4 * plotW; }
+        function dy(y) { return margin + plotH - (y + 1.5) / 3 * plotH; }
+        function invDx(px) { return (px - margin) / plotW * 4 - 2; }
+        function invDy(py) { return 1.5 - (py - margin) / plotH * 3; }
+
+        function drawAxes() {
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            // Grid
+            for (let i = 0; i <= 8; i++) {
+                const x = margin + i * plotW / 8;
+                ctx.beginPath(); ctx.moveTo(x, margin); ctx.lineTo(x, margin + plotH); ctx.stroke();
+            }
+            for (let i = 0; i <= 6; i++) {
+                const y = margin + i * plotH / 6;
+                ctx.beginPath(); ctx.moveTo(margin, y); ctx.lineTo(margin + plotW, y); ctx.stroke();
+            }
+            // Axes
+            ctx.strokeStyle = '#495057';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(margin, margin + plotH/2); ctx.lineTo(margin + plotW, margin + plotH/2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(margin + plotW/2, margin); ctx.lineTo(margin + plotW/2, margin + plotH); ctx.stroke();
+            // Labels
+            ctx.fillStyle = '#6c757d';
+            ctx.font = '11px Segoe UI';
+            ctx.textAlign = 'center';
+            for (let i = -2; i <= 2; i++) {
+                ctx.fillText(i.toFixed(1), dx(i), margin + plotH + 18);
+            }
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let i = -1.5; i <= 1.5; i += 0.5) {
+                ctx.fillText(i.toFixed(1), margin - 8, dy(i));
+            }
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'alphabetic';
+        }
+
+        function drawConvexChecker() {
+            drawAxes();
+
+            // Draw user points
+            userPoints.forEach((p, i) => {
+                const px = dx(p.x), py = dy(p.y);
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath(); ctx.arc(px, py, 6, 0, 2 * Math.PI); ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 10px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText((i + 1).toString(), px, py);
+                ctx.textAlign = 'start';
+                ctx.textBaseline = 'alphabetic';
+            });
+
+            // Draw convex hull
+            if (hullPoints.length >= 3) {
+                ctx.fillStyle = 'rgba(52, 152, 219, 0.2)';
+                ctx.strokeStyle = '#3498db';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                hullPoints.forEach((p, i) => {
+                    if (i === 0) ctx.moveTo(dx(p.x), dy(p.y));
+                    else ctx.lineTo(dx(p.x), dy(p.y));
+                });
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Draw edges
+                ctx.strokeStyle = '#3498db';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                hullPoints.forEach((p, i) => {
+                    if (i === 0) ctx.moveTo(dx(p.x), dy(p.y));
+                    else ctx.lineTo(dx(p.x), dy(p.y));
+                });
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            // Check convexity
+            const isConvex = checkConvexity(userPoints);
+            ctx.fillStyle = isConvex ? '#27ae60' : '#e74c3c';
+            ctx.font = 'bold 14px Segoe UI';
+            ctx.fillText(isConvex ? '✓ CONVEX' : '✗ NON-CONVEX', margin + 10, margin + 25);
+        }
+
+        function checkConvexity(points) {
+            if (points.length < 3) return true;
+            // Compute convex hull using Graham scan
+            const hull = convexHull(points);
+            hullPoints.length = 0;
+            hullPoints.push(...hull);
+            // Check if all points are on or inside hull
+            for (const p of points) {
+                if (!pointInConvexPolygon(p, hull)) return false;
+            }
+            return true;
+        }
+
+        function convexHull(points) {
+            // Andrew's monotone chain
+            const pts = [...points].sort((a, b) => a.x - b.x || a.y - b.y);
+            if (pts.length <= 1) return pts;
+
+            function cross(o, a, b) {
+                return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+            }
+
+            const lower = [];
+            for (const p of pts) {
+                while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
+                    lower.pop();
+                }
+                lower.push(p);
+            }
+
+            const upper = [];
+            for (let i = pts.length - 1; i >= 0; i--) {
+                const p = pts[i];
+                while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
+                    upper.pop();
+                }
+                upper.push(p);
+            }
+
+            lower.pop();
+            upper.pop();
+            return lower.concat(upper);
+        }
+
+        function pointInConvexPolygon(pt, poly) {
+            if (poly.length < 3) return true;
+            let sign = 0;
+            for (let i = 0; i < poly.length; i++) {
+                const a = poly[i];
+                const b = poly[(i + 1) % poly.length];
+                const cross = (b.x - a.x) * (pt.y - a.y) - (b.y - a.y) * (pt.x - a.x);
+                if (cross !== 0) {
+                    if (sign === 0) sign = cross > 0 ? 1 : -1;
+                    else if ((cross > 0) !== (sign > 0)) return false;
+                }
+            }
+            return true;
+        }
+
+        function drawShapes() {
+            drawAxes();
+
+            const shapes = [
+                { name: 'Halfspace: x₁ ≤ 0.5', draw: drawHalfspace },
+                { name: 'Polyhedron (Triangle)', draw: drawPolyhedron },
+                { name: 'Euclidean Ball', draw: drawBall },
+                { name: 'Ellipsoid', draw: drawEllipsoid },
+                { name: 'PSD Cone Slice (2D)', draw: drawPSDCone },
+                { name: 'Second-Order Cone (2D slice)', draw: drawSOCCone }
+            ];
+
+            shapes.forEach((shape, i) => {
+                ctx.save();
+                ctx.translate(margin + (i % 3) * (plotW / 3), margin + Math.floor(i / 3) * (plotH / 2));
+                const w = plotW / 3 - 20;
+                const h = plotH / 2 - 20;
+                drawShapeInBox(shape.draw, w, h, shape.name);
+                ctx.restore();
+            });
+        }
+
+        function drawShapeInBox(drawFn, w, h, title) {
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, w, h);
+            ctx.strokeStyle = '#dee2e6';
+            ctx.strokeRect(0, 0, w, h);
+
+            // Mini axes
+            ctx.strokeStyle = '#adb5bd';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+
+            ctx.save();
+            ctx.translate(w/2, h/2);
+            ctx.scale(Math.min(w, h) / 4, -Math.min(w, h) / 4);
+            drawFn();
+            ctx.restore();
+
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = 'bold 11px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(title, w/2, h + 15);
+            ctx.textAlign = 'start';
+        }
+
+        function drawHalfspace() {
+            ctx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+            ctx.fillRect(-2, -2, 0.5 + 2, 4); // x <= 0.5
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0.5, -2); ctx.lineTo(0.5, 2); ctx.stroke();
+            // Arrow indicating feasible side
+            ctx.fillStyle = '#3498db';
+            ctx.beginPath(); ctx.moveTo(-0.5, 0); ctx.lineTo(-1, -0.3); ctx.lineTo(-1, 0.3); ctx.fill();
+        }
+
+        function drawPolyhedron() {
+            // Triangle
+            ctx.fillStyle = 'rgba(46, 204, 113, 0.3)';
+            ctx.strokeStyle = '#27ae60';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 1.2);
+            ctx.lineTo(-1, -1);
+            ctx.lineTo(1, -1);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawBall() {
+            ctx.fillStyle = 'rgba(241, 196, 15, 0.3)';
+            ctx.strokeStyle = '#f39c12';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(0, 0, 1, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+        }
+
+        function drawEllipsoid() {
+            ctx.fillStyle = 'rgba(155, 89, 182, 0.3)';
+            ctx.strokeStyle = '#9b59b6';
+            ctx.lineWidth = 2;
+            ctx.save();
+            ctx.scale(1.5, 0.7);
+            ctx.beginPath(); ctx.arc(0, 0, 1, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawPSDCone() {
+            // 2x2 PSD cone: [[a, b], [b, c]] with a >= 0, c >= 0, ac - b^2 >= 0
+            // Slice at c=1: a >= b^2, a >= 0
+            ctx.fillStyle = 'rgba(231, 76, 60, 0.3)';
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let b = -1.2; b <= 1.2; b += 0.02) {
+                const a = b * b;
+                if (a <= 1.5) {
+                    if (b === -1.2) ctx.moveTo(b, a);
+                    else ctx.lineTo(b, a);
+                }
+            }
+            ctx.lineTo(1.2, 1.5);
+            ctx.lineTo(-1.2, 1.5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            // Axes labels
+            ctx.fillStyle = '#6c757d';
+            ctx.font = '10px Segoe UI';
+            ctx.fillText('b', 1.3, 0);
+            ctx.fillText('a', 0, 1.6);
+        }
+
+        function drawSOCCone() {
+            // Second-order cone in 2D: {(x, t) | |x| <= t, t >= 0}
+            ctx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(1.2, 1.2);
+            ctx.lineTo(-1.2, 1.2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#6c757d';
+            ctx.font = '10px Segoe UI';
+            ctx.fillText('x', 1.3, 0);
+            ctx.fillText('t', 0, 1.4);
+        }
+
+        function drawIntersection() {
+            drawAxes();
+
+            // Two ellipses
+            drawEllipse(setA, 'rgba(52, 152, 219, 0.3)', '#3498db', 'Set A');
+            drawEllipse(setB, 'rgba(46, 204, 113, 0.3)', '#27ae60', 'Set B');
+
+            // Intersection
+            drawIntersectionRegion();
+
+            // Labels
+            ctx.fillStyle = '#3498db';
+            ctx.font = 'bold 12px Segoe UI';
+            ctx.fillText('Set A', dx(setA.cx), dy(setA.cy - 0.7));
+            ctx.fillStyle = '#27ae60';
+            ctx.fillText('Set B', dx(setB.cx), dy(setB.cy - 0.7));
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillText('A ∩ B (convex)', dx(0.5), dy(0));
+        }
+
+        function drawEllipse(set, fillColor, strokeColor, label) {
+            ctx.fillStyle = fillColor;
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 2;
+            ctx.save();
+            ctx.translate(dx(set.cx), dy(set.cy));
+            ctx.rotate(rotationAngle * Math.PI / 180);
+            ctx.scale(set.rx * plotW / 4, -set.ry * plotH / 3);
+            ctx.beginPath(); ctx.arc(0, 0, 1, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawIntersectionRegion() {
+            // Approximate intersection via sampling
+            ctx.fillStyle = 'rgba(231, 76, 60, 0.5)';
+            ctx.beginPath();
+            const points = [];
+            for (let angle = 0; angle < 2 * Math.PI; angle += 0.1) {
+                const r = 0.05;
+                // Simple approximation: find points inside both ellipses
+            }
+            // Use polygon clipping approach for accurate intersection
+            const polyA = ellipseToPolygon(setA, 60);
+            const polyB = ellipseToPolygon(setB, 60);
+            const intersection = polygonIntersection(polyA, polyB);
+            if (intersection.length > 0) {
+                ctx.moveTo(dx(intersection[0].x), dy(intersection[0].y));
+                for (let i = 1; i < intersection.length; i++) {
+                    ctx.lineTo(dx(intersection[i].x), dy(intersection[i].y));
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function ellipseToPolygon(ellipse, n) {
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+                const angle = i * 2 * Math.PI / n;
+                const x = ellipse.cx + ellipse.rx * Math.cos(angle);
+                const y = ellipse.cy + ellipse.ry * Math.sin(angle);
+                pts.push({ x, y });
+            }
+            return pts;
+        }
+
+        // Sutherland-Hodgman polygon clipping
+        function polygonIntersection(poly1, poly2) {
+            let output = poly1;
+            for (let i = 0; i < poly2.length; i++) {
+                const A = poly2[i];
+                const B = poly2[(i + 1) % poly2.length];
+                const input = output;
+                output = [];
+                if (input.length === 0) break;
+
+                let S = input[input.length - 1];
+                for (const E of input) {
+                    const insideE = pointInsideEdge(E, A, B);
+                    const insideS = pointInsideEdge(S, A, B);
+                    if (insideE) {
+                        if (!insideS) {
+                            const I = lineIntersection(S, E, A, B);
+                            if (I) output.push(I);
+                        }
+                        output.push(E);
+                    } else if (insideS) {
+                        const I = lineIntersection(S, E, A, B);
+                        if (I) output.push(I);
+                    }
+                    S = E;
+                }
+            }
+            return output;
+        }
+
+        function pointInsideEdge(P, A, B) {
+            // Inside = left side of edge AB
+            return (B.x - A.x) * (P.y - A.y) - (B.y - A.y) * (P.x - A.x) >= 0;
+        }
+
+        function lineIntersection(P1, P2, Q1, Q2) {
+            const A1 = P2.y - P1.y;
+            const B1 = P1.x - P2.x;
+            const C1 = A1 * P1.x + B1 * P1.y;
+
+            const A2 = Q2.y - Q1.y;
+            const B2 = Q1.x - Q2.x;
+            const C2 = A2 * Q1.x + B2 * Q1.y;
+
+            const det = A1 * B2 - A2 * B1;
+            if (Math.abs(det) < 1e-10) return null;
+
+            return {
+                x: (B2 * C1 - B1 * C2) / det,
+                y: (A1 * C2 - A2 * C1) / det
+            };
+        }
+
+        function drawAffineMap() {
+            drawAxes();
+
+            // Original set (unit circle)
+            const original = [];
+            for (let i = 0; i <= 60; i++) {
+                const angle = i * 2 * Math.PI / 60;
+                original.push({ x: Math.cos(angle), y: Math.sin(angle) });
+            }
+
+            // Transformed set
+            const transformed = original.map(p => ({
+                x: affineMatrix[0][0] * p.x + affineMatrix[0][1] * p.y,
+                y: affineMatrix[1][0] * p.x + affineMatrix[1][1] * p.y
+            }));
+
+            // Draw original
+            ctx.fillStyle = 'rgba(52, 152, 219, 0.2)';
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            drawPolygon(original, true, true);
+
+            // Draw transformed
+            ctx.fillStyle = 'rgba(46, 204, 113, 0.2)';
+            ctx.strokeStyle = '#27ae60';
+            ctx.lineWidth = 2;
+            drawPolygon(transformed, true, true);
+
+            // Matrix display
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '12px monospace';
+            ctx.fillText(`A = [[${affineMatrix[0][0].toFixed(1)}, ${affineMatrix[0][1].toFixed(1)}],`, margin + 10, margin + 30);
+            ctx.fillText(`     [${affineMatrix[1][0].toFixed(1)}, ${affineMatrix[1][1].toFixed(1)}]]`, margin + 10, margin + 50);
+            ctx.fillStyle = '#3498db';
+            ctx.fillText('Original set (circle)', margin + 10, margin + 80);
+            ctx.fillStyle = '#27ae60';
+            ctx.fillText('A × Original (affine image)', margin + 10, margin + 100);
+        }
+
+        function drawPolygon(points, fill, stroke) {
+            if (points.length < 3) return;
+            ctx.beginPath();
+            ctx.moveTo(dx(points[0].x), dy(points[0].y));
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(dx(points[i].x), dy(points[i].y));
+            }
+            ctx.closePath();
+            if (fill) ctx.fill();
+            if (stroke) ctx.stroke();
+        }
+
+        function drawSeparating() {
+            drawAxes();
+
+            // Two disjoint convex sets
+            // Set C: disk at (-1, 0) radius 0.6
+            // Set D: disk at (1, 0) radius 0.6
+            const C = { cx: -1, cy: 0, r: 0.6 };
+            const D = { cx: 1, cy: 0, r: 0.6 };
+
+            // Draw sets
+            drawDisk(C, 'rgba(52, 152, 219, 0.3)', '#3498db', 'C');
+            drawDisk(D, 'rgba(231, 76, 60, 0.3)', '#e74c3c', 'D');
+
+            // Separating hyperplane: vertical line at x = separatorX * 2 - 1 (maps [0,1] to [-1,1])
+            const sepX = separatorX * 2 - 1;
+            const px = dx(sepX);
+
+            ctx.strokeStyle = '#f39c12';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([8, 4]);
+            ctx.beginPath(); ctx.moveTo(px, margin); ctx.lineTo(px, margin + plotH); ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Normal vector
+            ctx.strokeStyle = '#f39c12';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(px, dy(0)); ctx.lineTo(px + 40, dy(0)); ctx.stroke();
+            // Arrow
+            ctx.fillStyle = '#f39c12';
+            ctx.beginPath(); ctx.moveTo(px + 40, dy(0)); ctx.lineTo(px + 33, dy(0) - 8); ctx.lineTo(px + 33, dy(0) + 8); ctx.fill();
+
+            // Labels
+            ctx.fillStyle = '#f39c12';
+            ctx.font = 'bold 14px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('Separating Hyperplane: aᵀx = b', W / 2, margin - 10);
+            ctx.textAlign = 'start';
+
+            ctx.fillStyle = '#3498db';
+            ctx.fillText('Set C', dx(C.cx), dy(C.cy - 0.8));
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillText('Set D', dx(D.cx), dy(D.cy - 0.8));
+
+            // Check strict separation
+            const dist = D.cx - C.cx - C.r - D.r;
+            if (dist > 0) {
+                ctx.fillStyle = '#27ae60';
+                ctx.fillText('Strict separation possible (distance = ' + dist.toFixed(2) + ')', margin + 10, margin + 120);
+            }
+        }
+
+        function drawDisk(disk, fillColor, strokeColor, label) {
+            ctx.fillStyle = fillColor;
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(dx(disk.cx), dy(disk.cy), disk.r * plotW / 4, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+        }
+
+        function drawPareto() {
+            drawAxes();
+
+            // Feasible set S: x1 + x2 >= 1, x1, x2 >= 0, bounded by box
+            ctx.fillStyle = 'rgba(52, 152, 219, 0.15)';
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(dx(0), dy(1.5));
+            ctx.lineTo(dx(0), dy(0));
+            ctx.lineTo(dx(1.5), dy(0));
+            ctx.lineTo(dx(1.5), dy(1.5));
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Constraint x1 + x2 >= 1
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(dx(0), dy(1));
+            ctx.lineTo(dx(1), dy(0));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Pareto frontier: x1 + x2 = 1
+            ctx.strokeStyle = '#f39c12';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(dx(0), dy(1));
+            ctx.lineTo(dx(1), dy(0));
+            ctx.stroke();
+
+            // Weighted sum lines (iso-weight)
+            const weights = [[1, 1], [2, 1], [1, 2], [3, 1], [1, 3]];
+            weights.forEach((w, i) => {
+                const hue = (i * 50) % 360;
+                ctx.strokeStyle = `hsl(${hue}, 70%, 50%)`;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                // Line: w1*x1 + w2*x2 = c, tangent to frontier
+                // For frontier x1+x2=1, tangent at (w2/(w1+w2), w1/(w1+w2))
+                const t = w[1] / (w[0] + w[1]);
+                const x1 = t, y1 = 1 - t;
+                const c = w[0] * x1 + w[1] * y1;
+                // Draw line segment
+                const xInt = c / w[0];
+                const yInt = c / w[1];
+                ctx.beginPath();
+                ctx.moveTo(dx(Math.min(xInt, 1.5)), dy(0));
+                ctx.lineTo(dx(0), dy(Math.min(yInt, 1.5)));
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+
+            // Pareto points markers
+            ctx.fillStyle = '#f39c12';
+            for (let x1 = 0; x1 <= 1; x1 += 0.1) {
+                const y1 = 1 - x1;
+                ctx.beginPath(); ctx.arc(dx(x1), dy(y1), 5, 0, 2 * Math.PI); ctx.fill();
+            }
+
+            // Labels
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = 'bold 14px Segoe UI';
+            ctx.fillText('Pareto Frontier (Minimal Elements w.r.t ℝ²₊)', W / 2, margin - 10);
+            ctx.fillStyle = '#3498db';
+            ctx.font = '12px Segoe UI';
+            ctx.fillText('Feasible set S: x₁ + x₂ ≥ 1, x₁,x₂ ≥ 0', margin + 10, margin + 25);
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillText('Constraint boundary', margin + 10, margin + 50);
+            ctx.fillStyle = '#f39c12';
+            ctx.fillText('Pareto optimal points (minimal)', margin + 10, margin + 75);
+            ctx.fillStyle = '#6c757d';
+            ctx.fillText('Dashed lines: weighted sum objectives λᵀx = c (λ > 0)', margin + 10, margin + 100);
+        }
+
+        function drawDualCone() {
+            drawAxes();
+
+            // Draw second-order cone Q² = {(x,t) | |x| ≤ t, t ≥ 0}
+            // In 2D, this is a 90-degree cone
+            ctx.fillStyle = 'rgba(52, 152, 219, 0.2)';
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(dx(0), dy(0));
+            ctx.lineTo(dx(1), dy(1));
+            ctx.lineTo(dx(-1), dy(1));
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Dual cone Q²* = Q² (self-dual)
+            ctx.fillStyle = 'rgba(46, 204, 113, 0.15)';
+            ctx.strokeStyle = '#27ae60';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(dx(0), dy(0));
+            ctx.lineTo(dx(1), dy(1));
+            ctx.lineTo(dx(-1), dy(1));
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Some dual vectors
+            const dualVecs = [[0.5, 1], [-0.5, 1], [0, 1], [0.8, 1], [-0.8, 1]];
+            dualVecs.forEach(v => {
+                const px = dx(0), py = dy(0);
+                const vx = dx(v[0]), vy = dy(v[1]);
+                ctx.strokeStyle = '#27ae60';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(vx, vy); ctx.stroke();
+                // Arrow
+                const angle = Math.atan2(vy - py, vx - px);
+                ctx.fillStyle = '#27ae60';
+                ctx.beginPath(); ctx.moveTo(vx, vy);
+                ctx.lineTo(vx - 8 * Math.cos(angle - 0.3), vy - 8 * Math.sin(angle - 0.3));
+                ctx.lineTo(vx - 8 * Math.cos(angle + 0.3), vy - 8 * Math.sin(angle + 0.3));
+                ctx.fill();
+            });
+
+            // Test vector inside cone
+            const testVec = [0.3, 0.8];
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath(); ctx.moveTo(dx(0), dy(0)); ctx.lineTo(dx(testVec[0]), dy(testVec[1])); ctx.stroke();
+            ctx.setLineDash([]);
+            // Arrow
+            const angle = Math.atan2(dy(testVec[1]) - dy(0), dx(testVec[0]) - dx(0));
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath(); ctx.moveTo(dx(testVec[0]), dy(testVec[1]));
+            ctx.lineTo(dx(testVec[0]) - 8 * Math.cos(angle - 0.3), dy(testVec[1]) - 8 * Math.sin(angle - 0.3));
+            ctx.lineTo(dx(testVec[0]) - 8 * Math.cos(angle + 0.3), dy(testVec[1]) - 8 * Math.sin(angle + 0.3));
+            ctx.fill();
+
+            // Labels
+            ctx.fillStyle = '#3498db';
+            ctx.font = 'bold 14px Segoe UI';
+            ctx.fillText('Second-Order Cone Q² = {(x,t) | |x| ≤ t, t ≥ 0}', W / 2, margin - 10);
+            ctx.fillStyle = '#3498db';
+            ctx.font = '12px Segoe UI';
+            ctx.fillText('Primal cone K (blue)', margin + 10, margin + 25);
+            ctx.fillStyle = '#27ae60';
+            ctx.fillText('Dual cone K* = K (green, self-dual)', margin + 10, margin + 50);
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillText('Test vector x ∈ K ⇒ λᵀx ≥ 0 ∀λ ∈ K*', margin + 10, margin + 75);
+            ctx.fillStyle = '#6c757d';
+            ctx.fillText('Verify: for all green arrows λ, dot(λ, x) = ' + (dualVecs.reduce((sum, v) => sum + v[0]*testVec[0] + v[1]*testVec[1], 0) / dualVecs.length).toFixed(3) + ' ≥ 0', margin + 10, margin + 100);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, W, H);
+
+            switch (demoMode) {
+                case 'convex_check': drawConvexChecker(); break;
+                case 'shapes': drawShapes(); break;
+                case 'intersection': drawIntersection(); break;
+                case 'affine_map': drawAffineMap(); break;
+                case 'separating': drawSeparating(); break;
+                case 'pareto': drawPareto(); break;
+                case 'dual_cone': drawDualCone(); break;
+            }
+        }
+
+        // UI event handlers
+        document.getElementById('setDemo').addEventListener('change', (e) => {
+            demoMode = e.target.value;
+            updateControls();
+            resetDemoState();
+            draw();
+        });
+
+        function updateControls() {
+            const p1 = document.getElementById('param1Group');
+            const p2 = document.getElementById('param2Group');
+            const ang = document.getElementById('angleGroup');
+            const inst = document.getElementById('demoInstructions');
+            const expl = document.getElementById('demoExplanation');
+            const explText = document.getElementById('demoExplanationText');
+
+            p1.style.display = 'none';
+            p2.style.display = 'none';
+            ang.style.display = 'none';
+            expl.style.display = 'none';
+
+            switch (demoMode) {
+                case 'convex_check':
+                    inst.textContent = 'Klik pada canvas untuk menambahkan titik. Hull convex akan digambar otomatis. Warna hijau = convex, merah = non-convex.';
+                    break;
+                case 'shapes':
+                    inst.textContent = 'Visualisasi bentuk-bentuk convex standar: halfspace, polyhedron, ball, ellipsoid, PSD cone slice, second-order cone.';
+                    break;
+                case 'intersection':
+                    inst.textContent = 'Dua ellips (Set A & B). Intersection (merah) selalu convex. Gunakan slider rotasi.';
+                    ang.style.display = 'block';
+                    document.getElementById('angleInput').value = rotationAngle;
+                    document.getElementById('angleVal').textContent = rotationAngle + '°';
+                    break;
+                case 'affine_map':
+                    inst.textContent = 'Affine image dari unit circle. Matrix A dapat diubah via slider. Affine image melestarikan convexity.';
+                    p1.style.display = 'block';
+                    p2.style.display = 'block';
+                    document.getElementById('param1').value = (affineMatrix[0][1] + 1) * 50;
+                    document.getElementById('param1Val').textContent = affineMatrix[0][1].toFixed(1);
+                    document.getElementById('param2').value = (affineMatrix[1][0] + 1) * 50;
+                    document.getElementById('param2Val').textContent = affineMatrix[1][0].toFixed(1);
+                    break;
+                case 'separating':
+                    inst.textContent = 'Dua disk terpisah. Geser separator (kuning) untuk menemukan separating hyperplane.';
+                    p1.style.display = 'block';
+                    document.getElementById('param1').value = separatorX * 100;
+                    document.getElementById('param1Val').textContent = (separatorX * 2 - 1).toFixed(2);
+                    break;
+                case 'pareto':
+                    inst.textContent = 'Pareto frontier (minimal elements) untuk feasible set x₁+x₂≥1, x≥0 dengan cone ℝ²₊. Garis putus-putus = weighted sum objectives.';
+                    break;
+                case 'dual_cone':
+                    inst.textContent = 'Second-order cone Q² dan dual cone K* (self-dual). Vektor hijau ∈ K*, vektor merah ∈ K. Dot product selalu ≥ 0.';
+                    break;
+            }
+        }
+
+        function resetDemoState() {
+            userPoints = [];
+            hullPoints = [];
+            separatorX = 0.5;
+            rotationAngle = 0;
+            affineMatrix = [[1, 0.3], [-0.2, 1]];
+        }
+
+        function resetSetDemo() {
+            resetDemoState();
+            updateControls();
+            draw();
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (demoMode !== 'convex_check') return;
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            if (mx < margin || mx > margin + plotW || my < margin || my > margin + plotH) return;
+            const x = invDx(mx);
+            const y = invDy(my);
+            userPoints.push({ x, y });
+            draw();
+        });
+
+        document.getElementById('param1').addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('param1Val').textContent = (val / 50 - 1).toFixed(1);
+            if (demoMode === 'affine_map') {
+                affineMatrix[0][1] = val / 50 - 1;
+            } else if (demoMode === 'separating') {
+                separatorX = val / 100;
+                document.getElementById('param1Val').textContent = (separatorX * 2 - 1).toFixed(2);
+            }
+            draw();
+        });
+
+        document.getElementById('param2').addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('param2Val').textContent = (val / 50 - 1).toFixed(1);
+            if (demoMode === 'affine_map') {
+                affineMatrix[1][0] = val / 50 - 1;
+            }
+            draw();
+        });
+
+        document.getElementById('angleInput').addEventListener('input', (e) => {
+            rotationAngle = parseInt(e.target.value);
+            document.getElementById('angleVal').textContent = rotationAngle + '°';
+            draw();
+        });
+
+        // Initial setup
+        updateControls();
+        draw();
+    </script>
+</body>
+</html>

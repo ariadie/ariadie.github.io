@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 4b: Partially Observable Environments &amp; Online Search &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#16a085,#1abc9c);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.3);}
+        .chapternav{background:#1a6b5a;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#1abc9c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(26,188,156,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#1abc9c;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#1a6b5a;border-left:5px solid #1abc9c;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#16a085;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #1abc9c;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#e0f7ef 0%,#b2f0dc 100%);}
+        .concept-card h4{color:#16a085;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#1abc9c;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#1abc9c,#f39c12,#e74c3c);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#1abc9c;box-shadow:0 0 0 3px rgba(26,188,156,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#1abc9c,#16a085);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(26,188,156,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,188,156,.4);background:linear-gradient(135deg,#16a085,#1abc9c);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#1a6b5a;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1abc9c,#2ecc71,#f39c12,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(26,188,156,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#1a6b5a;}
+        .math{background:#f4f6f8;border-left:4px solid #1abc9c;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#1abc9c;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#1abc9c;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 4 (Bagian 2)</h1>
+            <div class="subtitle">Partially Observable Environments &amp; Online Search &mdash; AIMA 4th Edition</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter4a.html" title="Kembali: Bab 4a">&larr; Bab 4a</a>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 4b</span>
+            <a class="navbtn" href="chapter5.html" title="Lanjut: Bab 5">Bab 5 &rarr;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#sensorless">Sensorless Planning</a>
+            <a href="#belief">Belief States</a>
+            <a href="#online">Online Search</a>
+            <a href="#lrta">LRTA*</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#comparison">Perbandingan</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Bab ini membahas pencarian di lingkungan yang <strong>sebagian terobservasi</strong> (<em>partially observable</em>) dan pencarian <strong>daring</strong> (<em>online search</em>). Agen tidak selalu memiliki informasi lengkap tentang keadaan lingkungan&mdash;ia harus membuat keputusan di tengah ketidakpastian.</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Sensorless (Conformant) Planning</h4>
+                        <p>Agen tidak memiliki sensor sama sekali&mdash;harus menemukan rencana yang berhasil untuk <strong>semua</strong> kemungkinan keadaan awal.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">2</span> Belief State</h4>
+                        <p>Alih-alih melacak keadaan nyata, lacak <strong>himpunan keadaan yang mungkin</strong> (<em>belief state</em>) yang merepresentasikan ketidakpastian agen.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">3</span> Online Search</h4>
+                        <p>Agen harus bertindak <strong>tanpa mengetahui</strong> lingkungan sepenuhnya&mdash;mengeksplorasi sekaligus mencari tujuan secara langsung (<em>real-time</em>).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SENSORLESS PLANNING -->
+            <div id="sensorless" class="section" style="--delay:0.3s;">
+                <h2>Sensorless (Conformant) Planning</h2>
+                <p>Dalam sensorless planning, agen <strong>tidak memiliki sensor sama sekali</strong>. Ia harus menemukan satu urutan aksi (<em>conformant plan</em>) yang berhasil <strong>untuk semua kemungkinan keadaan awal</strong>.</p>
+
+                <div class="math">
+                    \[ \text{Conformant plan } \pi \text{ succeeds if } \forall s_0 \in \text{InitialBelief}, \text{Result}(s_0, \pi) \subseteq \text{GoalSet} \]
+                </div>
+
+                <h3>Contoh: Robot Tanpa Sensor</h3>
+                <p>Bayangkan robot yang harus mencapai ruangan tertentu, tetapi tidak mengetahui posisi awalnya. Robot harus merencanakan gerakan yang <strong>pasti</strong> akan membawanya ke tujuan, apa pun posisi awalnya.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">&bull;</span> Pendekatan BFS pada Belief State</h4>
+                        <p>Gunakan BFS pada ruang keadaan keyakinan (<em>belief-state space</em>). Setiap node adalah <strong>himpunan keadaan</strong>, bukan keadaan tunggal.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">&bull;</span> Kompleksitas</h4>
+                        <p>Waktu dan ruang eksponensial terhadap jumlah variabel keadaan, karena jumlah belief state bisa mencapai \(2^n\) untuk \(n\) boolean variabel.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Penting:</strong> Sensorless planning lebih sulit dari planning sensor lengkap karena ruang keadaan keyakinan secara eksponensial lebih besar dari ruang keadaan asli.
+                </div>
+            </div>
+
+            <!-- BELIEF STATES -->
+            <div id="belief" class="section" style="--delay:0.6s;">
+                <h2>Belief States (Keadaan Keyakinan)</h2>
+                <p><strong>Belief state</strong> adalah himpunan keadaan nyata yang mungkin berdasarkan pengamatan agen sejauh ini. Agen beralih antar belief state melalui fungsi transisi keyakinan:</p>
+
+                <div class="math">
+                    \[ \hat{T}(\hat{b}, a) = \bigcup_{s \in \hat{b}} \text{Trans}(s, a) \]
+                    <span class="eq-label">Transisi keyakinan</span>
+                </div>
+
+                <div class="math">
+                    \[ \hat{T}(\hat{b}, e, a) = \{s' : s' \in \text{Trans}(s, a) \text{ dan } \text{Obs}(s', e) \} \]
+                    <span class="eq-label">Update dengan pengamatan</span>
+                </div>
+
+                <h3>Properti Belief State</h3>
+                <table>
+                    <tr><th>Properti</th><th>Penjelasan</th></tr>
+                    <tr><td>Initial belief state</td><td>\(\hat{b}_0 = \{s_0\}\) jika diketahui, atau himpunan semua keadaan mungkin jika tidak</td></tr>
+                    <tr><td>Goal test</td><td>\(\hat{b} \subseteq \text{GoalSet}\) &mdash; semua keadaan dalam keyakinan adalah tujuan</td></tr>
+                    <tr><td>Transition function</td><td>Gabungkan hasil transisi dari setiap keadaan dalam himpunan keyakinan</td></tr>
+                    <tr><td>Observation</td><td>Persempit keyakinan: buang keadaan yang tidak konsisten dengan pengamatan</td></tr>
+                </table>
+
+                <div class="warning">
+                    <strong>Peringatan:</strong> Belief state space bisa sangat besar. Untuk \(n\) variabel boolean, ada \(2^n\) kemungkinan belief state. Pruning dan heuristik sangat diperlukan.
+                </div>
+
+                <h3>Contoh: Sensor Toggle</h3>
+                <p>Pertimbangkan robot di lorong 5 sel. Sensor aktif/Nonaktif secara acak. Tanpa sensor, agen harus merencanakan berdasarkan belief state&mdash;himpunan kemungkinan posisi robot.</p>
+            </div>
+
+            <!-- ONLINE SEARCH -->
+            <div id="online" class="section" style="--delay:0.9s;">
+                <h2>Online Search (Pencarian Daring)</h2>
+                <p>Dalam online search, agen <strong>tidak mengetahui</strong> model transisi lingkungan (atau hanya sebagian). Ia harus mengeksplorasi lingkungan secara langsung, bertindak, dan memperbarui pengetahuannya secara simultan.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">&rarr;</span> Offline Search</h4>
+                        <p>Agen mengetahui model lingkungan sepenuhnya. Dapat merencanakan jalur lengkap <strong>sebelum</strong> bertindak. Contoh: A*, Dijkstra.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">&rarr;</span> Online Search</h4>
+                        <p>Agen mengeksplorasi <strong>selama</strong> bertindak. Tidak bisa merencanakan jalur lengkap sebelumnya. Contoh: LRTA*, RTAA*.</p>
+                    </div>
+                </div>
+
+                <h3>Perbedaan Utama</h3>
+                <table>
+                    <tr><th>Aspek</th><th>Offline Search</th><th>Online Search</th></tr>
+                    <tr><td>Pengetahuan lingkungan</td><td>Lengkap</td><td>Tidak lengkap / sebagian</td></tr>
+                    <tr><td>Kapan merencanakan</td><td>Sebelum bertindak</td><td>Saat bertindak (real-time)</td></tr>
+                    <tr><td>Akses ke lingkungan</td><td>Dapat mensimulasikan transisi</td><td>Hanya dapat mengamati &amp; bertindak langsung</td></tr>
+                    <tr><td>Memori</td><td>Dapat menyimpan graf lengkap</td><td>Hanya menyimpan pengalaman sejauh ini</td></tr>
+                    <tr><td>Biaya</td><td>Minimalkan biaya solusi</td><td>Minimalkan total biaya eksplorasi + solusi</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Catatan:</strong> Online search sangat relevan untuk robot otonom yang beroperasi di lingkungan baru tanpa peta lengkap.
+                </div>
+            </div>
+
+            <!-- LRTA* -->
+            <div id="lrta" class="section" style="--delay:1.2s;">
+                <h2>LRTA* (Learning Real-Time A*)</h2>
+                <p>LRTA* adalah algoritma online search yang mempelajari biaya keadaan dari pengalaman langsung. Setiap kali agen mengunjungi suatu keadaan, ia memperbarui estimasi biaya berdasarkan pengamatan tetangga yang sebenarnya.</p>
+
+                <div class="math">
+                    \[ \hat{h}(s) \leftarrow \max_{a \in \text{Actions}(s)} \big[ c(s,a) + \hat{h}(\text{Result}(s,a)) \big] \]
+                    <span class="eq-label">Update LRTA*</span>
+                </div>
+
+                <h3>Algoritma LRTA*</h3>
+                <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin:20px 0;font-family:'Fira Code',monospace;font-size:.92em;">
+                    <p><strong>function</strong> LRTA-Search(problem) <strong>returns</strong> aksi</p>
+                    <p style="padding-left:20px;">current &larr; problem.InitialState</p>
+                    <p style="padding-left:20px;"><strong>for each</strong> s <strong>in</strong> problem.States <strong>do</strong></p>
+                    <p style="padding-left:40px;">\(\hat{h}(s) \leftarrow\) heuristic(s) or 0</p>
+                    <p style="padding-left:20px;"><strong>repeat forever</strong></p>
+                    <p style="padding-left:40px;">s &larr; current</p>
+                    <p style="padding-left:40px;"><strong>for each</strong> a <strong>in</strong> Actions(s) <strong>do</strong></p>
+                    <p style="padding-left:60px;">\(\hat{h}(s) \leftarrow \min(\hat{h}(s), c(s,a) + \hat{h}(\text{Result}(s,a)))\)</p>
+                    <p style="padding-left:40px;">a* &larr; argmin\(_a [c(s,a) + \hat{h}(\text{Result}(s,a))]\)</p>
+                    <p style="padding-left:40px;">current &larr; Result(s, a*)</p>
+                    <p style="padding-left:40px;"><strong>return</strong> a*</p>
+                </div>
+
+                <h3>Properti LRTA*</h3>
+                <table>
+                    <tr><th>Properti</th><th>Nilai</th></tr>
+                    <tr><td>Kelengkapan</td><td>Ya (pada graf berhingga)</td></tr>
+                    <tr><td>Optimalitas</td><td>Tidak &mdash; bisa menjalankan lebih dari \(n^2\) langkah</td></tr>
+                    <tr><td>Biaya</td><td>Batas atas: \((n - 1) \times n^2 \times c_{\max}\)</td></tr>
+                    <tr><td>Ruang memori</td><td>\(O(n)\) untuk menyimpan \(\hat{h}\) setiap keadaan</td></tr>
+                </table>
+
+                <div class="warning">
+                    <strong>Perhatian:</strong> LRTA* bisa menjadi sangat tidak efisien untuk graf dengan banyak keadaan. Gunakan RTAA* dengan bukti batas atas yang lebih ketat untuk graf berhingga.
+                </div>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:1.8s;">
+                <h2>Simulasi Interaktif: LRTA* pada Grid</h2>
+                <p>Visualisasi agen online yang mengeksplorasi grid yang belum diketahui. Agen bergerak satu langkah pada satu waktu, menandai sel yang dikunjungi, dan menemukan tembok saat bergerak. Tekan langkah untuk melihat agen menjalankan LRTA*.</p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="gridSize">Ukuran Grid</label>
+                        <select id="gridSize">
+                            <option value="5">5 &times; 5</option>
+                            <option value="7" selected>7 &times; 7</option>
+                            <option value="9">9 &times; 9</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="wallDensity">Dinding (%)</label>
+                        <input type="range" id="wallDensity" min="10" max="35" step="5" value="20">
+                        <div class="value-display" id="wallDensityVal">20%</div>
+                    </div>
+                    <div class="control-group">
+                        <label for="speed">Kecepatan (ms)</label>
+                        <input type="range" id="speed" min="100" max="1200" step="100" value="500">
+                        <div class="value-display" id="speedVal">500ms</div>
+                    </div>
+                    <button class="btn" onclick="resetSim()">Reset</button>
+                    <button class="btn" onclick="stepSim()">Langkah &#9654;</button>
+                    <button class="btn" onclick="runSim()">Jalankan &#9654;&#9654;</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="lartaCanvas" width="700" height="700"></canvas>
+                </div>
+
+                <div style="text-align:center;margin:15px 0;">
+                    <span style="display:inline-block;width:14px;height:14px;background:#e0e0e0;border:2px solid #bbb;border-radius:3px;vertical-align:middle;margin-right:4px;"></span> Belum Diketahui
+                    <span style="display:inline-block;width:14px;height:14px;background:#74b9ff;border:2px solid #0984e3;border-radius:3px;vertical-align:middle;margin-left:15px;margin-right:4px;"></span> Telah Dikunjungi
+                    <span style="display:inline-block;width:14px;height:14px;background:#2d3436;border:2px solid #636e72;border-radius:3px;vertical-align:middle;margin-left:15px;margin-right:4px;"></span> Tembok (ditemukan)
+                    <span style="display:inline-block;width:14px;height:14px;background:#55efc4;border:2px solid #00b894;border-radius:3px;vertical-align:middle;margin-left:15px;margin-right:4px;"></span> Tujuan
+                    <span style="display:inline-block;width:14px;height:14px;background:#ffeaa7;border:2px solid #f39c12;border-radius:3px;vertical-align:middle;margin-left:15px;margin-right:4px;"></span> Posisi Agen
+                </div>
+
+                <div id="simLog" style="background:#1a1a2e;color:#e0e0e0;padding:15px 20px;border-radius:8px;font-family:'Fira Code',monospace;font-size:.88em;max-height:200px;overflow-y:auto;margin-top:15px;"></div>
+            </div>
+
+            <!-- COMPARISON TABLE -->
+            <div id="comparison" class="section" style="--delay:2.4s;">
+                <h2>Perbandingan Offline vs Online Search</h2>
+
+                <table>
+                    <tr><th>Karakteristik</th><th>Offline Search</th><th>Online Search</th></tr>
+                    <tr><td>Pengetahuan lingkungan</td><td>Lengkap sebelumnya</td><td>Ditemukan selama eksekusi</td></tr>
+                    <tr><td>Model transisi</td><td>Diketahui penuh (\(T(s,a)\))</td><td>Tidak diketahui / sebagian</td></tr>
+                    <tr><td>Kapan perencanaan terjadi</td><td>Seluruhnya sebelum bertindak</td><td>Interleaved dengan bertindak</td></tr>
+                    <tr><td>Kompleksitas waktu</td><td>Bergantung pada kedalaman solusi</td><td>Bisa hingga \(O(n^2)\) langkah</td></tr>
+                    <tr><td>Kompleksitas memori</td><td>Bisa eksponensial (pohon pencarian)</td><td>\(O(n)\) untuk tabel estimasi</td></tr>
+                    <tr><td>Optimalitas</td><td>Optimal (dengan heuristic tepat)</td><td>Tidak optimal (tapi aman)</td></tr>
+                    <tr><td>Penggunaan tipikal</td><td>Peta, jaringan, perencanaan rute</td><td>Robot otonom, eksplorasi lingkungan baru</td></tr>
+                    <tr><td>Asumsi sensor</td><td>Tidak perlu (perencanaan statis)</td><td>Perlu sensor untuk observasi lokal</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Rekomendasi:</strong> Gunakan offline search jika model lingkungan tersedia dan komputasi tidak terbatas waktunya. Gunakan online search jika agen harus berinteraksi langsung dengan lingkungan yang tidak dikenal.
+                </div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:2.7s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Sensorless Planning</h4>
+                    <p>Robot di lorong 3 sel (A, B, C). Robot tidak mengetahui posisi awalnya. Dari sel manapun, robot bisa bergerak ke kiri atau ke kanan (jika tidak ada dinding). Tuliskan conformant plan untuk memastikan robot mencapai sel B.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Solusi:</strong> Rencana: [Kanan, Kiri].</p>
+                            <p>Analisis:</p>
+                            <ul>
+                                <li>Jika mulai di A: Kanan &rarr; B. B adalah tujuan.</li>
+                                <li>Jika mulai di B: Kanan &rarr; C, lalu Kiri &rarr; B.</li>
+                                <li>Jika mulai di C: Kanan &rarr; B (diasumsikan looping/bounce).</li>
+                            </ul>
+                            <p>Rencana ini berhasil untuk semua posisi awal karena B adalah sel tengah&mdash;bergerak ke kanan sekali dari A mencapai B, dan bergerak ke kanan dari C kemudian kembali ke B.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Belief State Transisi</h4>
+                    <p>Sebuah agen memiliki 3 keadaan: \(\{S_1, S_2, S_3\}\). Belief state awal: \(\{S_1, S_2\}\). Setelah aksi \(a\), transisi: \(S_1 \to S_2\), \(S_2 \to S_3\), \(S_3 \to S_1\). Apakah belief state setelah aksi \(a\)?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Belief state setelah aksi:</strong> \(\hat{T}(\{S_1, S_2\}, a) = \{\text{Result}(S_1, a), \text{Result}(S_2, a)\} = \{S_2, S_3\}\).</p>
+                            <p>Prinsip: gabungkan hasil transisi dari setiap keadaan dalam belief state. \(S_1\) menjadi \(S_2\), \(S_2\) menjadi \(S_3\).</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; LRTA* Update</h4>
+                    <p>Pada graf sederhana: A terhubung ke B (biaya 1) dan C (biaya 4). B terhubung ke D (biaya 2). C terhubung ke D (biaya 1). D adalah tujuan. \(\hat{h}(A) = 3\), \(\hat{h}(B) = 2\), \(\hat{h}(C) = 2\), \(\hat{h}(D) = 0\). Apa yang dilakukan LRTA* saat berada di A?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Langkah LRTA* di A:</strong></p>
+                            <ol>
+                                <li>Untuk aksi \(a_1\) (ke B): \(c(A,B) + \hat{h}(B) = 1 + 2 = 3\)</li>
+                                <li>Untuk aksi \(a_2\) (ke C): \(c(A,C) + \hat{h}(C) = 4 + 2 = 6\)</li>
+                                <li>Update: \(\hat{h}(A) \leftarrow \min(3, 6) = 3\) (tidak berubah)</li>
+                                <li>Pilih aksi \(a_1\) (ke B), karena lebih murah</li>
+                                <li>Update \(\hat{h}(A) = \min(3, c(A,B) + \hat{h}(B)) = \min(3, 3) = 3\)</li>
+                            </ol>
+                            <p>Agen bergerak ke B. Di B, ia akan menghitung: \(\hat{h}(B) = c(B,D) + \hat{h}(D) = 2 + 0 = 2\). Tidak ada update.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Online vs Offline</h4>
+                    <p>Kapan Anda akan menggunakan LRTA* dibandingkan A*? Berikan contoh skenario untuk masing-masing.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>A* (Offline):</strong> Gunakan ketika peta lingkungan sudah diketahui sepenuhnya. Contoh: menghitung rute terpendek dari rumah ke kantor menggunakan GPS.</p>
+                            <p><strong>LRTA* (Online):</strong> Gunakan ketika lingkungan baru dan tidak diketahui. Contoh: robot penjelajah Mars yang harus bergerak tanpa peta, menemukan rintangan secara langsung, dan belajar dari setiap langkah.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>Ringkasan</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">&check;</div>
+                        <div><strong>Sensorless Planning:</strong> Agen tanpa sensor harus menemukan rencana yang berhasil untuk <strong>semua</strong> keadaan awal yang mungkin.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">&check;</div>
+                        <div><strong>Belief State:</strong> Himpunan keadaan yang mungkin &mdash; merepresentasikan ketidakpastian agen. Transisi keyakinan: gabungkan hasil dari setiap keadaan dalam himpunan.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">&check;</div>
+                        <div><strong>Online Search:</strong> Agen bertindak tanpa mengetahui model lingkungan sepenuhnya. Eksplorasi dan perencanaan terjadi secara bersamaan.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">&check;</div>
+                        <div><strong>LRTA*:</strong> Algoritma online yang mempelajari estimasi biaya dari pengalaman. Lengkap pada graf berhingga, tapi tidak optimal.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">&check;</div>
+                        <div><strong>Trade-off:</strong> Offline search optimal tapi butuh pengetahuan lengkap. Online search aman dan adaptif tapi bisa tidak efisien.</div>
+                    </div>
+
+                    <table style="margin-top:20px;">
+                        <tr><th>Algoritma</th><th>Jenis</th><th>Lengkap?</th><th>Optimal?</th><th>Memori</th></tr>
+                        <tr><td>BFS (belief state)</td><td>Offline / Sensorless</td><td>Ya</td><td>Ya</td><td>\(O(2^n)\)</td></tr>
+                        <tr><td>A*</td><td>Offline</td><td>Ya</td><td>Ya</td><td>Eksponensial</td></tr>
+                        <tr><td>LRTA*</td><td>Online</td><td>Ya (graf hingga)</td><td>Tidak</td><td>\(O(n)\)</td></tr>
+                        <tr><td>RTAA*</td><td>Online</td><td>Ya (graf hingga)</td><td>Tidak</td><td>\(O(n)\)</td></tr>
+                    </table>
+                </div>
+                <p>Lanjut ke <a href="chapter5.html">Bab 5</a> untuk Adversarial Search &amp; Game Playing.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>AIMA Interactive Guide | Bab 4b</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter4a.html" title="Kembali: Bab 4a">&larr; Bab 4a</a>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 4b</span>
+                    <a class="navbtn" href="chapter5.html" title="Lanjut: Bab 5">Bab 5 &rarr;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== LRTA* GRID SIMULATION =====
+const cvs = document.getElementById('lartaCanvas');
+const ctx = cvs.getContext('2d');
+let N, walls, goalPos, agentPos, visited, h, steps, done, running, animTimer;
+
+function initSim() {
+    N = parseInt(document.getElementById('gridSize').value);
+    const density = parseInt(document.getElementById('wallDensity').value) / 100;
+    walls = new Set();
+    visited = new Set();
+    h = new Map();
+    steps = [];
+    done = false;
+    running = false;
+    if (animTimer) clearInterval(animTimer);
+
+    // Generate grid
+    goalPos = { r: N - 1, c: N - 1 };
+    agentPos = { r: 0, c: 0 };
+
+    // Random walls (not on start or goal)
+    for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+            if ((r === 0 && c === 0) || (r === N - 1 && c === N - 1)) continue;
+            if (Math.random() < density) {
+                walls.add(r + ',' + c);
+            }
+        }
+    }
+
+    // Ensure goal is reachable (simple flood-fill check)
+    if (!isReachable()) {
+        walls.clear();
+        for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) {
+                if ((r === 0 && c === 0) || (r === N - 1 && c === N - 1)) continue;
+                if (Math.random() < density) {
+                    walls.add(r + ',' + c);
+                }
+            }
+        }
+    }
+
+    // Init h values (0 for all known states)
+    visited.add('0,0');
+    h.set('0,0', Math.abs(N - 1) + Math.abs(N - 1)); // Manhattan to goal
+
+    drawGrid();
+    document.getElementById('simLog').innerHTML = '';
+    updateSimLog('Agen memulai di (0,0). Tujuan di (' + (N-1) + ',' + (N-1) + ').');
+}
+
+function isReachable() {
+    const queue = [{ r: 0, c: 0 }];
+    const seen = new Set(['0,0']);
+    while (queue.length > 0) {
+        const { r, c } = queue.shift();
+        if (r === N - 1 && c === N - 1) return true;
+        for (const [dr, dc] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+            const nr = r + dr, nc = c + dc;
+            const key = nr + ',' + nc;
+            if (nr >= 0 && nr < N && nc >= 0 && nc < N && !walls.has(key) && !seen.has(key)) {
+                seen.add(key);
+                queue.push({ r: nr, c: nc });
+            }
+        }
+    }
+    return false;
+}
+
+function getNeighbors(r, c) {
+    const dirs = [[0,1,'right'],[0,-1,'left'],[1,0,'down'],[-1,0,'up']];
+    const result = [];
+    for (const [dr, dc, name] of dirs) {
+        const nr = r + dr, nc = c + dc;
+        const key = nr + ',' + nc;
+        if (nr >= 0 && nr < N && nc >= 0 && nc < N && !walls.has(key)) {
+            result.push({ r: nr, c: nc, name });
+        }
+    }
+    return result;
+}
+
+function lrtaStarStep() {
+    if (done) return;
+    const { r, c } = agentPos;
+    const key = r + ',' + c;
+
+    if (r === N - 1 && c === N - 1) {
+        done = true;
+        updateSimLog('>> TUJUAN TERCAPAI di (' + r + ',' + c + ') dalam ' + steps.length + ' langkah.');
+        return;
+    }
+
+    const neighbors = getNeighbors(r, c);
+    if (neighbors.length === 0) {
+        done = true;
+        updateSimLog('>> TERJEBAK! Tidak ada jalan keluar.');
+        return;
+    }
+
+    // Observe neighbors (mark walls if we discover them)
+    for (const [dr, dc] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < N && nc >= 0 && nc < N) {
+            const nkey = nr + ',' + nc;
+            if (!visited.has(nkey) && !walls.has(nkey) && !neighbors.some(n => n.r === nr && n.c === nc)) {
+                walls.add(nkey);
+            }
+        }
+    }
+
+    // Update h for current state
+    let bestVal = Infinity;
+    let bestAction = null;
+    let bestNeighbor = null;
+
+    for (const nb of neighbors) {
+        const nbKey = nb.r + ',' + nb.c;
+        if (!visited.has(nbKey)) {
+            h.set(nbKey, Math.abs(nb.r - (N - 1)) + Math.abs(nb.c - (N - 1)));
+        }
+        const val = 1 + (h.get(nbKey) || 0);
+        if (val < bestVal) {
+            bestVal = val;
+            bestAction = nb.name;
+            bestNeighbor = nb;
+        }
+    }
+
+    // Update h for current state
+    h.set(key, bestVal - 1);
+
+    // Move agent
+    agentPos = { r: bestNeighbor.r, c: bestNeighbor.c };
+    visited.add(agentPos.r + ',' + agentPos.c);
+    steps.push(bestAction);
+
+    updateSimLog('Langkah ' + steps.length + ': (' + r + ',' + c + ') &rarr; (' + agentPos.r + ',' + agentPos.c + ') [' + bestAction + ']  h=' + (h.get(key) || '?'));
+    drawGrid();
+}
+
+function resetSim() {
+    initSim();
+}
+
+function stepSim() {
+    lrtaStarStep();
+}
+
+function runSim() {
+    if (done) resetSim();
+    if (animTimer) clearInterval(animTimer);
+    const spd = parseInt(document.getElementById('speed').value);
+    animTimer = setInterval(() => {
+        lrtaStarStep();
+        if (done) clearInterval(animTimer);
+    }, spd);
+}
+
+function drawGrid() {
+    const pad = 40;
+    const cellSize = Math.floor((Math.min(cvs.width, cvs.height) - 2 * pad) / N);
+    const ox = (cvs.width - cellSize * N) / 2;
+    const oy = (cvs.height - cellSize * N) / 2;
+
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+            const key = r + ',' + c;
+            const x = ox + c * cellSize;
+            const y = oy + r * cellSize;
+
+            let fill = '#f0f0f0';
+            let border = '#ccc';
+
+            if (walls.has(key)) {
+                fill = '#2d3436';
+                border = '#636e72';
+            } else if (r === agentPos.r && c === agentPos.c) {
+                fill = '#ffeaa7';
+                border = '#f39c12';
+            } else if (r === N - 1 && c === N - 1) {
+                fill = '#55efc4';
+                border = '#00b894';
+            } else if (visited.has(key)) {
+                fill = '#74b9ff';
+                border = '#0984e3';
+            }
+
+            ctx.fillStyle = fill;
+            ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+            ctx.strokeStyle = border;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+
+            // h values for visited cells
+            if (visited.has(key) && !walls.has(key) && h.has(key)) {
+                ctx.fillStyle = '#555';
+                ctx.font = Math.max(9, cellSize * 0.22) + 'px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(h.get(key), x + cellSize / 2, y + cellSize * 0.3);
+            }
+
+            // Labels
+            if (r === agentPos.r && c === agentPos.c) {
+                ctx.fillStyle = '#d35400';
+                ctx.font = 'bold ' + Math.max(11, cellSize * 0.35) + 'px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('A', x + cellSize / 2, y + cellSize * 0.7);
+            }
+            if (r === N - 1 && c === N - 1) {
+                ctx.fillStyle = '#00b894';
+                ctx.font = 'bold ' + Math.max(10, cellSize * 0.28) + 'px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('G', x + cellSize / 2, y + cellSize * 0.7);
+            }
+        }
+    }
+
+    // Grid coords
+    ctx.fillStyle = '#666';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (let c = 0; c < N; c++) {
+        ctx.fillText(c, ox + c * cellSize + cellSize / 2, oy + N * cellSize + 5);
+    }
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for (let r = 0; r < N; r++) {
+        ctx.fillText(r, ox - 8, oy + r * cellSize + cellSize / 2);
+    }
+
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+}
+
+function updateSimLog(msg) {
+    const log = document.getElementById('simLog');
+    log.innerHTML += msg + '\n';
+    log.scrollTop = log.scrollHeight;
+}
+
+// Slider displays
+document.getElementById('wallDensity').addEventListener('input', function() {
+    document.getElementById('wallDensityVal').textContent = this.value + '%';
+});
+document.getElementById('speed').addEventListener('input', function() {
+    document.getElementById('speedVal').textContent = this.value + 'ms';
+});
+document.getElementById('gridSize').addEventListener('change', function() {
+    initSim();
+});
+
+// Init
+initSim();
+</script>
+</body>
+</html>

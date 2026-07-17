@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 8: First-Order Logic &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#0d47a1 0%,#1565c0 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#0d47a1,#1565c0);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#1565c0;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(21,101,192,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#1565c0;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(21,101,192,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#1565c0;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #1565c0;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#1976d2;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #1565c0;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);}
+        .concept-card h4{color:#1565c0;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#1565c0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#1565c0,#2ecc71,#f39c12);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#1565c0;box-shadow:0 0 0 3px rgba(21,101,192,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(21,101,192,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(21,101,192,.4);background:linear-gradient(135deg,#0d47a1,#1565c0);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1565c0,#2ecc71,#f39c12,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(21,101,192,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #1565c0;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#1565c0;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#1565c0;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        .fol-input{width:100%;padding:10px;border:2px solid #dee2e6;border-radius:6px;font-family:'Fira Code',monospace;font-size:.95em;transition:border-color .3s;}
+        .fol-input:focus{outline:none;border-color:#1565c0;box-shadow:0 0 0 3px rgba(21,101,192,.1);}
+        .fol-result{padding:8px 12px;border-radius:6px;margin:5px 0;font-family:'Fira Code',monospace;font-size:.9em;}
+        .fol-true{background:#e8f5e9;border-left:4px solid #4caf50;color:#2e7d32;}
+        .fol-false{background:#ffebee;border-left:4px solid #f44336;color:#c62828;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 8: First-Order Logic</h1>
+            <div class="subtitle">Logika Ordo Pertama &mdash; AIMA 4th Edition</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter7.html" title="Sebelumnya: Bab 7">&larr; Bab 7</a>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 8</span>
+            <a class="navbtn" href="chapter9.html" title="Lanjut: Bab 9">Bab 9 &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#syntax">Sintaks FOL</a>
+            <a href="#semantics">Semantik FOL</a>
+            <a href="#differences">Perbedaan dari Prop. Logic</a>
+            <a href="#wumpus">Wumpus World dalam FOL</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Logika proposisional memiliki keterbatasan serius: ia hanya bisa bekerja dengan fakta-fakta yang didefinisikan secara eksplisit. Untuk pengetahuan dunia nyata, kita memerikan representasi yang jauh lebih kaya &mdash; <strong>First-Order Logic (FOL)</strong>.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Keterbatasan Prop. Logic</h4>
+                        <p>Tidak ada variabel, fungsi, atau kuantifikasi. Setiap fakta harus dinyatakan dengan simbol proposisi yang terpisah. Untuk \(n\) objek, diperlukan \(O(n^2)\) simbol.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">2</span> Keunggulan FOL</h4>
+                        <p>Menggunakan <strong>variabel</strong>, <strong>predikat</strong>, <strong>fungsi</strong>, dan <strong>kuantifikasi</strong>. Satu kalimat FOL bisa mewakili ribuan kalimat proposisional.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">3</span> Ontologi FOL</h4>
+                        <p><strong>Terminologi:</strong> konstanta, variabel, fungsi. <strong>Proposisi:</strong> predikat, kuantifikasi. <strong>Aksioma:</strong> pengetahuan awal. <strong>Kesimpulan:</strong> hasil inferensi.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Intuisi:</strong> FOL memungkinkan kita mengungkapkan pola dan hubungan secara umum, bukan hanya fakta spesifik. Contoh: "Semua manusia adalah fana" (\(\forall x: Human(x) \Rightarrow Mortal(x)\)) jauh lebih ringkas daripada menyatakan kefanaan untuk setiap manusia satu per satu.
+                </div>
+            </div>
+
+            <!-- SYNTAX -->
+            <div id="syntax" class="section" style="--delay:0.3s;">
+                <h2>Sintaks FOL (Syntax of First-Order Logic)</h2>
+                <p>FOL menambahkan konsep baru di atas logika proposisional untuk meningkatkan ekspresivitas.</p>
+
+                <h3>1. Terms (Istilah)</h3>
+                <p>Term adalah ekspresi yang merujuk pada objek dalam domain.</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">c</span> Konstanta</h4>
+                        <p>Nama objek spesifik. Contoh: \(\text{Alice}\), \(\text{Bucharest}\), \(\text{nil}\).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">x</span> Variabel</h4>
+                        <p>Mengacu pada objek yang tidak diketahui atau arbitrari. Contoh: \(x\), \(y\), \(z\).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">f</span> Fungsi</h4>
+                        <p>Pemetaan dari term ke term. Contoh: \(\text{MotherOf}(x)\), \(\text{Father}(x)\).</p>
+                    </div>
+                </div>
+
+                <h3>2. Atomic Sentences (Kalimat Atom)</h3>
+                <p>Kalimat atom adalah pernyataan terkecil yang bernilai benar atau salah.</p>
+                <table>
+                    <tr><th>Jenis</th><th>Sintaks</th><th>Contoh</th></tr>
+                    <tr><td>Predikat unary</td><td>\(P(t_1)\)</td><td>\(\text{Human}(\text{Alice})\)</td></tr>
+                    <tr><td>Predikat biner</td><td>\(P(t_1, t_2)\)</td><td>\(\text{Loves}(\text{Alice}, \text{Bob})\)</td></tr>
+                    <tr><td>Kesetaraan</td><td>\(t_1 = t_2\)</td><td>\(\text{Mother}(x) = \text{Jane}\)</td></tr>
+                </table>
+
+                <h3>3. Complex Sentences (Kalimat Kompleks)</h3>
+                <p>Dibentuk dengan menggabungkan kalimat atom menggunakan <strong>hubungan logika</strong> (connectives) yang sama dengan logika proposisional:</p>
+                <div class="math">
+                    \[\neg F, \quad F \land G, \quad F \lor G, \quad F \Rightarrow G, \quad F \Leftrightarrow G\]
+                </div>
+
+                <h3>4. Quantifiers (Kuantifikasi)</h3>
+                <p>Inovasi utama FOL &mdash; memungkinkan pernyataan tentang kumpulan objek tanpa menyebutkan setiap objek secara eksplisit.</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">&forall;</span> Universal (&forall;)</h4>
+                        <p>\(\forall x: P(x)\) &mdash; "Untuk semua \(x\) dalam domain, \(P(x)\) benar."</p>
+                        <p><strong>Setara dengan:</strong> \(P(a_1) \land P(a_2) \land \ldots \land P(a_n)\)</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">&exist;</span> Eksistensial (&exist;)</h4>
+                        <p>\(\exists x: P(x)\) &mdash; "Ada setidaknya satu \(x\) dalam domain sehingga \(P(x)\) benar."</p>
+                        <p><strong>Setara dengan:</strong> \(P(a_1) \lor P(a_2) \lor \ldots \lor P(a_n)\)</p>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Hati-hati:</strong> Urutan kuantifikasi penting! \(\forall x \exists y: L(x,y)\) (untuk setiap \(x\), ada \(y\) yang menyukainya) berbeda dari \(\exists y \forall x: L(x,y)\) (ada satu \(y\) yang disukai semua \(x\)).
+                </div>
+            </div>
+
+            <!-- SEMANTICS -->
+            <div id="semantics" class="section" style="--delay:0.6s;">
+                <h2>Semantik FOL (Semantics of First-Order Logic)</h2>
+                <p>Untuk menentukan apakah kalimat FOL benar atau salah, kita memerlukan <strong>model</strong> (interpretasi).</p>
+
+                <h3>Model / Interpretasi</h3>
+                <p>Model terdiri dari:</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">D</span> Domain (Himpunan Semesta)</h4>
+                        <p>Himpunan objek yang dipertimbangkan. Contoh: \(\mathcal{D} = \{1, 2, 3\}\) atau \(\mathcal{D} = \{\text{Alice}, \text{Bob}, \text{Charlie}\}\).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">&mu;</span> Fungsi Interpretasi</h4>
+                        <p>Memetakan nama konstanta ke objek dalam domain: \(\mu(\text{Alice}) = a\), dan memetakan fungsi ke fungsi aktual: \(\mu(\text{MotherOf})(x)\).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">&pi;</span> Interpretasi Predikat</h4>
+                        <p>Memetakan predikat ke hubungan aktual dalam domain. Contoh: \(\pi(\text{Loves}) = \{(a,b), (b,c)\}\).</p>
+                    </div>
+                </div>
+
+                <h3>Truth in a Model</h3>
+                <p>Kalimat \(F\) <strong>benar dalam model</strong> \(\langle \mathcal{D}, \mu, \pi \rangle\) jika interpretasi memenuhi \(F\).</p>
+                <div class="math">
+                    \[\langle \mathcal{D}, \mu, \pi \rangle \models F\]
+                </div>
+                <table>
+                    <tr><th>Kalimat</th><th>Benar jika...</th></tr>
+                    <tr><td>\(P(t_1, \ldots, t_n)\)</td><td>\(\langle \mu(t_1), \ldots, \mu(t_n) \rangle \in \pi(P)\)</td></tr>
+                    <tr><td>\(\neg F\)</td><td>\(\langle \mathcal{D}, \mu, \pi \rangle \not\models F\)</td></tr>
+                    <tr><td>\(F \land G\)</td><td>model memenuhi \(F\) <strong>dan</strong> \(G\)</td></tr>
+                    <tr><td>\(\forall x: F\)</td><td>untuk semua \(d \in \mathcal{D}\), \(F\) benar dengan \(\mu[x \leftarrow d]\)</td></tr>
+                    <tr><td>\(\exists x: F\)</td><td>ada \(d \in \mathcal{D}\) sehingga \(F\) benar dengan \(\mu[x \leftarrow d]\)</td></tr>
+                </table>
+
+                <h3>Entailment</h3>
+                <p>Kalimat \(F\) <strong>entails</strong> \(G\) (\(F \models G\)) jika setiap model yang memenuhi \(F\) juga memenuhi \(G\).</p>
+                <div class="math">
+                    \[F \models G \iff \text{untuk semua model } M: M \models F \implies M \models G\]
+                </div>
+                <div class="note">
+                    <strong>Mengapa penting?</strong> Entailment adalah dasar inferensi: jika kita tahu \(F\) benar dan \(F \models G\), maka kita bisa menyimpulkan \(G\) benar &mdash; bahkan tanpa mengetahui model spesifiknya.
+                </div>
+            </div>
+
+            <!-- DIFFERENCES -->
+            <div id="differences" class="section" style="--delay:0.9s;">
+                <h2>Perbedaan Kunci dari Logika Proposisional</h2>
+                <p>FOL secara fundamental lebih kuat dari logika proposisional karena tiga fitur utama:</p>
+
+                <table>
+                    <tr><th>Fitur</th><th>Propositional Logic</th><th>First-Order Logic</th></tr>
+                    <tr><td>Variabel</td><td>&mdash;</td><td>Variabel merepresentasikan objek (\(x, y, z\))</td></tr>
+                    <tr><td>Fungsi</td><td>&mdash;</td><td>Fungsi merepresentasikan hubungan antar objek (\(\text{MotherOf}(x)\))</td></tr>
+                    <tr><td>Predikat</td><td>Proposisi (hanya benar/salah)</td><td>Predikat dengan argumen (\(\text{Loves}(x,y)\))</td></tr>
+                    <tr><td>Kuantifikasi</td><td>&mdash;</td><td>\(\forall\) dan \(\exists\) untuk generalisasi</td></tr>
+                    <tr><td>Jumlah kalimat</td><td>\(2^n\) untuk \(n\) proposisi</td><td>Infinite untuk domain infinite; ringkas dengan kuantifikasi</td></tr>
+                    <tr><td>Contoh</td><td>\(\text{Loves}(\text{A},\text{B})\)</td><td>\(\forall x \exists y: \text{Loves}(x,y)\)</td></tr>
+                </table>
+
+                <div class="warning">
+                    <strong>Trade-off:</strong> Kekuatan ekspresif FOL datang dengan biaya: inferensi jauh lebih kompleks. Untuk logika proposisional, satisfiability bisa diselesaikan secara efisien untuk masalah kecil; untuk FOL, masalahnya tidak terbatas secara umum (<em>semidecidable</em>).
+                </div>
+            </div>
+
+            <!-- WUMPUS WORLD -->
+            <div id="wumpus" class="section" style="--delay:1.2s;">
+                <h2>Wumpus World dalam FOL</h2>
+                <p>FOL memungkinkan kita menulis aturan umum yang berlaku untuk seluruh peta Wumpus World, bukan hanya kotak tertentu.</p>
+
+                <h3>Aksioma Umum</h3>
+                <div class="math">
+                    \[\forall x, y: \text{Breeze}(x,y) \Leftrightarrow \exists x', y': \text{Adjacent}(x,y,x',y') \land \text{Pit}(x',y')\]
+                    <span class="eq-label">Aksioma Breeze</span>
+                </div>
+                <p>"Di sebuah kotak ada angin (\(breeze\)) jika dan hanya jika ada lubang (\(pit\)) di kotak yang berdekatan."</p>
+
+                <div class="math">
+                    \[\forall x, y: \text{Stench}(x,y) \Leftrightarrow \exists x', y': \text{Adjacent}(x,y,x',y') \land \text{Wumpus}(x',y')\]
+                    <span class="eq-label">Aksioma Stench</span>
+                </div>
+                <p>"Di sebuah kotak ada bau (\(stench\)) jika dan only jika ada wumpus di kotak yang berdekatan."</p>
+
+                <h3>Predikat Tambahan</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">A</span> Adjacency</h4>
+                        <p>\(\text{Adjacent}(x,y,x',y')\) &mdash; benar jika kotak \((x,y)\) dan \((x',y')\) bersebelahan (bukan diagonal).</p>
+                        <p>Definisi: \(|x - x'| + |y - y'| = 1\)</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">K</span> Knowledge Base</h4>
+                        <p>KB berisi aksioma di atas + fakta observasional. Dari KB, agen menggunakan <strong>penalaran</strong> untuk menyimpulkan keberadaan lubang atau wumpus.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Keunggulan FOL:</strong> Dengan logika proposisional, kita memerlukan \(O(n^2)\) simbol untuk \(n \times n\) peta. Dengan FOL, kita hanya perlu beberapa aksioma yang berlaku universal untuk seluruh peta.
+                </div>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:1.5s;">
+                <h2>Simulasi Interaktif: Interpreter FOL</h2>
+                <p>Masukkan kalimat FOL dan definisikan model kecil. Simulator akan menampilkan apakah setiap kalimat benar atau salah dalam model tersebut.</p>
+
+                <div class="controls">
+                    <div class="control-group" style="min-width:300px;">
+                        <label for="domainInput">Domain (objek, pisahkan koma)</label>
+                        <input id="domainInput" class="fol-input" type="text" value="alice,bob,charlie" placeholder="e.g. alice,bob,charlie">
+                    </div>
+                    <div class="control-group" style="min-width:300px;">
+                        <label for="sentenceInput">Kalimat FOL (satu per baris)</label>
+                        <textarea id="sentenceInput" class="fol-input" rows="4" placeholder="forall x: Human(x)&#10;exists x: Loves(x,alice)&#10;forall x: Human(x) => Loves(x,bob)&#10;exists x: exists y: Loves(x,y)">forall x: Human(x)
+exists x: Loves(x,alice)
+forall x: Human(x) => Loves(x,bob)
+exists x: exists y: Loves(x,y)</textarea>
+                    </div>
+                </div>
+
+                <div class="controls" style="background:#f0f4f8;">
+                    <div class="control-group" style="min-width:200px;">
+                        <label for="predLoves">Loves(a,b) &mdash; pasangan (pisahkan ;)</label>
+                        <input id="predLoves" class="fol-input" type="text" value="alice:bob;bob:alice;charlie:charlie" placeholder="a:b;a:c">
+                    </div>
+                    <div class="control-group" style="min-width:200px;">
+                        <label for="predHuman">Human(objek) &mdash; objek (pisahkan ;)</label>
+                        <input id="predHuman" class="fol-input" type="text" value="alice;bob;charlie" placeholder="alice;bob">
+                    </div>
+                    <button class="btn" onclick="evaluateFOL()">Evaluasi &#9654;</button>
+                    <button class="btn" onclick="loadPreset1()">Preset 1: Manusia</button>
+                    <button class="btn" onclick="loadPreset2()">Preset 2: Likes</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="folCanvas" width="900" height="420"></canvas>
+                </div>
+
+                <div id="folResults" style="margin-top:15px;"></div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:2s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Terjemahan FOL</h4>
+                    <p>Tuliskan kalimat FOL untuk pernyataan berikut:</p>
+                    <p>(a) "Semua orang yang suka编码 juga suka matematika."</p>
+                    <p>(b) "Ada seseorang yang tidak suka siapapun."</p>
+                    <p>(c) "Jika A menyukai B, maka B juga menyukai A."</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>(a) \(\forall x: \text{Likes}(x, \text{coding}) \Rightarrow \text{Likes}(x, \text{math})\)</p>
+                            <p>(b) \(\exists x: \forall y: \neg \text{Likes}(x, y)\)</p>
+                            <p>(c) \(\forall x, y: \text{Likes}(x, y) \Rightarrow \text{Likes}(y, x)\)</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Model Sederhana</h4>
+                    <p>Diberikan domain \(\mathcal{D} = \{a, b\}\) dan interpretasi: \(\text{Smart}(a)\) benar, \(\text{Smart}(b)\) salah. Tentukan nilai kebenaran:</p>
+                    <p>(a) \(\forall x: \text{Smart}(x)\)</p>
+                    <p>(b) \(\exists x: \text{Smart}(x)\)</p>
+                    <p>(c) \(\exists x: \neg \text{Smart}(x)\)</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>(a) <strong>Salah</strong> &mdash; \(b\) tidak smart.</p>
+                            <p>(b) <strong>Benar</strong> &mdash; \(a\) smart.</p>
+                            <p>(c) <strong>Benar</strong> &mdash; \(b\) tidak smart.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Urutan Kuantifikasi</h4>
+                    <p>Jelaskan perbedaan makna antara dua kalimat berikut:</p>
+                    <p>(a) \(\forall x \exists y: \text{Loves}(x, y)\)</p>
+                    <p>(b) \(\exists y \forall x: \text{Loves}(x, y)\)</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>(a) "Setiap orang mencintai setidaknya satu orang (yang bisa berbeda untuk setiap orang)." Setiap \(x\) punya \(y\)-nya sendiri.</p>
+                            <p>(b) "Ada satu orang yang dicintai oleh semua orang." Satu \(y\) berlaku untuk semua \(x\).</p>
+                            <p>(b) \(\Rightarrow\) (a), tapi (a) \(\not\Rightarrow\) (b). Urutan kuantifikasi mengubah makna secara fundamental.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:2.5s;">
+                <h2>Ringkasan</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <table>
+                        <tr><th>Konsep</th><th>Penjelasan</th></tr>
+                        <tr><td>Terms</td><td>Konstanta, variabel, fungsi &mdash; merujuk objek</td></tr>
+                        <tr><td>Atomic Sentences</td><td>Predikat atas terms + kesetaraan (=)</td></tr>
+                        <tr><td>Quantifiers</td><td>\(\forall\) (semua), \(\exists\) (ada) &mdash; generalisasi</td></tr>
+                        <tr><td>Model</td><td>Domain + interpretasi fungsi dan predikat</td></tr>
+                        <tr><td>Entailment</td><td>\(F \models G\): semua model \(F\) juga memenuhi \(G\)</td></tr>
+                    </table>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">&check;</div>
+                        <div><strong>FOL jauh lebih ekspresif</strong> daripada logika proposisional &mdash; satu kalimat FOL bisa menggantikan ribuan kalimat proposisional.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">&check;</div>
+                        <div><strong>Urutan kuantifikasi penting!</strong> \(\forall x \exists y\) dan \(\exists y \forall x\) memiliki makna berbeda secara fundamental.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">&check;</div>
+                        <div><strong>Trade-off:</strong> Ekspresivitas datang dengan biaya komputasi &mdash; inferensi FOL lebih kompleks daripada proposisional.</div>
+                    </div>
+                </div>
+                <p>Lanjut ke <a href="chapter9.html">Bab 9</a> untuk Inference in First-Order Logic (Resolution, Unification, Forward/Backward Chaining).</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 8</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter7.html" title="Sebelumnya: Bab 7">&larr; Bab 7</a>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <a class="navbtn" href="chapter9.html" title="Lanjut: Bab 9">Bab 9 &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== FOL INTERPRETER =====
+const cvs = document.getElementById('folCanvas');
+const ctx = cvs.getContext('2d');
+
+function parseDomain(str) {
+    return str.split(',').map(s => s.trim()).filter(s => s.length > 0);
+}
+
+function parsePairs(str) {
+    const pairs = [];
+    str.split(';').forEach(seg => {
+        const parts = seg.split(':').map(s => s.trim());
+        if (parts.length === 2 && parts[0] && parts[1]) pairs.push([parts[0], parts[1]]);
+    });
+    return pairs;
+}
+
+function parseSet(str) {
+    return str.split(';').map(s => s.trim()).filter(s => s.length > 0);
+}
+
+function tokenize(sentence) {
+    const tokens = [];
+    let i = 0;
+    const s = sentence.replace(/\s+/g, ' ').trim();
+    while (i < s.length) {
+        const ch = s[i];
+        if (ch === '(' || ch === ')' || ch === ',' || ch === '=') {
+            tokens.push(ch);
+            i++;
+        } else if (s.substr(i, 2) === '=>') {
+            tokens.push('=>');
+            i += 2;
+        } else if (s.substr(i, 2) === '<=') {
+            tokens.push('<=');
+            i += 2;
+        } else if (s.substr(i, 3) === '<=>') {
+            tokens.push('<=>');
+            i += 3;
+        } else if (s.substr(i, 2) === '&&') {
+            tokens.push('&&');
+            i += 2;
+        } else if (s.substr(i, 2) === '||') {
+            tokens.push('||');
+            i += 2;
+        } else if (s.substr(i, 6) === 'forall') {
+            tokens.push('forall');
+            i += 6;
+        } else if (s.substr(i, 6) === 'exists') {
+            tokens.push('exists');
+            i += 6;
+        } else if (ch === '!') {
+            tokens.push('!');
+            i++;
+        } else if (/[a-zA-Z0-9_]/.test(ch)) {
+            let word = '';
+            while (i < s.length && /[a-zA-Z0-9_]/.test(s[i])) {
+                word += s[i];
+                i++;
+            }
+            tokens.push(word);
+        } else if (ch === ' ') {
+            i++;
+        } else {
+            tokens.push(ch);
+            i++;
+        }
+    }
+    return tokens;
+}
+
+class Parser {
+    constructor(tokens) {
+        this.tokens = tokens;
+        this.pos = 0;
+    }
+    peek() { return this.pos < this.tokens.length ? this.tokens[this.pos] : null; }
+    consume() { return this.tokens[this.pos++]; }
+    match(tok) {
+        if (this.peek() === tok) { this.pos++; return true; }
+        return false;
+    }
+
+    parseSentence() {
+        return this.parseIff();
+    }
+
+    parseIff() {
+        let left = this.parseImplies();
+        while (this.peek() === '<=>') {
+            this.consume();
+            let right = this.parseImplies();
+            left = { type: 'iff', left, right };
+        }
+        return left;
+    }
+
+    parseImplies() {
+        let left = this.parseOr();
+        while (this.peek() === '=>') {
+            this.consume();
+            let right = this.parseOr();
+            left = { type: 'implies', left, right };
+        }
+        return left;
+    }
+
+    parseOr() {
+        let left = this.parseAnd();
+        while (this.peek() === '||') {
+            this.consume();
+            let right = this.parseAnd();
+            left = { type: 'or', left, right };
+        }
+        return left;
+    }
+
+    parseAnd() {
+        let left = this.parseUnary();
+        while (this.peek() === '&&') {
+            this.consume();
+            let right = this.parseUnary();
+            left = { type: 'and', left, right };
+        }
+        return left;
+    }
+
+    parseUnary() {
+        if (this.match('!')) {
+            return { type: 'not', child: this.parseUnary() };
+        }
+        if (this.peek() === 'forall' || this.peek() === 'exists') {
+            const q = this.consume();
+            const vars = [];
+            vars.push(this.consume());
+            while (this.match(',')) vars.push(this.consume());
+            this.match(':');
+            const child = this.parseSentence();
+            return { type: q, vars, child };
+        }
+        return this.parseAtom();
+    }
+
+    parseAtom() {
+        if (this.peek() === '(') {
+            this.consume();
+            const expr = this.parseSentence();
+            this.match(')');
+            return expr;
+        }
+        const name = this.consume();
+        if (this.peek() === '(') {
+            this.consume();
+            const args = [];
+            if (this.peek() !== ')') {
+                args.push(this.consume());
+                while (this.match(',')) args.push(this.consume());
+            }
+            this.match(')');
+            return { type: 'pred', name, args };
+        }
+        if (this.peek() === '=' || this.peek() === '==') {
+            this.consume();
+            const right = this.consume();
+            return { type: 'pred', name: '=', args: [name, right] };
+        }
+        return { type: 'var', name };
+    }
+}
+
+function parseFOL(sentence) {
+    const tokens = tokenize(sentence);
+    if (tokens.length === 0) return null;
+    const parser = new Parser(tokens);
+    return parser.parseSentence();
+}
+
+function evaluateAST(ast, domain, bindings, model) {
+    if (!ast) return false;
+    switch (ast.type) {
+        case 'pred': {
+            const argVals = ast.args.map(a => {
+                if (bindings[a] !== undefined) return bindings[a];
+                return a;
+            });
+            if (ast.name === '=') return argVals[0] === argVals[1];
+            const rel = model.predicates[ast.name];
+            if (!rel) return false;
+            return rel.some(pair => pair.length === argVals.length && pair.every((v, i) => v === argVals[i]));
+        }
+        case 'not': return !evaluateAST(ast.child, domain, bindings, model);
+        case 'and': return evaluateAST(ast.left, domain, bindings, model) && evaluateAST(ast.right, domain, bindings, model);
+        case 'or': return evaluateAST(ast.left, domain, bindings, model) || evaluateAST(ast.right, domain, bindings, model);
+        case 'implies': return !evaluateAST(ast.left, domain, bindings, model) || evaluateAST(ast.right, domain, bindings, model);
+        case 'iff': return evaluateAST(ast.left, domain, bindings, model) === evaluateAST(ast.right, domain, bindings, model);
+        case 'forall': {
+            const combos = getCombos(ast.vars, domain);
+            return combos.every(combo => {
+                const newB = { ...bindings };
+                ast.vars.forEach((v, i) => newB[v] = combo[i]);
+                return evaluateAST(ast.child, domain, newB, model);
+            });
+        }
+        case 'exists': {
+            const combos = getCombos(ast.vars, domain);
+            return combos.some(combo => {
+                const newB = { ...bindings };
+                ast.vars.forEach((v, i) => newB[v] = combo[i]);
+                return evaluateAST(ast.child, domain, newB, model);
+            });
+        }
+        case 'var': return false;
+        default: return false;
+    }
+}
+
+function getCombos(vars, domain) {
+    if (vars.length === 0) return [[]];
+    const rest = getCombos(vars.slice(1), domain);
+    const result = [];
+    for (const d of domain) {
+        for (const r of rest) {
+            result.push([d, ...r]);
+        }
+    }
+    return result;
+}
+
+function evaluateFOL() {
+    const domain = parseDomain(document.getElementById('domainInput').value);
+    if (domain.length === 0) { alert('Domain kosong!'); return; }
+
+    const lovesPairs = parsePairs(document.getElementById('predLoves').value);
+    const humanSet = parseSet(document.getElementById('predHuman').value);
+
+    const model = {
+        predicates: {
+            'Loves': lovesPairs,
+            'Human': humanSet.map(h => [h])
+        }
+    };
+
+    const sentences = document.getElementById('sentenceInput').value.split('\n').filter(s => s.trim());
+    const results = [];
+
+    for (const s of sentences) {
+        try {
+            const ast = parseFOL(s.trim());
+            if (ast) {
+                const val = evaluateAST(ast, domain, {}, model);
+                results.push({ text: s.trim(), value: val });
+            } else {
+                results.push({ text: s.trim(), value: null, error: 'Parse error' });
+            }
+        } catch (e) {
+            results.push({ text: s.trim(), value: null, error: e.message });
+        }
+    }
+
+    drawFOLCanvas(domain, model, results);
+    displayResults(results);
+}
+
+function displayResults(results) {
+    const el = document.getElementById('folResults');
+    el.innerHTML = results.map(r => {
+        if (r.error) {
+            return `<div class="fol-result fol-false"><strong>${r.text}</strong> &mdash; Error: ${r.error}</div>`;
+        }
+        const cls = r.value ? 'fol-true' : 'fol-false';
+        const label = r.value ? 'BENAR' : 'SALAH';
+        return `<div class="fol-result ${cls}"><strong>${r.text}</strong> &mdash; ${label}</div>`;
+    }).join('');
+}
+
+function drawFOLCanvas(domain, model, results) {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    // Title
+    ctx.fillStyle = '#0d47a1';
+    ctx.font = 'bold 16px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Model: Domain = {' + domain.join(', ') + '}', cvs.width / 2, 30);
+
+    // Draw domain objects
+    const objSpacing = Math.min(120, (cvs.width - 100) / domain.length);
+    const startX = (cvs.width - (domain.length - 1) * objSpacing) / 2;
+    const yObj = 80;
+
+    domain.forEach((obj, i) => {
+        const x = startX + i * objSpacing;
+        ctx.beginPath();
+        ctx.arc(x, yObj, 25, 0, 2 * Math.PI);
+        ctx.fillStyle = '#e3f2fd';
+        ctx.fill();
+        ctx.strokeStyle = '#1565c0';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#0d47a1';
+        ctx.font = 'bold 13px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(obj, x, yObj);
+    });
+
+    // Draw predicates table
+    const tableY = 140;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = 'bold 13px Segoe UI';
+    ctx.fillStyle = '#333';
+    ctx.fillText('Predikat: Loves(a,b)', 30, tableY);
+
+    const predY = tableY + 20;
+    ctx.font = '12px Segoe UI';
+    for (const [a, b] of model.predicates['Loves'] || []) {
+        ctx.fillStyle = '#555';
+        ctx.fillText(`${a} \u2192 ${b}`, 50, predY + model.predicates['Loves'].indexOf([a, b]) * 18);
+    }
+
+    ctx.font = 'bold 13px Segoe UI';
+    ctx.fillStyle = '#333';
+    ctx.fillText('Predikat: Human(x)', 30, predY + 80);
+
+    ctx.font = '12px Segoe UI';
+    for (const h of model.predicates['Human'] || []) {
+        const idx = model.predicates['Human'].indexOf(h);
+        ctx.fillStyle = '#555';
+        ctx.fillText(h[0], 50, predY + 100 + idx * 18);
+    }
+
+    // Draw relations on canvas
+    const relX = 300;
+    const relY = tableY + 10;
+    ctx.font = 'bold 13px Segoe UI';
+    ctx.fillStyle = '#333';
+    ctx.fillText('Relations (as edges):', relX, relY);
+
+    // Draw love arrows
+    const arrowY = relY + 30;
+    domain.forEach((fromObj, fi) => {
+        domain.forEach((toObj, ti) => {
+            if (fromObj === toObj) return;
+            const pairs = model.predicates['Loves'] || [];
+            if (pairs.some(p => p[0] === fromObj && p[1] === toObj)) {
+                const x1 = relX + 30 + fi * 90;
+                const x2 = relX + 30 + ti * 90;
+                const y1 = arrowY + fi * 40;
+                const y2 = arrowY + ti * 40;
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // arrowhead
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                ctx.beginPath();
+                ctx.moveTo(x2, y2);
+                ctx.lineTo(x2 - 8 * Math.cos(angle - 0.3), y2 - 8 * Math.sin(angle - 0.3));
+                ctx.lineTo(x2 - 8 * Math.cos(angle + 0.3), y2 - 8 * Math.sin(angle + 0.3));
+                ctx.closePath();
+                ctx.fillStyle = '#e74c3c';
+                ctx.fill();
+            }
+        });
+    });
+
+    // Draw results
+    const resY = 220;
+    ctx.font = 'bold 13px Segoe UI';
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'left';
+    ctx.fillText('Hasil Evaluasi:', 30, resY);
+
+    results.forEach((r, i) => {
+        const y = resY + 25 + i * 28;
+        ctx.font = '12px Fira Code, monospace';
+
+        if (r.value === true) {
+            ctx.fillStyle = '#2e7d32';
+            ctx.fillText('\u2713 BENAR', 30, y);
+            ctx.fillStyle = '#333';
+            ctx.fillText(r.text, 100, y);
+        } else if (r.value === false) {
+            ctx.fillStyle = '#c62828';
+            ctx.fillText('\u2717 SALAH', 30, y);
+            ctx.fillStyle = '#333';
+            ctx.fillText(r.text, 100, y);
+        } else {
+            ctx.fillStyle = '#ff8f00';
+            ctx.fillText('\u26A0 ERROR', 30, y);
+            ctx.fillStyle = '#333';
+            ctx.fillText(r.text + ' (' + r.error + ')', 100, y);
+        }
+    });
+
+    // Summary at bottom
+    const trueCount = results.filter(r => r.value === true).length;
+    const falseCount = results.filter(r => r.value === false).length;
+    ctx.font = 'bold 12px Segoe UI';
+    ctx.fillStyle = '#1565c0';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Ringkasan: ${trueCount} benar, ${falseCount} salah dari ${results.length} kalimat`, cvs.width / 2, cvs.height - 15);
+
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+}
+
+function loadPreset1() {
+    document.getElementById('domainInput').value = 'alice,bob,charlie';
+    document.getElementById('sentenceInput').value = 'forall x: Human(x)\nexists x: Loves(x,alice)\nforall x: Human(x) => Likes(x,bob)\nexists x: exists y: Loves(x,y)\nforall x: exists y: Loves(x,y)';
+    document.getElementById('predLoves').value = 'alice:bob;bob:alice;charlie:charlie';
+    document.getElementById('predHuman').value = 'alice;bob;charlie';
+    evaluateFOL();
+}
+
+function loadPreset2() {
+    document.getElementById('domainInput').value = 'a,b,c';
+    document.getElementById('sentenceInput').value = 'forall x: exists y: Likes(x,y)\nexists y: forall x: Likes(x,y)\nforall x: Likes(x,a)\nexists x: Likes(a,x)';
+    document.getElementById('predLoves').value = 'a:b;b:c;c:a;a:a';
+    document.getElementById('predHuman').value = 'a;b;c';
+    // Use "Likes" instead of "Loves" for this preset — adjust predicate name
+    document.getElementById('sentenceInput').value = 'forall x: exists y: Loves(x,y)\nexists y: forall x: Loves(x,y)\nforall x: Loves(x,a)\nexists x: Loves(a,x)';
+    evaluateFOL();
+}
+
+// Init
+evaluateFOL();
+</script>
+</body>
+</html>

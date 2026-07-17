@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 5: Adversarial Search and Games &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#e74c3c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(231,76,60,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#e74c3c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(231,76,60,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#e74c3c;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #e74c3c;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#c0392b;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #e74c3c;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#fdedec 0%,#f5b7b1 100%);}
+        .concept-card h4{color:#c0392b;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#e74c3c;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#e74c3c,#f39c12,#e74c3c);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(231,76,60,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(231,76,60,.4);background:linear-gradient(135deg,#c0392b,#e74c3c);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e74c3c,#f39c12,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(231,76,60,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #e74c3c;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#e74c3c;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#e74c3c;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        .game-status{font-size:1.3em;font-weight:700;text-align:center;padding:10px;border-radius:8px;margin:10px 0;color:#fff;background:linear-gradient(135deg,#c0392b,#e74c3c);}
+        .game-status.draw{background:linear-gradient(135deg,#7f8c8d,#95a5a6);}
+        .game-status.win{background:linear-gradient(135deg,#27ae60,#2ecc71);}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 5</h1>
+            <div class="subtitle">Adversarial Search and Games &mdash; AIMA 4th Edition</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter4b.html" title="Sebelumnya: Bab 4b">&#8592; Bab 4b</a>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 5</span>
+            <a class="navbtn" href="chapter6.html" title="Lanjut: Bab 6">Bab 6 &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#types">Jenis Permainan</a>
+            <a href="#minimax">Minimax</a>
+            <a href="#alphabeta">Alpha-Beta</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Bab ini membahas bagaimana agen membuat keputusan dalam lingkungan <strong>adversarial</strong> &mdash; di mana terdapat agen lain yang berusaha mengalahkannya. Ini adalah fondasi untuk AI dalam permainan seperti catur, Go, dan game strategi lainnya.</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Game Theory</h4>
+                        <p>Studi matematika tentang strategi interaktif antara dua atau lebih <em>agent</em> rasional dengan tujuan yang bertentangan.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">2</span> Zero-Sum Games</h4>
+                        <p>Keuntungan satu pemain = kerugian pemain lain. Nilai dari semua keadaan terminal dijumlahkan ke nol.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">3</span> Perfect Information</h4>
+                        <p>Semua pemain mengetahui keadaan permainan secara lengkap &mdash; tidak ada informasi tersembunyi.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Contoh:</strong> Dalam catur, MAX mencoba memaksimalkan nilai posisi, sementara MIN mencoba meminimalkannya. Tidak ada keberuntungan &mdash; kedua pemain bermain optimal.
+                </div>
+            </div>
+
+            <!-- TYPES OF GAMES -->
+            <div id="types" class="section" style="--delay:0.3s;">
+                <h2>Jenis-Jenis Permainan</h2>
+                <p>Permainan dapat diklasifikasikan berdasarkan enam dimensi. Memahami klasifikasi ini membantu memilih algoritma yang tepat.</p>
+
+                <table>
+                    <tr><th>Dimensi</th><th>Tipe A</th><th>Tipe B</th></tr>
+                    <tr><td><strong>Agensi</strong></td><td>Single-agent</td><td>Multi-agent</td></tr>
+                    <tr><td><strong>Determinisme</strong></td><td>Deterministic</td><td>Stochastic</td></tr>
+                    <tr><td><strong>Informasi</strong></td><td>Perfect information</td><td>Imperfect information</td></tr>
+                    <tr><td><strong>Episode</strong></td><td>Episodic</td><td>Sequential</td></tr>
+                    <tr><td><strong>Waktu</strong></td><td>Static</td><td>Dynamic</td></tr>
+                    <tr><td><strong>Keadaan</strong></td><td>Discrete</td><td>Continuous</td></tr>
+                </table>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">A</span> Single vs Multi-agent</h4>
+                        <p>Single-agent: agen berinteraksi dengan lingkungan tanpa agen lain (seperti puzzle). Multi-agent: dua atau lebih agen saling bersaing (seperti catur).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">B</span> Deterministic vs Stochastic</h4>
+                        <p>Deterministic: hasil aksi sepenuhnya dapat diprediksi (catur). Stochastic: ada elemen keacakan (dadu dalam monopoli).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">C</span> Perfect vs Imperfect Info</h4>
+                        <p>Perfect: keadaan penuh terlihat oleh semua pemain (catur, Go). Imperfect: ada informasi tersembunyi (poker, bridge).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.25s">
+                        <h4><span class="icon">D</span> Episodic vs Sequential</h4>
+                        <p>Episodic: keputusan saat ini tidak mempengaruhi keputusan masa depan. Sequential: setiap keputusan mempengaruhi keputusan berikutnya (sebagian besar game strategi).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">E</span> Static vs Dynamic</h4>
+                        <p>Static: lingkungan tidak berubah saat agen "berpikir". Dynamic: lingkungan berubah (game real-time seperti StarCraft).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.35s">
+                        <h4><span class="icon">F</span> Discrete vs Continuous</h4>
+                        <p>Discrete: jumlah keadaan dan aksi terbatas dan dapat dihitung (catur). Continuous: ruang keadaan kontinu (simulasi robot).</p>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Perhatian:</strong> Bab ini berfokus pada permainan <strong>deterministic, perfect information, sequential, static, discrete</strong> &mdash; yaitu game seperti catur dan Go. Game stochastic memerlukan ekstensi algoritma.
+                </div>
+            </div>
+
+            <!-- MINIMAX -->
+            <div id="minimax" class="section" style="--delay:0.6s;">
+                <h2>Optimal Decisions: Minimax Algorithm</h2>
+                <p>Dalam permainan zero-sum dengan informasi sempurna, kedua pemain bermain optimal. <strong>Minimax</strong> menemukan strategi optimal untuk kedua pemain dengan menghitung nilai setiap keadaan secara rekursif.</p>
+
+                <h3>Definisi Fundamental</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">U</span> Utility (Utilitas)</h4>
+                        <p>Nilai numerik dari keadaan terminal. MAX mendapat +1 untuk menang, -1 untuk kalah, 0 untuk seri.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">V</span> Minimax Value</h4>
+                        <p>Nilai keadaan dari sudut pandang MAX: nilai terbaik yang bisa dicapai MAX jika kedua pemain bermain optimal.</p>
+                    </div>
+                </div>
+
+                <div class="math">
+                    \[ \text{Minimax}(s) = \begin{cases} \text{Utility}(s) & \text{if Terminal}(s) \\ \max_{a \in \text{Actions}(s)} \text{Minimax}(\text{Result}(s,a)) & \text{if MAX's turn} \\ \min_{a \in \text{Actions}(s)} \text{Minimax}(\text{Result}(s,a)) & \text{if MIN's turn} \end{cases} \]
+                </div>
+
+                <h3>Algoritma Minimax (Rekursif)</h3>
+                <div class="math">
+                    \[ \begin{aligned} \text{function } &\text{MINIMAX-DECISION}(state): \\ &\text{return } \arg\max_{a} \text{MINIMAX}(\text{RESULT}(state, a)) \\\\ \text{function } &\text{MINIMAX}(state): \\ &\text{if TERMINAL-TEST}(state): \text{return } \text{UTILITY}(state) \\ &\text{if MAX: return } \max_{a} \text{MINIMAX}(\text{RESULT}(state, a)) \\ &\text{if MIN: return } \min_{a} \text{MINIMAX}(\text{RESULT}(state, a)) \end{aligned} \]
+                </div>
+
+                <h3>Sifat Algoritma</h3>
+                <table>
+                    <tr><th>Properti</th><th>Nilai</th><th>Keterangan</th></tr>
+                    <tr><td><strong>Lengkap</strong></td><td>Ya</td><td>Menemukan solusi jika ada (game tree finit)</td></tr>
+                    <tr><td><strong>Optimal</strong></td><td>Ya</td><td>Untuk game deterministik, informasi sempurna</td></tr>
+                    <tr><td><strong>Waktu</strong></td><td>\(O(b^m)\)</td><td>\(b\) = branching factor, \(m\) = kedalaman maksimal</td></tr>
+                    <tr><td><strong>Ruang</strong></td><td>\(O(bm)\)</td><td>Rekursi sekedalaman \(m\)</td></tr>
+                </table>
+
+                <div class="warning">
+                    <strong>Masalah:</strong> Untuk catur (\(b \approx 35\), \(m \approx 100\)), kompleksitas \(35^{100} \approx 10^{154}\) &mdash; mustahil dihitung langsung! Diperlukan <strong>pruning</strong> dan <strong>evaluation function</strong>.
+                </div>
+            </div>
+
+            <!-- ALPHA-BETA PRUNING -->
+            <div id="alphabeta" class="section" style="--delay:0.9s;">
+                <h2>Alpha-Beta Pruning</h2>
+                <p>Alpha-beta pruning memotong cabang pohon permainan yang <strong>tidak mempengaruhi keputusan akhir</strong> &mdash; tanpa mengubah hasilnya. Ini mengurangi kompleksitas eksponensial secara signifikan.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">&alpha;</span> Alpha (&alpha;)</h4>
+                        <p>Nilai terbaik (tertinggi) yang sudah dijamin untuk <strong>MAX</strong>. Dimulai dari \(-\infty\). MAX selalu mencari nilai &ge; &alpha;.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">&beta;</span> Beta (&beta;)</h4>
+                        <p>Nilai terbaik (terendah) yang sudah dijamin untuk <strong>MIN</strong>. Dimulai dari \(+\infty\). MIN selalu mencari nilai &le; &beta;.</p>
+                    </div>
+                </div>
+
+                <div class="math">
+                    \[ \text{Prune if } \alpha \geq \beta \]
+                </div>
+
+                <h3>Algoritma Alpha-Beta</h3>
+                <div class="math">
+                    \[ \begin{aligned} \text{function } &\text{ALPHA-BETA}(state, \alpha, \beta): \\ &\text{if TERMINAL-TEST}(state): \text{return } \text{UTILITY}(state) \\ &\text{if MAX:} \\ &\quad v = -\infty \\ &\quad \text{for each } a \text{ in ACTIONS}(state): \\ &\quad\quad v = \max(v, \text{ALPHA-BETA}(\text{RESULT}(state,a), \alpha, \beta)) \\ &\quad\quad \alpha = \max(\alpha, v) \\ &\quad\quad \text{if } \alpha \geq \beta: \text{break} \\ &\quad \text{return } v \\ &\text{if MIN:} \\ &\quad v = +\infty \\ &\quad \text{for each } a \text{ in ACTIONS}(state): \\ &\quad\quad v = \min(v, \text{ALPHA-BETA}(\text{RESULT}(state,a), \alpha, \beta)) \\ &\quad\quad \beta = \min(\beta, v) \\ &\quad\quad \text{if } \alpha \geq \beta: \text{break} \\ &\quad \text{return } v \end{aligned} \]
+                </div>
+
+                <h3>Mengapa Pruning Efektif?</h3>
+                <div class="note">
+                    <strong>Fakta penting:</strong> Dengan urutan simpul yang optimal, alpha-beta pruning dapat memotong jumlah simpul yang perlu dievaluasi dari \(O(b^m)\) menjadi \(O(b^{m/2})\) &mdash; secara efektif <strong>mendekati dua kali kedalaman</strong> yang bisa dihitung dalam waktu yang sama!
+                </div>
+
+                <h3>Perbandingan Kompleksitas</h3>
+                <table>
+                    <tr><th>Algoritma</th><th>Waktu</th><th>Ruang</th><th>Optimal?</th></tr>
+                    <tr><td>Minimax (vanilla)</td><td>\(O(b^m)\)</td><td>\(O(bm)\)</td><td>Ya</td></tr>
+                    <tr><td>Minimax + Alpha-Beta</td><td>\(O(b^{m/2})\) (kasus terbaik)</td><td>\(O(bm)\)</td><td>Ya</td></tr>
+                    <tr><td>Minimax + Alpha-Beta</td><td>\(O(b^m)\) (kasus terburuk)</td><td>\(O(bm)\)</td><td>Ya</td></tr>
+                </table>
+
+                <div class="warning">
+                    <strong>Catatan:</strong> Urutan simpul sangat mempengaruhi efektivitas pruning. Urutan terbaik &mdash; mengevaluasi langkah terbaik terlebih dahulu &mdash; memberikan pemotongan maksimal.
+                </div>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:1.2s;">
+                <h2>Simulasi Interaktif: Tic-Tac-Toe dengan Minimax + Alpha-Beta</h2>
+                <p>Anda bermain sebagai <strong>X</strong> (MAX) melawan AI sebagai <strong>O</strong> (MIN). AI menggunakan algoritma Minimax dengan Alpha-Beta Pruning &mdash; tidak akan pernah kalah!</p>
+
+                <div class="simulation-container">
+                    <div id="gameStatus" class="game-status">Giliran Anda (X)</div>
+                    <canvas id="gameCanvas" width="450" height="450"></canvas>
+                    <div style="text-align:center;margin:15px 0;">
+                        <button class="btn" onclick="resetGame()">Permainan Baru</button>
+                        <button class="btn" onclick="resetStats()">Reset Statistik</button>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0;">
+                    <div style="background:#f8f9fa;padding:15px;border-radius:8px;text-align:center;">
+                        <div style="font-size:2em;font-weight:700;color:#e74c3c;" id="statWin">0</div>
+                        <div style="color:#6c757d;">Menang (X)</div>
+                    </div>
+                    <div style="background:#f8f9fa;padding:15px;border-radius:8px;text-align:center;">
+                        <div style="font-size:2em;font-weight:700;color:#f39c12;" id="statDraw">0</div>
+                        <div style="color:#6c757d;">Seri</div>
+                    </div>
+                    <div style="background:#f8f9fa;padding:15px;border-radius:8px;text-align:center;">
+                        <div style="font-size:2em;font-weight:700;color:#27ae60;" id="statLose">0</div>
+                        <div style="color:#6c757d;">Kalah (O)</div>
+                    </div>
+                    <div style="background:#f8f9fa;padding:15px;border-radius:8px;text-align:center;">
+                        <div style="font-size:2em;font-weight:700;color:#3498db;" id="statNodes">0</div>
+                        <div style="color:#6c757d;">Node Dievaluasi</div>
+                    </div>
+                </div>
+
+                <div id="gameLog" style="background:#1a1a2e;color:#e0e0e0;padding:15px 20px;border-radius:8px;font-family:'Fira Code',monospace;font-size:.88em;max-height:150px;overflow-y:auto;margin-top:15px;"></div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:1.5s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Minimax pada Pohon Sederhana</h4>
+                    <p>Hitung nilai minimax untuk pohon permainan berikut (MAX di atas, MIN di bawah):</p>
+                    <p style="text-align:center;font-size:1.1em;">MAX &rarr; [MIN &rarr; (3, 5), MIN &rarr; (6, 9)], MAX &rarr; [MIN &rarr; (1, 2), MIN &rarr; (0, 7)]</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Sub-pohon kiri:</strong> MIN(min(3,5)) = 3, MIN(min(6,9)) = 6 &rarr; MAX(max(3,6)) = <strong>6</strong></p>
+                            <p><strong>Sub-pohon kanan:</strong> MIN(min(1,2)) = 1, MIN(min(0,7)) = 0 &rarr; MAX(max(1,0)) = <strong>1</strong></p>
+                            <p><strong>Akar:</strong> MAX(max(6,1)) = <strong>6</strong>. MAX harus memilih cabang kiri.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Alpha-Beta Pruning</h4>
+                    <p>Pada pohon yang sama, tentukan node mana yang bisa dipotong jika simpul dievaluasi dari kiri ke kanan.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Setelah MAX mengevaluasi cabang kiri dan mendapat nilai 6, &alpha; = 6. Ketika mengevaluasi cabang kanan, setelah MIN pertama mengembalikan 1, &alpha; = max(6, 1) = 6. Saat MIN kedua mengembalikan 0, &alpha; masih 6 &ge; &beta; = 0, sehingga sisa cabang kanan <strong>tidak perlu dievaluasi</strong>. Namun dalam contoh sederhana ini, semua leaf sudah dievaluasi. Pruning lebih efektif pada pohon yang lebih besar.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Tic-Tac-Toe Optimal</h4>
+                    <p>Mengapa pemain pertama (X) di Tic-Tac-Toe bisa selalu memaksakan seri dengan bermain optimal?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Tic-Tac-Toe adalah game yang <strong>solved</strong>. Jika kedua pemain bermain optimal, hasilnya selalu seri. X memiliki keunggulan first-move &mdash; X harus bermain di sudut atau tengah untuk memaksimalkan peluang. Jika X bermain optimal, O juga harus bermain optimal untuk seri. Jika O membuat kesalahan, X bisa menang. Ini dibuktikan dengan minimax pada seluruh game tree Tic-Tac-Toe yang hanya memiliki 255.168 keadaan yang mungkin.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Evaluasi Algoritma</h4>
+                    <p>Jelaskan mengapa alpha-beta pruning tidak mengubah hasil akhir minimax, tetapi hanya mempercepat komputasi.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Alpha-beta pruning hanya membuang cabang yang <strong>terbukti tidak mempengaruhi keputusan</strong>. Jika &alpha; &ge; &beta; pada simpul MIN, berarti MIN sudah menemukan jalur yang membuat MAX tidak akan memilih simpul ini (karena MAX punya opsi lebih baik di &alpha;). Sebaliknya untuk MAX. Karena cabang ini tidak akan dipilih oleh pemain optimal, hasilnya sama persis dengan minimax penuh.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:1.8s;">
+                <h2>Ringkasan</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">1</div>
+                        <div><strong>Minimax</strong> menemukan strategi optimal untuk game zero-sum dengan mengevaluasi rekursif semua kemungkinan &mdash; MAX memaksimalkan, MIN meminimalkan.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">2</div>
+                        <div><strong>Alpha-Beta Pruning</strong> memotong cabang yang tidak mempengaruhi keputusan &mdash; efektif mengurangi kompleksitas dari \(O(b^m)\) menjadi \(O(b^{m/2})\) dalam kasus terbaik.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">3</div>
+                        <div>Untuk game besar (catur, Go), minimax penuh tidak praktis. Diperlukan <strong>evaluation functions</strong>, <strong>depth limits</strong>, dan <strong>heuristics</strong>.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">4</div>
+                        <div>Permainan diklasifikasikan berdasarkan 6 dimensi: agensi, determinisme, informasi, episode, waktu, dan kontinuitas keadaan.</div>
+                    </div>
+                    <table style="margin-top:20px;">
+                        <tr><th>Algoritma</th><th>Lengkap?</th><th>Optimal?</th><th>Waktu (Best)</th><th>Waktu (Worst)</th><th>Ruang</th></tr>
+                        <tr><td>Minimax</td><td>Ya</td><td>Ya</td><td>\(O(b^m)\)</td><td>\(O(b^m)\)</td><td>\(O(bm)\)</td></tr>
+                        <tr><td>Alpha-Beta</td><td>Ya</td><td>Ya</td><td>\(O(b^{m/2})\)</td><td>\(O(b^m)\)</td><td>\(O(bm)\)</td></tr>
+                    </table>
+                </div>
+                <p>Lanjut ke <a href="chapter6.html">Bab 6</a> untuk Constraint Satisfaction Problems.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>AIMA Interactive Guide | Bab 5</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter4b.html" title="Sebelumnya: Bab 4b">&#8592; Bab 4b</a>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 5</span>
+                    <a class="navbtn" href="chapter6.html" title="Lanjut: Bab 6">Bab 6 &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== TIC-TAC-TOE AI =====
+const cvs = document.getElementById('gameCanvas');
+const ctx = cvs.getContext('2d');
+const CELL = 150;
+let board = Array(9).fill('');
+let gameOver = false;
+let currentPlayer = 'X';
+let stats = {win:0, draw:0, lose:0, nodes:0};
+
+const WIN_LINES = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+];
+
+function drawBoard() {
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0,0,cvs.width,cvs.height);
+
+    // Grid lines
+    ctx.strokeStyle = '#2c3e50';
+    ctx.lineWidth = 4;
+    for (let i = 1; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i*CELL, 10);
+        ctx.lineTo(i*CELL, cvs.height-10);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(10, i*CELL);
+        ctx.lineTo(cvs.width-10, i*CELL);
+        ctx.stroke();
+    }
+
+    // X and O
+    for (let i = 0; i < 9; i++) {
+        const col = i % 3, row = Math.floor(i/3);
+        const cx = col*CELL + CELL/2, cy = row*CELL + CELL/2;
+
+        if (board[i] === 'X') {
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(cx-40, cy-40);
+            ctx.lineTo(cx+40, cy+40);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx+40, cy-40);
+            ctx.lineTo(cx-40, cy+40);
+            ctx.stroke();
+        } else if (board[i] === 'O') {
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 40, 0, 2*Math.PI);
+            ctx.stroke();
+        }
+    }
+}
+
+function checkWinner(b) {
+    for (const [a,c,d] of WIN_LINES) {
+        if (b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
+    }
+    return null;
+}
+
+function getEmpty(b) {
+    return b.map((v,i) => v === '' ? i : -1).filter(i => i >= 0);
+}
+
+// ===== MINIMAX WITH ALPHA-BETA =====
+let nodeCount = 0;
+
+function minimax(b, depth, isMax, alpha, beta) {
+    nodeCount++;
+    const w = checkWinner(b);
+    if (w === 'O') return 10 - depth;
+    if (w === 'X') return depth - 10;
+    if (getEmpty(b).length === 0) return 0;
+
+    if (isMax) {
+        let best = -Infinity;
+        for (const i of getEmpty(b)) {
+            b[i] = 'X';
+            best = Math.max(best, minimax(b, depth+1, false, alpha, beta));
+            b[i] = '';
+            alpha = Math.max(alpha, best);
+            if (alpha >= beta) break;
+        }
+        return best;
+    } else {
+        let best = Infinity;
+        for (const i of getEmpty(b)) {
+            b[i] = 'O';
+            best = Math.min(best, minimax(b, depth+1, true, alpha, beta));
+            b[i] = '';
+            beta = Math.min(beta, best);
+            if (alpha >= beta) break;
+        }
+        return best;
+    }
+}
+
+function aiMove() {
+    if (gameOver) return;
+    nodeCount = 0;
+    let bestScore = Infinity;
+    let bestMove = -1;
+
+    for (const i of getEmpty(board)) {
+        board[i] = 'O';
+        const score = minimax(board, 0, true, -Infinity, Infinity);
+        board[i] = '';
+        if (score < bestScore) {
+            bestScore = score;
+            bestMove = i;
+        }
+    }
+
+    stats.nodes += nodeCount;
+    document.getElementById('statNodes').textContent = stats.nodes;
+
+    if (bestMove >= 0) {
+        board[bestMove] = 'O';
+        logGame('AI memilih sel ' + bestMove + ' (evaluasi ' + nodeCount + ' node)');
+        drawBoard();
+        checkGameEnd();
+        if (!gameOver) {
+            currentPlayer = 'X';
+            setStatus('Giliran Anda (X)');
+        }
+    }
+}
+
+function checkGameEnd() {
+    const w = checkWinner(board);
+    if (w) {
+        gameOver = true;
+        if (w === 'X') {
+            stats.win++;
+            setStatus('Anda Menang! 🎉', 'win');
+            logGame('>> X MENANG!');
+        } else {
+            stats.lose++;
+            setStatus('AI Menang!', 'lose');
+            logGame('>> O MENANG!');
+        }
+        updateStats();
+    } else if (getEmpty(board).length === 0) {
+        gameOver = true;
+        stats.draw++;
+        setStatus('Seri!', 'draw');
+        logGame('>> SERI');
+        updateStats();
+    }
+}
+
+function setStatus(text, type) {
+    const el = document.getElementById('gameStatus');
+    el.textContent = text;
+    el.className = 'game-status' + (type ? ' ' + type : '');
+}
+
+function updateStats() {
+    document.getElementById('statWin').textContent = stats.win;
+    document.getElementById('statDraw').textContent = stats.draw;
+    document.getElementById('statLose').textContent = stats.lose;
+}
+
+function logGame(msg) {
+    const log = document.getElementById('gameLog');
+    log.innerHTML += msg + '\n';
+    log.scrollTop = log.scrollHeight;
+}
+
+cvs.addEventListener('click', function(e) {
+    if (gameOver || currentPlayer !== 'X') return;
+    const rect = cvs.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (cvs.width / rect.width);
+    const y = (e.clientY - rect.top) * (cvs.height / rect.height);
+    const col = Math.floor(x / CELL);
+    const row = Math.floor(y / CELL);
+    const idx = row * 3 + col;
+
+    if (idx < 0 || idx > 8 || board[idx] !== '') return;
+
+    board[idx] = 'X';
+    logGame('Anda memilih sel ' + idx);
+    drawBoard();
+    checkGameEnd();
+
+    if (!gameOver) {
+        currentPlayer = 'O';
+        setStatus('AI berpikir...');
+        setTimeout(aiMove, 300);
+    }
+});
+
+function resetGame() {
+    board = Array(9).fill('');
+    gameOver = false;
+    currentPlayer = 'X';
+    setStatus('Giliran Anda (X)');
+    document.getElementById('gameLog').innerHTML = '';
+    drawBoard();
+}
+
+function resetStats() {
+    stats = {win:0, draw:0, lose:0, nodes:0};
+    updateStats();
+    document.getElementById('statNodes').textContent = '0';
+}
+
+drawBoard();
+</script>
+</body>
+</html>

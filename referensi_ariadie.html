@@ -6435,7 +6435,7 @@
             // Keywords list
             let keywordsHtml = '<p class="text-muted" style="margin-top: 0.25rem;">N/A</p>';
             if (ref.keywords) {
-                const kws = ref.keywords.split(/\s*[,;]\s*/).filter(Boolean);
+                const kws = ref.keywords.split(/\\s*[,;]\\s*/).filter(Boolean);
                 keywordsHtml = `<div class="toggle-buttons keyword-badges" style="margin-top:0.5rem; display:flex; flex-wrap:wrap; gap:0.35rem;">` + 
                     kws.map(k => `<span class="badge badge-other keyword-badge" style="margin:0;">${escapeHtml(k)}</span>`).join('') + 
                     `</div>`;
@@ -6495,6 +6495,13 @@
 
                 <div style="margin-top:1.5rem; padding-top:1.5rem; border-top: 1px solid var(--border-color);">
 
+                    <!-- NAVIGATION (tengah) -->
+                    <div style="margin:0.75rem 0; padding:0.75rem 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                        <button class="btn-theme" onclick="prevDetailItem()">◀ Sebelum</button>
+                        <span class="stats-text" style="font-weight:600; color:var(--text-muted);">[ ${currIndex} / ${totalCount} ]</span>
+                        <button class="btn-theme" onclick="nextDetailItem()">Sesudah ▶</button>
+                    </div>
+
                     <!-- EN-Khusus coded abstract block (collapsible, state persists across refs) -->
                     <div id="en-khusus-block-${ref.id}" style="margin-bottom:1.25rem;">
                         <h4 id="en-khusus-header" class="toggle-title" style="font-size:0.8rem; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:0.6rem; cursor:pointer; user-select:none;" onclick="toggleEnKhusus()">🔬 Analisis Retorika Abstrak (Color-Coded) ▶</h4>
@@ -6510,12 +6517,16 @@
                         </div>
                     </div>
 
-                    <h4 class="toggle-title" style="font-size:0.8rem; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:0.5rem;">Abstrak (Abstract)</h4>
-                    <p style="line-height:1.6; text-align:justify; color:var(--text-secondary); font-size:0.95rem;">${abstractText}</p>
+                    <div style="background:#f0f7ff; border-radius:0.5rem; padding:1rem;">
+                        <h4 style="font-size:0.8rem; letter-spacing:0.05em; color:var(--text-muted); font-weight:600; margin:0 0 0.5rem 0;">Abstract</h4>
+                        <p style="line-height:1.6; text-align:justify; color:var(--text-secondary); font-size:0.95rem; margin:0;">${abstractText}</p>
+                    </div>
 
                     <div id="indonesian-abstract-block-${ref.id}" style="display: none; margin-top: 1rem; border-top: 1px dashed var(--border-color); padding-top: 1rem;">
-                        <h4 class="toggle-title" style="font-size:0.8rem; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:0.5rem;">🇮🇩 Abstrak Bahasa Indonesia</h4>
-                        <p id="indonesian-abstract-text-${ref.id}" style="line-height:1.6; text-align:justify; color:var(--text-secondary); font-size:0.95rem;"></p>
+                        <div style="background:#f0fdf4; border-radius:0.5rem; padding:1rem; margin-top:0.5rem;">
+                            <h4 style="font-size:0.8rem; letter-spacing:0.05em; color:var(--text-muted); font-weight:600; margin:0 0 0.5rem 0;">Abstrak</h4>
+                            <p id="indonesian-abstract-text-${ref.id}" style="line-height:1.6; text-align:justify; color:var(--text-secondary); font-size:0.95rem; margin:0;"></p>
+                        </div>
                     </div>
                 </div>
 
@@ -7705,8 +7716,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-

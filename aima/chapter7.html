@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 7: Logical Agents — Propositional Logic — AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1565c0 0%,#1976d2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#1976d2;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(25,118,210,.3);}
+        .chapternav{background:#1565c0;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#1976d2;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(25,118,210,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#1976d2;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#1565c0;border-left:5px solid #1976d2;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#1976d2;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #1976d2;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);}
+        .concept-card h4{color:#1976d2;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#1976d2;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#1565c0,#1976d2,#42a5f5);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#1976d2;box-shadow:0 0 0 3px rgba(25,118,210,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#1976d2,#1565c0);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(25,118,210,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(25,118,210,.4);background:linear-gradient(135deg,#1565c0,#1976d2);}
+        .summary-box{background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-left:5px solid #1976d2;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#1976d2;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#1565c0;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1565c0,#1976d2,#42a5f5);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(25,118,210,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#1565c0;}
+        .math{background:#f4f6f8;border-left:4px solid #1976d2;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#1976d2;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#1976d2;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        .truth-table-container{margin:20px 0;overflow-x:auto;}
+        .truth-table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .truth-table th{background:#1976d2;color:#fff;padding:12px 15px;text-align:center;font-weight:600;}
+        .truth-table td{padding:10px 15px;text-align:center;border:1px solid #dee2e6;}
+        .truth-table tr:nth-child(even){background:#f8f9fa;}
+        .truth-table tr:hover{background:#e3f2fd;}
+        .truth-table .highlight-row{background:#bbdefb;font-weight:600;}
+        .truth-table .satisfying{background:#c8e6c9;color:#2e7d32;}
+        .truth-table .falsifying{background:#ffcdd2;color:#c62828;}
+        .kb-input{display:flex;flex-direction:column;gap:10px;margin:20px 0;}
+        .kb-input input,.kb-input textarea{padding:12px;border:2px solid #dee2e6;border-radius:6px;font-size:14px;transition:all .3s ease;}
+        .kb-input input:focus,.kb-input textarea:focus{border-color:#1976d2;outline:none;box-shadow:0 0 0 3px rgba(25,118,210,.1);}
+        .kb-sentences{margin:10px 0;padding:15px;background:#f8f9fa;border-radius:8px;}
+        .kb-sentence{display:inline-block;padding:5px 10px;background:#e3f2fd;border-radius:4px;margin:4px;font-family:monospace;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 7: Logical Agents</h1>
+            <div class="subtitle">Propositional Logic — AIMA 4th Edition</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter6.html" title="Sebelumnya: Bab 6">← Bab 6</a>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 7</span>
+            <a class="navbtn" href="chapter8.html" title="Lanjut: Bab 8">Bab 8 →</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#kba">Knowledge-Based Agents</a>
+            <a href="#pl">Propositional Logic</a>
+            <a href="#kb">Knowledge Base</a>
+            <a href="#entailment">Entailment</a>
+            <a href="#model-checking">Model Checking</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Bab ini membahas <strong>agen berbasis pengetahuan</strong> (knowledge-based agents) yang menggunakan logika proposisional untuk merepresentasikan dan menalar pengetahuan tentang dunia. Agen seperti ini mampu membuat keputusan berdasarkan fakta yang diketahui dan aturan logis.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Knowledge-Based Agents</h4>
+                        <p>Agen yang memisahkan pengetahuan (KB) dari mekanisme penalaran. Pengetahuan direpresentasikan dalam bahasa logis, dan inference engine menarik kesimpulan baru.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">2</span> Propositional Logic</h4>
+                        <p>Bahasa logis paling sederhana: simbol proposisi, connective logika, dan semantik berdasarkan kebenaran (truth-functional).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">3</span> Entailment & Inference</h4>
+                        <p>KB ⊧ α berarti α logis mengikuti dari KB. Inferensi formal (KB ⊢ α) menarik kesimpulan yang dijamin benar jika KB benar.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KNOWLEDGE-BASED AGENTS -->
+            <div id="kba" class="section" style="--delay:0.3s;">
+                <h2>Knowledge-Based Agents (Agen Berbasis Pengetahuan)</h2>
+                <p>Agen berbasis pengetahuan beroperasi dengan membangun dan menggunakan <strong>knowledge base</strong> (KB) — kumpulan pengetahuan tentang dunia yang direpresentasikan dalam bahasa formal.</p>
+
+                <h3>Arsitektur</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">KB</span> Knowledge Base</h4>
+                        <p>Himpunan kalimat (sentences) dalam bahasa logis yang merepresentasikan pengetahuan agen tentang dunia. Bisa berupa fakta, aturan, atau keduanya.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">IE</span> Inference Engine</h4>
+                        <p>Mekanisme yang menarik kesimpulan baru dari KB. Melakukan deduksi logis untuk menjawab pertanyaan atau mengambil keputusan.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">P</span> Perception</h4>
+                        <p>Input dari sensor atau lingkungan. Persepsi ditambahkan ke KB sebagai pengetahuan baru tentang keadaan dunia saat ini.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Dua Level Analisis:</strong>
+                    <ul>
+                        <li><strong>Knowledge Level:</strong> Apa yang agen tahu dan bagaimana ia menggunakan pengetahuan itu untuk bertindak (tanpa memperhatikan implementasi).</li>
+                        <li><strong>Implementation Level:</strong> Bagaimana pengetahuan sebenarnya direpresentasikan dan diproses dalam komputer.</li>
+                    </ul>
+                </div>
+
+                <h3>Program Agen Berbasis Pengetahuan</h3>
+                <div class="math">
+                    \[ \text{KB} = \text{Tell}(\text{KB}, \text{perception}) \]
+                    \[ \text{action} = \text{Ask}(\text{KB}, \text{query}) \]
+                </div>
+                <p>Agen menerima <em>perception</em>, menambahkannya ke KB dengan <code>Tell</code>, lalu menanyakan apa yang harus dilakukan dengan <code>Ask</code>.</p>
+            </div>
+
+            <!-- PROPOSITIONAL LOGIC -->
+            <div id="pl" class="section" style="--delay:0.6s;">
+                <h2>Propositional Logic (Logika Proposisi)</h2>
+                <p>Logika proposisional adalah bahasa logis paling dasar yang menggunakan <strong>simbol proposisi</strong> (huruf kapital seperti \(P, Q, R\)) dan <strong>connective logika</strong> untuk membentuk kalimat kompleks.</p>
+
+                <h3>Sintaks (Syntax)</h3>
+                <p>Kalimat logika proposisional dibentuk dari:</p>
+                <div class="math">
+                    \[ \text{Proposisi} \;::=\; \text{True} \mid \text{False} \mid P \mid Q \mid R \mid \ldots \]
+                    \[ \text{Kalimat} \;::=\; \text{Proposisi} \mid \neg \alpha \mid \alpha \land \beta \mid \alpha \lor \beta \mid \alpha \rightarrow \beta \mid \alpha \leftrightarrow \beta \]
+                </div>
+
+                <h3>Connective Logika</h3>
+                <table>
+                    <tr><th>Connective</th><th>Simbol</th><th>Notasi</th><th>Penjelasan</th></tr>
+                    <tr><td>Negation</td><td>\(\neg\)</td><td>\(\neg P\)</td><td>"bukan P"</td></tr>
+                    <tr><td>Conjunction</td><td>\(\land\)</td><td>\(P \land Q\)</td><td>"P dan Q"</td></tr>
+                    <tr><td>Disjunction</td><td>\(\lor\)</td><td>\(P \lor Q\)</td><td>"P atau Q" (inklusif)</td></tr>
+                    <tr><td>Implication</td><td>\(\rightarrow\)</td><td>\(P \rightarrow Q\)</td><td>"jika P maka Q"</td></tr>
+                    <tr><td>Biconditional</td><td>\(\leftrightarrow\)</td><td>\(P \leftrightarrow Q\)</td><td>"P jika dan hanya jika Q"</td></tr>
+                </table>
+
+                <h3>Semantik (Semantics)</h3>
+                <p>Semantik logika proposisional didefinisikan dengan <strong>truth tables</strong>. Setiap kalimat memiliki nilai kebenaran (true/false) yang ditentukan oleh penugasan kebenaran variabel proposisi.</p>
+
+                <div class="warning">
+                    <strong>Prioritas Operator:</strong> \(\neg\) (paling tinggi) > \(\land\) > \(\lor\) > \(\rightarrow\) > \(\leftrightarrow\) (paling rendah).
+                </div>
+
+                <h3>Model</h3>
+                <p><strong>Model</strong> adalah penugasan kebenaran untuk setiap variabel proposisi. Untuk \(n\) variabel, terdapat \(2^n\) model yang mungkin.</p>
+                <div class="math">
+                    \[ m(P, Q) = \{ \langle T,T \rangle, \langle T,F \rangle, \langle F,T \rangle, \langle F,F \rangle \} \]
+                </div>
+            </div>
+
+            <!-- KNOWLEDGE BASE -->
+            <div id="kb" class="section" style="--delay:0.9s;">
+                <h2>Knowledge Base (Basis Pengetahuan)</h2>
+                <p><strong>Knowledge Base (KB)</strong> adalah himpunan kalimat (sentences) dalam logika proposisional yang merepresentasikan seluruh pengetahuan agen tentang dunia.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">F</span> Fakta</h4>
+                        <p>Pernyataan tentang keadaan dunia yang diketahui benar. Contoh: \(Breeze\) (ruangan berangin), \(Pit\) (ada lubang).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">R</span> Aturan</h4>
+                        <p>Hubungan logis antar fakta. Contoh: \(Breeze \rightarrow Pit\) (jika berangin, ada lubang di sekitar).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">T</span> Tell & Ask</h4>
+                        <p><code>Tell(KB, α)</code>: menambah kalimat α ke KB. <code>Ask(KB, α)</code>: menanyakan apakah α logis mengikuti dari KB.</p>
+                    </div>
+                </div>
+
+                <h3>Contoh: Wumpus World</h3>
+                <p>Dalam Wumpus World, agen menggunakan KB untuk menyimpulkan keamanan langkah:</p>
+                <div class="math">
+                    \[ KB = \{ Breeze, \; Breeze \rightarrow Pit, \; \ldots \} \]
+                    \[ Ask(KB, Pit_{1,2}) \rightarrow \text{True (ada lubang di (1,2))} \]
+                </div>
+
+                <div class="note">
+                    <strong>Cara Kerja:</strong>
+                    <ol>
+                        <li>Agen mengamati lingkungan (misal: merasakan angin)</li>
+                        <li>Persepsi ditambahkan ke KB: <code>Tell(KB, Breeze)</code></li>
+                        <li>Aturan sudah ada di KB: <code>Tell(KB, Breeze → Pit)</code></li>
+                        <li>Agen bertanya: <code>Ask(KB, Pit)</code></li>
+                        <li>Inference engine menyimpulkan: <code>Pit</code> adalah benar</li>
+                        <li>Agen menghindari lubang tersebut</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- ENTAILMENT -->
+            <div id="entailment" class="section" style="--delay:1.2s;">
+                <h2>Entailment (Pengikut-logisan)</h2>
+                <p><strong>Entailment</strong> (ditulis \(\models\)) adalah hubungan logis antara kalimat: α logis mengikuti dari KB jika α benar dalam semua model di mana KB benar.</p>
+
+                <div class="math">
+                    \[ KB \models \alpha \;\;\Leftrightarrow\;\; \text{Untuk semua model } m: \text{ jika } m \models KB \text{ maka } m \models \alpha \]
+                </div>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">⊨</span> Entailment</h4>
+                        <p>\(KB \models \alpha\): α adalah konsekuensi logis dari KB. Jika KB benar, α pasti benar.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">⊢</span> Inference</h4>
+                        <p>\(KB \vdash \alpha\): α dapat ditarik dari KB melalui aturan inferensi formal (prosedural).</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Soundness & Completeness:</strong>
+                    <ul>
+                        <li><strong>Sound (Benar):</strong> Jika \(KB \vdash \alpha\) maka \(KB \models \alpha\). Setiap kesimpulan yang ditarik benar secara logis.</li>
+                        <li><strong>Complete (Lengkap):</strong> Jika \(KB \models \alpha\) maka \(KB \vdash \alpha\). Semua kesimpulan logis dapat ditarik.</li>
+                    </ul>
+                </div>
+
+                <h3>Contoh Entailment</h3>
+                <table>
+                    <tr><th>KB</th><th>Query α</th><th>Entails?</th><th>Alasan</th></tr>
+                    <tr><td>\(\{P, P \rightarrow Q\}\)</td><td>\(Q\)</td><td>Ya</td><td>Modus Ponens</td></tr>
+                    <tr><td>\(\{P \rightarrow Q\}\)</td><td>\(P \rightarrow Q\)</td><td>Ya</td><td>Identitas</td></tr>
+                    <tr><td>\(\{P\}\)</td><td>\(P \lor Q\)</td><td>Ya</td><td>Addition</td></tr>
+                    <tr><td>\(\{P \rightarrow Q, Q \rightarrow R\}\)</td><td>\(P \rightarrow R\)</td><td>Ya</td><td>Hypothetical Syllogism</td></tr>
+                    <tr><td>\(\{P\}\)</td><td>\(P \land Q\)</td><td>Tidak</td><td>Q mungkin salah</td></tr>
+                </table>
+            </div>
+
+            <!-- MODEL CHECKING -->
+            <div id="model-checking" class="section" style="--delay:1.5s;">
+                <h2>Model Checking (Truth Table Enumeration)</h2>
+                <p>Algoritma paling sederhana untuk menentukan entailment adalah <strong>model checking</strong> — memeriksa semua model untuk melihat apakah query benar di semua model yang memuaskan KB.</p>
+
+                <div class="math">
+                    \[ KB \models \alpha \;\;\Leftrightarrow\;\; \text{Untuk semua } m \in \text{models}(KB): m \models \alpha \]
+                </div>
+
+                <h3>Algoritma</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Langkah 1</h4>
+                        <p>Identifikasi semua variabel proposisi yang muncul di KB atau query α.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">2</span> Langkah 2</h4>
+                        <p>Enumerasi semua \(2^n\) model (penugasan kebenaran) untuk n variabel.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">3</span> Langkah 3</h4>
+                        <p>Untuk setiap model, evaluasi KB dan α. Catat model di mana KB benar.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.25s">
+                        <h4><span class="icon">4</span> Langkah 4</h4>
+                        <p>Jika α benar di semua model yang memuaskan KB, maka \(KB \models \alpha\).</p>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Kompleksitas:</strong> Model checking memiliki kompleksitas waktu \(O(2^n)\) di mana n jumlah variabel. Tidak skalabel untuk masalah besar, tapi berguna untuk masalah kecil dan sebagai dasar pemahaman.
+                </div>
+
+                <h3>Contoh: Truth Table</h3>
+                <p>Untuk \(KB = \{P, P \rightarrow Q\}\) dan query \(Q\):</p>
+                <table>
+                    <tr><th>P</th><th>Q</th><th>P → Q</th><th>KB = P ∧ (P → Q)</th><th>Q</th><th>KB ⊧ Q?</th></tr>
+                    <tr class="highlight-row"><td>T</td><td>T</td><td>T</td><td style="background:#c8e6c9;font-weight:bold">T</td><td style="background:#c8e6c9;font-weight:bold">T</td><td>Ya</td></tr>
+                    <tr><td>T</td><td>F</td><td>F</td><td>F</td><td>F</td><td>—</td></tr>
+                    <tr><td>F</td><td>T</td><td>T</td><td>F</td><td>T</td><td>—</td></tr>
+                    <tr><td>F</td><td>F</td><td>T</td><td>F</td><td>F</td><td>—</td></tr>
+                </table>
+                <p>KB hanya benar pada model \(\langle T,T \rangle\), dan di model itu Q juga benar. Jadi \(KB \models Q\).</p>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>Simulasi Interaktif: Truth Table & Model Checker</h2>
+                <p>Masukkan kalimat logika proposisional dan lihat truth table-nya. Anda juga dapat menambahkan kalimat ke Knowledge Base dan memeriksa entailment.</p>
+
+                <div class="controls">
+                    <div class="control-group" style="min-width:300px;">
+                        <label for="sentenceInput">Kalimat Logika (gunakan: P, Q, R, S, ¬, ∧, ∨, →, ↔, ())</label>
+                        <input type="text" id="sentenceInput" value="P ∧ Q → R" placeholder="Contoh: P ∧ Q → R">
+                    </div>
+                    <div class="control-group">
+                        <label for="addSentenceBtn">Aksi</label>
+                        <button class="btn" onclick="generateTruthTable()">Generate Truth Table</button>
+                        <button class="btn" onclick="addToKB()">Tambah ke KB</button>
+                    </div>
+                    <div class="control-group" style="min-width:250px;">
+                        <label for="queryInput">Query untuk Entailment Check</label>
+                        <input type="text" id="queryInput" value="" placeholder="Contoh: Q">
+                        <button class="btn" onclick="checkEntailment()">Cek Entailment</button>
+                    </div>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="truthCanvas" width="900" height="500"></canvas>
+                </div>
+
+                <div class="kb-sentences">
+                    <h4>Knowledge Base (KB):</h4>
+                    <div id="kbList">
+                        <span class="kb-sentence" style="background:#ffcdd2;color:#c62828;">KB kosong — tambahkan kalimat</span>
+                    </div>
+                    <button class="btn" onclick="clearKB()" style="margin-top:10px;background:linear-gradient(135deg,#e53935,#c62828);">Reset KB</button>
+                </div>
+
+                <div id="truthTableContainer" class="truth-table-container"></div>
+
+                <div id="entailmentResult" style="display:none;margin:20px 0;padding:20px;border-radius:8px;"></div>
+
+                <div id="truthTableLog" style="background:#1a1a2e;color:#e0e0e0;padding:15px 20px;border-radius:8px;font-family:'Fira Code',monospace;font-size:.88em;max-height:200px;overflow-y:auto;margin-top:15px;"></div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Sintaks Logika Proposisi</h4>
+                    <p>Tuliskan kalimat logika untuk pernyataan berikut menggunakan simbol proposisi:</p>
+                    <p>(a) "Jika cuaca cerah dan tidak hujan, maka saya pergi ke taman."</p>
+                    <p>(b) "Saya tidak pergi ke taman atau saya membawa payung."</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Misalkan: \(C\) = cuaca cerah, \(H\) = hujan, \(T\) = pergi ke taman, \(P\) = bawa payung.</p>
+                            <p>(a) \((C \land \neg H) \rightarrow T\)</p>
+                            <p>(b) \(\neg T \lor P\)</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Truth Table</h4>
+                    <p>Buat truth table untuk \((P \rightarrow Q) \leftrightarrow (\neg P \lor Q)\) dan tentukan apakah kedua kalimat itu ekuivalen.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <table>
+                                <tr><th>P</th><th>Q</th><th>P → Q</th><th>¬P</th><th>¬P ∨ Q</th><th>(P → Q) ↔ (¬P ∨ Q)</th></tr>
+                                <tr><td>T</td><td>T</td><td>T</td><td>F</td><td>T</td><td style="background:#c8e6c9;font-weight:bold">T</td></tr>
+                                <tr><td>T</td><td>F</td><td>F</td><td>F</td><td>F</td><td style="background:#c8e6c9;font-weight:bold">T</td></tr>
+                                <tr><td>F</td><td>T</td><td>T</td><td>T</td><td>T</td><td style="background:#c8e6c9;font-weight:bold">T</td></tr>
+                                <tr><td>F</td><td>F</td><td>T</td><td>T</td><td>T</td><td style="background:#c8e6c9;font-weight:bold">T</td></tr>
+                            </table>
+                            <p>Biconditional selalu benar (tautology). Jadi \((P \rightarrow Q) \equiv (\neg P \lor Q)\) — mereka ekuivalen logis.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Entailment</h4>
+                    <p>Tentukan apakah \(KB = \{P \rightarrow Q, Q \rightarrow R\}\) entails \(P \rightarrow R\). Gunakan model checking.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <table>
+                                <tr><th>P</th><th>Q</th><th>R</th><th>P→Q</th><th>Q→R</th><th>KB</th><th>P→R</th></tr>
+                                <tr><td>T</td><td>T</td><td>T</td><td>T</td><td>T</td><td style="background:#c8e6c9;font-weight:bold">T</td><td style="background:#c8e6c9;font-weight:bold">T</td></tr>
+                                <tr><td>T</td><td>T</td><td>F</td><td>T</td><td>F</td><td>F</td><td>F</td></tr>
+                                <tr><td>T</td><td>F</td><td>T</td><td>F</td><td>T</td><td>F</td><td>T</td></tr>
+                                <tr><td>T</td><td>F</td><td>F</td><td>F</td><td>T</td><td>F</td><td>F</td></tr>
+                                <tr><td>F</td><td>T</td><td>T</td><td>T</td><td>T</td><td style="background:#c8e6c9;font-weight:bold">T</td><td style="background:#c8e6c9;font-weight:bold">T</td></tr>
+                                <tr><td>F</td><td>T</td><td>F</td><td>T</td><td>F</td><td>F</td><td>T</td></tr>
+                                <tr><td>F</td><td>F</td><td>T</td><td>T</td><td>T</td><td style="background:#c8e6c9;font-weight:bold">T</td><td style="background:#c8e6c9;font-weight:bold">T</td></tr>
+                                <tr><td>F</td><td>F</td><td>F</td><td>T</td><td>T</td><td style="background:#c8e6c9;font-weight:bold">T</td><td style="background:#c8e6c9;font-weight:bold">T</td></tr>
+                            </table>
+                            <p>KB benar pada model \(\langle T,T,T \rangle, \langle F,T,T \rangle, \langle F,F,T \rangle, \langle F,F,F \rangle\). Di semua model ini, \(P \rightarrow R\) juga benar. Jadi \(KB \models P \rightarrow R\) ✓ (ini adalah <em>Hypothetical Syllogism</em>).</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Soundness dan Completeness</h4>
+                    <p>Jelaskan perbedaan antara <em>soundness</em> dan <em>completeness</em> dalam sistem inferensi logika. Mengapa keduanya penting?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Soundness (Kebenaran):</strong> Jika \(KB \vdash \alpha\) maka \(KB \models \alpha\). Sistem tidak pernah menarik kesimpulan yang salah — semua yang ditarik benar secara logis.</p>
+                            <p><strong>Completeness (Kelengkapan):</strong> Jika \(KB \models \alpha\) maka \(KB \vdash \alpha\). Sistem dapat menarik semua kesimpulan logis yang mungkin — tidak ada yang terlewat.</p>
+                            <p>Keduanya penting karena soundness menjamin keandalan (tidak ada kesalahan), sedangkan completeness menjamin daya jangkau (semua pengetahuan dapat diakses). Sistem yang sound tapi tidak lengkap mungkin melewatkan kesimpulan penting. Sistem yang lengkap tapi tidak sound bisa menghasilkan kesalahan fatal.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>Ringkasan</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <table>
+                        <tr><th>Konsep</th><th>Definisi</th><th>Contoh</th></tr>
+                        <tr><td>Knowledge Base</td><td>Himpunan kalimat logis yang merepresentasikan pengetahuan agen</td><td>\(\{Breeze, Breeze \rightarrow Pit\}\)</td></tr>
+                        <tr><td>Entailment</td><td>\(KB \models \alpha\): α benar di semua model KB</td><td>\(\{P, P \rightarrow Q\} \models Q\)</td></tr>
+                        <tr><td>Model</td><td>Penugasan kebenaran untuk semua variabel</td><td>\(\langle P=T, Q=F \rangle\)</td></tr>
+                        <tr><td>Truth Table</td><td>Enumerasi semua model untuk mengevaluasi kalimat</td><td>\(2^n\) baris untuk n variabel</td></tr>
+                        <tr><td>Modus Ponens</td><td>Aturan inferensi: dari \(P\) dan \(P \rightarrow Q\), simpulkan \(Q\)</td><td>\(P, P \rightarrow Q \vdash Q\)</td></tr>
+                    </table>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Logika proposisional</strong> menyediakan fondasi formal untuk agen berbasis pengetahuan — memisahkan "apa yang diketahui" dari "bagaimana menalar."</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Model checking</strong> menentukan entailment dengan memeriksa semua \(2^n\) model — efektif untuk masalah kecil, menjadi dasar algoritma inferensi yang lebih canggih.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Soundness & Completeness</strong> menjamin bahwa inferensi formal (\(\vdash\)) tepat merepresentasikan entailment logis (\(\models\)).</div>
+                    </div>
+                </div>
+                <p>Lanjut ke <a href="chapter8.html">Bab 8</a> untuk First-Order Logic — logika yang lebih powerful dengan variabel, kuantifikator, dan fungsi.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 7</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter6.html" title="Sebelumnya: Bab 6">← Bab 6</a>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 7</span>
+                    <a class="navbtn" href="chapter8.html" title="Lanjut: Bab 8">Bab 8 →</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== TRUTH TABLE ENGINE =====
+const cvs = document.getElementById('truthCanvas');
+const ctx = cvs.getContext('2d');
+let kb = [];
+let currentSentence = '';
+let truthTableData = [];
+
+function tokenize(expr) {
+    const tokens = [];
+    let i = 0;
+    while (i < expr.length) {
+        if (expr[i] === ' ') { i++; continue; }
+        if (expr[i] === '(') { tokens.push('('); i++; }
+        else if (expr[i] === ')') { tokens.push(')'); i++; }
+        else if (expr[i] === '¬' || expr[i] === '!') { tokens.push('NOT'); i++; }
+        else if (expr[i] === '∧' || expr[i] === '&') { tokens.push('AND'); i++; }
+        else if (expr[i] === '∨' || expr[i] === '|') { tokens.push('OR'); i++; }
+        else if (expr[i] === '→' || (expr[i] === '-' && i+1 < expr.length && expr[i+1] === '>')) { tokens.push('IMPLIES'); i += (expr[i]==='-' ? 2 : 1); }
+        else if (expr[i] === '↔' || (expr[i] === '<' && i+1 < expr.length && expr[i+1] === '-')) { tokens.push('IFF'); i += 2; }
+        else if (/[A-Za-z]/.test(expr[i])) {
+            let varName = '';
+            while (i < expr.length && /[A-Za-z0-9_]/.test(expr[i])) {
+                varName += expr[i]; i++;
+            }
+            tokens.push(varName);
+        }
+        else { i++; }
+    }
+    return tokens;
+}
+
+function parse(tokens) {
+    let pos = 0;
+    function parseExpr() {
+        let left = parseIff();
+        return left;
+    }
+    function parseIff() {
+        let left = parseImplies();
+        while (pos < tokens.length && tokens[pos] === 'IFF') {
+            pos++;
+            let right = parseImplies();
+            left = { type: 'iff', left, right };
+        }
+        return left;
+    }
+    function parseImplies() {
+        let left = parseOr();
+        while (pos < tokens.length && tokens[pos] === 'IMPLIES') {
+            pos++;
+            let right = parseOr();
+            left = { type: 'implies', left, right };
+        }
+        return left;
+    }
+    function parseOr() {
+        let left = parseAnd();
+        while (pos < tokens.length && tokens[pos] === 'OR') {
+            pos++;
+            let right = parseAnd();
+            left = { type: 'or', left, right };
+        }
+        return left;
+    }
+    function parseAnd() {
+        let left = parseNot();
+        while (pos < tokens.length && tokens[pos] === 'AND') {
+            pos++;
+            let right = parseNot();
+            left = { type: 'and', left, right };
+        }
+        return left;
+    }
+    function parseNot() {
+        if (pos < tokens.length && tokens[pos] === 'NOT') {
+            pos++;
+            let operand = parseNot();
+            return { type: 'not', operand };
+        }
+        return parseAtom();
+    }
+    function parseAtom() {
+        if (pos < tokens.length && tokens[pos] === '(') {
+            pos++;
+            let expr = parseExpr();
+            if (pos < tokens.length && tokens[pos] === ')') pos++;
+            return expr;
+        }
+        if (pos < tokens.length && /^[A-Za-z]/.test(tokens[pos])) {
+            return { type: 'var', name: tokens[pos++] };
+        }
+        return { type: 'var', name: '?' };
+    }
+    return parseExpr();
+}
+
+function evaluate(ast, assignment) {
+    switch (ast.type) {
+        case 'var': return assignment[ast.name] || false;
+        case 'not': return !evaluate(ast.operand, assignment);
+        case 'and': return evaluate(ast.left, assignment) && evaluate(ast.right, assignment);
+        case 'or': return evaluate(ast.left, assignment) || evaluate(ast.right, assignment);
+        case 'implies': return !evaluate(ast.left, assignment) || evaluate(ast.right, assignment);
+        case 'iff': return evaluate(ast.left, assignment) === evaluate(ast.right, assignment);
+        default: return false;
+    }
+}
+
+function getVariables(expr) {
+    const tokens = tokenize(expr);
+    const vars = new Set();
+    tokens.forEach(t => { if (/^[A-Za-z]/.test(t)) vars.add(t); });
+    return Array.from(vars).sort();
+}
+
+function generateModels(vars) {
+    const models = [];
+    const n = vars.length;
+    for (let i = 0; i < Math.pow(2, n); i++) {
+        const model = {};
+        for (let j = 0; j < n; j++) {
+            model[vars[j]] = Boolean((i >> (n - 1 - j)) & 1);
+        }
+        models.push(model);
+    }
+    return models;
+}
+
+function evaluateExpression(expr, assignment) {
+    try {
+        const tokens = tokenize(expr);
+        const ast = parse(tokens);
+        return evaluate(ast, assignment);
+    } catch (e) {
+        return false;
+    }
+}
+
+function generateTruthTable() {
+    const sentence = document.getElementById('sentenceInput').value.trim();
+    if (!sentence) return;
+    currentSentence = sentence;
+    const vars = getVariables(sentence);
+    const models = generateModels(vars);
+
+    truthTableData = models.map(m => ({
+        assignment: { ...m },
+        value: evaluateExpression(sentence, m)
+    }));
+
+    drawTruthTableOnCanvas(vars, truthTableData, sentence);
+    renderHTMLTruthTable(vars, truthTableData, sentence);
+    updateLog('Generated truth table for: ' + sentence);
+}
+
+function drawTruthTableOnCanvas(vars, data, sentence) {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    const colWidth = Math.min(80, (cvs.width - 100) / (vars.length + 2));
+    const startX = 50;
+    const startY = 30;
+    const rowHeight = Math.min(35, (cvs.height - 80) / (data.length + 1));
+
+    // Title
+    ctx.fillStyle = '#1565c0';
+    ctx.font = 'bold 16px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Truth Table: ' + sentence, cvs.width / 2, 20);
+
+    // Headers
+    ctx.fillStyle = '#1976d2';
+    ctx.font = 'bold 12px Segoe UI';
+    vars.forEach((v, i) => {
+        ctx.fillText(v, startX + i * colWidth + colWidth / 2, startY);
+    });
+    ctx.fillText(sentence, startX + vars.length * colWidth + colWidth / 2, startY);
+
+    // Rows
+    data.forEach((row, ri) => {
+        const y = startY + (ri + 1) * rowHeight;
+        const isSatisfying = row.value;
+
+        vars.forEach((v, ci) => {
+            const x = startX + ci * colWidth;
+            ctx.fillStyle = isSatisfying ? '#c8e6c9' : '#fff';
+            ctx.fillRect(x + 2, y + 2, colWidth - 4, rowHeight - 4);
+            ctx.strokeStyle = '#dee2e6';
+            ctx.strokeRect(x + 2, y + 2, colWidth - 4, rowHeight - 4);
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(row.assignment[v] ? 'T' : 'F', x + colWidth / 2, y + rowHeight / 2 + 4);
+        });
+
+        // Result column
+        const rx = startX + vars.length * colWidth;
+        ctx.fillStyle = isSatisfying ? '#c8e6c9' : '#ffcdd2';
+        ctx.fillRect(rx + 2, y + 2, colWidth - 4, rowHeight - 4);
+        ctx.strokeStyle = '#dee2e6';
+        ctx.strokeRect(rx + 2, y + 2, colWidth - 4, rowHeight - 4);
+        ctx.fillStyle = isSatisfying ? '#2e7d32' : '#c62828';
+        ctx.font = 'bold 12px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText(row.value ? 'T' : 'F', rx + colWidth / 2, y + rowHeight / 2 + 4);
+    });
+
+    ctx.textAlign = 'start';
+}
+
+function renderHTMLTruthTable(vars, data, sentence) {
+    let html = '<table class="truth-table"><tr>';
+    vars.forEach(v => { html += '<th>' + v + '</th>'; });
+    html += '<th>' + sentence + '</th></tr>';
+    data.forEach(row => {
+        const cls = row.value ? 'satisfying' : 'falsifying';
+        html += '<tr class="' + cls + '">';
+        vars.forEach(v => { html += '<td>' + (row.assignment[v] ? 'T' : 'F') + '</td>'; });
+        html += '<td style="font-weight:bold">' + (row.value ? 'T' : 'F') + '</td></tr>';
+    });
+    html += '</table>';
+    document.getElementById('truthTableContainer').innerHTML = html;
+}
+
+function addToKB() {
+    const sentence = document.getElementById('sentenceInput').value.trim();
+    if (!sentence) return;
+    if (!kb.includes(sentence)) {
+        kb.push(sentence);
+        renderKB();
+        updateLog('Added to KB: ' + sentence);
+    }
+}
+
+function renderKB() {
+    const container = document.getElementById('kbList');
+    if (kb.length === 0) {
+        container.innerHTML = '<span class="kb-sentence" style="background:#ffcdd2;color:#c62828;">KB kosong — tambahkan kalimat</span>';
+    } else {
+        container.innerHTML = kb.map(s =>
+            '<span class="kb-sentence">' + s + ' <button onclick="removeFromKB(\'' + s + '\')" style="background:none;border:none;color:#c62828;cursor:pointer;font-weight:bold;">×</button></span>'
+        ).join(' ');
+    }
+}
+
+function removeFromKB(sentence) {
+    kb = kb.filter(s => s !== sentence);
+    renderKB();
+    updateLog('Removed from KB: ' + sentence);
+}
+
+function clearKB() {
+    kb = [];
+    renderKB();
+    updateLog('KB cleared');
+}
+
+function checkEntailment() {
+    if (kb.length === 0) {
+        updateLog('KB is empty — add sentences first');
+        return;
+    }
+    const query = document.getElementById('queryInput').value.trim();
+    if (!query) {
+        updateLog('Enter a query to check entailment');
+        return;
+    }
+
+    const allVars = new Set();
+    kb.forEach(s => getVariables(s).forEach(v => allVars.add(v)));
+    getVariables(query).forEach(v => allVars.add(v));
+    const vars = Array.from(allVars).sort();
+    const models = generateModels(vars);
+
+    let entails = true;
+    let satisfyingModels = [];
+
+    models.forEach(m => {
+        const kbTrue = kb.every(s => evaluateExpression(s, m));
+        if (kbTrue) {
+            satisfyingModels.push(m);
+            const queryTrue = evaluateExpression(query, m);
+            if (!queryTrue) entails = false;
+        }
+    });
+
+    const resultDiv = document.getElementById('entailmentResult');
+    resultDiv.style.display = 'block';
+
+    if (entails) {
+        resultDiv.style.background = 'linear-gradient(135deg,#c8e6c9,#a5d6a7)';
+        resultDiv.style.borderLeft = '5px solid #4caf50';
+        resultDiv.innerHTML = '<h4 style="color:#2e7d32;margin:0;">✓ KB ⊧ ' + query + '</h4>' +
+            '<p style="margin:8px 0 0;color:#1b5e20;">Query "' + query + '" adalah <strong>konsekuensi logis</strong> dari KB.</p>' +
+            '<p style="color:#388e3c;margin:5px 0 0;">Model yang memuaskan KB: ' + satisfyingModels.length + ' dari ' + models.length + '</p>';
+    } else {
+        resultDiv.style.background = 'linear-gradient(135deg,#ffcdd2,#ef9a9a)';
+        resultDiv.style.borderLeft = '5px solid #e53935';
+        resultDiv.innerHTML = '<h4 style="color:#c62828;margin:0;">✗ KB ⊭ ' + query + '</h4>' +
+            '<p style="margin:8px 0 0;color:#b71c1c;">Query "' + query + '" <strong>bukan</strong> konsekuensi logis dari KB.</p>' +
+            '<p style="color:#c62828;margin:5px 0 0;">Ada model di mana KB benar tapi query salah.</p>';
+    }
+
+    updateLog('Entailment check: KB ⊧ ' + query + ' ? ' + (entails ? 'YES' : 'NO'));
+}
+
+function updateLog(msg) {
+    const log = document.getElementById('truthTableLog');
+    const time = new Date().toLocaleTimeString();
+    log.innerHTML += '[' + time + '] ' + msg + '\n';
+    log.scrollTop = log.scrollHeight;
+}
+
+// Initial draw
+drawTruthTableOnCanvas(['P', 'Q', 'R'], [
+    { assignment: { P: true, Q: true, R: true }, value: true },
+    { assignment: { P: true, Q: true, R: false }, value: false },
+    { assignment: { P: true, Q: false, R: true }, value: true },
+    { assignment: { P: true, Q: false, R: false }, value: false },
+    { assignment: { P: false, Q: true, R: true }, value: true },
+    { assignment: { P: false, Q: true, R: false }, value: true },
+    { assignment: { P: false, Q: false, R: true }, value: true },
+    { assignment: { P: false, Q: false, R: false }, value: true }
+], 'P ∧ Q → R');
+</script>
+</body>
+</html>

@@ -8,7 +8,7 @@
   <meta property="og:title" content="Pembelajaran Interaktif — Optimasi, Algoritma &amp; Statistika" />
   <meta property="og:description" content="Materi interaktif tentang Optimasi Multiobjective, Algoritma MOEA, dan Uji Statistik Nonparametrik." />
   <meta property="og:type" content="website" />
-  <title>Pembelajaran Interaktif — Optimasi, Algoritma &amp; Statistika</title>
+  <title>Pembelajaran Interaktif — Optimasi, Algoritma, Statistika &amp; Materi Ajar</title>
 
   <style>
     :root {
@@ -318,6 +318,20 @@
       margin: 0 0 24px;
     }
 
+    .hero-title {
+      font-size: clamp(2.2rem, 4.8vw, 3.2rem);
+      line-height: 0.98;
+      letter-spacing: -0.00em;
+      margin: 22px 0 18px;
+      max-width: 920px;
+      font-weight: 800;
+      background: linear-gradient(120deg, var(--primary), var(--primary-2) 60%, var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
+
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
@@ -403,6 +417,16 @@
       color: var(--muted);
       font-size: 0.82rem;
       font-weight: 750;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease, color .15s ease;
+    }
+
+    .chip:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      background: color-mix(in srgb, var(--primary) 10%, transparent);
+      color: var(--primary);
     }
 
     .stats {
@@ -698,16 +722,25 @@
         <a class="drawer-link" href="./nsga2.html">🧬 NSGA-II</a>
         <a class="drawer-link" href="./nsga3.html">🧬 NSGA-III</a>
         <a class="drawer-link" href="./spea2.html">🧬 SPEA2</a>
-        <a class="drawer-link" href="./pymoo/index.html">📦 Pymoo Framework</a>
       </div>
 
       <div class="drawer-section">
         <div class="drawer-section-label">Statistika</div>
         <a class="drawer-link" href="./stat-tests.html">📊 Uji Statistik</a>
       </div>
-      <div class="drawer-section">
+       <div class="drawer-section">
         <div class="drawer-section-label">Materi Ajar</div>
         <a class="drawer-link" href="./acn101.html">📖 ACN101 (S1/S2/S3)</a>
+        <a class="drawer-link" href="./signal/index.html">🌊 Signals &amp; Systems</a>
+        <a class="drawer-link" href="./aima/index.html">🤖 Artificial Intelligence (AIMA)</a>
+        <a class="drawer-link" href="./control/index.html">⚙️ Sistem Kendali</a>
+        <a class="drawer-link" href="./conv/index.html">📐 Convex Optimization</a>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-label">Framework</div>
+        <a class="drawer-link" href="./pymoo/index.html">📦 Pymoo</a>
+        <a class="drawer-link" href="./moo-mrpp/index.html">🤖 MOO-MRPP</a>
       </div>
     </div>
   </aside>
@@ -717,7 +750,7 @@
       <div class="hero-card">
         <div class="hero-content">
           <span class="eyebrow">Pembelajaran Interaktif</span>
-          <h1>Materi Optimasi, Algoritma &amp; Statistika</h1>
+          <p class="hero-title">Optimasi, Algoritma, Statistika &amp; Materi Ajar</p>
           <p class="lead">
             Kumpulan halaman interaktif yang mencakup <strong>Multiobjective Optimization</strong>,
             <strong>Algoritma Evolusioner</strong>, dan
@@ -749,14 +782,18 @@
               <p class="profile-title">Ariadie Chandra Nugraha</p>
               <p class="profile-meta">Dosen Departemen Pendidikan Teknik Elektro<br>Universitas Negeri Yogyakarta</p>
               <p class="profile-meta" style="font-size:0.82rem;margin-top:6px;">Program Doktor Teknik Elektro<br>Fakultas Teknik, Universitas Gadjah Mada</p>
+              <p class="profile-meta" style="font-size:0.82rem;margin-top:6px;">Pengelola <strong>MOO-MRPP</strong> &amp; modul <strong>Signals &amp; Systems</strong>, <strong>AI (AIMA)</strong>, <strong>Sistem Kendali</strong>, dan <strong>Convex Optimization</strong></p>
             </div>
           </div>
 
           <div class="chips">
-            <span class="chip">🧬 Multiobjective Optimization</span>
-            <span class="chip">🤖 Multi-Robot Path Planning</span>
-            <span class="chip">⚙️ Control Systems</span>
-            <span class="chip">📊 Nonparametric Statistics</span>
+            <a class="chip" href="#moo">🧬 Multiobjective Optimization</a>
+            <a class="chip" href="#moo">🤖 Multi-Robot Path Planning</a>
+            <a class="chip" href="./control/index.html#sistem-kendali">⚙️ Control Systems</a>
+            <a class="chip" href="#statistik">📊 Nonparametric Statistics</a>
+            <a class="chip" href="#materi-ajar">🌊 Signals &amp; Systems</a>
+            <a class="chip" href="#materi-ajar">🤖 Artificial Intelligence</a>
+            <a class="chip" href="#framework">📦 Framework</a>
           </div>
         </div>
 
@@ -770,7 +807,7 @@
       </aside>
     </section>
 
-    <section class="section" aria-label="Topik">
+    <section class="section" id="moo" aria-label="Topik">
       <div class="section-head">
         <div>
           <h2>Optimasi Multiobjective &amp; Algoritma Evolusioner</h2>
@@ -821,16 +858,10 @@
           <p><em>Strength Pareto Evolutionary Algorithm 2</em> — pendekatan berbasis archive dan fine-grained fitness assignment.</p>
           <a class="btn" href="./spea2.html" style="margin-top:12px;">Buka →</a>
         </article>
-        <article class="feature-card">
-          <div class="feature-icon">📦</div>
-          <h3><a href="./pymoo/index.html" style="text-decoration:none;">Pymoo Framework</a></h3>
-          <p>Framework Python modular untuk optimasi multiobjektif. Dilengkapi dengan definisi masalah kustom, berbagai algoritme, metrik kinerja, dan visualisasi.</p>
-          <a class="btn" href="./pymoo/index.html" style="margin-top:12px;">Buka →</a>
-        </article>
       </div>
     </section>
 
-    <section class="section" aria-label="Uji Statistik">
+    <section class="section" id="statistik" aria-label="Uji Statistik">
       <div class="section-head">
         <div>
           <h2>Uji Statistik</h2>
@@ -846,6 +877,66 @@
     </section>
 
 
+
+    <section class="section" id="materi-ajar" aria-label="Materi Ajar">
+      <div class="section-head">
+        <div>
+          <h2>Materi Ajar</h2>
+          <p class="section-desc">Kumpulan modul pembelajaran interaktif lintas topik — Signals &amp; Systems, Artificial Intelligence, Sistem Kendali, Optimasi Konveks, hingga dokumentasi proyek penelitian.</p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">🌊</div>
+          <h3><a href="./signal/index.html" style="text-decoration:none;">Signals &amp; Systems</a></h3>
+          <p>Panduan interaktif berdasarkan Oppenheim: sinyal &amp; sistem, konvolusi, deret &amp; transformasi Fourier, filtering, sampling, DFT, dan z-transform.</p>
+          <a class="btn" href="./signal/index.html" style="margin-top:12px;">Buka →</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3><a href="./aima/index.html" style="text-decoration:none;">Artificial Intelligence (AIMA)</a></h3>
+          <p>Catatan interaktif dari <em>Artificial Intelligence: A Modern Approach</em> — agen, pencarian, dan pembelajaran mesin.</p>
+          <a class="btn" href="./aima/index.html" style="margin-top:12px;">Buka →</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">⚙️</div>
+          <h3><a href="./control/index.html" style="text-decoration:none;">Sistem Kendali</a></h3>
+          <p>Materi interaktif sistem kendali: respon sistem, stabilitas, dan analisis domain frekuensi/waktu.</p>
+          <a class="btn" href="./control/index.html" style="margin-top:12px;">Buka →</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📐</div>
+          <h3><a href="./conv/index.html" style="text-decoration:none;">Convex Optimization</a></h3>
+          <p>Study notes &amp; referensi optimasi konveks: dualitas, KKT, dan aplikasi praktis.</p>
+          <a class="btn" href="./conv/index.html" style="margin-top:12px;">Buka →</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="framework" aria-label="Framework">
+      <div class="section-head">
+        <div>
+          <h2>Framework</h2>
+          <p class="section-desc">Kerangka kerja penelitian dan implementasi untuk optimasi multiobjektif serta multi-robot path planning.</p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3><a href="./pymoo/index.html" style="text-decoration:none;">Pymoo</a></h3>
+          <p>Optimasi multiobjektif dalam Python: definisi masalah, algoritme, metrik, dan visualisasi.</p>
+          <a class="btn" href="./pymoo/index.html" style="margin-top:12px;">Buka →</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3><a href="./moo-mrpp/index.html" style="text-decoration:none;">MOO-MRPP</a></h3>
+          <p>Dokumentasi Multi-Objective Optimization untuk Multi-Robot Path Planning — kerangka riset dan eksperimen.</p>
+          <a class="btn" href="./moo-mrpp/index.html" style="margin-top:12px;">Buka →</a>
+        </article>
+      </div>
+    </section>
 
   </main>
 
