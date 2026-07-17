@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potential Field &mdash; Simulasi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1100px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff;padding:30px 40px;text-align:center;}
+        h1{margin:0;font-size:2em;}
+        .subtitle{font-size:1em;opacity:.9;margin-top:6px;}
+        nav{background:#2c3e50;padding:10px 15px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+        nav a{color:#fff;text-decoration:none;padding:6px 16px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font-size:.9em;}
+        .content{padding:30px 35px;}
+        .sim-row{display:flex;gap:20px;flex-wrap:wrap;}
+        .sim-left{flex:2;min-width:500px;}
+        .sim-right{flex:1;min-width:220px;}
+        canvas{border:2px solid #2c3e50;border-radius:8px;cursor:crosshair;display:block;background:#fff;width:100%;max-width:600px;height:auto;}
+        .panel{background:#f5f7fa;border-radius:10px;padding:16px;margin-bottom:12px;}
+        .panel h3{margin:0 0 8px;font-size:1em;color:#2c3e50;}
+        .ctrl{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0;}
+        .ctrl button{background:#3498db;color:#fff;border:none;padding:6px 14px;border-radius:5px;cursor:pointer;font-weight:600;transition:.2s;}
+        .ctrl button:hover{background:#2176ae;}
+        .ctrl button:disabled{background:#bbb;cursor:default;}
+        .ctrl button.danger{background:#e74c3c;}
+        .ctrl button.danger:hover{background:#c0392b;}
+        .ctrl button.success{background:#27ae60;}
+        .ctrl button.success:hover{background:#219a52;}
+        .ctrl label{display:flex;align-items:center;gap:6px;font-size:.88em;}
+        .ctrl input[type=range]{width:90px;}
+        .legend{font-size:.85em;}
+        .legend span{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:4px;vertical-align:middle;}
+        .info{font-size:.88em;color:#555;margin:4px 0;}
+        .info strong{color:#333;}
+        .status{background:#fff3cd;border-left:4px solid #ffc107;padding:8px 12px;border-radius:4px;font-size:.88em;margin:8px 0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:20px;margin-top:30px;font-size:.85em;}
+        footer a{color:#7fd1ff;}
+        @media(max-width:700px){.sim-left{min-width:unset;}canvas{max-width:100%;}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Potential Field Method</h1>
+        <div class="subtitle">Medan potensial tarik-tolak &mdash; robot mengikuti gradien negatif menuju goal</div>
+    </header>
+    <nav>
+        <a href="index.html">🏠 Kembali</a>
+        <a href="potential-field.html">Potential Field</a>
+        <a href="rrt.html">RRT</a>
+        <a href="prm.html">PRM</a>
+        <a href="bug-algorithms.html">Bug</a>
+        <a href="graph-search.html">Graph Search</a>
+    </nav>
+    <div class="content">
+        <div class="sim-row">
+            <div class="sim-left">
+                <canvas id="canvas" width="600" height="600"></canvas>
+                <div class="ctrl">
+                    <button class="success" id="btn-start">▶ Start</button>
+                    <button id="btn-pause" disabled>⏸ Pause</button>
+                    <button class="danger" id="btn-reset">↺ Reset</button>
+                    <label><input type="checkbox" id="chk-field" checked> Tampilkan medan</label>
+                </div>
+                <div class="ctrl">
+                    <label>k<sub>attr</sub>: <input type="range" id="kattr" min="0.5" max="10" step="0.5" value="3"></label>
+                    <label>k<sub>rep</sub>: <input type="range" id="krep" min="10" max="500" step="10" value="200"></label>
+                    <label>D₀: <input type="range" id="d0" min="30" max="200" step="5" value="100"></label>
+                </div>
+                <div class="ctrl">
+                    <label>Speed: <input type="range" id="speed-slider" min="1" max="10" step="1" value="1"> <span id="speed-label">1</span></label>
+                </div>
+                <div class="status" id="status-msg">Klik canvas untuk menempatkan goal (G) dan obstacle. Klik Start untuk menjalankan robot.</div>
+            </div>
+            <div class="sim-right">
+                <div class="panel">
+                    <h3>🎯 Petunjuk</h3>
+                    <ul style="margin:0;padding-left:1.2em;font-size:.85em;">
+                        <li><strong>Klik kiri</strong> &rarr; tempatkan <em>goal</em> (G)</li>
+                        <li><strong>Klik kanan</strong> &rarr; tempatkan <em>obstacle</em></li>
+                        <li>Robot (●) mengikuti \(-\nabla U\)</li>
+                        <li>Local minimum &rarr; robot berhenti sebelum goal</li>
+                    </ul>
+                </div>
+                <div class="panel">
+                    <h3>📊 Info</h3>
+                    <div class="info"><strong>Posisi:</strong> (<span id="rx">0</span>, <span id="ry">0</span>)</div>
+                    <div class="info"><strong>Goal:</strong> (<span id="gx">—</span>, <span id="gy">—</span>)</div>
+                    <div class="info"><strong>|F<sub>attr</sub>|:</strong> <span id="fattr">0</span></div>
+                    <div class="info"><strong>|F<sub>rep</sub>|:</strong> <span id="frep">0</span></div>
+                    <div class="info"><strong>|F<sub>total</sub>|:</strong> <span id="ftot">0</span></div>
+                    <div class="info"><strong>Iterasi:</strong> <span id="iter">0</span></div>
+                </div>
+                <div class="panel">
+                    <h3>📐 Parameter &amp; Persamaan</h3>
+                    <div style="font-size:.83em;line-height:1.7;">
+                        <p style="margin-bottom:6px;"><strong>\(k_{\text{attr}}\)</strong> — konstanta gaya tarik. Semakin besar, robot makin cepat tertarik ke goal.</p>
+                        <p style="margin-bottom:4px;">\[U_{\text{attr}}(q) = \frac12 k_{\text{attr}}\,d^2(q, q_{\text{goal}})\]</p>
+                        <p style="margin-bottom:6px;">\[-\nabla U_{\text{attr}} = k_{\text{attr}}\,(q_{\text{goal}} - q)\]</p>
+                        <hr style="border:none;border-top:1px solid #ddd;margin:6px 0;">
+                        <p style="margin-bottom:6px;"><strong>\(k_{\text{rep}}\)</strong> — konstanta gaya tolak. Semakin besar, robot makin kuat menjauhi obstacle.</p>
+                        <p style="margin-bottom:4px;">\[U_{\text{rep}}(q) = \begin{cases} \frac12 k_{\text{rep}}\!\left(\frac{1}{D} - \frac{1}{D_0}\right)^2 & D \le D_0 \\ 0 & D > D_0 \end{cases}\]</p>
+                        <p style="margin-bottom:6px;">\[-\nabla U_{\text{rep}} = k_{\text{rep}}\!\left(\frac{1}{D} - \frac{1}{D_0}\right)\!\frac{1}{D^3}\,(q - q_{\text{obst}})\]</p>
+                        <hr style="border:none;border-top:1px solid #ddd;margin:6px 0;">
+                        <p style="margin-bottom:2px;"><strong>\(D_0\)</strong> — radius threshold tolakan. Di luar radius ini, obstacle tidak memberi gaya.</p>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h3>🎨 Legend</h3>
+                    <div class="legend"><span style="background:#2ecc71;border-radius:50%;"></span> Robot</div>
+                    <div class="legend"><span style="background:#e74c3c;"></span> Goal</div>
+                    <div class="legend"><span style="background:#333;"></span> Obstacle (radius 15)</div>
+                    <div class="legend"><span style="background:#2ecc71;height:3px;"></span> F<sub>attr</sub> (tarik ke goal)</div>
+                    <div class="legend"><span style="background:#e74c3c;height:3px;"></span> F<sub>rep</sub> (tolak dari obstacle)</div>
+                    <div class="legend"><span style="background:#3498db;height:3px;"></span> F<sub>total</sub> (resultan)</div>
+                    <div class="legend"><span style="background:rgba(255,0,0,.2);"></span> Medan repulsif</div>
+                    <div class="legend"><span style="background:rgba(0,255,0,.2);"></span> Medan atraktif</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p><a href="index.html">🏠 Kembali</a> &mdash; Klančar et al. (2017) Bab 4.2.4</p>
+    </footer>
+</div>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+let robot = {x: 50, y: 50};
+let goal = null;
+let obstacles = [];
+let running = false, paused = false, animId = null, iterCount = 0;
+let kattr = 3, krep = 200, D0 = 100;
+
+const OBST_R = 20;
+const ROBOT_R = 6;
+
+function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+function setStatus(msg, good) {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.style.borderLeftColor = good ? '#28a745' : '#ffc107';
+}
+
+function computeForces() {
+    if (!goal) return null;
+    const dg = dist(robot, goal);
+    if (dg < 8) return null;
+    // --- Attractive force (conical: capped at ATTR_THRESH) ---
+    const ATTR_THRESH = 200;
+    const attrMag = dg > ATTR_THRESH ? kattr * ATTR_THRESH : kattr * dg;
+    const attrDirX = (goal.x - robot.x) / dg;
+    const attrDirY = (goal.y - robot.y) / dg;
+    const attrX = attrDirX * attrMag;
+    const attrY = attrDirY * attrMag;
+
+    // --- Repulsive force (formula from paper §4.2.4) ---
+    // -∇U_rep = k_rep · (1/d - 1/D₀) · (1/d³) · (q - q_obst)
+    let repX = 0, repY = 0;
+    for (const o of obstacles) {
+        const dc = dist(robot, o);
+        const de = Math.max(1, dc - OBST_R);  // jarak ke tepi obstacle
+        if (de < D0) {
+            const mag = krep * (1/de - 1/D0) / (de * de * de);
+            const ux = (robot.x - o.x) / dc;
+            const uy = (robot.y - o.y) / dc;
+            repX += ux * mag;
+            repY += uy * mag;
+        }
+    }
+
+    // --- Resultant ---
+    const totX = attrX + repX;
+    const totY = attrY + repY;
+    const totMag = Math.hypot(totX, totY);
+
+    return {
+        attr:  { x: attrX, y: attrY, mag: attrMag },
+        rep:   { x: repX,  y: repY,  mag: Math.hypot(repX, repY) },
+        total: { x: totX,  y: totY,  mag: totMag }
+    };
+}
+
+function step() {
+    if (!running || paused || !goal) return;
+    const speedVal = +document.getElementById('speed-slider').value;
+    const pxPerSec = 6 * speedVal;
+    const pxPerFrame = pxPerSec / 60;
+    const subSteps = Math.max(1, Math.round(pxPerFrame / 0.8));
+    const stepSize = pxPerFrame / subSteps;
+    for (let s = 0; s < subSteps; s++) {
+        const ff = computeForces();
+        if (!ff) {
+            running = false;
+            setStatus('✅ Robot mencapai goal!', true);
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-pause').disabled = true;
+            drawForces(null); draw(); return;
+        }
+        if (ff.total.mag > 0.01) {
+            robot.x += (ff.total.x / ff.total.mag) * stepSize;
+            robot.y += (ff.total.y / ff.total.mag) * stepSize;
+        }
+        if (robot.x < 0) robot.x = 0;
+        if (robot.x > W) robot.x = W;
+        if (robot.y < 0) robot.y = 0;
+        if (robot.y > H) robot.y = H;
+        iterCount++;
+        let collided = false;
+        for (const o of obstacles) {
+            if (dist(robot, o) < OBST_R + ROBOT_R) { collided = true; break; }
+        }
+        if (collided) {
+            running = false;
+            setStatus('⚠️ Robot menabrak obstacle!', false);
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-pause').disabled = true;
+            drawForces(ff); draw(); updateInfo(ff); return;
+        }
+        if (ff.total.mag < 0.2 && dist(robot, goal) > 20) {
+            running = false;
+            setStatus('⚠️ Robot terjebak di local minimum!', false);
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-pause').disabled = true;
+            drawForces(ff); draw(); updateInfo(ff); return;
+        }
+    }
+    const fLast = computeForces();
+    updateInfo(fLast);
+    drawForces(fLast);
+    draw();
+    if (running) animId = requestAnimationFrame(step);
+}
+
+function drawArrow(x, y, dx, dy, color, label) {
+    const mag = Math.hypot(dx, dy);
+    if (mag < 1) return;
+    const scale = Math.min(mag, 80);
+    const ex = x + (dx / mag) * scale;
+    const ey = y + (dy / mag) * scale;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
+    // arrowhead
+    const a = Math.atan2(ey - y, ex - x);
+    const hs = 8;
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - hs * Math.cos(a - 0.4), ey - hs * Math.sin(a - 0.4));
+    ctx.lineTo(ex - hs * Math.cos(a + 0.4), ey - hs * Math.sin(a + 0.4));
+    ctx.closePath(); ctx.fill();
+    // label
+    if (label) {
+        ctx.fillStyle = color;
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(label, ex + 12 * Math.cos(a), ey + 12 * Math.sin(a));
+    }
+    ctx.restore();
+}
+
+let lastForces = null;
+function drawForces(ff) { lastForces = ff; }
+
+function drawField() {
+    if (!document.getElementById('chk-field').checked) return;
+    const imageData = ctx.createImageData(W, H);
+    const data = imageData.data;
+    const krepNorm = Math.min(krep / 200, 2);
+    for (let y = 0; y < H; y += 2) {
+        for (let x = 0; x < W; x += 2) {
+            // repulsive: cari obstacle terdekat
+            let minDO = D0;
+            for (const o of obstacles) {
+                const d = Math.hypot(x - o.x, y - o.y);
+                if (d < minDO) minDO = d;
+            }
+            const tRep = minDO < D0 ? (1 - minDO / D0) * krepNorm : 0;
+            // attractive: jarak ke goal
+            let tAttr = 0;
+            if (goal) {
+                const dg = Math.hypot(x - goal.x, y - goal.y);
+                tAttr = Math.max(0, 1 - dg / 400);
+            }
+            const r = Math.min(255, Math.round(tRep * 255));
+            const g = Math.min(255, Math.round(tAttr * 180));
+            const b = Math.round((1 - tRep) * 80);
+            const alpha = Math.min(180, 40 + Math.round(tRep * 100) + Math.round(tAttr * 40));
+            for (let dy = 0; dy < 2; dy++)
+                for (let dx = 0; dx < 2; dx++) {
+                    const idx = ((y + dy) * W + (x + dx)) * 4;
+                    data[idx] = r;
+                    data[idx + 1] = g;
+                    data[idx + 2] = b;
+                    data[idx + 3] = alpha;
+                }
+        }
+    }
+    ctx.putImageData(imageData, 0, 0);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+    drawField();
+    // obstacles
+    for (const o of obstacles) {
+        ctx.beginPath(); ctx.arc(o.x, o.y, OBST_R, 0, Math.PI * 2);
+        ctx.fillStyle = '#333'; ctx.fill();
+        ctx.strokeStyle = '#555'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    // goal
+    if (goal) {
+        ctx.beginPath(); ctx.arc(goal.x, goal.y, 10, 0, Math.PI * 2);
+        ctx.fillStyle = '#e74c3c'; ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('G', goal.x, goal.y);
+    }
+    // robot
+    ctx.beginPath(); ctx.arc(robot.x, robot.y, ROBOT_R, 0, Math.PI * 2);
+    ctx.fillStyle = '#2ecc71'; ctx.fill();
+    ctx.strokeStyle = '#1a8a4a'; ctx.lineWidth = 2; ctx.stroke();
+    // force vectors
+    if (lastForces) {
+        drawArrow(robot.x, robot.y, lastForces.attr.x, lastForces.attr.y, 'rgba(46,204,113,.8)', 'F_attr');
+        drawArrow(robot.x, robot.y, lastForces.rep.x, lastForces.rep.y, 'rgba(231,76,60,.8)', 'F_rep');
+        drawArrow(robot.x, robot.y, lastForces.total.x, lastForces.total.y, 'rgba(52,152,219,.9)', 'F_total');
+    }
+    // path trail
+    ctx.fillStyle = 'rgba(46,204,113,.15)';
+    ctx.beginPath(); ctx.arc(robot.x, robot.y, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '11px sans-serif';
+    ctx.fillStyle = '#2ecc71'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    ctx.fillText('● Robot', robot.x + 10, robot.y - 10);
+}
+
+function updateInfo(ff) {
+    document.getElementById('rx').textContent = Math.round(robot.x);
+    document.getElementById('ry').textContent = Math.round(robot.y);
+    document.getElementById('gx').textContent = goal ? Math.round(goal.x) : '—';
+    document.getElementById('gy').textContent = goal ? Math.round(goal.y) : '—';
+    document.getElementById('fattr').textContent = ff ? Math.round(ff.attr.mag * 100) / 100 : 0;
+    document.getElementById('frep').textContent = ff ? Math.round(ff.rep.mag * 100) / 100 : 0;
+    document.getElementById('ftot').textContent = ff ? Math.round(ff.total.mag * 100) / 100 : 0;
+    document.getElementById('iter').textContent = iterCount;
+}
+
+function resetSim() {
+    running = false; paused = false;
+    if (animId) cancelAnimationFrame(animId);
+    robot = {x: 50, y: 50}; iterCount = 0; lastForces = null;
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('btn-pause').disabled = true;
+    document.getElementById('btn-pause').textContent = '⏸ Pause';
+    setStatus('Simulasi di-reset. Klik canvas untuk menempatkan goal / obstacle.');
+    updateInfo(null); draw();
+}
+
+function toggleStart() {
+    if (!goal) { setStatus('❌ Tempatkan goal dulu (klik kiri di canvas).', false); return; }
+    running = !running; paused = false;
+    document.getElementById('btn-start').disabled = true;
+    document.getElementById('btn-pause').disabled = false;
+    setStatus('▶ Robot bergerak...');
+    step();
+}
+
+function togglePause() {
+    paused = !paused;
+    document.getElementById('btn-pause').textContent = paused ? '▶ Resume' : '⏸ Pause';
+    if (!paused && running) step();
+}
+
+// Events
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('mousedown', e => {
+    if (running) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width, scaleY = H / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    if (e.button === 0) { // left = goal
+        goal = {x, y};
+        setStatus('Goal ditempatkan. Klik kanan untuk obstacle, lalu Start.');
+        draw(); updateInfo(null);
+    } else if (e.button === 2) { // right = obstacle
+        obstacles.push({x, y});
+        setStatus('Obstacle ditambahkan. Tambah lagi atau klik Start.');
+        draw();
+    }
+});
+
+document.getElementById('btn-start').addEventListener('click', toggleStart);
+document.getElementById('btn-pause').addEventListener('click', togglePause);
+document.getElementById('btn-reset').addEventListener('click', resetSim);
+document.getElementById('chk-field').addEventListener('change', draw);
+document.getElementById('kattr').addEventListener('input', function() { kattr = +this.value; draw(); });
+document.getElementById('krep').addEventListener('input', function() { krep = +this.value; draw(); });
+document.getElementById('d0').addEventListener('input', function() { D0 = +this.value; draw(); });
+document.getElementById('speed-slider').addEventListener('input', function() {
+    document.getElementById('speed-label').textContent = this.value;
+});
+
+draw();
+updateInfo(null);
+</script>
+</body>
+</html>

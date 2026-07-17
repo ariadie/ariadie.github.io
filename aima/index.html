@@ -44,6 +44,10 @@
             <div class="subtitle">Panduan Belajar Interaktif &mdash; berdasarkan Russell &amp; Norvig (ed. 4)</div>
         </header>
 
+        <nav style="background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;">
+            <a href="../index.html" style="color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);">🏠 Kembali ke Beranda</a>
+        </nav>
+
         <div class="content">
             <p class="intro">
                 Kumpulan catatan interaktif yang mengubah bab-bab inti dari buku Russell &amp; Norvig,
@@ -93,32 +97,60 @@
                     <span class="go">Baca Bab 3b &#8594;</span>
                 </a>
 
-                <a class="chapter-card soon" href="#">
-                    <span class="num">4</span>
-                    <h3>Beyond Classical Search</h3>
-                    <p>AND-OR search, online search (LRTA*), partially observable environments.</p>
-                    <span class="go">Segera &#8594;</span>
+                <a class="chapter-card" href="chapter4a.html" style="border-left-color:#e67e22;">
+                    <span class="num" style="background:#e67e22;">4a</span>
+                    <h3>Beyond Classical Search: Nondeterministic &amp; Contingency</h3>
+                    <p>Lingkungan nondeterministic, AND-OR search, contingency plans.
+                       Simulasi interaktif pohon AND-OR.</p>
+                    <span class="go" style="color:#e67e22;">Baca Bab 4a &#8594;</span>
                 </a>
 
-                <a class="chapter-card soon" href="#">
-                    <span class="num">5</span>
+                <a class="chapter-card" href="chapter4b.html" style="border-left-color:#1abc9c;">
+                    <span class="num" style="background:#1abc9c;">4b</span>
+                    <h3>Partially Observable &amp; Online Search</h3>
+                    <p>Belief state, sensorless planning, online search agents, LRTA*.
+                       Simulasi eksplorasi grid online.</p>
+                    <span class="go" style="color:#1abc9c;">Baca Bab 4b &#8594;</span>
+                </a>
+
+                <a class="chapter-card" href="chapter5.html" style="border-left-color:#e74c3c;">
+                    <span class="num" style="background:#e74c3c;">5</span>
                     <h3>Adversarial Search &amp; Games</h3>
-                    <p>Minimax, Alpha-Beta Pruning, Monte Carlo Tree Search, game theory.</p>
-                    <span class="go">Segera &#8594;</span>
+                    <p>Minimax, Alpha-Beta Pruning, tipe-tipe game.
+                       Simulasi Tic-Tac-Toe vs AI.</p>
+                    <span class="go" style="color:#e74c3c;">Baca Bab 5 &#8594;</span>
                 </a>
 
-                <a class="chapter-card soon" href="#">
-                    <span class="num">6</span>
+                <a class="chapter-card" href="chapter6.html" style="border-left-color:#7b1fa2;">
+                    <span class="num" style="background:#7b1fa2;">6</span>
                     <h3>Constraint Satisfaction Problems</h3>
-                    <p>CSP, backtracking, arc consistency, min-conflicts, tree-structured CSP.</p>
-                    <span class="go">Segera &#8594;</span>
+                    <p>CSP, backtracking, MRV, AC-3, forward checking.
+                       Simulasi pewarnaan peta Australia.</p>
+                    <span class="go" style="color:#7b1fa2;">Baca Bab 6 &#8594;</span>
                 </a>
 
-                <a class="chapter-card soon" href="#">
-                    <span class="num">7&ndash;9</span>
-                    <h3>Knowledge, Reasoning &amp; Planning</h3>
-                    <p>Logika proposisional &amp; first-order, inference, planning, knowledge representation.</p>
-                    <span class="go">Segera &#8594;</span>
+                <a class="chapter-card" href="chapter7.html" style="border-left-color:#1976d2;">
+                    <span class="num" style="background:#1976d2;">7</span>
+                    <h3>Logical Agents: Propositional Logic</h3>
+                    <p>Knowledge-based agents, propositional logic, knowledge base, entailment, model checking.
+                       Simulasi truth table interaktif.</p>
+                    <span class="go" style="color:#1976d2;">Baca Bab 7 &#8594;</span>
+                </a>
+
+                <a class="chapter-card" href="chapter8.html" style="border-left-color:#1565c0;">
+                    <span class="num" style="background:#1565c0;">8</span>
+                    <h3>First-Order Logic</h3>
+                    <p>Sintaks &amp; semantik FOL, quantifiers, Wumpus World dalam FOL.
+                       Simulasi interpreter FOL interaktif.</p>
+                    <span class="go" style="color:#1565c0;">Baca Bab 8 &#8594;</span>
+                </a>
+
+                <a class="chapter-card" href="chapter9.html" style="border-left-color:#2e7d32;">
+                    <span class="num" style="background:#2e7d32;">9</span>
+                    <h3>Inference in First-Order Logic</h3>
+                    <p>Unifikasi, forward chaining, backward chaining, resolution.
+                       Simulasi visual unifikasi step-by-step.</p>
+                    <span class="go" style="color:#2e7d32;">Baca Bab 9 &#8594;</span>
                 </a>
             </div>
 
@@ -130,14 +162,22 @@
 
         <footer>
             <div class="footer-content">
+                <p><a href="../index.html" style="color:#7fd1ff;font-weight:700;">🏠 Kembali ke Halaman Utama Pembelajaran</a></p>
                 <p>&copy; 2024 AIMA Interactive Guide. Berdasarkan:</p>
                 <p style="margin-top:5px;">Russell, S.J. &amp; Norvig, P. (2020). <em>Artificial Intelligence: A Modern Approach</em>, ed. 4. Pearson.</p>
                 <p style="margin-top:10px;">
-                    <a href="chapter1.html">Bab 1</a> &middot;
-                    <a href="chapter2a.html">Bab 2a</a> &middot;
-                    <a href="chapter2b.html">Bab 2b</a> &middot;
-                    <a href="chapter3a.html">Bab 3a</a> &middot;
-                    <a href="chapter3b.html">Bab 3b</a>
+                    <a href="chapter1.html">1</a> &middot;
+                    <a href="chapter2a.html">2a</a> &middot;
+                    <a href="chapter2b.html">2b</a> &middot;
+                    <a href="chapter3a.html">3a</a> &middot;
+                    <a href="chapter3b.html">3b</a> &middot;
+                    <a href="chapter4a.html">4a</a> &middot;
+                    <a href="chapter4b.html">4b</a> &middot;
+                    <a href="chapter5.html">5</a> &middot;
+                    <a href="chapter6.html">6</a> &middot;
+                    <a href="chapter7.html">7</a> &middot;
+                    <a href="chapter8.html">8</a> &middot;
+                    <a href="chapter9.html">9</a>
                 </p>
             </div>
         </footer>

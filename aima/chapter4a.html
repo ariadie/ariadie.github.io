@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 4a: Beyond Classical Search - Nondeterministic &amp; Contingency &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#d35400 0%,#e67e22 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#d35400,#e67e22);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#e67e22;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(230,126,34,.3);}
+        .chapternav{background:#d35400;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#e67e22;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(230,126,34,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#e67e22;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#d35400;border-left:5px solid #e67e22;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#d35400;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#fef9e7 0%,#fdebd0 100%);padding:25px;border-radius:10px;border-left:4px solid #e67e22;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#fdebd0 0%,#f5cba7 100%);}
+        .concept-card h4{color:#d35400;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#e67e22;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#d35400,#e67e22,#f39c12);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#e67e22;box-shadow:0 0 0 3px rgba(230,126,34,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#e67e22,#d35400);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(230,126,34,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(230,126,34,.4);background:linear-gradient(135deg,#d35400,#e67e22);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#d35400;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#d35400,#e67e22,#f39c12);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(230,126,34,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#d35400;}
+        .math{background:#f4f6f8;border-left:4px solid #e67e22;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#e67e22;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#e67e22;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        .node-legend{display:flex;flex-wrap:wrap;gap:15px;justify-content:center;margin:15px 0;}
+        .node-legend span{display:inline-flex;align-items:center;gap:6px;font-size:.9em;}
+        .legend-dot{width:18px;height:18px;border-radius:50%;border:2px solid;flex-shrink:0;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 4 (Bagian 1)</h1>
+            <div class="subtitle">Beyond Classical Search &mdash; Nondeterministic &amp; Contingency &mdash; AIMA 4th Edition</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter3b.html" title="Sebelumnya: Bab 3b">&larr; Bab 3b</a>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 4a</span>
+            <a class="navbtn" href="chapter4b.html" title="Lanjut: Bab 4b">Bab 4b &rarr;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#nondeterministic">Nondeterministic</a>
+            <a href="#andor">AND-OR Search</a>
+            <a href="#contingency">Contingency Plans</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Pencarian klasik (Bab 3) mengasumsikan lingkungan yang <strong>deterministik</strong>, <strong>sensorik lengkap</strong>, dan <strong>tunggal-keadaan</strong>. Bab ini menghapus asumsi-asumsi tersebut. Ketika tindakan memiliki <em>beberapa hasil yang mungkin</em>, agen memerlukan strategi yang lebih kaya daripada urutan tindakan sederhana.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Nondeterministic Actions</h4>
+                        <p>Tindakan memiliki hasil yang tidak pasti &mdash; satu aksi dapat mengarah ke <strong>beberapa keadaan</strong>. Contoh: ban bocor di vacuum world, robot navigasi di terrain berpasir.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">2</span> AND-OR Search</h4>
+                        <p>Algoritma untuk mencari solusi di lingkungan nondeterministik. Menghasilkan <strong>pohon keputusan</strong> dengan node OR (pilihan agen) dan node AND (hasil lingkungan).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">3</span> Contingency Plans</h4>
+                        <p>Berbeda dari urutan aksi, rencana kontingensi adalah <strong>pohon</strong> yang menangani berbagai hasil &mdash; dengan kata lain, rencana <em>if-then-else</em>.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Mengapa ini penting?</strong> Di dunia nyata, robot menghadapi sensor yang bising, aksi yang gagal, dan lingkungan yang berubah. Rencana klasik yang rapuh akan hancur; rencana kontingensi yang adaptif akan bertahan.
+                </div>
+            </div>
+
+            <!-- NONDETERMINISTIC -->
+            <div id="nondeterministic" class="section" style="--delay:0.3s;">
+                <h2>Nondeterministic Actions</h2>
+                <p>Pada lingkungan nondeterministik, fungsi <span class="highlight">Result(s, a)</span> mengembalikan <strong>himpunan</strong> keadaan yang mungkin, bukan satu keadaan tunggal.</p>
+
+                <div class="math">
+                    \[ \text{Result}(s, a) = \{s_1, s_2, \ldots, s_k\} \]
+                </div>
+
+                <h3>Contoh: Vacuum World (Ban Bocor)</h3>
+                <p>Bayangkan vacuum world di mana robot memiliki <em>ban bocor</em>. Ketika robot mencoba bergerak, ada kemungkinan:</p>
+                <ul>
+                    <li><strong>80%</strong> &mdash; robot bergerak dengan sukses</li>
+                    <li><strong>20%</strong> &mdash; robot tetap di tempat (aksi gagal)</li>
+                </ul>
+
+                <table>
+                    <tr><th>Aksi</th><th>Keadaan Awal</th><th>Hasil Mungkin</th></tr>
+                    <tr><td>Right</td><td>[A, Clean]</td><td>{[B, Clean], [A, Clean]}</td></tr>
+                    <tr><td>Left</td><td>[B, Dirty]</td><td>{[A, Dirty], [B, Dirty]}</td></tr>
+                    <tr><td>Suck</td><td>[A, Dirty]</td><td>{[A, Clean]} (deterministik)</td></tr>
+                    <tr><td>Suck</td><td>[A, Clean]</td><td>{[A, Clean]} (sudah bersih)</td></tr>
+                </table>
+
+                <h3>Perbedaan dengan Deterministik</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">D</span> Deterministik</h4>
+                        <p>\(\text{Result}(s,a) = \{s'\}\) &mdash; satu hasil. Solusi = urutan aksi: \([a_1, a_2, \ldots, a_n]\).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">N</span> Nondeterministik</h4>
+                        <p>\(\text{Result}(s,a) = \{s_1, s_2, \ldots\}\) &mdash; banyak hasil. Solusi = <strong>pohon keputusan</strong> (contingency plan).</p>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Perhatikan:</strong> Solusi sederhana seperti \([Right, Suck, Left]\) <strong>tidak cukup</strong> untuk lingkungan nondeterministik! Jika Right gagal, agen tidak tahu harus berbuat apa. Diperlukan rencana yang lebih kaya.
+                </div>
+            </div>
+
+            <!-- AND-OR SEARCH -->
+            <div id="andor" class="section" style="--delay:0.6s;">
+                <h2>AND-OR Search</h2>
+                <p>AND-OR search menghasilkan <strong>pohon keputusan</strong> (bukan jalur sederhana). Pohon ini memiliki dua jenis node:</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">OR</span> OR Nodes</h4>
+                        <p><strong>Pilihan agen.</strong> Agen memilih satu aksi dari beberapa alternatif. Setiap anak mewakili satu pilihan.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">AND</span> AND Nodes</h4>
+                        <p><strong>Hasil lingkungan.</strong> Lingkungan memilih hasil. <strong>Semua</strong> anak harus ditangani oleh rencana.</p>
+                    </div>
+                </div>
+
+                <h3>Algoritma AND-OR-GRAPH-SEARCH</h3>
+                <p>Fungsi <span class="highlight">OR-GRAPH-SEARCH(problem)</span> mengembalikan pohon keputusan, atau <em>failure</em>.</p>
+
+                <div class="math">
+                    \[ \text{OR-GRAPH-SEARCH}(problem) \Rightarrow \text{pohon keputusan atau failure} \]
+                </div>
+
+                <table>
+                    <tr><th>Langkah</th><th>Deskripsi</th></tr>
+                    <tr><td>1</td><td>Inisialisasi <code>tree</code> dengan node awal <code>problem.INITIAL-STATE</code></td></tr>
+                    <tr><td>2</td><td>Inisialisasi <code>frontier</code> dengan node-root</td></tr>
+                    <tr><td>3</td><td>Loop: pilih node <code>leaf</code> dari frontier</td></tr>
+                    <tr><td>4</td><td>Jika <code>leaf</code> = goal: return <code>tree</code></td></tr>
+                    <tr><td>5</td><td>Jika <code>leaf</code> = failure: backtrack, hapus subtree</td></tr>
+                    <tr><td>6</td><td>Expand <code>leaf</code>: tambahkan AND node untuk setiap aksi, OR nodes untuk setiap hasil</td></tr>
+                    <tr><td>7</td><td>Periksa <strong>redundant path</strong> &mdash; jika state sudah ada di tree, jangan duplikasi</td></tr>
+                </table>
+
+                <h3>Struktur Pohon AND-OR</h3>
+                <div class="note">
+                    <strong>Aturan pembacaan:</strong>
+                    <ul>
+                        <li>Node <strong>OR</strong> (lingkaran): agen memilih salah satu anak</li>
+                        <li>Node <strong>AND</strong> (persegi): lingkungan memilih, semua anak harus ditangani</li>
+                        <li>Daun <strong>goal</strong>: keadaan tujuan tercapai</li>
+                        <li>Daun <strong>failure</strong>: jalur ini tidak valid</li>
+                    </ul>
+                </div>
+
+                <h3>Contoh: Vacuum World dengan Ban Bocor</h3>
+                <p>Pada keadaan awal \([A, Dirty]\), agen ingin membersihkan kedua ruangan:</p>
+                <pre style="background:#f8f9fa;padding:15px;border-radius:8px;overflow-x:auto;font-size:.9em;">
+                    <code>
+            OR: [A, Dirty]
+                |
+            ┌─────────────┐
+            |             |
+        OR: Suck     OR: Right
+            |             |
+        ┌───────┐     ┌────────────┐
+        |       |     |            |
+    AND:Suck  AND:Right    OR: Suck  OR: Right
+        |       |     |            |
+    [A,Clean]  AND   [A,Clean]   [A,Clean] / [B,Dirty]
+                    |    |
+                [A,Clean] [B,Clean] (goal!)
+                    </code>
+                </pre>
+            </div>
+
+            <!-- CONTINGENCY PLANS -->
+            <div id="contingency" class="section" style="--delay:0.9s;">
+                <h2>Contingency Plans (Rencana Kontingensi)</h2>
+                <p>Rencana kontingensi adalah <strong>pohon keputusan</strong> yang memberikan instruksi untuk <strong>setiap kemungkinan hasil</strong>. Berbeda dari rencana sekuensial sederhana.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">&gt;</span> Rencana Sekuensial</h4>
+                        <p>Jalur linier: \([a_1, a_2, \ldots, a_n]\). Hanya berfungsi untuk lingkungan deterministik.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">&gt;&lt;</span> Rencana Kontingensi</h4>
+                        <p>Pohon keputusan: setiap node AND memiliki cabang untuk setiap hasil. Berfungsi untuk nondeterministik.</p>
+                    </div>
+                </div>
+
+                <h3>Sifat Penting</h3>
+                <table>
+                    <tr><th>Properti</th><th>Deskripsi</th></tr>
+                    <tr><td>Redundant Path</td><td>Jika state yang sama muncul di cabang berbeda, tree search akan menggabungkannya</td></tr>
+                    <tr><td>Contingent Plan</td><td>Pohon keputusan lengkap yang menangani semua kemungkinan</td></tr>
+                    <tr><td>Sensorless (Conformant)</td><td>Rencana untuk lingkungan tanpa sensor &mdash; harus bekerja untuk <strong>semua</strong> keadaan awal</td></tr>
+                </table>
+
+                <h3>Perbandingan Pendekatan</h3>
+                <table>
+                    <tr><th>Tipe</th><th>Sensor?</th><th>Rencana</th><th>Algoritma</th></tr>
+                    <tr><td>Single-state</td><td>Lengkap</td><td>Urutan aksi</td><td>BFS/DFS klasik</td></tr>
+                    <tr><td>Nondeterministic</td><td>Lengkap</td><td>Pohon keputusan</td><td>AND-OR search</td></tr>
+                    <tr><td>Sensorless</td><td>Tidak ada</td><td>Urutan aksi</td><td>BFS pada keadaan himpunan</td></tr>
+                    <tr><td>Partial observability</td><td>Sebagian</td><td>Pohon keputusan</td><td>Belum dibahas di Bab 4</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Contoh konkret:</strong> Bayangkan robot harus bergerak ke B. Jika Right berhasil, robot bergerak ke B. Jika Right gagal (tetap di A), robot harus mencoba Right lagi atau melakukan aksi alternatif. Rencana kontingensi menangani kedua kemungkinan ini dalam satu struktur pohon.
+                </div>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:1.2s;">
+                <h2>Simulasi Interaktif: Pohon AND-OR</h2>
+                <p>Klik node untuk memperluas pohon. Node <strong>lingkaran (OR)</strong> adalah pilihan agen; node <strong>persegi (AND)</strong> adalah hasil lingkungan. Tujuannya adalah mencapai keadaan goal di semua cabang AND.</p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="scenarioSelect">Skenario</label>
+                        <select id="scenarioSelect">
+                            <option value="vacuum">Vacuum World (Ban Bocor)</option>
+                            <option value="simple">Sederhana: A &rarr; B</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="resetTree()">Reset</button>
+                    <button class="btn" onclick="expandAll()">Expand Semua</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="andOrCanvas" width="900" height="550"></canvas>
+                </div>
+
+                <div class="node-legend">
+                    <span><span class="legend-dot" style="background:#fff;border-color:#e67e22;"></span> OR Node (Pilihan Agen)</span>
+                    <span><span class="legend-dot" style="background:#fff;border-color:#3498db;"></span> AND Node (Hasil Lingkungan)</span>
+                    <span><span class="legend-dot" style="background:#55efc4;border-color:#00b894;"></span> Goal</span>
+                    <span><span class="legend-dot" style="background:#ff6b6b;border-color:#e74c3c;"></span> Failure</span>
+                    <span><span class="legend-dot" style="background:#ffeaa7;border-color:#f39c12;"></span> Expanded</span>
+                </div>
+
+                <div id="treeLog" style="background:#1a1a2e;color:#e0e0e0;padding:15px 20px;border-radius:8px;font-family:'Fira Code',monospace;font-size:.88em;max-height:180px;overflow-y:auto;margin-top:15px;"></div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:1.8s;">
+                <h2>Latihan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Identifikasi Tipe Pohon</h4>
+                    <p>Pada pohon keputusan berikut, identifikasi node OR dan AND. Apakah rencana ini lengkap untuk menangani semua kemungkinan?</p>
+                    <pre style="background:#f8f9fa;padding:12px;border-radius:6px;font-size:.9em;">
+        OR: Start
+        ├── Right (OR)
+        │   ├── AND (result)
+        │   │   ├── [B, Clean] (goal) ✓
+        │   │   └── [A, Dirty] (failure) ✗
+        └── Suck (OR)
+            └── AND (result)
+                └── [A, Clean] → Right → ...</pre>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Analisis:</strong></p>
+                            <ul>
+                                <li>Root "Start" adalah <strong>OR node</strong> &mdash; agen memilih Right atau Suck</li>
+                                <li>"Right" dan "Suck" adalah <strong>OR nodes</strong> &mdash; mewakili pilihan aksi</li>
+                                <li>"AND (result)" adalah <strong>AND node</strong> &mdash; lingkungan menghasilkan beberapa kemungkinan</li>
+                                <li><strong>Rencana TIDAK lengkap</strong> karena cabang Right menghasilkan [A, Dirty] (failure) yang tidak ditangani</li>
+                            </ul>
+                            <p>Untuk lengkap, agen harus menambahkan <code>Suck</code> setelah Right gagal, atau memilih <code>Suck</code> terlebih dahulu.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Redundant Path</h4>
+                    <p>Dalam AND-OR search, mengapa penting memeriksa <em>redundant path</em>?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Redundant path terjadi ketika <strong>state yang sama</strong> muncul di cabang tree yang berbeda tanpa penanganan ulang. Tanpa deteksi redundansi, tree bisa tumbuh <strong>eksponensial</strong> dengan duplikasi state. AND-OR graph search menyimpan setiap state hanya <strong>satu kali</strong> dan mereferensikan subtree yang sudah ada, mengubah tree menjadi <strong>DAG</strong> (Directed Acyclic Graph).</p>
+                            <p>Contoh: Jika Right dari A menghasilkan [B, Clean], dan Suck dari [B, Clean] → [B, Clean] (sudah bersih), kita tidak perlu membuat subtree baru untuk [B, Clean] yang kedua kalinya.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Optimal Contingency Plan</h4>
+                    <p>Bagaimana cara menentukan rencana kontingensi yang <em>optimal</em>?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Rencana kontingensi optimal adalah yang meminimalkan <strong>expected cost</strong> (biaya harapan) atau <strong>worst-case cost</strong> tergantung kriteria:</p>
+                            <ul>
+                                <li><strong>Optimal expected cost:</strong> Rata-rata berbobot berdasarkan probabilitas setiap hasil</li>
+                                <li><strong>Optimal worst-case:</strong> Meminimalkan biaya jalur terpanjang (minimum-maksimum)</li>
+                            </ul>
+                            <p>Contoh: Jika Right (prob 0.8) mencapai goal dengan cost 1, dan Suck (prob 0.2) mencapai goal dengan cost 3, expected cost = 0.8×1 + 0.2×3 = 1.4.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Sensorless vs Nondeterministic</h4>
+                    <p>Apa perbedaan utama antara pencarian <em>sensorless</em> (conformant) dan <em>nondeterministic</em>?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <table>
+                                <tr><th>Aspek</th><th>Conformant (Sensorless)</th><th>Nondeterministic</th></tr>
+                                <tr><td>Sensor</td><td>Tidak ada</td><td>Lengkap</td></tr>
+                                <tr><td>Keadaan awal</td><td>Himpunan keadaan</td><td>Keadaan tunggal</td></tr>
+                                <tr><td>Rencana</td><td>Urutan aksi</td><td>Pohon keputusan</td></tr>
+                                <tr><td>Tantangan</td><td>Rencana harus bekerja untuk SEMUA keadaan</td><td>Rencana harus menangani SEMUA hasil</td></tr>
+                                <tr><td>Pencarian</td><td>BFS pada keadaan himpunan</td><td>AND-OR search</td></tr>
+                            </table>
+                            <p>Keduanya berurusan dengan ketidakpastian, tetapi conformant lebih ketat karena agen tidak memiliki umpan balik sensor sama sekali.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:2.2s;">
+                <h2>Ringkasan</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <table>
+                        <tr><th>Konsep</th><th>Kunci</th></tr>
+                        <tr><td>Nondeterministic Actions</td><td>\(\text{Result}(s,a)\) mengembalikan himpunan keadaan</td></tr>
+                        <tr><td>OR Nodes</td><td>Pilihan agen &mdash; pilih salah satu aksi</td></tr>
+                        <tr><td>AND Nodes</td><td>Hasil lingkungan &mdash; semua cabang harus ditangani</td></tr>
+                        <tr><td>Contingency Plan</td><td>Pohon keputusan (bukan urutan)</td></tr>
+                        <tr><td>Redundant Path</td><td>Hindari duplikasi state dalam tree</td></tr>
+                    </table>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>AND-OR search</strong> adalah generalisasi dari pencarian klasik untuk lingkungan nondeterministik. Pohon keputusan menangani ketidakpastian dengan percabangan if-then-else.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Contingency plan</strong> lebih kuat dari urutan aksi karena memberikan instruksi untuk setiap kemungkinan hasil tindakan.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Kelengkapan:</strong> AND-OR search lengkap untuk lingkungan nondeterministik &mdash; jika solusi ada, algoritma akan menemukannya.</div>
+                    </div>
+                </div>
+                <p>Lanjut ke <a href="chapter4b.html">Bab 4b</a> untuk Pencarian Sensorless (Conformant Search) dan Keadaan Belum Diketahui.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 4a</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter3b.html" title="Sebelumnya: Bab 3b">&larr; Bab 3b</a>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 4a</span>
+                    <a class="navbtn" href="chapter4b.html" title="Lanjut: Bab 4b">Bab 4b &rarr;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== AND-OR TREE DATA =====
+const scenarios = {
+    vacuum: {
+        name: 'Vacuum World (Ban Bocor)',
+        root: { id: 0, state: '[A, Dirty]', type: 'OR', children: [
+            { id: 1, action: 'Suck', type: 'AND', children: [
+                { id: 2, state: '[A, Clean]', type: 'OR', children: [
+                    { id: 3, action: 'Right', type: 'AND', children: [
+                        { id: 4, state: '[B, Clean]', type: 'OR', goal: true },
+                        { id: 5, state: '[A, Clean]', type: 'OR', children: [
+                            { id: 8, action: 'Right', type: 'AND', children: [
+                                { id: 9, state: '[B, Clean]', type: 'OR', goal: true },
+                                { id: 10, state: '[A, Clean]', type: 'OR', goal: true }
+                            ]}
+                        ]}
+                    ]}
+                ]}
+            ]},
+            { id: 6, action: 'Right', type: 'AND', children: [
+                { id: 7, state: '[B, Dirty]', type: 'OR', children: [
+                    { id: 11, action: 'Suck', type: 'AND', children: [
+                        { id: 12, state: '[B, Clean]', type: 'OR', goal: true }
+                    ]}
+                ]},
+                { id: 13, state: '[A, Dirty]', type: 'OR', children: [
+                    { id: 14, action: 'Suck', type: 'AND', children: [
+                        { id: 15, state: '[A, Clean]', type: 'OR', goal: true }
+                    ]}
+                ]}
+            ]}
+        ]}
+    },
+    simple: {
+        name: 'Sederhana: A → B',
+        root: { id: 0, state: 'A', type: 'OR', children: [
+            { id: 1, action: 'Go', type: 'AND', children: [
+                { id: 2, state: 'B', type: 'OR', goal: true },
+                { id: 3, state: 'A', type: 'OR', children: [
+                    { id: 4, action: 'Go', type: 'AND', children: [
+                        { id: 5, state: 'B', type: 'OR', goal: true },
+                        { id: 6, state: 'A', type: 'OR', failure: true }
+                    ]}
+                ]}
+            ]}
+        ]}
+    }
+};
+
+const cvs = document.getElementById('andOrCanvas');
+const ctx = cvs.getContext('2d');
+let expandedNodes = new Set();
+let currentScenario = 'vacuum';
+let nextId = 100;
+
+// Node positions cache
+let nodePositions = {};
+
+function resetTree() {
+    expandedNodes = new Set([0]); // root expanded by default
+    nextId = 100;
+    nodePositions = {};
+    drawTree();
+    document.getElementById('treeLog').innerHTML = '';
+    logMsg('Pohon di-reset. Klik node untuk memperluas.');
+}
+
+function expandAll() {
+    const scenario = scenarios[currentScenario];
+    expandNodeRecursive(scenario.root);
+    drawTree();
+    logMsg('Semua node diperluas.');
+}
+
+function expandNodeRecursive(node) {
+    expandedNodes.add(node.id);
+    if (node.children) {
+        node.children.forEach(child => expandNodeRecursive(child));
+    }
+}
+
+function expandNode(nodeId) {
+    if (expandedNodes.has(nodeId)) return;
+    expandedNodes.add(nodeId);
+    drawTree();
+    const node = findNode(scenarios[currentScenario].root, nodeId);
+    if (node) {
+        logMsg('Expand: ' + (node.state || node.action) + ' [' + node.type + ']');
+    }
+}
+
+function findNode(node, id) {
+    if (node.id === id) return node;
+    if (node.children) {
+        for (const child of node.children) {
+            const found = findNode(child, id);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+function layoutTree(node, x, y, xSpan, depth) {
+    if (!nodePositions[node.id]) {
+        nodePositions[node.id] = { x, y, node, depth };
+    }
+    if (!expandedNodes.has(node.id) || !node.children) return;
+
+    const childCount = node.children.length;
+    const spacing = xSpan / Math.max(childCount, 1);
+    const startX = x - xSpan / 2 + spacing / 2;
+
+    node.children.forEach((child, i) => {
+        const cx = startX + i * spacing;
+        const cy = y + 90;
+        layoutTree(child, cx, cy, spacing * 0.9, depth + 1);
+    });
+}
+
+function drawTree() {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    const root = scenarios[currentScenario].root;
+    layoutTree(root, cvs.width / 2, 45, cvs.width * 0.85, 0);
+
+    // Draw connections first
+    drawConnections(root);
+
+    // Draw nodes on top
+    Object.values(nodePositions).forEach(pos => {
+        drawNode(pos);
+    });
+}
+
+function drawConnections(node) {
+    if (!expandedNodes.has(node.id) || !node.children) return;
+    const pos = nodePositions[node.id];
+
+    node.children.forEach(child => {
+        const cpos = nodePositions[child.id];
+        if (cpos) {
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y + 20);
+            ctx.lineTo(cpos.x, cpos.y - 20);
+            ctx.strokeStyle = child.type === 'AND' ? '#3498db' : '#e67e22';
+            ctx.lineWidth = 2;
+            ctx.setLineDash(child.type === 'AND' ? [5, 5] : []);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw action label on edge
+            if (child.action) {
+                const mx = (pos.x + cpos.x) / 2;
+                const my = (pos.y + cpos.y) / 2;
+                ctx.fillStyle = '#555';
+                ctx.font = 'italic 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(child.action, mx + 15, my - 5);
+            }
+        }
+        drawConnections(child);
+    });
+}
+
+function drawNode(pos) {
+    const { x, y, node, depth } = pos;
+    const isExpanded = expandedNodes.has(node.id);
+    const isGoal = node.goal;
+    const isFailure = node.failure;
+
+    let fillColor = '#fff';
+    let borderColor = '#e67e22';
+    let textColor = '#333';
+
+    if (isGoal) {
+        fillColor = '#55efc4';
+        borderColor = '#00b894';
+    } else if (isFailure) {
+        fillColor = '#ff6b6b';
+        borderColor = '#e74c3c';
+        textColor = '#fff';
+    } else if (node.type === 'AND') {
+        borderColor = '#3498db';
+    }
+
+    if (isExpanded && !isGoal && !isFailure) {
+        fillColor = '#ffeaa7';
+    }
+
+    const r = 22;
+
+    if (node.type === 'OR') {
+        // Circle for OR nodes
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, 2 * Math.PI);
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // OR label
+        if (isExpanded && (node.state || node.action)) {
+            ctx.fillStyle = textColor;
+            ctx.font = 'bold 9px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const label = (node.state || node.action || '').length > 6 ?
+                (node.state || node.action).substring(0, 5) + '..' :
+                (node.state || node.action);
+            ctx.fillText(label, x, y);
+        }
+    } else {
+        // Square for AND nodes
+        ctx.beginPath();
+        ctx.rect(x - r, y - r, r * 2, r * 2);
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // AND label
+        if (isExpanded && node.action) {
+            ctx.fillStyle = textColor;
+            ctx.font = 'bold 9px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const label = node.action.length > 6 ?
+                node.action.substring(0, 5) + '..' : node.action;
+            ctx.fillText(label, x, y);
+        }
+    }
+
+    // Goal/Failure indicators
+    if (isGoal) {
+        ctx.fillStyle = '#00b894';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('✓', x, y);
+    } else if (isFailure) {
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('✗', x, y);
+    }
+
+    // Expand indicator
+    if (!isExpanded && (node.children || (node.type === 'OR' && !isGoal && !isFailure))) {
+        ctx.fillStyle = '#e67e22';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('+', x, y);
+    }
+
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+}
+
+// Click handler
+cvs.addEventListener('click', function(e) {
+    const rect = cvs.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    // Find clicked node
+    for (const [id, pos] of Object.entries(nodePositions)) {
+        const dx = mx - pos.x;
+        const dy = my - pos.y;
+        if (dx * dx + dy * dy < 25 * 25) {
+            expandNode(parseInt(id));
+            return;
+        }
+    }
+});
+
+// Hover effect
+cvs.addEventListener('mousemove', function(e) {
+    const rect = cvs.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    let hovering = false;
+    for (const [id, pos] of Object.entries(nodePositions)) {
+        const dx = mx - pos.x;
+        const dy = my - pos.y;
+        if (dx * dx + dy * dy < 25 * 25) {
+            cvs.style.cursor = 'pointer';
+            hovering = true;
+            break;
+        }
+    }
+    if (!hovering) cvs.style.cursor = 'default';
+});
+
+// Scenario selector
+document.getElementById('scenarioSelect').addEventListener('change', function() {
+    currentScenario = this.value;
+    resetTree();
+});
+
+function logMsg(msg) {
+    const log = document.getElementById('treeLog');
+    log.innerHTML += msg + '\n';
+    log.scrollTop = log.scrollHeight;
+}
+
+// Init
+resetTree();
+</script>
+</body>
+</html>

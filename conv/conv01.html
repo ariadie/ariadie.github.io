@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 1: Introduction to Convex Optimization — Boyd & Vandenberghe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#3498db;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(52,152,219,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#3498db;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(52,152,219,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#3498db;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #3498db;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#1a73b5;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #3498db;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px)scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#d6eaf8 0%,#aed6f1 100%);}
+        .concept-card h4{color:#1a73b5;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#3498db;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#3498db,#2ecc71,#f39c12);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#3498db;box-shadow:0 0 0 3px rgba(52,152,219,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(52,152,219,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(52,152,219,.4);background:linear-gradient(135deg,#2980b9,#3498db);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        .references{margin-top:40px;padding-top:30px;border-top:2px solid #e9ecef;animation:fadeIn 1s ease-in;}
+        .reference-item{margin-bottom:20px;padding:15px;background:#f8f9fa;border-radius:6px;border-left:3px solid #6c757d;transition:all .3s ease;animation:slideIn .5s ease-out forwards;opacity:0;}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .reference-item:hover{background:#e9ecef;transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,.1);}
+        .reference-item strong{color:#2c3e50;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3498db,#2ecc71,#f39c12,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(52,152,219,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #3498db;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#3498db;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#3498db;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 1</h1>
+            <div class="subtitle">Introduction to Convex Optimization — Boyd & Vandenberghe</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 1</span>
+            <a class="navbtn" href="conv02.html" title="Lanjut: Bab 2">Bab 2 &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#mathopt">Mathematical Optimization</a>
+            <a href="#convexopt">Convex Optimization</a>
+            <a href="#classes">Problem Classes</a>
+            <a href="#software">Software</a>
+            <a href="#simulation">Simulasi Interaktif</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+        </nav>
+
+        <div class="content">
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 1</h2>
+                <p>Bab ini memperkenalkan <strong>mathematical optimization</strong> dan mengapa <strong>convex optimization</strong> adalah kelas masalah yang paling penting dan praktis. Kita akan melihat formulasi standar, kelas-kelas masalah (LP, QP, SOCP, SDP, GP), dan mengapa convex = tractable.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">f</span>Mathematical Optimization</h4>
+                        <p>Minimasi fungsi objektif dengan constraint. Variabel x, objektif f₀(x), constraint fᵢ(x) ≤ 0, hᵢ(x) = 0.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">⬢</span>Convex Optimization</h4>
+                        <p>Objektif convex, constraint inequality convex, constraint equality affine. Local minimum = global minimum.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">⚡</span>Tractable</h4>
+                        <p>Interior-point methods solve in polynomial time. Modern solvers (ECOS, MOSEK, Gurobi) handle thousands of variables in seconds.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Tujuan pembelajaran:</strong> Di akhir bab ini Anda seharusnya mampu (i) mengenali apakah suatu optimization problem berbentuk convex, (ii) mengklasifikasikan problem ke LP/QP/SOCP/SDP/GP, dan (iii) memahami mengapa convexity menjamin global optimality dan tractability.
+                </div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#mathopt">Mathematical Optimization — Formulasi Standar</a></li>
+                        <li><a href="#convexopt">Convex Optimization — Definisi & Sifat Kunci</a></li>
+                        <li><a href="#classes">Kelas-Kelas Masalah Convex (LP, QP, SOCP, SDP, GP)</a></li>
+                        <li><a href="#software">Software & DCP (CVXPY, CVX, Convex.jl)</a></li>
+                        <li><a href="#simulation">Simulasi Interaktif: Feasible Sets & Optimality</a></li>
+                        <li><a href="#exercises">Latihan Terselesaikan</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="mathopt" class="section" style="--delay:1s;">
+                <h2>🔢 1.1 Mathematical Optimization</h2>
+
+                <p>Sebuah <strong>mathematical optimization problem</strong> (atau mathematical program) memiliki bentuk standar:</p>
+
+                <div class="math">
+                    \[
+                    \begin{aligned}
+                    \text{minimize} \quad & f_0(x) \\
+                    \text{subject to} \quad & f_i(x) \le 0, \quad i = 1,\dots,m \\
+                    & h_i(x) = 0, \quad i = 1,\dots,p
+                    \end{aligned}
+                    \]
+                </div>
+
+                <p>Di mana:</p>
+                <ul>
+                    <li><strong>x ∈ ℝⁿ</strong> adalah <strong>optimization variable</strong> (decision variable)</li>
+                    <li><strong>f₀ : ℝⁿ → ℝ</strong> adalah <strong>objective function</strong> (cost function)</li>
+                    <li><strong>fᵢ : ℝⁿ → ℝ</strong> adalah <strong>inequality constraint functions</strong></li>
+                    <li><strong>hᵢ : ℝⁿ → ℝ</strong> adalah <strong>equality constraint functions</strong></li>
+                </ul>
+
+                <div class="definition">
+                    <strong>Feasible point:</strong> x yang memenuhi semua constraint (fᵢ(x) ≤ 0, hᵢ(x) = 0) dan x ∈ dom f₀ ∩ ⋂ dom fᵢ ∩ ⋂ dom hᵢ.
+                </div>
+
+                <div class="definition">
+                    <strong>Optimal value:</strong> \(p^* = \inf \{ f_0(x) \mid f_i(x) \le 0,\; h_i(x) = 0 \}\). Jika feasible set = ∅, maka \(p^* = +\infty\). Jika unbounded below, \(p^* = -\infty\).
+                </div>
+
+                <div class="definition">
+                    <strong>Optimal point:</strong> \(x^*\) feasible dan \(f_0(x^*) = p^*\).
+                </div>
+
+                <div class="definition">
+                    <strong>Locally optimal:</strong> ∃ R > 0 sedemikian \(f_0(x^*) = \inf \{ f_0(x) \mid \text{feasible},\; \|x - x^*\| \le R \}\).
+                </div>
+
+                <div class="warning">
+                    <strong>Implicit constraints:</strong> Domain fungsi (dom f₀, dom fᵢ, dom hᵢ) mendefinisikan constraint implisit. Misalnya \(\log x\) secara implisit menuntut \(x > 0\).
+                </div>
+            </div>
+
+            <div id="convexopt" class="section" style="--delay:1.2s;">
+                <h2>⬢ 1.2 Convex Optimization</h2>
+
+                <p>Suatu problem disebut <strong>convex optimization problem</strong> jika:</p>
+                <ul>
+                    <li>Objektif \(f_0\) adalah <strong>convex function</strong></li>
+                    <li>Constraint inequality \(f_i\) adalah convex functions</li>
+                    <li>Constraint equality \(h_i\) adalah <strong>affine functions</strong> (bentuk \(a_i^T x = b_i\))</li>
+                </ul>
+
+                <div class="math">
+                    \[
+                    \begin{aligned}
+                    \text{minimize} \quad & f_0(x) \\
+                    \text{subject to} \quad & f_i(x) \le 0, \quad i = 1,\dots,m \quad (f_i \text{ convex}) \\
+                    & a_i^T x = b_i, \quad i = 1,\dots,p \quad (\text{affine})
+                    \end{aligned}
+                    \]
+                </div>
+
+                <div class="theorem" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;">
+                    <strong>Sifat Fundamental:</strong> Dalam convex optimization, feasible set adalah convex set, dan objektif convex di atas feasible set tersebut. <strong>Setiap local minimum adalah global minimum.</strong>
+                </div>
+
+                <div class="example">
+                    <strong>Example 1 — Least Squares (Unconstrained Convex):</strong>
+                    <div class="math">\[ \text{minimize} \quad \|Ax - b\|_2^2 \]</div>
+                    <p>Objektif quadratic convex. Solusi analitik: \(x^* = A^\dagger b\) (pseudoinverse). Diselesaikan dalam \(O(n^2 m)\) flops.</p>
+                </div>
+
+                <div class="example">
+                    <strong>Example 2 — Linear Programming (LP):</strong>
+                    <div class="math">\[
+                    \begin{aligned}
+                    \text{minimize} \quad & c^T x \\
+                    \text{subject to} \quad & Ax \le b
+                    \end{aligned}
+                    \]</div>
+                    <p>Objektif dan constraint affine (convex). Tidak ada solusi analitik umum; diselesaikan interior-point atau simplex dalam polynomial time.</p>
+                </div>
+
+                <div class="example">
+                    <strong>Example 3 — Non-Convex (Combinatorial):</strong>
+                    <div class="math">\[
+                    \begin{aligned}
+                    \text{minimize} \quad & c^T x \\
+                    \text{subject to} \quad & Ax \le b \\
+                    & x_i \in \{0,1\}
+                    \end{aligned}
+                    \]</div>
+                    <p>Constraint \(x_i \in \{0,1\}\) membuat feasible set non-convex (himpunan titik diskrit). Masalah ini NP-hard secara umum.</p>
+                </div>
+            </div>
+
+            <div id="classes" class="section" style="--delay:1.4s;">
+                <h2>📋 1.3 Kelas-Kelas Masalah Convex Optimization</h2>
+
+                <table>
+                    <thead>
+                        <tr><th>Kelas</th><th>Objektif</th><th>Constraint</th><th>Aplikasi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>LP</strong></td><td>Linear \(c^T x\)</td><td>Linear \(Ax \le b\)</td><td>Resource allocation, network flow, scheduling</td></tr>
+                        <tr><td><strong>QP</strong></td><td>Quadratic \(\frac{1}{2}x^T P x + q^T x\)</td><td>Linear</td><td>Portfolio optimization, MPC, SVM</td></tr>
+                        <tr><td><strong>QCQP</strong></td><td>Quadratic</td><td>Quadratic</td><td>Trust regions, robust optimization</td></tr>
+                        <tr><td><strong>SOCP</strong></td><td>Linear</td><td>\(\|A_i x + b_i\|_2 \le c_i^T x + d_i\)</td><td>Robust LP, antenna array, localization</td></tr>
+                        <tr><td><strong>SDP</strong></td><td>Linear \(\text{tr}(CX)\)</td><td>LMI \(X \succeq 0,\; F(x) \succeq 0\)</td><td>Combinatorial relax., control, MIMO</td></tr>
+                        <tr><td><strong>GP</strong></td><td>Posynomial</td><td>Posynomial ≤ 1</td><td>Circuit design, geometric problems</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="note">
+                    <strong>Hierarchy:</strong> LP ⊂ QP ⊂ QCQP ⊂ SOCP ⊂ SDP. Semua GP dapat diubah menjadi convex via log-change of variables \(y_i = \log x_i\).
+                </div>
+
+                <h3>Contoh: Portfolio Optimization (QP)</h3>
+                <div class="math">\[
+                \begin{aligned}
+                \text{minimize} \quad & x^T \Sigma x \\
+                \text{subject to} \quad & \mathbf{1}^T x = 1, \quad \mu^T x \ge \mu_{\text{target}}, \quad x \succeq 0
+                \end{aligned}
+                \]</div>
+                <p>\(\Sigma\) = covariance matrix (PSD), \(\mu\) = expected returns. Minimize risk (variance) untuk target return tertentu.</p>
+
+                <h3>Contoh: Robust Linear Programming (SOCP)</h3>
+                <div class="math">\[
+                \begin{aligned}
+                \text{minimize} \quad & c^T x \\
+                \text{subject to} \quad & \sup_{a_i \in \mathcal{E}_i} (a_i^T x) \le b_i, \quad i=1,\dots,m
+                \end{aligned}
+                \]</div>
+                <p>Dengan \(\mathcal{E}_i\) elipsoid, constraint ini menjadi SOCP constraint.</p>
+            </div>
+
+            <div id="software" class="section" style="--delay:1.6s;">
+                <h2>💻 1.4 Software untuk Convex Optimization</h2>
+
+                <p>Praktik modern menggunakan <strong>Disciplined Convex Programming (DCP)</strong> — framework yang memverifikasi convexity otomatis dan memanggil solver:</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">🐍</span>CVXPY (Python)</h4>
+                        <p><code>pip install cvxpy</code> — Paling populer untuk Python. Dukung ECOS, OSQP, MOSEK, Gurobi, CLARABEL.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">📊</span>CVX (MATLAB)</h4>
+                        <p>Sintaks <code>cvx_begin ... cvx_end</code>. Mature, widely used di akademia.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">🔬</span>Convex.jl (Julia)</h4>
+                        <p>High performance, native Julia. Integrates dengan JuMP.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.4s;">
+                        <h4><span class="icon">🔧</span>YALMIP (MATLAB)</h4>
+                        <p>Alternative ke CVX, mendukung lebih banyak solver & problem types.</p>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <h4>Contoh CVXPY — Least Squares dengan Box Constraints</h4>
+                    <pre style="background:#2d2d2d;color:#f8f8f2;padding:15px;border-radius:6px;overflow-x:auto;font-family:monospace;font-size:0.9em;"><code><span style="color:#f92672">import</span> cvxpy <span style="color:#f92672">as</span> cp
+<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+
+n, m = <span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">50</span>
+A = np.random.randn(m, n)
+b = np.random.randn(m)
+
+x = cp.Variable(n)
+objective = cp.Minimize(cp.sum_squares(A @ x - b))
+constraints = [<span style="color:#ae81ff">0</span> <= x, x <= <span style="color:#ae81ff">1</span>]
+
+prob = cp.Problem(objective, constraints)
+result = prob.solve()  <span style="color:#75715e"># Auto-selects ECOS/OSQP</span>
+
+print(<span style="color:#e6db74">"Optimal value:"</span>, result)
+print(<span style="color:#e6db74">"x = "</span>, x.value)</code></pre>
+                </div>
+            </div>
+
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>🎮 1.5 Simulasi Interaktif: Convex vs Non-Convex</h2>
+
+                <p>Visualisasi di bawah menunjukkan perbedaan fundamental antara convex dan non-convex optimization. <strong>Klik dan seret</strong> untuk menambahkan titik-titik, dan amati bagaimana local minima berperilaku.</p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="funcType">Fungsi Objektif</label>
+                        <select id="funcType">
+                            <option value="convex_quad">Convex Quadratic: \(x^2\)</option>
+                            <option value="convex_abs">Convex Absolute: \(|x|\)</option>
+                            <option value="convex_exp">Convex Exponential: \(e^x\)</option>
+                            <option value="nonconvex_sin">Non-convex: \(x^2 + 0.5\sin(5x)\)</option>
+                            <option value="nonconvex_multi">Non-convex Multi-modal: \(\sin(x) + 0.1x^2\)</option>
+                            <option value="nonconvex_rosen">Non-convex Rosenbrock (2D)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="dimSelect">Dimensi</label>
+                        <select id="dimSelect">
+                            <option value="1d">1D (Plot Fungsi)</option>
+                            <option value="2d">2D (Contour Plot)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="showGradient">Tampilkan Gradien</label>
+                        <select id="showGradient">
+                            <option value="true">Ya</option>
+                            <option value="false">Tidak</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="resetSimulation()">Reset</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="optCanvas" width="900" height="400"></canvas>
+                    <p style="text-align:center;color:#6c757d;margin-top:10px;font-size:0.9em;">
+                        <strong>Instruksi:</strong> Pilih fungsi di atas. Pada 1D: klik untuk menempatkan titik awal, amati gradient descent. Pada 2D: klik untuk menempatkan titik awal, amati apakah konvergen ke global minimum.
+                    </p>
+                </div>
+
+                <div class="note">
+                    <strong>Amati:</strong> Pada fungsi convex (quadratic, abs, exp), <em>setiap</em> titik awal konvergen ke global minimum yang sama. Pada non-convex (sin, multi-modal, Rosenbrock), titik awal yang berbeda menuju local minimum yang berbeda — global minimum tidak terjamin.
+                </div>
+            </div>
+
+            <div id="exercises" class="section" style="--delay:2.5s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 — Mengenali Convex Problem</h4>
+                    <p>Mana dari berikut yang merupakan convex optimization problem?</p>
+                    <ol style="margin-left:20px;">
+                        <li>\(\text{minimize } x^3 \text{ subject to } x \ge 0\)</li>
+                        <li>\(\text{minimize } x^2 \text{ subject to } x \ge 0\)</li>
+                        <li>\(\text{minimize } -x^2 \text{ subject to } x \ge 0\)</li>
+                        <li>\(\text{minimize } \|x\|_1 \text{ subject to } Ax = b\)</li>
+                    </ol>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>(2)</strong> dan <strong>(4)</strong> adalah convex.</p>
+                            <ul>
+                                <li>(1) \(x^3\) bukan convex untuk \(x \ge 0\) (second derivative \(6x \ge 0\) tapi fungsi bukan convex di seluruh domain — wait, actually \(x^3\) is convex for \(x \ge 0\)! But objective should be convex over whole domain... correction: \(x^3\) is convex for \(x \ge 0\) since \(f''(x) = 6x \ge 0\). So (1) is also convex. My mistake — let me recheck.</li>
+                                <li>Actually: \(x^3\) has \(f''(x) = 6x\). For \(x \ge 0\), \(f''(x) \ge 0\) so it IS convex on the feasible set. But the standard definition requires convexity on the whole domain... The feasible set is \(x \ge 0\), and on this set \(f(x)=x^3\) is convex.</li>
+                                <li>Let me be precise: (1) is convex on the feasible set \(x \ge 0\). (2) is convex everywhere. (3) \(-x^2\) is concave, NOT convex. (4) \(\|x\|_1\) is convex, equality constraint affine — convex.</li>
+                            </ul>
+                            <p><strong>Jawaban benar: (1), (2), (4)</strong> — maaf untuk kebingungan awal, ini ilustrasi penting: convexity diperiksa pada feasible set!</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 — Equivalent Transformations</h4>
+                    <p>Ubah problem berikut ke standard form LP:</p>
+                    <div class="math">\[ \text{minimize } \|x\|_1 \quad \text{subject to } Ax \le b \]</div>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Introduce variabel \(t \in \mathbb{R}^n\):</p>
+                            <div class="math">\[
+                            \begin{aligned}
+                            \text{minimize} \quad & \mathbf{1}^T t \\
+                            \text{subject to} \quad & -t \preceq x \preceq t \\
+                            & Ax \le b
+                            \end{aligned}
+                            \]</div>
+                            <p>Ini adalah LP dengan variabel \((x, t)\). Constraint \(-t_i \le x_i \le t_i\) ekuivalen dengan \(t_i \ge |x_i|\). Pada optimum, \(t_i = |x_i|\).</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 — Geometric Programming</h4>
+                    <p>Mengapa problem berikut <b>bukan</b> convex dalam variabel aslinya, tapi <b>menjadi</b> convex setelah transformasi log?</p>
+                    <div class="math">\[
+                    \begin{aligned}
+                    \text{minimize} \quad & x_1^{-1} x_2^{-2} \\
+                    \text{subject to} \quad & x_1^2 x_2 \le 1 \\
+                    & x_1, x_2 > 0
+                    \end{aligned}
+                    \]</div>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Posynomial (sum of monomials with positive coefficients) bukan convex. Tetapi dengan substitusi \(y_1 = \log x_1, y_2 = \log x_2\):</p>
+                            <div class="math">\[
+                            \begin{aligned}
+                            \text{minimize} \quad & e^{-y_1 - 2y_2} \\
+                            \text{subject to} \quad & e^{2y_1 + y_2} \le 1
+                            \end{aligned}
+                            \]</div>
+                            <p>Atau ambil log dari objektif & constraint (monotonic):</p>
+                            <div class="math">\[
+                            \begin{aligned}
+                            \text{minimize} \quad & -y_1 - 2y_2 \\
+                            \text{subject to} \quad & 2y_1 + y_2 \le 0
+                            \end{aligned}
+                            \]</div>
+                            <p>Ini adalah LP dalam \(y\)! GP selalu bisa diubah ke convex via log-transform.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Bab 1</h2>
+
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Mathematical optimization:</strong> Minimasi \(f_0(x)\) dengan constraint \(f_i(x) \le 0, h_i(x) = 0\). Optimal value \(p^*\), optimal point \(x^*\).</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Convex optimization:</strong> \(f_0, f_i\) convex, \(h_i\) affine. Feasible set convex. <strong>Local minimum = Global minimum.</strong></div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Kelas masalah:</strong> LP, QP, QCQP, SOCP, SDP, GP. Hierarchy: LP ⊂ QP ⊂ QCQP ⊂ SOCP ⊂ SDP.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Tractability:</strong> Interior-point methods solve in polynomial time. Solvers modern (ECOS, MOSEK, Gurobi) sangat efisien.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>DCP tools:</strong> CVXPY, CVX, Convex.jl memverifikasi convexity otomatis & memanggil solver.</div>
+                    </div>
+                </div>
+
+                <p>Bab ini memberikan fondasi: mengenali & memformulasikan convex problem. Lanjut ke <a href="conv02.html">Bab 2: Convex Sets</a> untuk membangun teori himpunan convex — blok bangunan feasible region.</p>
+            </div>
+
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+
+                <div class="reference-item">
+                    <strong>Boyd, S. & Vandenberghe, L.</strong> (2004). <em>Convex Optimization</em>. Cambridge University Press. Chapter 1 — Introduction. ISBN: 0521833787. <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank">Free PDF available</a>.
+                </div>
+                <div class="reference-item">
+                    <strong>Boyd, S.</strong> (2024). <em>CVXPY Tutorial</em>. <a href="https://www.cvxpy.org/tutorial/" target="_blank">cvxpy.org/tutorial</a>
+                </div>
+                <div class="reference-item">
+                    <strong>Grant, M. & Boyd, S.</strong> (2014). <em>CVX: Matlab Software for Disciplined Convex Programming</em>. <a href="http://cvxr.com/cvx/" target="_blank">cvxr.com/cvx</a>
+                </div>
+                <div class="reference-item">
+                    <strong>Diamond, S. & Boyd, S.</strong> (2016). <em>CVXPY: A Python-Embedded Modeling Language for Convex Optimization</em>. Journal of Machine Learning Research.
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Convex Optimization Interactive Notes | Bab 1</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">
+                    Boyd & Vandenberghe — Mathematical Optimization, Convex Problems, LP/QP/SOCP/SDP/GP, DCP Tools
+                </p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 1</span>
+                    <a class="navbtn" href="conv02.html" title="Lanjut: Bab 2">Bab 2 &#8594;</a>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================================
+        // SIMULASI INTERAKTIF: CONVEX vs NON-CONVEX OPTIMIZATION
+        // ============================================================
+
+        const canvas = document.getElementById('optCanvas');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        const margin = 60;
+        const plotW = W - 2 * margin;
+        const plotH = H - 2 * margin;
+
+        let points = []; // user-clicked starting points
+        let animPoints = []; // animated gradient descent paths
+        let animFrame = 0;
+        let funcType = 'convex_quad';
+        let dim = '1d';
+        let showGrad = true;
+
+        // Function definitions
+        const functions = {
+            convex_quad: {
+                name: 'Convex Quadratic: x²',
+                f1d: x => x * x,
+                df1d: x => 2 * x,
+                f2d: (x, y) => x * x + y * y,
+                grad2d: (x, y) => [2 * x, 2 * y],
+                xRange: [-3, 3],
+                yRange: [-3, 3],
+                zRange: [0, 10],
+                convex: true
+            },
+            convex_abs: {
+                name: 'Convex Absolute: |x|',
+                f1d: x => Math.abs(x),
+                df1d: x => (x > 0 ? 1 : (x < 0 ? -1 : 0)),
+                f2d: (x, y) => Math.abs(x) + Math.abs(y),
+                grad2d: (x, y) => [x > 0 ? 1 : (x < 0 ? -1 : 0), y > 0 ? 1 : (y < 0 ? -1 : 0)],
+                xRange: [-3, 3],
+                yRange: [-3, 3],
+                zRange: [0, 6],
+                convex: true
+            },
+            convex_exp: {
+                name: 'Convex Exponential: eˣ',
+                f1d: x => Math.exp(x),
+                df1d: x => Math.exp(x),
+                f2d: (x, y) => Math.exp(x) + Math.exp(y),
+                grad2d: (x, y) => [Math.exp(x), Math.exp(y)],
+                xRange: [-2, 2],
+                yRange: [-2, 2],
+                zRange: [0, 8],
+                convex: true
+            },
+            nonconvex_sin: {
+                name: 'Non-convex: x² + 0.5 sin(5x)',
+                f1d: x => x * x + 0.5 * Math.sin(5 * x),
+                df1d: x => 2 * x + 2.5 * Math.cos(5 * x),
+                f2d: (x, y) => x * x + y * y + 0.5 * Math.sin(5 * x) + 0.5 * Math.sin(5 * y),
+                grad2d: (x, y) => [2 * x + 2.5 * Math.cos(5 * x), 2 * y + 2.5 * Math.cos(5 * y)],
+                xRange: [-3, 3],
+                yRange: [-3, 3],
+                zRange: [-2, 12],
+                convex: false
+            },
+            nonconvex_multi: {
+                name: 'Non-convex Multi-modal: sin(x) + 0.1x²',
+                f1d: x => Math.sin(x) + 0.1 * x * x,
+                df1d: x => Math.cos(x) + 0.2 * x,
+                f2d: (x, y) => Math.sin(x) + Math.sin(y) + 0.1 * (x * x + y * y),
+                grad2d: (x, y) => [Math.cos(x) + 0.2 * x, Math.cos(y) + 0.2 * y],
+                xRange: [-10, 10],
+                yRange: [-10, 10],
+                zRange: [-3, 12],
+                convex: false
+            },
+            nonconvex_rosen: {
+                name: 'Non-convex Rosenbrock (2D)',
+                f1d: x => (1 - x) * (1 - x), // slice
+                df1d: x => -2 * (1 - x),
+                f2d: (x, y) => (1 - x) * (1 - x) + 100 * (y - x * x) * (y - x * x),
+                grad2d: (x, y) => [-2 * (1 - x) - 400 * x * (y - x * x), 200 * (y - x * x)],
+                xRange: [-2, 2],
+                yRange: [-1, 3],
+                zRange: [0, 100],
+                convex: false
+            }
+        };
+
+        function getFunc() {
+            return functions[funcType];
+        }
+
+        // Coordinate transforms
+        function xToPx(x) {
+            const f = getFunc();
+            return margin + (x - f.xRange[0]) / (f.xRange[1] - f.xRange[0]) * plotW;
+        }
+
+        function yToPx(y) {
+            const f = getFunc();
+            return margin + plotH - (y - f.yRange[0]) / (f.yRange[1] - f.yRange[0]) * plotH;
+        }
+
+        function valToColor(val, zMin, zMax) {
+            const t = Math.max(0, Math.min(1, (val - zMin) / (zMax - zMin)));
+            // Blue -> Green -> Yellow -> Red
+            const r = t < 0.5 ? 0 : (t < 0.75 ? (t - 0.5) * 4 * 255 : 255);
+            const g = t < 0.25 ? t * 4 * 255 : (t < 0.75 ? 255 : (1 - t) * 4 * 255);
+            const b = t < 0.5 ? (1 - t * 2) * 255 : 0;
+            return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+        }
+
+        function draw1D() {
+            const f = getFunc();
+            ctx.clearRect(0, 0, W, H);
+
+            // Background grid
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const x = margin + i * plotW / 10;
+                ctx.beginPath(); ctx.moveTo(x, margin); ctx.lineTo(x, margin + plotH); ctx.stroke();
+                const y = margin + i * plotH / 10;
+                ctx.beginPath(); ctx.moveTo(margin, y); ctx.lineTo(margin + plotW, y); ctx.stroke();
+            }
+
+            // Axes
+            ctx.strokeStyle = '#495057';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(margin, margin + plotH); ctx.lineTo(margin + plotW, margin + plotH); ctx.stroke(); // x-axis
+            ctx.beginPath(); ctx.moveTo(margin, margin); ctx.lineTo(margin, margin + plotH); ctx.stroke(); // y-axis
+
+            // Axis labels
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Segoe UI';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 10; i++) {
+                const xVal = f.xRange[0] + i * (f.xRange[1] - f.xRange[0]) / 10;
+                const xPx = margin + i * plotW / 10;
+                ctx.fillText(xVal.toFixed(1), xPx, margin + plotH + 20);
+            }
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let i = 0; i <= 10; i++) {
+                const yVal = f.zRange[0] + i * (f.zRange[1] - f.zRange[0]) / 10;
+                const yPx = margin + plotH - i * plotH / 10;
+                ctx.fillText(yVal.toFixed(1), margin - 10, yPx);
+            }
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'alphabetic';
+
+            // Function curve
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let px = 0; px <= plotW; px++) {
+                const x = f.xRange[0] + (px / plotW) * (f.xRange[1] - f.xRange[0]);
+                const y = f.f1d(x);
+                const py = margin + plotH - (y - f.zRange[0]) / (f.zRange[1] - f.zRange[0]) * plotH;
+                if (px === 0) ctx.moveTo(margin + px, py);
+                else ctx.lineTo(margin + px, py);
+            }
+            ctx.stroke();
+
+            // Gradient vectors (if enabled)
+            if (showGrad) {
+                ctx.strokeStyle = 'rgba(231, 76, 60, 0.6)';
+                ctx.lineWidth = 1.5;
+                ctx.fillStyle = '#e74c3c';
+                for (let i = 0; i <= 20; i++) {
+                    const x = f.xRange[0] + (i / 20) * (f.xRange[1] - f.xRange[0]);
+                    const y = f.f1d(x);
+                    const grad = f.df1d(x);
+                    const px = xToPx(x);
+                    const py = margin + plotH - (y - f.zRange[0]) / (f.zRange[1] - f.zRange[0]) * plotH;
+                    // Draw small arrow showing gradient direction
+                    const scale = 15;
+                    const gx = px - grad * scale;
+                    const gy = py + grad * scale * (plotH / plotW) * (f.xRange[1] - f.xRange[0]) / (f.zRange[1] - f.zRange[0]);
+                    ctx.beginPath();
+                    ctx.moveTo(px, py);
+                    ctx.lineTo(gx, gy);
+                    ctx.stroke();
+                    // Arrow head
+                    const angle = Math.atan2(gy - py, gx - px);
+                    ctx.beginPath();
+                    ctx.moveTo(gx, gy);
+                    ctx.lineTo(gx - 5 * Math.cos(angle - 0.3), gy - 5 * Math.sin(angle - 0.3));
+                    ctx.lineTo(gx - 5 * Math.cos(angle + 0.3), gy - 5 * Math.sin(angle + 0.3));
+                    ctx.fill();
+                }
+            }
+
+            // User points & animated paths
+            animPoints.forEach((ap, idx) => {
+                if (ap.path.length < 2) return;
+                const hue = (idx * 60) % 360;
+                ctx.strokeStyle = `hsl(${hue}, 70%, 50%)`;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ap.path.forEach((pt, i) => {
+                    const px = xToPx(pt.x);
+                    const py = margin + plotH - (pt.y - f.zRange[0]) / (f.zRange[1] - f.zRange[0]) * plotH;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                });
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Current position
+                const current = ap.path[ap.path.length - 1];
+                const cpx = xToPx(current.x);
+                const cpy = margin + plotH - (current.y - f.zRange[0]) / (f.zRange[1] - f.zRange[0]) * plotH;
+                ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+                ctx.beginPath();
+                ctx.arc(cpx, cpy, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // Static starting points (not yet animated)
+            points.forEach((pt, idx) => {
+                const px = xToPx(pt.x);
+                const py = margin + plotH - (pt.y - f.zRange[0]) / (f.zRange[1] - f.zRange[0]) * plotH;
+                const hue = (idx * 60) % 360;
+                ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+                ctx.beginPath();
+                ctx.arc(px, py, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // Title
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = 'bold 16px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(f.name + (f.convex ? ' ✓ CONVEX' : ' ✗ NON-CONVEX'), W / 2, 30);
+            ctx.textAlign = 'start';
+        }
+
+        function draw2D() {
+            const f = getFunc();
+            ctx.clearRect(0, 0, W, H);
+
+            // Draw contour / heatmap
+            const resolution = 80;
+            const imageData = ctx.createImageData(plotW, plotH);
+            const data = imageData.data;
+
+            for (let py = 0; py < plotH; py++) {
+                const y = f.yRange[1] - (py / plotH) * (f.yRange[1] - f.yRange[0]);
+                for (let px = 0; px < plotW; px++) {
+                    const x = f.xRange[0] + (px / plotW) * (f.xRange[1] - f.xRange[0]);
+                    const z = f.f2d(x, y);
+                    const color = valToColor(z, f.zRange[0], f.zRange[1]);
+                    const r = parseInt(color.slice(4, color.indexOf(',')));
+                    const g = parseInt(color.slice(color.indexOf(',') + 1, color.lastIndexOf(',')));
+                    const b = parseInt(color.slice(color.lastIndexOf(',') + 1, color.indexOf(')')));
+                    const idx = (py * plotW + px) * 4;
+                    data[idx] = r;
+                    data[idx + 1] = g;
+                    data[idx + 2] = b;
+                    data[idx + 3] = 200;
+                }
+            }
+            ctx.putImageData(imageData, margin, margin);
+
+            // Contour lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.lineWidth = 1;
+            const levels = 15;
+            for (let level = 1; level <= levels; level++) {
+                const zLevel = f.zRange[0] + (level / levels) * (f.zRange[1] - f.zRange[0]);
+                ctx.beginPath();
+                let started = false;
+                for (let py = 0; py < plotH; py++) {
+                    const y = f.yRange[1] - (py / plotH) * (f.yRange[1] - f.yRange[0]);
+                    for (let px = 0; px < plotW; px++) {
+                        const x = f.xRange[0] + (px / plotW) * (f.xRange[1] - f.xRange[0]);
+                        const z = f.f2d(x, y);
+                        if (Math.abs(z - zLevel) < (f.zRange[1] - f.zRange[0]) / (levels * 2)) {
+                            if (!started) {
+                                ctx.moveTo(margin + px, margin + py);
+                                started = true;
+                            } else {
+                                ctx.lineTo(margin + px, margin + py);
+                            }
+                        }
+                    }
+                }
+                ctx.stroke();
+            }
+
+            // Gradient field (if enabled)
+            if (showGrad) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.lineWidth = 1;
+                const gridStep = 25;
+                for (let gy = gridStep; gy < plotH - gridStep; gy += gridStep) {
+                    for (let gx = gridStep; gx < plotW - gridStep; gx += gridStep) {
+                        const x = f.xRange[0] + (gx / plotW) * (f.xRange[1] - f.xRange[0]);
+                        const y = f.yRange[1] - (gy / plotH) * (f.yRange[1] - f.yRange[0]);
+                        const [gx_val, gy_val] = f.grad2d(x, y);
+                        const norm = Math.sqrt(gx_val * gx_val + gy_val * gy_val);
+                        if (norm > 0.01) {
+                            const scale = 8 / norm;
+                            const px1 = margin + gx;
+                            const py1 = margin + gy;
+                            const px2 = margin + gx - gx_val * scale;
+                            const py2 = margin + gy + gy_val * scale; // y inverted
+                            ctx.beginPath();
+                            ctx.moveTo(px1, py1);
+                            ctx.lineTo(px2, py2);
+                            ctx.stroke();
+                            // Arrow
+                            const angle = Math.atan2(py2 - py1, px2 - px1);
+                            ctx.beginPath();
+                            ctx.moveTo(px2, py2);
+                            ctx.lineTo(px2 - 4 * Math.cos(angle - 0.3), py2 - 4 * Math.sin(angle - 0.3));
+                            ctx.lineTo(px2 - 4 * Math.cos(angle + 0.3), py2 - 4 * Math.sin(angle + 0.3));
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+
+            // Global minimum marker
+            let globalMin = { x: 0, y: 0, z: Infinity };
+            if (funcType === 'convex_quad' || funcType === 'convex_abs' || funcType === 'convex_exp') {
+                globalMin = { x: 0, y: 0, z: f.f2d(0, 0) };
+            } else if (funcType === 'nonconvex_rosen') {
+                globalMin = { x: 1, y: 1, z: 0 };
+            } else if (funcType === 'nonconvex_sin') {
+                globalMin = { x: -0.1, y: -0.1, z: f.f2d(-0.1, -0.1) }; // approx
+            } else if (funcType === 'nonconvex_multi') {
+                globalMin = { x: -0.5, y: -0.5, z: f.f2d(-0.5, -0.5) }; // approx
+            }
+
+            const gmx = xToPx(globalMin.x);
+            const gmy = yToPx(globalMin.y);
+            ctx.fillStyle = '#ffeb3b';
+            ctx.strokeStyle = '#fbc02d';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(gmx, gmy - 10);
+            ctx.lineTo(gmx - 7, gmy + 5);
+            ctx.lineTo(gmx + 7, gmy + 5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Animated paths
+            animPoints.forEach((ap, idx) => {
+                if (ap.path.length < 2) return;
+                const hue = (idx * 60) % 360;
+                ctx.strokeStyle = `hsl(${hue}, 80%, 50%)`;
+                ctx.lineWidth = 3;
+                ctx.setLineDash([8, 4]);
+                ctx.beginPath();
+                ap.path.forEach((pt, i) => {
+                    const px = xToPx(pt.x);
+                    const py = yToPx(pt.y);
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                });
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Current position
+                const current = ap.path[ap.path.length - 1];
+                const cpx = xToPx(current.x);
+                const cpy = yToPx(current.y);
+                ctx.fillStyle = `hsl(${hue}, 80%, 50%)`;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(cpx, cpy, 10, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+            });
+
+            // Static points
+            points.forEach((pt, idx) => {
+                const px = xToPx(pt.x);
+                const py = yToPx(pt.y);
+                const hue = (idx * 60) % 360;
+                ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(px, py, 10, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+            });
+
+            // Axes
+            ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(margin, margin + plotH); ctx.lineTo(margin + plotW, margin + plotH); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(margin, margin); ctx.lineTo(margin, margin + plotH); ctx.stroke();
+
+            // Title
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(f.name + (f.convex ? ' ✓ CONVEX' : ' ✗ NON-CONVEX'), W / 2, 30);
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.font = '12px Segoe UI';
+            ctx.fillText('Klik untuk menempatkan titik awal gradient descent', W / 2, 50);
+            ctx.textAlign = 'start';
+        }
+
+        function gradientDescentStep(x, y, lr = 0.1) {
+            const f = getFunc();
+            if (dim === '1d') {
+                const grad = f.df1d(x);
+                return { x: x - lr * grad, y: f.f1d(x - lr * grad) };
+            } else {
+                const [gx, gy] = f.grad2d(x, y);
+                return { x: x - lr * gx, y: y - lr * gy };
+            }
+        }
+
+        function animate() {
+            const f = getFunc();
+            let anyMoving = false;
+
+            animPoints.forEach(ap => {
+                if (ap.step < ap.maxSteps) {
+                    const current = ap.path[ap.path.length - 1];
+                    let next;
+                    if (dim === '1d') {
+                        next = gradientDescentStep(current.x, 0, 0.1);
+                    } else {
+                        next = gradientDescentStep(current.x, current.y, 0.01);
+                    }
+                    ap.path.push(next);
+                    ap.step++;
+                    anyMoving = true;
+                }
+            });
+
+            if (anyMoving) {
+                requestAnimationFrame(animate);
+            }
+            draw();
+        }
+
+        function draw() {
+            if (dim === '1d') draw1D();
+            else draw2D();
+        }
+
+        // Event handlers
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            if (mx < margin || mx > margin + plotW || my < margin || my > margin + plotH) return;
+
+            let x, y;
+            if (dim === '1d') {
+                const f = getFunc();
+                x = f.xRange[0] + ((mx - margin) / plotW) * (f.xRange[1] - f.xRange[0]);
+                y = f.f1d(x);
+            } else {
+                const f = getFunc();
+                x = f.xRange[0] + ((mx - margin) / plotW) * (f.xRange[1] - f.xRange[0]);
+                y = f.yRange[1] - ((my - margin) / plotH) * (f.yRange[1] - f.yRange[0]);
+            }
+
+            points.push({ x, y });
+            // Start animation for this point
+            animPoints.push({
+                path: [{ x, y }],
+                step: 0,
+                maxSteps: dim === '1d' ? 80 : 150
+            });
+            animate();
+            draw();
+        });
+
+        document.getElementById('funcType').addEventListener('change', (e) => {
+            funcType = e.target.value;
+            points = [];
+            animPoints = [];
+            draw();
+        });
+
+        document.getElementById('dimSelect').addEventListener('change', (e) => {
+            dim = e.target.value;
+            points = [];
+            animPoints = [];
+            draw();
+        });
+
+        document.getElementById('showGradient').addEventListener('change', (e) => {
+            showGrad = e.target.value === 'true';
+            draw();
+        });
+
+        function resetSimulation() {
+            points = [];
+            animPoints = [];
+            draw();
+        }
+
+        // Initial draw
+        draw();
+    </script>
+</body>
+</html>

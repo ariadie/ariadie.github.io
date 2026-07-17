@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 5b: z-Transform</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#9b59b6;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(155,89,182,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#9b59b6;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(155,89,182,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#9b59b6;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #9b59b6;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#7d3c98;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #9b59b6;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px)scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#f5eefb 0%,#e8daef 100%);}
+        .concept-card h4{color:#7d3c98;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#9b59b6;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#9b59b6,#e67e22,#f1c40f);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#9b59b6;box-shadow:0 0 0 3px rgba(155,89,182,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(155,89,182,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(155,89,182,.4);background:linear-gradient(135deg,#8e44ad,#9b59b6);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position-relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        .references{margin-top:40px;padding-top:30px;border-top:2px solid #e9ecef;animation:fadeIn 1s ease-in;}
+        .reference-item{margin-bottom:20px;padding:15px;background:#f8f9fa;border-radius:6px;border-left:3px solid #6c757d;transition:all .3s ease;animation:slideIn .5s ease-out forwards;opacity:0;}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .reference-item:hover{background:#e9ecef;transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,.1);}
+        .reference-item strong{color:#2c3e50;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#9b59b6,#e67e22,#f1c40f,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(155,89,182,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #9b59b6;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#9b59b6;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#9b59b6;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 5 (Bagian 2)</h1>
+            <div class="subtitle">z-Transform &mdash; Catatan Sarjana &amp; Pascasarjana</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <a class="navbtn" href="chapter4b.html" title="Bab 4b">&#8592; Bab 4b</a>
+            <a class="navbtn" href="chapter5a.html" title="Sebelumnya: Bab 5a">&#8592; Bab 5a</a>
+            <span class="navcur">Bab 5b</span>
+            <span class="navbtn navdisabled" title="Segera hadir">Bab 6 &#8594;</span>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#def">Definisi &amp; ROC</a>
+            <a href="#props">Sifat-Sifat</a>
+            <a href="#dtft">Hubungan DTFT</a>
+            <a href="#system">Sistem LTI &amp; H(z)</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+            <a href="#references">Referensi</a>
+        </nav>
+
+        <div class="content">
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 5b: z-Transform</h2>
+                <p>Melanjutkan <a href="chapter5a.html">Bab 5a</a>, kita perkenalkan <strong>z-Transform</strong> &mdash; generalisasi DTFT ke bidang kompleks <em>z</em>. DTFT hanya ada pada lingkaran satuan <em>|z|=1</em>; z-transform ada di <em>daerah kekonvergenan (ROC)</em> yang lebih luas, sehingga sangat kuat untuk menganalisis kestabilan &amp; respon sistem diskrit.</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">∑</span>Definisi</h4>
+                        <p><em>X(z)=Σ x[n]z<sup>&minus;n</sup></em>; eksis hanya di ROC tertentu di bidang <em>z</em>.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">◎</span>ROC</h4>
+                        <p>Daerah kekonvergenan menentukan kausalitas &amp; kestabilan sistem.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">H(z)</span>Sistem</h4>
+                        <p>Impulse response <em>h[n]</em> ⇔ <em>H(z)</em>; kutub di dalam unit circle ⇒ stabil.</p>
+                    </div>
+                </div>
+                <div class="note"><strong>Tujuan (S1/S2):</strong> (i) menghitung z-transform &amp; menentukan ROC, (ii) menggunakan sifat aljabar, (iii) menghubungkan ke DTFT, (iv) menganalisis sistem LTI via <em>H(z)</em> (kutub/nol, kausal, stabil).</div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#def">Definisi &amp; Daerah Kekonvergenan (ROC)</a></li>
+                        <li><a href="#props">Sifat-Sifat z-Transform</a></li>
+                        <li><a href="#dtft">Hubungan dengan DTFT</a></li>
+                        <li><a href="#system">Sistem LTI &amp; Fungsi Transfer H(z)</a></li>
+                        <li><a href="#exercises">Latihan Terselesaikan</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="def" class="section" style="--delay:1s;">
+                <h2>◎ Definisi &amp; ROC</h2>
+                <div class="math">\[ X(z) = \sum_{n=-\infty}^{\infty} x[n]\, z^{-n},\qquad z\in\mathbb{C} \]<span class="eq-label">(5.7)</span></div>
+                <p>DTFT adalah kasus khusus pada <em>z = e<sup>jω</sup></em> (lingkaran satuan). Kekonvergenan menentukan <strong>ROC</strong> (region of convergence) &mdash; himpunan <em>z</em> dengan jumlah berhingga.</p>
+
+                <h3>5.1 Contoh &amp; ROC</h3>
+                <div class="math">\[ x[n]=\alpha^n u[n] \;\Longrightarrow\; X(z)=\frac{1}{1-\alpha z^{-1}}=\frac{z}{z-\alpha},\quad \text{ROC: } |z|>|\alpha| \]<span class="eq-label">(5.8)</span></div>
+                <div class="math">\[ x[n]=-\alpha^n u[-n-1] \;\Longrightarrow\; X(z)=\frac{1}{1-\alpha z^{-1}},\quad \text{ROC: } |z|<|\alpha| \]<span class="eq-label">(5.9)</span></div>
+                <p>Dua sinyal berbeda punya <em>X(z)</em> aljabar sama tapi <strong>ROC berbeda</strong> &mdash; ROC esensial untuk keunikan inverse.</p>
+                <table>
+                    <tr><th>Sinyal</th><th>X(z)</th><th>ROC</th></tr>
+                    <tr><td><em>δ[n]</em></td><td>1</td><td>seluruh bidang z</td></tr>
+                    <tr><td><em>u[n]</em></td><td><em>1/(1−z<sup>&minus;1</sup>)</em></td><td><em>|z|&gt;1</em></td></tr>
+                    <tr><td><em>a<sup>n</sup>u[n]</em></td><td><em>1/(1−az<sup>&minus;1</sup>)</em></td><td><em>|z|&gt;|a|</em></td></tr>
+                </table>
+            </div>
+
+            <div id="props" class="section" style="--delay:1.2s;">
+                <h2>⚙️ Sifat-Sifat z-Transform</h2>
+                <table>
+                    <tr><th>Sifat</th><th>Waktu</th><th>z</th></tr>
+                    <tr><td>Linearitas</td><td><em>a x₁ + b x₂</em></td><td><em>a X₁ + b X₂</em></td></tr>
+                    <tr><td>Pergeseran waktu</td><td><em>x[n &minus; n₀]</em></td><td><em>z<sup>&minus;n₀</sup> X(z)</em></td></tr>
+                    <tr><td>Skala (z)</td><td><em>a<sup>n</sup> x[n]</em></td><td><em>X(z/a)</em></td></tr>
+                    <tr><td>Konvolusi</td><td><em>x₁ * x₂</em></td><td><em>X₁(z) X₂(z)</em></td></tr>
+                    <tr><td>Diferensial</td><td><em>n x[n]</em></td><td><em>&minus;z dX/dz</em></td></tr>
+                    <tr><td>Inversi</td><td colspan="2"><em>x[n] = (1/2πj) ∮ X(z) z<sup>n&minus;1</sup> dz</em> (integral tertutup dalam ROC)</td></tr>
+                </table>
+                <div class="note"><strong>Inversi praktis:</strong> Untuk rasio polinomial, pakai <em>partial fraction expansion</em> lalu cocokkan dengan pasangan dasar (5.8)–(5.9) sambil menjaga ROC.</div>
+            </div>
+
+            <div id="dtft" class="section" style="--delay:1.4s;">
+                <h2>🔗 Hubungan dengan DTFT</h2>
+                <p>Jika ROC mencakup lingkaran satuan <em>|z|=1</em>, maka:</p>
+                <div class="math">\[ X(e^{j\omega}) = X(z)\big|_{z=e^{j\omega}} \]<span class="eq-label">(5.10)</span></div>
+                <div class="warning"><strong>Stabilitas BIBO (diskrit):</strong> Sistem diskrit stabil ⇔ impulse response absolut berjumlah berhingga ⇔ ROC mencakup <em>|z|=1</em>. Untuk sistem kausal, ini berarti <em>semua kutub di dalam</em> lingkaran satuan (<em>|p<sub>k</sub>|&lt;1</em>).</div>
+            </div>
+
+            <div id="system" class="section" style="--delay:1.6s;">
+                <h2>H(z) Sistem LTI &amp; Fungsi Transfer</h2>
+                <p>Sistem LTI diskrit dengan impulse response <em>h[n]</em> punya fungsi transfer:</p>
+                <div class="math">\[ H(z) = \sum_{n} h[n]\, z^{-n},\qquad Y(z) = H(z) X(z) \]<span class="eq-label">(5.11)</span></div>
+                <p>Untuk sistem yang dinyatakan persamaan beda:</p>
+                <div class="math">\[ \sum_{k=0}^{N} a_k y[n-k] = \sum_{m=0}^{M} b_m x[n-m] \;\Longrightarrow\; H(z)=\frac{\sum_{m=0}^{M} b_m z^{-m}}{\sum_{k=0}^{N} a_k z^{-k}} \]<span class="eq-label">(5.12)</span></div>
+                <p>Nol (roots pembilang) &amp; kutub (roots penyebut) menentukan respons frekuensi: <em>H(e<sup>jω</sup>)</em> besar dekat nol, kecil dekat kutub. Ini analog erat dengan <em>H(s)</em> Laplace di <a href="chapter2b.html">Bab 2b</a>.</p>
+                <div class="note"><strong>Kausal &amp; stabil:</strong> Kausal ⇒ ROC di luar kutub terluar; stabil ⇒ ROC mencakup <em>|z|=1</em>. Keduanya ⇒ semua kutub <em>|p<sub>k</sub>|&lt;1</em>.</div>
+            </div>
+
+            <div id="exercises" class="section" style="--delay:2s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; ROC &amp; kausalitas</h4>
+                    <p><em>H(z)=1/(1−0.5z<sup>&minus;1</sup>)</em>. Apakah kausal &amp; stabil?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Kutub di <em>z=0.5</em> (|0.5|&lt;1). Jika kausal, ROC <em>|z|&gt;0.5</em> yang mencakup lingkaran satuan ⇒ stabil. Jadi ya, kausal &amp; stabil (band-pass rendah/low-pass diskrit).</p>
+                        </div>
+                    </details>
+                </div>
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Hubungan DTFT</h4>
+                    <p>Dari Latihan 3, tulis <em>H(e<sup>jω</sup>)</em>.</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><em>H(e<sup>jω</sup>)=1/(1−0.5e<sup>&minus;jω</sup>)</em>. Magnitudo <em>|H|=1/|1−0.5e<sup>&minus;jω</sup>|</em> turun saat ω menjauhi 0 ⇒ low-pass. Di ω=0, <em>|H|=2</em>; di ω=π, <em>|H|=2/3</em>.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Bab 5b</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>z-Transform</strong>: <em>X(z)=Σx[n]z<sup>&minus;n</sup></em> (Pers. 5.7); DTFT = nilai pada <em>|z|=1</em>.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>ROC</strong>: menentukan keunikan, kausalitas &amp; kestabilan.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Stabilitas diskrit</strong>: ROC mencakup <em>|z|=1</em> ⇔ kutub kausal di dalam unit circle.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>H(z)</strong>: fungsi transfer dari persamaan beda (Pers. 5.12); nol/kutub bentuk respons.</div></div>
+                </div>
+                <p>Bab 5 lengkap: DTFT, DFT &amp; z-Transform. Bab 6 (Laplace Transform untuk CT) &mdash; segera hadir.</p>
+            </div>
+
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+                <div class="reference-item">
+                    <strong>Oppenheim, A.V., Willsky, A.S., &amp; Nawab, S.H.</strong> (1996). <em>Signals and Systems</em>. Ed. ke-2. Prentice Hall. Bab 5 &mdash; The z-Transform (Bagian 2: Definisi, ROC, Sifat, Sistem). ISBN: 0132085550.
+                </div>
+                <div class="reference-item">
+                    <strong>Sumber tambahan:</strong>
+                    <ul style="margin-top:10px;padding-left:20px;">
+                        <li><a href="https://en.wikipedia.org/wiki/Z-transform" target="_blank">Wikipedia – Z-transform</a></li>
+                        <li><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/" target="_blank">MIT OCW – Signals &amp; Systems</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Panduan Interaktif Oppenheim Signals &amp; Systems | Bab 5b</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">z-Transform &mdash; generalisasi DTFT &amp; alat analisis sistem diskrit.</p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <a class="navbtn" href="chapter5a.html" title="Sebelumnya: Bab 5a">&#8592; Bab 5a</a>
+                    <span class="navcur">Bab 5b</span>
+                </div>
+                <p style="margin-top:15px;"><button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button></p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

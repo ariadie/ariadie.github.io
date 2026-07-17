@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 5a: DTFT, Sampling Diskrit &amp; DFT</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1)0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#9b59b6;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(155,89,182,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#9b59b6;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(155,89,182,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#9b59b6;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #9b59b6;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#7d3c98;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #9b59b6;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px)scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#f5eefb 0%,#e8daef 100%);}
+        .concept-card h4{color:#7d3c98;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#9b59b6;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#9b59b6,#e67e22,#f1c40f);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#9b59b6;box-shadow:0 0 0 3px rgba(155,89,182,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(155,89,182,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(155,89,182,.4);background:linear-gradient(135deg,#8e44ad,#9b59b6);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position-relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#4caf50;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        .references{margin-top:40px;padding-top:30px;border-top:2px solid #e9ecef;animation:fadeIn 1s ease-in;}
+        .reference-item{margin-bottom:20px;padding:15px;background:#f8f9fa;border-radius:6px;border-left:3px solid #6c757d;transition:all .3s ease;animation:slideIn .5s ease-out forwards;opacity:0;}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .reference-item:hover{background:#e9ecef;transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,.1);}
+        .reference-item strong{color:#2c3e50;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#9b59b6,#e67e22,#f1c40f,#e74c3c);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(155,89,182,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #9b59b6;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#9b59b6;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#9b59b6;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 5 (Bagian 1)</h1>
+            <div class="subtitle">DTFT, Sampling Diskrit &amp; DFT &mdash; Catatan Sarjana &amp; Pascasarjana</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <a class="navbtn" href="chapter4a.html" title="Bab 4a">&#8592; Bab 4a</a>
+            <a class="navbtn" href="chapter4b.html" title="Sebelumnya: Bab 4b">&#8592; Bab 4b</a>
+            <span class="navcur">Bab 5a</span>
+            <a class="navbtn" href="chapter5b.html" title="Lanjut: Bab 5b">Bab 5b &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#dtft">DTFT</a>
+            <a href="#dsampling">Sampling Diskrit</a>
+            <a href="#dft">DFT</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+            <a href="#summary">Ringkasan</a>
+            <a href="#references">Referensi</a>
+        </nav>
+
+        <div class="content">
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>📚 Ikhtisar Bab 5a</h2>
+                <p>Bab 5 (Oppenheim ed. 2) berpindah ke alat analisis diskrit: <strong>Discrete-Time Fourier Transform (DTFT)</strong> sudah diperkenalkan singkat di <a href="chapter3b.html">Bab 3b</a>; di sini kita perdalam sifatnya, lalu bahas <strong>sampling sinyal diskrit</strong> (konvolusi siklik/cyclic) dan <strong>Discrete Fourier Transform (DFT)</strong> &mdash; versi berhingga yang dihitung komputer (FFT). Bagian z-Transform ada di <a href="chapter5b.html">Bab 5b</a>.</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s;">
+                        <h4><span class="icon">∑</span>DTFT</h4>
+                        <p><em>X(e<sup>jω</sup>)=Σx[n]e<sup>&minus;jωn</sup></em>; kontinu &amp; periodik 2π. Basis analisis frekuensi diskrit.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s;">
+                        <h4><span class="icon">⊛</span>Konvolusi Siklik</h4>
+                        <p>Sampling diskrit ⇒ konvolusi menjadi <em>siklik</em> (wraparound), bukan linier.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s;">
+                        <h4><span class="icon">N</span>DFT</h4>
+                        <p>Versi berhingga <em>N</em> titik dari DTFT; komputasi via FFT &mdash; inti pemrosesan digital.</p>
+                    </div>
+                </div>
+                <div class="note"><strong>Tujuan (S1/S2):</strong> (i) kuasai sifat DTFT lanjutan, (ii) pahami konvolusi siklik &amp; alias frekuensi diskrit, (iii) hitung &amp; interpretasi DFT.</div>
+
+                <div class="toc">
+                    <h3 style="margin-top:0;">Daftar Isi</h3>
+                    <ol>
+                        <li><a href="#dtft">Sifat-Sifat DTFT</a></li>
+                        <li><a href="#dsampling">Sampling Sinyal Diskrit &amp; Konvolusi Siklik</a></li>
+                        <li><a href="#dft">Discrete Fourier Transform (DFT)</a></li>
+                        <li><a href="#simulation">Simulasi Interaktif</a></li>
+                        <li><a href="#exercises">Latihan Terselesaikan</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="dtft" class="section" style="--delay:1s;">
+                <h2>🌊 Sifat-Sifat DTFT</h2>
+                <p>DTFT dan inverse (dari Bab 3b):</p>
+                <div class="math">\[ X(e^{j\omega}) = \sum_{n=-\infty}^{\infty} x[n]\, e^{-j\omega n},\qquad x[n] = \frac{1}{2\pi}\int_{2\pi} X(e^{j\omega}) e^{j\omega n}\, d\omega \]<span class="eq-label">(5.1)</span></div>
+                <table>
+                    <tr><th>Sifat</th><th>Waktu</th><th>Frekuensi</th></tr>
+                    <tr><td>Linearitas</td><td><em>a x₁ + b x₂</em></td><td><em>a X₁ + b X₂</em></td></tr>
+                    <tr><td>Pergeseran waktu</td><td><em>x[n &minus; n₀]</em></td><td><em>e<sup>&minus;jωn₀</sup> X(e<sup>jω</sup>)</em></td></tr>
+                    <tr><td>Konvolusi linier</td><td><em>x₁ * x₂</em></td><td><em>X₁ X₂</em></td></tr>
+                    <tr><td>Perkalian</td><td><em>x₁[n] x₂[n]</em></td><td><em>(1/2π) X₁ ⊛ X₂</em> (konvolusi siklik)</td></tr>
+                    <tr><td>Diferensial frek.</td><td><em>n x[n]</em></td><td><em>j dX/dω</em></td></tr>
+                    <tr><td>Periodisitas</td><td>&mdash;</td><td><em>X(e<sup>j(ω+2π)</sup>) = X(e<sup>jω</sup>)</em></td></tr>
+                </table>
+                <div class="note"><strong>Berbeda dari CTFT:</strong> DTFT selalu periodik 2π. Ini mengakibatkan perkalian waktu ⇒ konvolusi <em>siklik</em> (bukan linier) di frekuensi &mdash; kunci untuk bagian berikutnya.</div>
+            </div>
+
+            <div id="dsampling" class="section" style="--delay:1.2s;">
+                <h2>⊛ Sampling Sinyal Diskrit &amp; Konvolusi Siklik</h2>
+                <p>Sampled (decimated) sinyal diskrit: <em>x[n]</em> → <em>x<sub>d</sub>[n]=x[nN]</em> (ambil tiap <em>N</em>). Di frekuensi, spektrum <em>X<sub>d</sub>(e<sup>jω</sup>)</em> adalah <strong>superposisi</strong> spektrum asli yang diperiodekan:</p>
+                <div class="math">\[ X_d(e^{j\omega}) = \frac{1}{N}\sum_{k=0}^{N-1} X\!\left(e^{j(\omega-2\pi k)/N}\right) \]<span class="eq-label">(5.2)</span></div>
+                <p>Sama seperti sampling CT (Bab 4a) tetapi di domain diskrit &mdash; ada <strong>aliasing diskrit</strong> bila spektrum tak cukup sempit.</p>
+
+                <h3>5.1 Konvolusi Siklik (Circular Convolution)</h3>
+                <p>Jika kita hanya punya <em>N</em> titik (window berhingga), konvolusi jadi <em>siklik</em>:</p>
+                <div class="math">\[ (x_1 \circledast x_2)[n] = \sum_{m=0}^{N-1} x_1[m]\, x_2[((n-m))_N] \]<span class="eq-label">(5.3)</span></div>
+                <p>dengan <em>((·))<sub>N</sub></em> modulo <em>N</em>. Di frekuensi, DFT dari konvolusi siklik = <strong>perkalian titik-demi-titik</strong> DFT &mdash; sangat efisien untuk komputasi.</p>
+                <div class="warning"><strong>Penting:</strong> Konvolusi siklik ≠ linier kecuali kita <em>zero-pad</em> ke panjang ≥ L₁+L₂−1. Tanpa itu, efek "wraparound" mencemari hasil (time-aliasing).</div>
+            </div>
+
+            <div id="dft" class="section" style="--delay:1.4s;">
+                <h2>N Discrete Fourier Transform (DFT)</h2>
+                <p>Untuk urutan berhingga <em>x[0…N−1]</em>, DFT memberi <em>N</em> nilai kompleks:</p>
+                <div class="math">\[ X[k] = \sum_{n=0}^{N-1} x[n]\, e^{-j 2\pi k n / N},\quad k=0,\dots,N-1 \]<span class="eq-label">(5.4)</span></div>
+                <div class="math">\[ x[n] = \frac{1}{N}\sum_{k=0}^{N-1} X[k]\, e^{j 2\pi k n / N} \]<span class="eq-label">(5.5)</span></div>
+                <p><em>X[k]</em> adalah sampel DTFT pada <em>ω=2πk/N</em>. DFT dapat ditulis matriks <em>X = W x</em>, dengan <em>W<sub>kn</sub>=e<sup>&minus;j2πkn/N</sup></em> (matriks Fourier, unitary/√N).</p>
+                <div class="note"><strong>FFT:</strong> Fast Fourier Transform (Cooley–Tukey) menghitung DFT dalam <em>O(N log N)</em> bukan <em>O(N²)</em> &mdash; fondasi DSP modern (filtering, spektrum, kompresi).</div>
+
+                <h3>5.2 Contoh DFT singkat</h3>
+                <div class="math">\[ x=[1,1,1,1]\;\Rightarrow\; X=[4,0,0,0] \]<span class="eq-label">(5.6)</span></div>
+                <p>Sinyal konstan ⇒ hanya komponen DC (k=0). Sebaliknya <em>x=[1,&minus;1,1,&minus;1]</em> ⇒ <em>X=[0,0,4,0]</em> (frekuensi Nyquist).</p>
+            </div>
+
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>🎮 DFT Interaktif</h2>
+                <p>Masukkan urutan (dipisah spasi) dan lihat magnitudo DFT <em>|X[k]|</em>. Coba <code>1 1 1 1</code> vs <code>1 -1 1 -1</code>.</p>
+                <div class="controls">
+                    <div class="control-group" style="min-width:320px;">
+                        <label for="seqInput">Urutan x[n] (spasi-pisah)</label>
+                        <input type="text" id="seqInput" value="1 2 3 4" style="padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;font-size:14px;">
+                    </div>
+                    <button class="btn" onclick="computeDFT()">Hitung DFT</button>
+                    <button class="btn" onclick="resetDFT()">Reset</button>
+                </div>
+                <div class="simulation-container">
+                    <canvas id="dftCanvas" width="900" height="260"></canvas>
+                </div>
+                <p style="text-align:center;margin-top:15px;color:#6c757d;">
+                    <strong>Coba:</strong> Urutan real ⇒ |X[k]| simetris terhadap N/2 (konjugat-simetris).
+                </p>
+            </div>
+
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>✍️ Latihan Terselesaikan</h2>
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; DFT delta</h4>
+                    <p>Hitung DFT dari <em>x=[1,0,0,0]</em> (N=4).</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><em>X[k]=Σ x[n]e<sup>&minus;j2πkn/4</sup>=1·e<sup>0</sup>=1</em> untuk semua <em>k</em>. Jadi <em>X=[1,1,1,1]</em>. Impuls ⇒ spektrum rata (semua frekuensi sama).</p>
+                        </div>
+                    </details>
+                </div>
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Konvolusi siklik vs linier</h4>
+                    <p><em>x=[1,2]</em>, <em>h=[3,4]</em>, N=2. Apa konvolusi sikliknya? Apa konvolusi liniernya?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Siklik (N=2):</strong> <em>y[0]=1·3+2·4=11</em>, <em>y[1]=1·4+2·3=10</em> ⇒ <em>[11,10]</em> (wraparound, salah). <strong>Linier:</strong> zero-pad ke N≥3 ⇒ <em>[3,10,8]</em>. Perbedaan memperlihatkan pentingnya zero-padding.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>📝 Ringkasan Bab 5a</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>DTFT</strong>: periodik 2π; perkalian waktu ⇒ konvolusi siklik di frekuensi.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Sampling diskrit</strong>: spektrum diperiodekan (Pers. 5.2); ada aliasing diskrit.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>Konvolusi siklik</strong>: modulo N (Pers. 5.3); butuh zero-pad untuk = linier.</div></div>
+                    <div class="key-takeaway"><div class="takeaway-icon">✓</div><div><strong>DFT</strong>: N-titik sampel DTFT (Pers. 5.4/5.5); basis FFT &amp; DSP.</div></div>
+                </div>
+                <p>z-Transform &mdash; generalisasi DTFT &amp; alat analisis sistem diskrit &mdash; di <a href="chapter5b.html">Bab 5b</a>.</p>
+            </div>
+
+            <div id="references" class="section" style="--delay:4s;">
+                <h2>📚 Referensi</h2>
+                <div class="reference-item">
+                    <strong>Oppenheim, A.V., Willsky, A.S., &amp; Nawab, S.H.</strong> (1996). <em>Signals and Systems</em>. Ed. ke-2. Prentice Hall. Bab 5 &mdash; The Discrete-Time Fourier Transform (Bagian 1: DTFT, Sampling Diskrit, DFT). ISBN: 0132085550.
+                </div>
+                <div class="reference-item">
+                    <strong>Sumber tambahan:</strong>
+                    <ul style="margin-top:10px;padding-left:20px;">
+                        <li><a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform" target="_blank">Wikipedia – Discrete Fourier Transform</a></li>
+                        <li><a href="https://en.wikipedia.org/wiki/Circular_convolution" target="_blank">Wikipedia – Circular Convolution</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 Panduan Interaktif Oppenheim Signals &amp; Systems | Bab 5a</p>
+                <p style="margin-top:10px;font-size:.9em;opacity:.8;">DTFT, Sampling Diskrit &amp; DFT &mdash; dari analisis frekuensi ke komputasi digital.</p>
+                <div class="footernav">
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <a class="navbtn" href="chapter4b.html" title="Sebelumnya: Bab 4b">&#8592; Bab 4b</a>
+                    <span class="navcur">Bab 5a</span>
+                    <a class="navbtn" href="chapter5b.html" title="Lanjut: Bab 5b">Bab 5b &#8594;</a>
+                </div>
+                <p style="margin-top:15px;"><button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button></p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    const dftCanvas = document.getElementById('dftCanvas');
+    const ctxD = dftCanvas.getContext('2d');
+    const W = dftCanvas.width, H = dftCanvas.height, mid = H / 2;
+
+    function computeDFT() {
+        const txt = document.getElementById('seqInput').value.trim();
+        const x = txt.length ? txt.split(/\s+/).map(Number) : [0];
+        const N = x.length;
+        const re = new Array(N).fill(0), im = new Array(N).fill(0);
+        for (let k = 0; k < N; k++) {
+            for (let n = 0; n < N; n++) {
+                const ang = -2 * Math.PI * k * n / N;
+                re[k] += x[n] * Math.cos(ang);
+                im[k] += x[n] * Math.sin(ang);
+            }
+        }
+        const mag = re.map((r, i) => Math.sqrt(r * r + im[i] * im[i]));
+        drawDFT(mag);
+    }
+
+    function drawDFT(mag) {
+        const N = mag.length;
+        ctxD.clearRect(0, 0, W, H);
+        ctxD.strokeStyle = '#495057'; ctxD.lineWidth = 2;
+        ctxD.beginPath(); ctxD.moveTo(0, mid); ctxD.lineTo(W, mid); ctxD.stroke();
+        const maxM = Math.max(...mag, 1);
+        const gap = W / N;
+        ctxD.strokeStyle = '#9b59b6'; ctxD.lineWidth = 3;
+        for (let k = 0; k < N; k++) {
+            const x = k * gap + gap / 2;
+            const y = mid - (mag[k] / maxM) * (H / 2 - 15);
+            ctxD.beginPath(); ctxD.moveTo(x, mid); ctxD.lineTo(x, y); ctxD.stroke();
+            ctxD.fillStyle = '#9b59b6'; ctxD.beginPath(); ctxD.arc(x, y, 4, 0, 2 * Math.PI); ctxD.fill();
+            ctxD.fillStyle = '#495057'; ctxD.font = '11px Arial';
+            ctxD.fillText('k=' + k, x - 10, H - 8);
+        }
+        ctxD.fillStyle = '#9b59b6'; ctxD.font = 'bold 13px Arial';
+        ctxD.fillText('|X[k]| (DFT)', 12, 24);
+    }
+
+    function resetDFT() {
+        document.getElementById('seqInput').value = '1 2 3 4';
+        computeDFT();
+    }
+
+    document.getElementById('seqInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') computeDFT(); });
+    computeDFT();
+</script>
+</body>
+</html>

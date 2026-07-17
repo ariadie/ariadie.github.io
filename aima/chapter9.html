@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 9: Inferensi dalam Logika Ordo Pertama &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1b5e20,#2e7d32);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#1b5e20,#2e7d32);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#2e7d32;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(46,125,50,.3);}
+        .chapternav{background:#1b5e20;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#2e7d32;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(46,125,50,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#2e7d32;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#1b5e20;border-left:5px solid #2e7d32;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#2e7d32;margin-top:30px;font-size:1.4em;}
+        h4{color:#1b5e20;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #2e7d32;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#e8f5e9 0%,#c8e6c9 100%);}
+        .concept-card h4{color:#1b5e20;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#2e7d32;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#1b5e20,#2e7d32,#43a047);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=text]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=text]:hover{border-color:#2e7d32;box-shadow:0 0 0 3px rgba(46,125,50,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(46,125,50,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,125,50,.4);background:linear-gradient(135deg,#1b5e20,#2e7d32);}
+        .summary-box{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#2e7d32;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#1b5e20;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1b5e20,#2e7d32,#43a047,#66bb6a);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(46,125,50,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#1b5e20;}
+        .math{background:#f4f6f8;border-left:4px solid #2e7d32;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#2e7d32;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#2e7d32;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 9</h1>
+            <div class="subtitle">Inferensi dalam Logika Ordo Pertama &mdash; AIMA 4th Edition</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter8.html" title="Sebelumnya: Bab 8">&#8592; Bab 8</a>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 9</span>
+            <a class="navbtn navdisabled" title="Bab 10 belum tersedia">Bab 10 &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#proposition">Propositionalisasi</a>
+            <a href="#unification">Unifikasi</a>
+            <a href="#forward">Forward Chaining</a>
+            <a href="#backward">Backward Chaining</a>
+            <a href="#resolution">Resolusi</a>
+            <a href="#comparison">Perbandingan</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Bab ini membahas bagaimana melakukan <strong>inferensi</strong> dalam Logika Ordo Pertama (FOL). Inferensi FOL jauh lebih kuat daripada proposisi &mdash; kita bisa menyatakan fakta umum tentang objek dan hubungannya, lalu menyimpulkan fakta baru secara otomatis.</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Propositionalisasi</h4>
+                        <p>Mengubah FOL menjadi proposisi agar bisa menggunakan inferensi proposisional. Universal instantiation, existential instantiation, dan pendekatan naive dengan kompleksitas eksponensial.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">2</span> Unifikasi</h4>
+                        <p>Menemukan substitusi yang membuat dua istilah sama. Most General Unifier (MGU) dan <em>occurs check</em> untuk mencegah substitusi siklik.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">3</span> Forward &amp; Backward Chaining</h4>
+                        <p>Forward chaining: mulai dari fakta, tarik kesimpulan. Backward chaining: mulai dari goal, cari bukti pendukung. Keduanya efisien untuk Horn clauses.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.4s">
+                        <h4><span class="icon">4</span> Resolusi</h4>
+                        <p>Konversi ke CNF, lalu gunakan aturan resolusi untuk menurunkan kontradiksi. Algoritma lengkap untuk FOL.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROPOSITIONALIZATION -->
+            <div id="proposition" class="section" style="--delay:0.3s;">
+                <h2>Propositionalisasi</h2>
+                <p>Cara paling langsung untuk inferensi FOL: ubah FOL menjadi masalah proposisional, lalu gunakan inferensi proposisional.</p>
+
+                <h3>Universal Instantiation (UI)</h3>
+                <p>Jika \(\forall x\, P(x)\) berlaku, maka \(P(t)\) berlaku untuk setiap istilah \(t\) dalam domain.</p>
+                <div class="math">
+                    \[ \forall x\, P(x) \implies P(t_1) \land P(t_2) \land \cdots \land P(t_n) \]
+                </div>
+                <p>Contoh: \(\forall x\, \text{Likes}(x, \text{IceCream})\) berarti semua orang menyukai es krim &mdash; \(\text{Likes}(\text{John}, \text{IceCream})\), \(\text{Likes}(\text{Mary}, \text{IceCream})\), dst.</p>
+
+                <h3>Existential Instantiation (EI)</h3>
+                <p>Jika \(\exists x\, P(x)\) berlaku, kita bisa memperkenalkan konstanta baru \(c\) sehingga \(P(c)\) berlaku.</p>
+                <div class="math">
+                    \[ \exists x\, P(x) \implies P(c), \quad c \text{ adalah konstanta baru} \]
+                </div>
+
+                <div class="warning">
+                    <strong>Peringatan:</strong> EI harus menggunakan konstanta yang <em>belum ada</em> sebelumnya. Jika sudah ada konstanta \(a\), kita tidak bisa menyimpulkan \(P(a)\) dari \(\exists x\, P(x)\) &mdash; kita harus memperkenalkan konstanta baru.
+                </div>
+
+                <h3>Pendekatan Naive dan Blowup Eksponensial</h3>
+                <p>Propositionalisasi langsung memiliki masalah serius: jumlah proposisi yang dihasilkan bisa eksponensial terhadap jumlah istilah.</p>
+                <table>
+                    <tr><th>Klausa FOL</th><th>Propositionalisasi</th><th>Jumlah Klausa</th></tr>
+                    <tr><td>\(\forall x\, P(x) \lor Q(x)\)</td><td>\(P(a) \lor Q(a), P(b) \lor Q(b), \ldots\)</td><td>\(O(n^k)\)</td></tr>
+                    <tr><td>\(\exists x\, \forall y\, R(x,y)\)</td><td>Substitusi setiap pasang nilai</td><td>eksponensial</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Solusi:</strong> Alih-alih propositionalisasi penuh, gunakan teknik yang lebih efisien: unifikasi, forward/backward chaining, atau resolusi &mdash; yang semuanya bekerja langsung pada istilah FOL tanpa mengekspansi seluruh domain.
+                </div>
+            </div>
+
+            <!-- UNIFICATION -->
+            <div id="unification" class="section" style="--delay:0.6s;">
+                <h2>Unifikasi</h2>
+                <p>Unifikasi adalah proses menemukan <strong>substitusi</strong> \(\theta\) yang membuat dua istilah atau predikat sama. Ini adalah operasi fundamental untuk inferensi FOL.</p>
+
+                <div class="math">
+                    \[ \text{unify}(t_1, t_2) = \theta \quad \text{sehingga} \quad t_1\theta = t_2\theta \]
+                </div>
+
+                <h3>Contoh Unifikasi</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">&check;</span> Berhasil</h4>
+                        <p>\(\text{unify}(\text{Know}(\text{John}, x),\; \text{Know}(\text{John}, \text{Jane})) = \{x/\text{Jane}\}\)</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">&check;</span> Berhasil</h4>
+                        <p>\(\text{unify}(\text{King}(x),\; \text{King}(\text{John})) = \{x/\text{John}\}\)</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">&check;</span> Berhasil</h4>
+                        <p>\(\text{unify}(x,\; y) = \{x/y\}\) &mdash; kedua variabel di-unify ke nilai yang sama</p>
+                    </div>
+                </div>
+
+                <h3>Occurs Check</h3>
+                <p>Saat unifikasi \(x\) dengan \(F(x)\), kita harus memeriksa apakah variabel \(x\) muncul di dalam \(F(x)\). Jika ya, substitusi akan siklik dan tidak valid.</p>
+
+                <div class="math">
+                    \[ \text{unify}(x, F(x)) = \text{FAIL} \quad (\text{occurs check gagal}) \]
+                </div>
+
+                <div class="warning">
+                    <strong>Occurs Check:</strong> Tanpa occurs check, kita bisa membuat ekspresi tak terbatas seperti \(F(F(F(\ldots)))\). Pastikan variabel tidak muncul dalam term yang akan disubstitusi ke variabel tersebut.
+                </div>
+
+                <h3>Most General Unifier (MGU)</h3>
+                <p>MGU adalah substitusi paling umum yang berhasil meng-unify dua istilah. Jika ada unifikasi lain \(\theta'\), maka \(\theta' = \theta \circ \sigma\) untuk beberapa \(\sigma\).</p>
+
+                <div class="math">
+                    \[ \text{MGU}(\text{Know}(x, \text{Jane}), \text{Know}(\text{John}, y)) = \{x/\text{John},\; y/\text{Jane}\} \]
+                </div>
+
+                <table>
+                    <tr><th>Unifikasi</th><th>Substitusi</th><th>Keterangan</th></tr>
+                    <tr><td>\(\text{unify}(P(a,b), P(a,c))\)</td><td>\(\{b/c\}\)</td><td>Variable terikat ke term lain</td></tr>
+                    <tr><td>\(\text{unify}(P(x,y), P(y,x))\)</td><td>\(\{x/y\}\)</td><td>Salah satu variabel di-substitusi</td></tr>
+                    <tr><td>\(\text{unify}(P(x,f(y)), P(f(a),f(x)))\)</td><td>\(\{x/f(a), y/a\}\)</td><td>Occurs check lolos</td></tr>
+                    <tr><td>\(\text{unify}(P(x,f(x)), P(f(a),f(x)))\)</td><td>FAIL</td><td>Occurs check gagal</td></tr>
+                </table>
+            </div>
+
+            <!-- FORWARD CHAINING -->
+            <div id="forward" class="section" style="--delay:0.9s;">
+                <h2>Forward Chaining</h2>
+                <p>Forward chaining memulai dari <strong>fakta yang diketahui</strong> dan secara iteratif menerapkan aturan inferensi untuk menurunkan fakta baru.</p>
+
+                <h3>Horn Clauses dan Modus Ponens</h3>
+                <p>Forward chaining bekerja pada <strong>Horn clauses</strong> &mdash; klausa dengan tepat satu predikat positif:</p>
+                <div class="math">
+                    \[ P_1 \land P_2 \land \cdots \land P_n \implies Q \]
+                </div>
+                <p>Dengan Modus Ponens, jika semua premis \(P_i\) benar, maka kita menyimpulkan \(Q\).</p>
+
+                <h3>Algoritma Forward Chaining</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Inisialisasi</h4>
+                        <p>Set semua fakta awal (ground facts) sebagai <em>known</em>. Tambahkan agenda dengan semua aturan yang premisnya terpenuhi.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">2</span> Proses Agenda</h4>
+                        <p>Ambil klausa dari agenda. Apply unifikasi ke premis. Jika hasilnya baru, tambahkan ke known facts dan agenda.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">3</span> Hentikan</h4>
+                        <p>Ketika agenda kosong atau goal ditemukan. Forward chaining <em>sound</em> dan <em>complete</em> untuk Horn clauses.</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>Contoh:</strong>
+                    <br>Klausa: \(\text{American}(x) \land \text{Weapon}(y) \land \text{Sells}(x,y,z) \land \text{Hostile}(z) \implies \text{Criminal}(x)\)
+                    <br>Fakta: \(\text{American}(\text{West})\), \(\text{Weapon}(\text{M1})\), \(\text{Sells}(\text{West}, \text{M1}, \text{Nono})\), \(\text{Hostile}(\text{Nono})\)
+                    <br>Forward chaining menurunkan: \(\text{Criminal}(\text{West})\)
+                </div>
+
+                <h3>Kompleksitas</h3>
+                <table>
+                    <tr><th>Aspek</th><th>Nilai</th></tr>
+                    <tr><td>Waktu</td><td>\(O(n^2 \cdot r)\) di mana \(n\) = jumlah fakta, \(r\) = jumlah aturan</td></tr>
+                    <tr><td>Ruang</td><td>\(O(n + r)\)</td></tr>
+                    <tr><td>Kelengkapan</td><td>Lengkap untuk Horn clauses</td></tr>
+                    <tr><td>Soundness</td><td>Sound &mdash; hanya menurunkan yang benar</td></tr>
+                </table>
+            </div>
+
+            <!-- BACKWARD CHAINING -->
+            <div id="backward" class="section" style="--delay:1.2s;">
+                <h2>Backward Chaining</h2>
+                <p>Backward chaining memulai dari <strong>goal</strong> dan bekerja mundur untuk mencari fakta pendukung. Mirip dengan reasoning dalam Prolog.</p>
+
+                <h3>Algoritma Backward Chaining</h3>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Mulai dari Goal</h4>
+                        <p>Input: goal yang ingin dibuktikan. Cari klausa yang konklusinya sesuai dengan goal.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">2</span> Unifikasi &amp; Rekursi</h4>
+                        <p>Unifikasi goal dengan konklusinya. Substitusikan variabel. Rekursif backward chain ke setiap premis.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">3</span> Basis</h4>
+                        <p>Jika goal adalah fakta yang sudah diketahui, return true. Jika tidak ada yang cocok, return false.</p>
+                    </div>
+                </div>
+
+                <h3>Penanganan Variabel</h3>
+                <p>Backward chaining perlu menangani variabel dengan hati-hati &mdash; variabel terikat pada scope tertentu dan harus di-reset antar percobaan.</p>
+
+                <div class="math">
+                    \[ \text{Goal: } \text{Criminal}(x) \]
+                    <br>Klausa: \(\text{American}(x) \land \text{Weapon}(y) \land \text{Sells}(x,y,z) \land \text{Hostile}(z) \implies \text{Criminal}(x)\)
+                    <br>Sub-goal: \(\text{American}(x)\), \(\text{Weapon}(y)\), \(\text{Sells}(x,y,z)\), \(\text{Hostile}(z)\)
+                </div>
+
+                <div class="note">
+                    <strong>Perbedaan utama dengan Forward Chaining:</strong>
+                    <ul>
+                        <li>Backward chaining <em>goal-driven</em> &mdash; hanya mengeksplorasi bagian ruang yang relevan dengan goal</li>
+                        <li>Forward chaining <em>data-driven</em> &mdash; mengeksplorasi semua kemungkinan dari fakta awal</li>
+                        <li>Backward chaining lebih efisien untuk kueri spesifik; forward chaining lebih baik saat banyak fakta baru masuk</li>
+                    </ul>
+                </div>
+
+                <h3>Recursive Backward Chaining</h3>
+                <p>Backward chaining secara alami mendukung rekursi &mdash; ketika sub-goal adalah klausa yang perlu dibuktikan, algoritma memanggil dirinya sendiri. Pastikan ada basis rekursi untuk menghindari infinite loop.</p>
+            </div>
+
+            <!-- RESOLUTION -->
+            <div id="resolution" class="section" style="--delay:1.5s;">
+                <h2>Resolusi (Resolution)</h2>
+                <p>Resolusi adalah aturan inferensi <strong>refutation-complete</strong>: untuk membuktikan \(KB \models \alpha\), cukup buktikan \(KB \land \lnot\alpha\) tidak konsisten.</p>
+
+                <h3>Konversi ke CNF</h3>
+                <p>Langkah-langkah konversi FOL ke Clausal Normal Form:</p>
+                <ol>
+                    <li>Eliminasi \(\implies\): \(A \implies B \equiv \lnot A \lor B\)</li>
+                    <li>Pindahkan \(\lnot\) ke dalam: de Morgan, distribusi</li>
+                    <li>Standardisasi variabel: pastikan setiap kuantifikasi menggunakan variabel unik</li>
+                    <li>Eliminasi kuantifier: universale dengan instansiasi, eksistensial dengan Skolem</li>
+                    <li>Distributif: \((A \lor B \lor C) \land (\ldots)\) &mdash; bentuk konjungsi disjungsi</li>
+                </ol>
+
+                <h3>Aturan Resolusi</h3>
+                <div class="math">
+                    \[ \frac{P_1 \lor \cdots \lor P_i \lor \cdots \lor P_n \qquad \lnot P_i \lor Q_1 \lor \cdots \lor Q_m}{P_1 \lor \cdots \lor P_{i-1} \lor P_{i+1} \lor \cdots \lor P_n \lor Q_1 \lor \cdots \lor Q_m} \]
+                </div>
+
+                <h3>Resolusi untuk FOL</h3>
+                <p>Dalam FOL, kita harus melakukan <strong>unifikasi</strong> sebelum meresolusi:</p>
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Pilih dua klausa</h4>
+                        <p>Pilih klausa yang memiliki literal komplementer (satu positif, satu negatif) dari predikat yang sama.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">2</span> Unifikasi</h4>
+                        <p>Cari MGU yang meng-unify literal komplementer. Jika tidak bisa, lewati pasangan ini.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">3</span> Resolusi</h4>
+                        <p>Gabungkan sisa literal dari kedua klausa, dengan substitusi yang ditemukan. Hasilnya adalah klausa resolvent.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.25s">
+                        <h4><span class="icon">4</span> Cari kontradiksi</h4>
+                        <p>Ulangi hingga mendapatkan klausa kosong \(\square\) (kontradiksi) atau tidak ada resolvent baru.</p>
+                    </div>
+                </div>
+
+                <h3>Contoh Resolusi</h3>
+                <table>
+                    <tr><th>Klausa</th><th>Penjelasan</th></tr>
+                    <tr><td>\(\text{American}(x) \lor \lnot\text{Weapon}(y) \lor \lnot\text{Sells}(x,y,z) \lor \lnot\text{Hostile}(z)\)</td><td>Dari aturan kriminal (setelah CNF)</td></tr>
+                    <tr><td>\(\text{American}(\text{West})\)</td><td>Fakta</td></tr>
+                    <tr><td>\(\text{Weapon}(\text{M1})\)</td><td>Fakta</td></tr>
+                    <tr><td>\(\text{Sells}(\text{West},\text{M1},\text{Nono})\)</td><td>Fakta</td></tr>
+                    <tr><td>\(\text{Hostile}(\text{Nono})\)</td><td>Fakta</td></tr>
+                    <tr><td>\(\lnot\text{Criminal}(\text{West})\) &mdash; negasi tujuan</td><td>Ditambahkan untuk refutation</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Hasil:</strong> Dengan meng-resolusi berbagai pasangan, kita mendapatkan klausa kosong \(\square\) &mdash; menandakan kontradiksi. Artinya, \(\text{Criminal}(\text{West})\) terbukti dari knowledge base.
+                </div>
+            </div>
+
+            <!-- COMPARISON TABLE -->
+            <div id="comparison" class="section" style="--delay:1.8s;">
+                <h2>Perbandingan Metode Inferensi</h2>
+                <table>
+                    <tr><th>Aspek</th><th>Forward Chaining</th><th>Backward Chaining</th><th>Resolusi</th></tr>
+                    <tr><td>Arah</td><td>Data-driven (bottom-up)</td><td>Goal-driven (top-down)</td><td>Refutation (proof by contradiction)</td></tr>
+                    <tr><td>Mulai dari</td><td>Fakta yang diketahui</td><td>Goal yang ingin dibuktikan</td><td>KB + negasi tujuan</td></tr>
+                    <tr><td>Efisiensi</td><td>Baik jika banyak fakta</td><td>Baik untuk kueri spesifik</td><td>Bisa tidak efisien (banyak resolusi)</td></tr>
+                    <tr><td>Batasan</td><td>Horn clauses</td><td>Horn clauses</td><td>Bebas (semua bentuk FOL)</td></tr>
+                    <tr><td>Kelengkapan</td><td>Lengkap untuk Horn clauses</td><td>Lengkap untuk Horn clauses</td><td>Refutation-complete</td></tr>
+                    <tr><td>Soundness</td><td>Sound</td><td>Sound</td><td>Sound</td></tr>
+                    <tr><td>Penggunaan</td><td>Expert systems, production rules</td><td>Prolog, query answering</td><td>Theorem proving, verifikasi</td></tr>
+                    <tr><td>Kelebihan</td><td>Otomatis, parallelizable</td><td>Memory efficient, lazy</td><td>Universal, ada implementasi matang</td></tr>
+                    <tr><td>Kekurangan</td><td>Menyimpulkan banyak yang tidak perlu</td><td>Bisa redundant jika banyak goal</td><td>Explosion jumlah resolvent</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Kapan menggunakan yang mana?</strong>
+                    <ul>
+                        <li><strong>Forward chaining:</strong> Sistem pakar dengan banyak fakta masuk secara real-time (misal: monitoring industri)</li>
+                        <li><strong>Backward chaining:</strong> Sistem respond cepat untuk pertanyaan spesifik (misal: chatbot, Prolog)</li>
+                        <li><strong>Resolusi:</strong> Ketika diperlukan kepastian logika penuh dan bentuk FOL umum (misal: verifikasi formal)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>Simulasi Interaktif: Visualisasi Unifikasi</h2>
+                <p>Masukkan dua term atau predikat, lalu langkahi proses unifikasi untuk melihat substitusi yang dihasilkan.</p>
+
+                <div class="controls">
+                    <div class="control-group" style="min-width:250px;">
+                        <label for="term1">Term 1</label>
+                        <input type="text" id="term1" value="Know(x, Jane)" placeholder="Contoh: Know(x, Jane)">
+                    </div>
+                    <div class="control-group" style="min-width:250px;">
+                        <label for="term2">Term 2</label>
+                        <input type="text" id="term2" value="Know(John, y)" placeholder="Contoh: Know(John, y)">
+                    </div>
+                    <div class="control-group" style="min-width:120px;">
+                        <label>&nbsp;</label>
+                        <button class="btn" onclick="startUnification()">Mulai Unifikasi</button>
+                    </div>
+                    <div class="control-group" style="min-width:120px;">
+                        <label>&nbsp;</label>
+                        <button class="btn" onclick="stepUnification()">Langkah &#9654;</button>
+                    </div>
+                    <div class="control-group" style="min-width:120px;">
+                        <label>&nbsp;</label>
+                        <button class="btn" onclick="resetUnification()">Reset</button>
+                    </div>
+                </div>
+
+                <div class="controls" style="padding:10px 20px;">
+                    <div class="control-group" style="min-width:300px;">
+                        <label>Contoh Cepat</label>
+                        <select id="exampleSelect" onchange="loadExample()">
+                            <option value="">-- Pilih contoh --</option>
+                            <option value="Know(x,Jane)|Know(John,y)">Know(x,Jane) vs Know(John,y) &mdash; sederhana</option>
+                            <option value="P(a,x,f(y))|P(a,b,f(z))">P(a,x,f(y)) vs P(a,b,f(z)) &mdash; dengan fungsi</option>
+                            <option value="P(x,F(x))|P(a,y)">P(x,F(x)) vs P(a,y) &mdash; occurs check</option>
+                            <option value="Q(x,y)|Q(A,B)">Q(x,y) vs Q(A,B) &mdash; dua variabel</option>
+                            <option value="R(x,f(x))|R(g(y),f(g(y)))">R(x,f(x)) vs R(g(y),f(g(y))) &mdash; rekursif</option>
+                            <option value="A(x,x)|A(B,B)">A(x,x) vs A(B,B) &mdash; identik</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="unificationCanvas" width="900" height="420"></canvas>
+                </div>
+
+                <div id="unifLog" style="background:#1a1a2e;color:#e0e0e0;padding:15px 20px;border-radius:8px;font-family:'Fira Code',monospace;font-size:.88em;max-height:160px;overflow-y:auto;margin-top:15px;white-space:pre-wrap;"></div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; Unifikasi</h4>
+                    <p>Tentukan hasil unifikasi untuk setiap pasangan berikut. Jika gagal, jelaskan mengapa.</p>
+                    <p>(a) \(\text{unify}(\text{Loves}(x, \text{John}), \text{Loves}(\text{Jane}, y))\)</p>
+                    <p>(b) \(\text{unify}(\text{P}(x, x), \text{P}(a, b))\) di mana \(a \neq b\)</p>
+                    <p>(c) \(\text{unify}(\text{Q}(x, f(y)), \text{Q}(f(z), w))\)</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>(a)</strong> \(\text{unify}(\text{Loves}(x, \text{John}), \text{Loves}(\text{Jane}, y)) = \{x/\text{Jane}, y/\text{John}\}\) &mdash; Berhasil. Dua variabel terikat ke konstanta berbeda.</p>
+                            <p><strong>(b)</strong> Gagal. \(\text{P}(x, x)\) mensyaratkan kedua argumen sama, tapi \(a \neq b\). Unifikasi pertama: \(x = a\). Unifikasi kedua: \(x = b\). Kontradiksi.</p>
+                            <p><strong>(c)</strong> \(\text{unify}(\text{Q}(x, f(y)), \text{Q}(f(z), w)) = \{x/f(z), w/f(y)\}\) &mdash; Berhasil. \(x\) di-substitusi ke \(f(z)\) dan \(w\) ke \(f(y)\).</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Forward Chaining</h4>
+                    <p>Diberikan knowledge base berikut, gunakan forward chaining untuk menurunkan semua fakta baru:</p>
+                    <p>\(\text{Animal}(x) \land \text{Eats}(x, \text{meat}) \implies \text{Carnivore}(x)\)</p>
+                    <p>\(\text{Animal}(x) \land \text{Eats}(x, \text{leaves}) \implies \text{Herbivore}(x)\)</p>
+                    <p>\(\text{Animal}(\text{Lion})\), \(\text{Eats}(\text{Lion}, \text{meat})\), \(\text{Animal}(\text{Cow})\), \(\text{Eats}(\text{Cow}, \text{leaves})\)</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Langkah 1:</strong> Fakta awal: \(\text{Animal}(\text{Lion})\), \(\text{Eats}(\text{Lion}, \text{meat})\), \(\text{Animal}(\text{Cow})\), \(\text{Eats}(\text{Cow}, \text{leaves})\)</p>
+                            <p><strong>Langkah 2:</strong> Aturan 1 dengan \(x = \text{Lion}\): semua premis terpenuhi \(\Rightarrow \text{Carnivore}(\text{Lion})\)</p>
+                            <p><strong>Langkah 3:</strong> Aturan 2 dengan \(x = \text{Cow}\): semua premis terpenuhi \(\Rightarrow \text{Herbivore}(\text{Cow})\)</p>
+                            <p><strong>Fakta baru:</strong> \(\text{Carnivore}(\text{Lion})\), \(\text{Herbivore}(\text{Cow})\). Tidak ada aturan lain yang cocok &mdash; agenda kosong.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Resolusi</h4>
+                    <p>Buktikan bahwa \(\text{Happy}(\text{John})\) terbukti dari KB berikut menggunakan resolusi:</p>
+                    <p>\(\text{Likes}(x, \text{IceCream}) \implies \text{Happy}(x)\)</p>
+                    <p>\(\text{Likes}(\text{John}, \text{IceCream})\)</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Langkah 1:</strong> Konversi ke CNF:</p>
+                            <p>&bull; \(\lnot\text{Likes}(x, \text{IceCream}) \lor \text{Happy}(x)\)</p>
+                            <p>&bull; \(\text{Likes}(\text{John}, \text{IceCream})\)</p>
+                            <p><strong>Langkah 2:</strong> Negasi tujuan: \(\lnot\text{Happy}(\text{John})\)</p>
+                            <p><strong>Langkah 3:</strong> Resolusi \(\lnot\text{Happy}(\text{John})\) dengan \(\lnot\text{Likes}(x, \text{IceCream}) \lor \text{Happy}(x)\) dengan substitusi \(x = \text{John}\):</p>
+                            <p>&rarr; \(\lnot\text{Likes}(\text{John}, \text{IceCream})\)</p>
+                            <p><strong>Langkah 4:</strong> Resolusi \(\lnot\text{Likes}(\text{John}, \text{IceCream})\) dengan \(\text{Likes}(\text{John}, \text{IceCream})\):</p>
+                            <p>&rarr; \(\square\) (klausa kosong = kontradiksi)</p>
+                            <p><strong>Kesimpulan:</strong> \(\text{Happy}(\text{John})\) terbukti.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 4 &mdash; Backward Chaining</h4>
+                    <p>Tunjukkan langkah-langkah backward chaining untuk membuktikan \(\text{Ancestor}(\text{John}, \text{Mary})\) dari KB:</p>
+                    <p>\(\text{Parent}(x, y) \implies \text{Ancestor}(x, y)\)</p>
+                    <p>\(\text{Parent}(x, y) \land \text{Ancestor}(y, z) \implies \text{Ancestor}(x, z)\)</p>
+                    <p>\(\text{Parent}(\text{John}, \text{Tom})\), \(\text{Parent}(\text{Tom}, \text{Mary})\)</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p><strong>Goal:</strong> \(\text{Ancestor}(\text{John}, \text{Mary})\)</p>
+                            <p><strong>Langkah 1:</strong> Cari klausa dengan konklusi \(\text{Ancestor}\). Dua opsi:</p>
+                            <p>&bull; Aturan 1: \(\text{Parent}(x, y) \implies \text{Ancestor}(x, y)\) &mdash; perlu \(\text{Parent}(\text{John}, \text{Mary})\)</p>
+                            <p>&bull; Aturan 2: \(\text{Parent}(x, y) \land \text{Ancestor}(y, z) \implies \text{Ancestor}(x, z)\) &mdash; perlu \(\text{Parent}(\text{John}, y)\) dan \(\text{Ancestor}(y, \text{Mary})\)</p>
+                            <p><strong>Langkah 2:</strong> Aturan 1 gagal &mdash; \(\text{Parent}(\text{John}, \text{Mary})\) tidak ada di KB.</p>
+                            <p><strong>Langkah 3:</strong> Aturan 2 dengan \(x = \text{John}, z = \text{Mary}\): sub-goal \(\text{Parent}(\text{John}, y)\) dan \(\text{Ancestor}(y, \text{Mary})\)</p>
+                            <p><strong>Langkah 4:</strong> \(\text{Parent}(\text{John}, y)\) cocok dengan \(\text{Parent}(\text{John}, \text{Tom})\), substitusi \(y = \text{Tom}\)</p>
+                            <p><strong>Langkah 5:</strong> Sekarang perlu \(\text{Ancestor}(\text{Tom}, \text{Mary})\). Rekursi backward chain:</p>
+                            <p>&bull; Aturan 1: \(\text{Parent}(\text{Tom}, \text{Mary})\) &mdash; ada di KB!</p>
+                            <p><strong>Hasil:</strong> \(\text{Ancestor}(\text{John}, \text{Mary})\) terbukti melalui \(\text{Parent}(\text{John}, \text{Tom}) \land \text{Parent}(\text{Tom}, \text{Mary})\).</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>Ringkasan</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Propositionalisasi</strong> mengubah FOL ke proposisi menggunakan UI dan EI, tapi memiliki blowup eksponensial. Gunakan teknik yang lebih cerdas.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Unifikasi</strong> adalah operasi fundamental: temukan substitusi yang menyamakan dua term. MGU adalah substitusi paling umum. Selalu lakukan <em>occurs check</em>.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Forward chaining</strong> (bottom-up) efisien untuk Horn clauses dan data-driven. <strong>Backward chaining</strong> (top-down) efisien untuk goal-driven queries.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Resolusi</strong> adalah metode refutation-complete untuk FOL. Konversi ke CNF, lalu cari kontradiksi. Universal untuk semua bentuk FOL.</div>
+                    </div>
+                    <table>
+                        <tr><th>Metode</th><th>Arah</th><th>Cocok untuk</th><th>Kelengkapan</th></tr>
+                        <tr><td>Forward Chaining</td><td>Bottom-up</td><td>Data-driven, Horn clauses</td><td>Lengkap (Horn)</td></tr>
+                        <tr><td>Backward Chaining</td><td>Top-down</td><td>Goal-driven, kueri spesifik</td><td>Lengkap (Horn)</td></tr>
+                        <tr><td>Resolusi</td><td>Refutation</td><td>FOL umum, verifikasi</td><td>Refutation-complete</td></tr>
+                    </table>
+                </div>
+                <p>Lanjut ke <a href="index.html">Beranda</a> untuk indeks bab lainnya.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 9</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter8.html" title="Sebelumnya: Bab 8">&#8592; Bab 8</a>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 9</span>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== UNIFICATION ENGINE =====
+const cvs = document.getElementById('unificationCanvas');
+const ctx = cvs.getContext('2d');
+let unifySteps = [];
+let currentStep = 0;
+let unifyResult = null;
+
+function parseTerm(s) {
+    s = s.trim();
+    const paren = s.indexOf('(');
+    if (paren === -1) {
+        return { type: 'variable', name: s, children: [] };
+    }
+    const name = s.substring(0, paren);
+    const argsStr = s.substring(paren + 1, s.lastIndexOf(')'));
+    const args = splitArgs(argsStr).map(parseTerm);
+    return { type: args.length > 0 ? 'function' : 'constant', name, children: args };
+}
+
+function splitArgs(s) {
+    const args = [];
+    let depth = 0, current = '';
+    for (let i = 0; i < s.length; i++) {
+        if (s[i] === '(') depth++;
+        else if (s[i] === ')') depth--;
+        else if (s[i] === ',' && depth === 0) {
+            args.push(current);
+            current = '';
+            continue;
+        }
+        current += s[i];
+    }
+    if (current.trim()) args.push(current);
+    return args;
+}
+
+function termToString(t) {
+    if (t.children.length === 0) return t.name;
+    return t.name + '(' + t.children.map(termToString).join(', ') + ')';
+}
+
+function isVar(t) { return t.type === 'variable'; }
+function isFunc(t) { return t.type === 'function'; }
+
+function occursIn(varName, term) {
+    if (isVar(term)) return term.name === varName;
+    return term.children.some(c => occursIn(varName, c));
+}
+
+function applySubst(term, subst) {
+    if (isVar(term)) {
+        if (subst[term.name]) return applySubst(subst[term.name], subst);
+        return term;
+    }
+    return {
+        ...term,
+        children: term.children.map(c => applySubst(c, subst))
+    };
+}
+
+function unify(t1, t2, subst, steps) {
+    t1 = applySubst(t1, subst);
+    t2 = applySubst(t2, subst);
+    steps.push({ desc: 'Unify: ' + termToString(t1) + ' dengan ' + termToString(t2), t1: {...t1}, t2: {...t2}, subst: {...subst} });
+
+    if (termToString(t1) === termToString(t2)) {
+        steps.push({ desc: 'Identik: ' + termToString(t1) + ' = ' + termToString(t2), t1: {...t1}, t2: {...t2}, subst: {...subst} });
+        return { subst, steps };
+    }
+
+    if (isVar(t1)) {
+        if (occursIn(t1.name, t2)) {
+            steps.push({ desc: 'OCCURS CHECK GAGAL: ' + t1.name + ' muncul di ' + termToString(t2), t1: {...t1}, t2: {...t2}, subst: {...subst}, error: true });
+            return null;
+        }
+        subst[t1.name] = t2;
+        steps.push({ desc: 'Substitusi: ' + t1.name + ' / ' + termToString(t2), t1: {...t1}, t2: {...t2}, subst: {...subst} });
+        return { subst, steps };
+    }
+
+    if (isVar(t2)) {
+        if (occursIn(t2.name, t1)) {
+            steps.push({ desc: 'OCCURS CHECK GAGAL: ' + t2.name + ' muncul di ' + termToString(t1), t1: {...t1}, t2: {...t2}, subst: {...subst}, error: true });
+            return null;
+        }
+        subst[t2.name] = t1;
+        steps.push({ desc: 'Substitusi: ' + t2.name + ' / ' + termToString(t1), t1: {...t1}, t2: {...t2}, subst: {...subst} });
+        return { subst, steps };
+    }
+
+    if (isFunc(t1) && isFunc(t2)) {
+        if (t1.name !== t2.name || t1.children.length !== t2.children.length) {
+            steps.push({ desc: 'GAGAL: Fungsi berbeda: ' + t1.name + ' vs ' + t2.name, t1: {...t1}, t2: {...t2}, subst: {...subst}, error: true });
+            return null;
+        }
+        for (let i = 0; i < t1.children.length; i++) {
+            const result = unify(t1.children[i], t2.children[i], subst, steps);
+            if (!result) return null;
+            subst = result.subst;
+        }
+        return { subst, steps };
+    }
+
+    steps.push({ desc: 'GAGAL: Tipe beda (variable vs fungsi/konstanta)', t1: {...t1}, t2: {...t2}, subst: {...subst}, error: true });
+    return null;
+}
+
+function startUnification() {
+    const t1Str = document.getElementById('term1').value;
+    const t2Str = document.getElementById('term2').value;
+    if (!t1Str.trim() || !t2Str.trim()) { alert('Masukkan kedua term.'); return; }
+
+    unifySteps = [];
+    currentStep = 0;
+    const t1 = parseTerm(t1Str);
+    const t2 = parseTerm(t2Str);
+    unifyResult = unify(t1, t2, {}, unifySteps);
+
+    document.getElementById('unifLog').innerHTML = '';
+    if (unifyResult) {
+        addLog('BERHASIL! Substitusi: ' + formatSubst(unifyResult.subst));
+    } else {
+        addLog('GAGAL Unifikasi.');
+    }
+    drawUnification();
+}
+
+function formatSubst(subst) {
+    const entries = Object.entries(subst);
+    if (entries.length === 0) return '{}';
+    return '{' + entries.map(([k, v]) => k + '/' + termToString(v)).join(', ') + '}';
+}
+
+function stepUnification() {
+    if (currentStep < unifySteps.length - 1) {
+        currentStep++;
+        drawUnification();
+        const step = unifySteps[currentStep];
+        addLog((step.error ? '[ERROR] ' : '') + step.desc);
+    }
+}
+
+function addLog(msg) {
+    const log = document.getElementById('unifLog');
+    log.innerHTML += msg + '\n';
+    log.scrollTop = log.scrollHeight;
+}
+
+function resetUnification() {
+    unifySteps = [];
+    currentStep = 0;
+    unifyResult = null;
+    document.getElementById('unifLog').innerHTML = '';
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#6c757d';
+    ctx.font = '16px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Masukkan dua term dan klik "Mulai Unifikasi"', cvs.width / 2, cvs.height / 2);
+}
+
+function drawUnification() {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    if (unifySteps.length === 0) {
+        ctx.fillStyle = '#6c757d';
+        ctx.font = '16px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('Masukkan dua term dan klik "Mulai Unifikasi"', cvs.width / 2, cvs.height / 2);
+        return;
+    }
+
+    const step = unifySteps[currentStep];
+    const t1Str = document.getElementById('term1').value;
+    const t2Str = document.getElementById('term2').value;
+
+    // Title
+    ctx.fillStyle = '#1b5e20';
+    ctx.font = 'bold 18px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Langkah ' + (currentStep + 1) + ' dari ' + unifySteps.length, cvs.width / 2, 35);
+
+    // Draw boxes
+    const boxW = 380, boxH = 100;
+    const leftX = 60, rightX = cvs.width - boxW - 60;
+    const boxY = 60;
+
+    // Left box (Term 1)
+    ctx.fillStyle = '#e8f5e9';
+    ctx.strokeStyle = '#2e7d32';
+    ctx.lineWidth = 2;
+    roundRect(ctx, leftX, boxY, boxW, boxH, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1b5e20';
+    ctx.font = 'bold 14px Segoe UI';
+    ctx.textAlign = 'left';
+    ctx.fillText('Term 1:', leftX + 10, boxY + 20);
+    ctx.font = '20px Fira Code';
+    ctx.fillStyle = '#2c3e50';
+    ctx.fillText(t1Str, leftX + 10, boxY + 55);
+    ctx.font = '13px Segoe UI';
+    ctx.fillStyle = '#6c757d';
+    ctx.fillText('Dari input asli', leftX + 10, boxY + 80);
+
+    // Right box (Term 2)
+    ctx.fillStyle = '#e8f5e9';
+    ctx.strokeStyle = '#2e7d32';
+    roundRect(ctx, rightX, boxY, boxW, boxH, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1b5e20';
+    ctx.font = 'bold 14px Segoe UI';
+    ctx.textAlign = 'left';
+    ctx.fillText('Term 2:', rightX + 10, boxY + 20);
+    ctx.font = '20px Fira Code';
+    ctx.fillStyle = '#2c3e50';
+    ctx.fillText(t2Str, rightX + 10, boxY + 55);
+    ctx.font = '13px Segoe UI';
+    ctx.fillStyle = '#6c757d';
+    ctx.fillText('Dari input asli', rightX + 10, boxY + 80);
+
+    // Arrow
+    ctx.fillStyle = '#2e7d32';
+    ctx.font = '28px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('\u2194', cvs.width / 2, boxY + 55);
+
+    // Current step description
+    const descY = boxY + boxH + 30;
+    ctx.fillStyle = step.error ? '#c62828' : '#1b5e20';
+    ctx.font = 'bold 15px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(step.desc, cvs.width / 2, descY);
+
+    // Substitution state
+    const subY = descY + 30;
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 16px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Substitusi saat ini: ' + formatSubst(step.subst), cvs.width / 2, subY);
+
+    // Status
+    const statusY = subY + 35;
+    if (step.error) {
+        ctx.fillStyle = '#c62828';
+        ctx.font = 'bold 20px Segoe UI';
+        ctx.fillText('\u2717 UNIFIKASI GAGAL', cvs.width / 2, statusY);
+    } else if (currentStep === unifySteps.length - 1 && unifyResult) {
+        ctx.fillStyle = '#2e7d32';
+        ctx.font = 'bold 20px Segoe UI';
+        ctx.fillText('\u2713 UNIFIKASI BERHASIL', cvs.width / 2, statusY);
+    } else {
+        ctx.fillStyle = '#6c757d';
+        ctx.font = '14px Segoe UI';
+        ctx.fillText('Langkah berikutnya: ' + (currentStep + 1 < unifySteps.length ? unifySteps[currentStep + 1].desc.substring(0, 60) + '...' : 'selesai'), cvs.width / 2, statusY);
+    }
+
+    // History
+    const histY = statusY + 30;
+    ctx.fillStyle = '#f5f5f5';
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    roundRect(ctx, 30, histY, cvs.width - 60, Math.min(120, (currentStep + 1) * 22 + 10), 8);
+    ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = '#1b5e20';
+    ctx.font = 'bold 12px Segoe UI';
+    ctx.textAlign = 'left';
+    ctx.fillText('Riwayat langkah:', 45, histY + 18);
+    ctx.font = '12px Fira Code';
+    ctx.fillStyle = '#333';
+    const maxShow = Math.min(currentStep + 1, 5);
+    for (let i = currentStep - maxShow + 1; i <= currentStep; i++) {
+        if (i >= 0) {
+            const isErr = unifySteps[i].error;
+            ctx.fillStyle = isErr ? '#c62828' : '#2c3e50';
+            ctx.fillText((i + 1) + '. ' + unifySteps[i].desc.substring(0, 90), 45, histY + 36 + (i - (currentStep - maxShow + 1)) * 20);
+        }
+    }
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
+function loadExample() {
+    const sel = document.getElementById('exampleSelect');
+    if (!sel.value) return;
+    const [t1, t2] = sel.value.split('|');
+    document.getElementById('term1').value = t1;
+    document.getElementById('term2').value = t2;
+}
+
+// Init
+resetUnification();
+</script>
+</body>
+</html>

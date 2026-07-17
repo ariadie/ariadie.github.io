@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RRT &mdash; Simulasi</title>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1100px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff;padding:30px 40px;text-align:center;}
+        h1{margin:0;font-size:2em;}
+        .subtitle{font-size:1em;opacity:.9;margin-top:6px;}
+        nav{background:#2c3e50;padding:10px 15px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+        nav a{color:#fff;text-decoration:none;padding:6px 16px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font-size:.9em;}
+        .content{padding:30px 35px;}
+        .sim-row{display:flex;gap:20px;flex-wrap:wrap;}
+        .sim-left{flex:2;min-width:500px;}
+        .sim-right{flex:1;min-width:220px;}
+        canvas{border:2px solid #2c3e50;border-radius:8px;cursor:crosshair;display:block;background:#fff;width:100%;max-width:600px;height:auto;}
+        .panel{background:#f5f7fa;border-radius:10px;padding:16px;margin-bottom:12px;}
+        .panel h3{margin:0 0 8px;font-size:1em;color:#2c3e50;}
+        .ctrl{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0;align-items:center;}
+        .ctrl button{background:#3498db;color:#fff;border:none;padding:6px 14px;border-radius:5px;cursor:pointer;font-weight:600;transition:.2s;}
+        .ctrl button:hover{background:#2176ae;}
+        .ctrl button:disabled{background:#bbb;cursor:default;}
+        .ctrl button.danger{background:#e74c3c;}
+        .ctrl button.danger:hover{background:#c0392b;}
+        .ctrl button.success{background:#27ae60;}
+        .ctrl button.success:hover{background:#219a52;}
+        .ctrl label{display:flex;align-items:center;gap:6px;font-size:.88em;}
+        .ctrl input[type=range]{width:90px;}
+        .legend{font-size:.85em;}
+        .legend span{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:4px;vertical-align:middle;}
+        .info{font-size:.88em;color:#555;margin:4px 0;}
+        .info strong{color:#333;}
+        .status{background:#fff3cd;border-left:4px solid #ffc107;padding:8px 12px;border-radius:4px;font-size:.88em;margin:8px 0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:20px;margin-top:30px;font-size:.85em;}
+        footer a{color:#7fd1ff;}
+        @media(max-width:700px){.sim-left{min-width:unset;}canvas{max-width:100%;}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>RRT &mdash; Rapidly-exploring Random Tree</h1>
+        <div class="subtitle">Tree diekspansi dari start menuju titik acak; \(\varepsilon\) = step size</div>
+    </header>
+    <nav>
+        <a href="index.html">🏠 Kembali</a>
+        <a href="potential-field.html">Potential Field</a>
+        <a href="rrt.html">RRT</a>
+        <a href="prm.html">PRM</a>
+        <a href="bug-algorithms.html">Bug</a>
+        <a href="graph-search.html">Graph Search</a>
+    </nav>
+    <div class="content">
+        <div class="sim-row">
+            <div class="sim-left">
+                <canvas id="canvas" width="600" height="600"></canvas>
+                <div class="ctrl">
+                    <button class="success" id="btn-run">▶ Jalankan</button>
+                    <button class="danger" id="btn-reset">↺ Reset</button>
+                    <button id="btn-step">⏭ Step</button>
+                </div>
+                <div class="ctrl">
+                    <label>ε (step): <input type="range" id="epsilon" min="5" max="40" value="18"></label>
+                    <label>Max iter: <input type="range" id="maxIter" min="100" max="5000" value="2000"></label>
+                    <label><input type="checkbox" id="chk-goal-bias" checked> Goal bias 10%</label>
+                </div>
+                <div class="status" id="status-msg">Klik kiri = start (S), klik kanan = goal (G). Klik & drag untuk obstacle persegi.</div>
+            </div>
+            <div class="sim-right">
+                <div class="panel">
+                    <h3>🎯 Petunjuk</h3>
+                    <ul style="margin:0;padding-left:1.2em;font-size:.85em;">
+                        <li><strong>Klik kiri</strong> &rarr; start (S)</li>
+                        <li><strong>Klik kanan</strong> &rarr; goal (G)</li>
+                        <li><strong>Drag</strong> &rarr; buat obstacle</li>
+                        <li>Tree tumbuh ke arah titik acak</li>
+                        <li>Goal bias: kadang pilih goal sebagai target</li>
+                    </ul>
+                </div>
+                <div class="panel">
+                    <h3>📊 Info</h3>
+                    <div class="info"><strong>Node:</strong> <span id="node-count">0</span></div>
+                    <div class="info"><strong>Iterasi:</strong> <span id="iter-count">0</span></div>
+                    <div class="info"><strong>Step (ε):</strong> <span id="eps-val">18</span></div>
+                    <div class="info"><strong>Path length:</strong> <span id="path-len">—</span></div>
+                </div>
+                <div class="panel">
+                    <h3>🎨 Legend</h3>
+                    <div class="legend"><span style="background:#2ecc71;border-radius:50%;"></span> Start</div>
+                    <div class="legend"><span style="background:#e74c3c;"></span> Goal</div>
+                    <div class="legend"><span style="background:#333;"></span> Obstacle</div>
+                    <div class="legend"><span style="background:rgba(52,152,219,.4);"></span> Tree</div>
+                    <div class="legend"><span style="background:#f39c12;"></span> Path</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p><a href="index.html">🏠 Kembali</a> &mdash; Klančar et al. (2017) Bab 4.2.5</p>
+    </footer>
+</div>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = 600, H = 600;
+let start = null, goal = null;
+let obstacles = []; // [{x,y,w,h}]
+let nodes = [], edges = [], path = [];
+let running = false, animId = null;
+let iterCount = 0, stepsPerFrame = 50;
+
+function rand(n) { return Math.random() * n; }
+
+function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+function pointInRect(px, py, r) {
+    return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
+}
+
+function collides(px, py) {
+    if (px < 0 || px > W || py < 0 || py > H) return true;
+    for (const o of obstacles)
+        if (pointInRect(px, py, o)) return true;
+    return false;
+}
+
+function edgeCollides(ax, ay, bx, by) {
+    const steps = Math.ceil(dist({x:ax,y:ay},{x:bx,y:by}) / 4);
+    for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const x = ax + (bx - ax) * t, y = ay + (by - ay) * t;
+        if (collides(x, y)) return true;
+    }
+    return false;
+}
+
+function buildRRT() {
+    if (!start || !goal) return;
+    nodes = [{x: start.x, y: start.y}];
+    edges = []; path = []; iterCount = 0;
+    const eps = +document.getElementById('epsilon').value;
+    const maxIter = +document.getElementById('maxIter').value;
+    const goalBias = document.getElementById('chk-goal-bias').checked;
+
+    for (let i = 0; i < maxIter; i++) {
+        iterCount = i + 1;
+        let target;
+        if (goalBias && Math.random() < 0.1) target = {x: goal.x, y: goal.y};
+        else target = {x: rand(W), y: rand(H)};
+
+        let nearIdx = 0, nearDist = Infinity;
+        for (let j = 0; j < nodes.length; j++) {
+            const d = dist(nodes[j], target);
+            if (d < nearDist) { nearDist = d; nearIdx = j; }
+        }
+        const near = nodes[nearIdx];
+        const dx = target.x - near.x, dy = target.y - near.y;
+        const d = Math.hypot(dx, dy);
+        let newX = near.x, newY = near.y;
+        if (d > eps) { newX = near.x + dx / d * eps; newY = near.y + dy / d * eps; }
+        else { newX = target.x; newY = target.y; }
+
+        if (!collides(newX, newY) && !edgeCollides(near.x, near.y, newX, newY)) {
+            nodes.push({x: newX, y: newY});
+            edges.push({from: nearIdx, to: nodes.length - 1});
+            if (dist({x:newX,y:newY}, goal) < eps + 10) {
+                // connect to goal
+                if (!edgeCollides(newX, newY, goal.x, goal.y)) {
+                    nodes.push({x: goal.x, y: goal.y});
+                    edges.push({from: nodes.length - 2, to: nodes.length - 1});
+                    // trace path
+                    let cur = nodes.length - 1;
+                    while (cur > 0) {
+                        path.push(nodes[cur]);
+                        const e = edges.find(e => e.to === cur);
+                        if (!e) break;
+                        cur = e.from;
+                    }
+                    path.push(nodes[0]);
+                    path.reverse();
+                    return true;
+                }
+            }
+        }
+        if (i % 100 === 0) draw(); // progressive draw
+    }
+    return false;
+}
+
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // obstacles
+    for (const o of obstacles) {
+        ctx.fillStyle = '#333';
+        ctx.fillRect(o.x, o.y, o.w, o.h);
+    }
+    // edges
+    for (const e of edges) {
+        ctx.beginPath();
+        ctx.moveTo(nodes[e.from].x, nodes[e.from].y);
+        ctx.lineTo(nodes[e.to].x, nodes[e.to].y);
+        ctx.strokeStyle = 'rgba(52,152,219,.4)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+    // nodes
+    for (const n of nodes) {
+        ctx.beginPath(); ctx.arc(n.x, n.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(52,152,219,.6)'; ctx.fill();
+    }
+    // path
+    if (path.length > 1) {
+        ctx.beginPath(); ctx.moveTo(path[0].x, path[0].y);
+        for (let i = 1; i < path.length; i++) ctx.lineTo(path[i].x, path[i].y);
+        ctx.strokeStyle = '#f39c12'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.shadowColor = 'rgba(243,156,18,.3)'; ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+    // start
+    if (start) {
+        ctx.beginPath(); ctx.arc(start.x, start.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#2ecc71'; ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('S', start.x, start.y);
+    }
+    // goal
+    if (goal) {
+        ctx.beginPath(); ctx.arc(goal.x, goal.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#e74c3c'; ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('G', goal.x, goal.y);
+    }
+    document.getElementById('node-count').textContent = nodes.length;
+    document.getElementById('iter-count').textContent = iterCount;
+    document.getElementById('path-len').textContent = path.length > 1 ? path.length + ' segmen' : '—';
+}
+
+function runSim() {
+    if (!start || !goal) {
+        setStatus('❌ Tempatkan start (klik kiri) dan goal (klik kanan).', false);
+        return;
+    }
+    if (running) return;
+    running = true;
+    document.getElementById('btn-run').disabled = true;
+    setStatus('⏳ Membangun RRT...');
+    setTimeout(() => {
+        const found = buildRRT();
+        draw();
+        running = false;
+        document.getElementById('btn-run').disabled = false;
+        if (found) setStatus('✅ Path ditemukan! ' + path.length + ' node.', true);
+        else setStatus('⚠️ Path tidak ditemukan dalam batas iterasi. Coba perbesar maxIter atau kecilkan ε.', false);
+    }, 50);
+}
+
+function stepSim() {
+    if (!start || !goal) { setStatus('❌ Tempatkan start dan goal dulu.', false); return; }
+    // single iteration of RRT
+    const eps = +document.getElementById('epsilon').value;
+    const goalBias = document.getElementById('chk-goal-bias').checked;
+    if (!nodes.length) { nodes = [{x: start.x, y: start.y}]; edges = []; path = []; iterCount = 0; }
+    let target;
+    if (goalBias && Math.random() < 0.1) target = {x: goal.x, y: goal.y};
+    else target = {x: rand(W), y: rand(H)};
+    let nearIdx = 0, nearDist = Infinity;
+    for (let j = 0; j < nodes.length; j++) {
+        const d = dist(nodes[j], target);
+        if (d < nearDist) { nearDist = d; nearIdx = j; }
+    }
+    const near = nodes[nearIdx];
+    const dx = target.x - near.x, dy = target.y - near.y;
+    const d = Math.hypot(dx, dy);
+    let newX = near.x, newY = near.y;
+    if (d > eps) { newX = near.x + dx / d * eps; newY = near.y + dy / d * eps; }
+    else { newX = target.x; newY = target.y; }
+    if (!collides(newX, newY) && !edgeCollides(near.x, near.y, newX, newY)) {
+        nodes.push({x: newX, y: newY});
+        edges.push({from: nearIdx, to: nodes.length - 1});
+        if (dist({x:newX,y:newY}, goal) < eps + 10 && !edgeCollides(newX, newY, goal.x, goal.y)) {
+            nodes.push({x: goal.x, y: goal.y});
+            edges.push({from: nodes.length - 2, to: nodes.length - 1});
+            let cur = nodes.length - 1;
+            while (cur > 0) {
+                path.push(nodes[cur]);
+                const e = edges.find(e => e.to === cur);
+                if (!e) break;
+                cur = e.from;
+            }
+            path.push(nodes[0]); path.reverse();
+            setStatus('✅ Path ditemukan!', true);
+        }
+    }
+    iterCount++;
+    draw();
+}
+
+function setStatus(msg, good) {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.style.borderLeftColor = good ? '#28a745' : '#ffc107';
+}
+
+function resetSim() {
+    running = false;
+    if (animId) cancelAnimationFrame(animId);
+    nodes = []; edges = []; path = []; iterCount = 0;
+    document.getElementById('btn-run').disabled = false;
+    setStatus('Simulasi di-reset.');
+    draw();
+}
+
+// Events
+let dragStart = null;
+canvas.addEventListener('mousedown', e => {
+    if (running) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (W / rect.width);
+    const y = (e.clientY - rect.top) * (H / rect.height);
+    if (e.button === 0) {
+        start = {x, y}; resetSim();
+        setStatus('Start (S) ditempatkan. Klik kanan untuk goal.');
+        draw();
+    } else if (e.button === 2) {
+        goal = {x, y}; resetSim();
+        setStatus('Goal (G) ditempatkan. Drag untuk obstacle, lalu Run.');
+        draw();
+    }
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('mousedown', e => {
+    if (e.button !== 0 || running) return;
+    const rect = canvas.getBoundingClientRect();
+    dragStart = {
+        x: (e.clientX - rect.left) * (W / rect.width),
+        y: (e.clientY - rect.top) * (H / rect.height)
+    };
+});
+canvas.addEventListener('mouseup', e => {
+    if (!dragStart || running) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (W / rect.width);
+    const y = (e.clientY - rect.top) * (H / rect.height);
+    const ox = Math.min(dragStart.x, x), oy = Math.min(dragStart.y, y);
+    const ow = Math.abs(x - dragStart.x), oh = Math.abs(y - dragStart.y);
+    if (ow > 5 && oh > 5) {
+        obstacles.push({x: ox, y: oy, w: ow, h: oh});
+        resetSim();
+        setStatus('Obstacle ditambahkan.');
+        draw();
+    }
+    dragStart = null;
+});
+
+document.getElementById('btn-run').addEventListener('click', runSim);
+document.getElementById('btn-reset').addEventListener('click', resetSim);
+document.getElementById('btn-step').addEventListener('click', stepSim);
+document.getElementById('epsilon').addEventListener('input', function() {
+    document.getElementById('eps-val').textContent = this.value;
+});
+
+draw();
+setStatus('Tempatkan start (klik kiri), goal (klik kanan), lalu obstacle (drag).');
+</script>
+</body>
+</html>

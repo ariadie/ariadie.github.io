@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 6: Constraint Satisfaction Problems &mdash; AIMA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#4a148c,#7b1fa2);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.5em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        nav{background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+        nav a{color:#495057;text-decoration:none;padding:8px 16px;border-radius:20px;transition:all .3s ease;font-weight:500;}
+        nav a:hover{background:#7b1fa2;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(123,31,162,.3);}
+        .chapternav{background:#2c3e50;padding:12px 15px;display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;}
+        .footernav{display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;}
+        .navbtn{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);transition:all .3s ease;}
+        .navbtn:hover{background:#7b1fa2;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(123,31,162,.4);}
+        .navcur{color:#fff;font-weight:700;padding:8px 18px;border-radius:20px;background:#7b1fa2;}
+        .navdisabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+        .content{padding:40px;}
+        .section{margin-bottom:40px;opacity:0;animation:slideUp .6s ease-out forwards;animation-delay:calc(var(--delay)+.2s);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        h2{color:#2c3e50;border-left:5px solid #7b1fa2;padding-left:15px;margin-bottom:20px;font-size:1.8em;}
+        h3{color:#34495e;margin-top:30px;font-size:1.4em;}
+        h4{color:#7b1fa2;margin-top:20px;font-size:1.1em;}
+        p{margin:12px 0;}
+        .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin:30px 0;}
+        .concept-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);padding:25px;border-radius:10px;border-left:4px solid #7b1fa2;transition:all .3s ease;animation:cardFade .6s ease-out forwards;animation-delay:calc(var(--card-delay)+.3s);opacity:0;transform:translateX(-20px);}
+        @keyframes cardFade{to{opacity:1;transform:translateX(0)}}
+        .concept-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 10px 25px rgba(0,0,0,.15);background:linear-gradient(135deg,#ede7f6 0%,#d1c4e9 100%);}
+        .concept-card h4{color:#7b1fa2;margin:0 0 15px;display:flex;align-items:center;gap:10px;}
+        .concept-card .icon{width:30px;height:30px;background:#7b1fa2;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;}
+        .simulation-container{background:#f8f9fa;border:2px solid #e9ecef;border-radius:10px;padding:30px;margin:30px 0;position:relative;overflow:hidden;}
+        .simulation-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#4a148c,#7b1fa2,#ce93d8);}
+        canvas{background:#fff;border:1px solid #dee2e6;border-radius:8px;display:block;margin:20px auto;box-shadow:inset 0 2px 5px rgba(0,0,0,.1);transition:all .3s ease;}
+        canvas:hover{box-shadow:inset 0 2px 8px rgba(0,0,0,.2),0 5px 15px rgba(0,0,0,.1);}
+        .controls{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin:25px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+        .control-group{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+        label{font-weight:600;color:#495057;font-size:.9em;}
+        select,input[type=range]{padding:10px 12px;border:2px solid #dee2e6;border-radius:6px;background:#fff;transition:all .3s ease;font-size:14px;}
+        select:hover,input[type=range]:hover{border-color:#7b1fa2;box-shadow:0 0 0 3px rgba(123,31,162,.1);}
+        input[type=range]{padding:0;height:8px;cursor:pointer;}
+        .value-display{font-size:.85em;color:#6c757d;text-align:center;margin-top:5px;}
+        .btn{background:linear-gradient(135deg,#7b1fa2,#6a1b9a);color:#fff;border:none;padding:12px 25px;border-radius:25px;cursor:pointer;font-weight:600;transition:all .3s ease;margin:5px;box-shadow:0 4px 15px rgba(123,31,162,.3);}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(123,31,162,.4);background:linear-gradient(135deg,#6a1b9a,#7b1fa2);}
+        .btn-secondary{background:linear-gradient(135deg,#607d8b,#546e7a);box-shadow:0 4px 15px rgba(96,125,139,.3);}
+        .btn-secondary:hover{background:linear-gradient(135deg,#546e7a,#607d8b);box-shadow:0 6px 20px rgba(96,125,139,.4);}
+        .summary-box{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7b1fa2;padding:25px;margin:30px 0;border-radius:8px;position:relative;overflow:hidden;}
+        .key-takeaway{display:flex;align-items:flex-start;gap:15px;margin:15px 0;padding:10px;background:rgba(255,255,255,.7);border-radius:6px;transition:all .3s ease;}
+        .key-takeaway:hover{background:rgba(255,255,255,.9);transform:translateX(5px);}
+        .takeaway-icon{background:#7b1fa2;color:#fff;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:30px;margin-top:50px;position:relative;overflow:hidden;}
+        footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4a148c,#7b1fa2,#ce93d8);}
+        .footer-content{max-width:800px;margin:0 auto;}
+        .highlight{background:linear-gradient(120deg,rgba(123,31,162,.2),transparent);padding:2px 6px;border-radius:3px;font-weight:600;color:#2c3e50;}
+        .math{background:#f4f6f8;border-left:4px solid #7b1fa2;padding:12px 18px;margin:18px 0;border-radius:6px;font-size:1.05em;overflow-x:auto;}
+        .math .eq-label{float:right;color:#6c757d;font-size:.85em;}
+        .note{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:5px solid #4caf50;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .warning{background:linear-gradient(135deg,#fff8e1,#ffecb3);border-left:5px solid #ffc107;padding:15px 20px;margin:20px 0;border-radius:8px;}
+        .exercise{background:linear-gradient(135deg,#ede7f6,#d1c4e9);border-left:5px solid #7e57c2;padding:20px 25px;margin:25px 0;border-radius:8px;}
+        .exercise h4{color:#5e35b1;margin-top:0;}
+        .solution{background:#fff;border:1px dashed #7e57c2;padding:15px 20px;margin-top:15px;border-radius:6px;}
+        details summary{cursor:pointer;font-weight:600;color:#5e35b1;padding:8px 0;}
+        details[open] summary{margin-bottom:10px;}
+        table{width:100%;border-collapse:collapse;margin:20px 0;background:#fff;}
+        th,td{border:1px solid #dee2e6;padding:10px 12px;text-align:left;}
+        th{background:#7b1fa2;color:#fff;}
+        tr:nth-child(even){background:#f8f9fa;}
+        .toc{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px 30px;margin:25px 0;}
+        .toc ol{margin:0;padding-left:25px;}
+        .toc li{margin:6px 0;}
+        .toc a{color:#7b1fa2;text-decoration:none;}
+        .toc a:hover{text-decoration:underline;}
+        .color-palette{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+        .color-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s ease;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+        .color-swatch:hover,.color-swatch.active{transform:scale(1.15);border-color:#333;box-shadow:0 3px 10px rgba(0,0,0,.3);}
+        .color-swatch.erased{background:#fff!important;border:2px dashed #999;color:#999;text-shadow:none;}
+        .constraint-status{display:inline-block;padding:4px 10px;border-radius:12px;font-weight:600;font-size:.85em;margin-left:8px;}
+        .constraint-ok{background:#c8e6c9;color:#2e7d32;}
+        .constraint-violated{background:#ffcdd2;color:#c62828;}
+        .step-log{background:#1a1a2e;color:#e0e0e0;padding:15px 20px;border-radius:8px;font-family:'Fira Code',monospace;font-size:.88em;max-height:200px;overflow-y:auto;margin-top:15px;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}.controls{flex-direction:column;align-items:center;}.concept-grid{grid-template-columns:1fr;}canvas{width:100%!important;height:auto!important;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bab 6</h1>
+            <div class="subtitle">Constraint Satisfaction Problems &mdash; AIMA 4th Edition</div>
+        </header>
+
+        <div class="chapternav">
+            <a class="navbtn" href="chapter5.html" title="Sebelumnya: Bab 5">&larr; Bab 5</a>
+            <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+            <span class="navcur">Bab 6</span>
+            <a class="navbtn navdisabled" title="Coming Soon">Bab 7 &#8594;</a>
+        </div>
+
+        <nav>
+            <a href="#overview">Ikhtisar</a>
+            <a href="#defining-csp">Definisi CSP</a>
+            <a href="#backtracking">Backtracking</a>
+            <a href="#improvements">Peningkatan Efisiensi</a>
+            <a href="#ac3">AC-3</a>
+            <a href="#structure">Struktur CSP</a>
+            <a href="#simulation">Simulasi</a>
+            <a href="#exercises">Latihan</a>
+        </nav>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div id="overview" class="section" style="--delay:0s;">
+                <h2>Ikhtisar</h2>
+                <p>Banyak masalah dalam kecerdasan buatan &mdash; penjadwalan, penugasan, penataan peta, teka-teki Sudoku, dan sebagainya &mdash; dapat dirumuskan secara natural sebagai <strong>Constraint Satisfaction Problems (CSP)</strong>. Kerangka CSP memungkinkan kita menerapkan algoritma yang jauh lebih efisien daripada pencarian umum pada ruang keadaan.</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">1</span> Kerangka Matematika</h4>
+                        <p>CSP menyediakan cara terstruktur untuk mendefinisikan masalah dengan variabel, domain, dan batasan &mdash; memisahkan struktur masalah dari strategi pemecahannya.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">2</span> Pencarian Terarah</h4>
+                        <p>Algoritma CSP menggunakan informasi tentang batasan untuk memotong ruang pencarian secara agresif, sering kali jauh lebih efektif dari DFS murni.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.3s">
+                        <h4><span class="icon">3</span> Kompleksitas</h4>
+                        <p>CSP umumnya NP-lengkap, namun struktur graf batasan memungkinkan algoritma praktis yang menyelesaikan masalah besar secara efektif.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEFINING CSP -->
+            <div id="defining-csp" class="section" style="--delay:0.3s;">
+                <h2>Definisi CSP (Constraint Satisfaction Problem)</h2>
+                <p>CSP didefinisikan sebagai 3-tuple: <em>CSP = &langle;X, D, C&rangle;</em>, di mana:</p>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">X</span> Variabel (Variables)</h4>
+                        <p>Himpunan variabel \(X = \{X_1, X_2, \ldots, X_n\}\). Setiap variabel merepresentasikan entitas yang perlu ditentukan nilainya. Contoh: wilayah pada peta warna.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.15s">
+                        <h4><span class="icon">D</span> Domain (Ruang Nilai)</h4>
+                        <p>Domain \(D_i\) untuk variabel \(X_i\) adalah himpunan nilai yang mungkin. Bisa diskrit atau kontinu. Contoh: \(D_i = \{\text{Merah}, \text{Biru}, \text{Hijau}\}\).</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">C</span> Constraints (Batasan)</h4>
+                        <p>Himpunan batasan \(C\) yang membatasi kombinasi nilai yang diizinkan. Setiap constraint \(C_j \in C\) adalah pasangan \(\langle \text{scope}, \text{relation} \rangle\).</p>
+                    </div>
+                </div>
+
+                <h3>Jenis Batasan</h3>
+                <table>
+                    <tr><th>Jenis</th><th>Scope</th><th>Contoh</th></tr>
+                    <tr><td><strong>Unary</strong></td><td>1 variabel</td><td>\(X_1 \neq \text{Merah}\) (X1 tidak boleh merah)</td></tr>
+                    <tr><td><strong>Binary</strong></td><td>2 variabel</td><td>\(X_1 \neq X_2\) (X1 dan X2 berbeda)</td></tr>
+                    <tr><td><strong>Higher-order</strong></td><td>&ge; 3 variabel</td><td>\(X_1 + X_2 = X_3\) (penjumlahan)</td></tr>
+                </table>
+
+                <h3>Contoh: Map Coloring</h3>
+                <p>Mewarnai peta Australia dengan 3 warna agar wilayah yang berbatasan tidak memiliki warna yang sama.</p>
+
+                <div class="math">
+                    \[ X = \{\text{WA}, \text{NT}, \text{SA}, \text{Q}, \text{NSW}, \text{V}, \text{T}\} \]
+                    \[ D_i = \{\text{Merah}, \text{Biru}, \text{Hijau}\} \quad \forall i \]
+                    \[ C = \{\text{WA} \neq \text{NT},\ \text{WA} \neq \text{SA},\ \text{NT} \neq \text{SA},\ \text{NT} \neq \text{Q},\ \text{SA} \neq \text{Q},\ \text{SA} \neq \text{NSW},\ \text{SA} \neq \text{V},\ \text{Q} \neq \text{NSW},\ \text{NSW} \neq \text{V}\} \]
+                </div>
+
+                <div class="note">
+                    <strong>Catatan:</strong> Tasmania (T) terisolasi dari daratan utama, sehingga tidak memiliki constraint dengan wilayah lain &mdash; ia bisa diwarnai warna apa saja.
+                </div>
+
+                <h3>Assignment &amp; Solution</h3>
+                <ul>
+                    <li><strong>Assignment</strong>: memetakan setiap variabel ke sebuah nilai dari domainnya.</li>
+                    <li><strong>Consistent assignment</strong>: assignment yang tidak melanggar constraint apapun.</li>
+                    <li><strong>Complete assignment</strong>: assignment yang mencakup semua variabel.</li>
+                    <li><strong>Solution</strong>: assignment yang lengkap dan konsisten.</li>
+                </ul>
+            </div>
+
+            <!-- BACKTRACKING SEARCH -->
+            <div id="backtracking" class="section" style="--delay:0.6s;">
+                <h2>Backtracking Search</h2>
+                <p>Backtracking adalah DFS pada ruang pencarian CSP &mdash; memilih variabel, memilih nilai, dan mundur jika menemukan konflik.</p>
+
+                <div class="math">
+                    \[ \text{BACKTRACKING-SEARCH}(\text{CSP}) \]
+                    \[ \text{return BACKTRACK}(\{\}, \text{CSP}) \]
+                </div>
+
+                <div class="math">
+                    \[ \text{BACKTRACK}(\text{assignment}, \text{CSP}): \]
+                    \[ \text{if assignment lengkap: return assignment} \]
+                    \[ X \leftarrow \text{Pilih-Variabel yang belum di-assign} \]
+                    \[ \textbf{for each } v \textbf{ in } \text{Order-Domain-Values}(X, \text{assignment}): \]
+                    \[ \quad \text{if } v \text{ konsisten dengan assignment:} \]
+                    \[ \quad \quad \text{tambahkan } \{X = v\} \text{ ke assignment} \]
+                    \[ \quad \quad \text{result} \leftarrow \text{BACKTRACK}(\text{assignment}, \text{CSP}) \]
+                    \[ \quad \quad \text{if result} \neq \text{failure: return result} \]
+                    \[ \quad \quad \text{hapus } \{X = v\} \text{ dari assignment} \]
+                    \[ \text{return failure} \]
+                </div>
+
+                <h3>Karakteristik</h3>
+                <table>
+                    <tr><th>Aspek</th><th>Nilai</th></tr>
+                    <tr><td>Waktu (kasus terburuk)</td><td>\(O(d^n)\): \(n\) variabel, domain size \(d\)</td></tr>
+                    <tr><td>Ruang</td><td>\(O(n)\): hanya menyimpan assignment saat ini</td></tr>
+                    <tr><td>Lengkap?</td><td>Ya</td></tr>
+                    <tr><td>Optimal?</td><td>Tidak (menemukan solusi pertama, bukan yang terbaik)</td></tr>
+                </table>
+
+                <div class="warning">
+                    <strong>Peringatan:</strong> Backtracking murni masih bisa sangat lambat karena ia tidak memanfaatkan struktur problem &mdash; ia hanya memeriksa konsistensi secara lokal. Diperlukan strategi peningkatan!
+                </div>
+            </div>
+
+            <!-- IMPROVEMENTS -->
+            <div id="improvements" class="section" style="--delay:0.9s;">
+                <h2>Peningkatan Efisiensi Backtracking</h2>
+                <p>Ada tiga strategi utama untuk mempercepat backtracking: <strong>variable ordering</strong>, <strong>value ordering</strong>, dan <strong>early detection</strong>.</p>
+
+                <h3>1. Variable Ordering &mdash; MRV (Minimum Remaining Values)</h3>
+                <p>Pilih variabel dengan <strong>paling sedikit nilai tersisa</strong> yang legal &mdash; <em>most constrained variable</em>. Jika ada konflik, ia yang pertama gagal.</p>
+
+                <div class="math">
+                    \[ \text{MRV}(X_i) = |D_i| \quad \text{(jumlah nilai yang belum dikesampingkan)} \]
+                </div>
+
+                <div class="note">
+                    <strong>Heuristik Degree:</strong> Jika MRV menghasilkan seri (beberapa variabel sama-sama memiliki nilai minimum), pilih variabel yang <strong>terhubung dengan paling banyak variabel lain</strong> yang belum di-assign &mdash; memotong cabang pohon pencarian paling besar.
+                </div>
+
+                <h3>2. Value Ordering &mdash; Least Constraining Value (LCV)</h3>
+                <p>Untuk variabel yang dipilih, urutkan nilai berdasarkan berapa banyak opsi yang <strong>dibiarkan tersisa</strong> untuk tetangga. Pilih nilai yang <strong>meminimalkan jumlah nilai yang dikesampingkan</strong> pada tetangga.</p>
+
+                <div class="warning">
+                    <strong>Catatan:</strong> LCV berlawanan dengan MRV. MRV ingin fail cepat; LCV ingin tetangga punya opsi. Keduanya saling melengkapi.
+                </div>
+
+                <h3>3. Forward Checking</h3>
+                <p>Setelah assign \(X_i = v\), hapus nilai \(v\) dari domain semua <strong>tetangga</strong> \(X_i\) (variabel yang terhubung oleh constraint). Jika domain tetangga menjadi <strong>kosong</strong>, langsung backtrack.</p>
+
+                <table>
+                    <tr><th>Technique</th><th>Cara Kerja</th><th>Efek</th></tr>
+                    <tr><td>MRV</td><td>Pilih variabel paling sedikit nilai tersisa</td><td>Fail cepat di awal</td></tr>
+                    <tr><td>Degree</td><td>Pilih variabel dengan constraint terbanyak</td><td>Potong cabang lebih besar</td></tr>
+                    <tr><td>LCV</td><td>Coba nilai yang paling sedikit membatasi tetangga</td><td>Biarkan tetangga punya opsi</td></tr>
+                    <tr><td>Forward Checking</td><td>Propagate domain setelah setiap assignment</td><td>Detect dead end lebih awal</td></tr>
+                </table>
+            </div>
+
+            <!-- AC-3 -->
+            <div id="ac3" class="section" style="--delay:1.2s;">
+                <h2>Constraint Propagation &mdash; AC-3</h2>
+                <p><strong>Arc Consistency-3 (AC-3)</strong> adalah algoritma yang memastikan setiap nilai dalam domain suatu variabel memiliki nilai yang kompatibel di domain variabel tetangganya.</p>
+
+                <div class="math">
+                    \[ \text{AC-3}(\text{CSP}): \]
+                    \[ \text{queue} \leftarrow \text{semua arc } (X_i, X_j) \text{ di CSP} \]
+                    \[ \textbf{while } \text{queue} \neq \emptyset: \]
+                    \[ \quad (X_i, X_j) \leftarrow \text{queue.pop()} \]
+                    \[ \quad \textbf{if } \text{REVISE}(X_i, X_j): \]
+                    \[ \quad \quad \textbf{if } |D_i| = 0: \textbf{return false} \]
+                    \[ \quad \quad \textbf{for each } X_k \in \text{neighbors}(X_i) \setminus \{X_j\}: \]
+                    \[ \quad \quad \quad \text{queue.add}((X_k, X_i)) \]
+                    \[ \textbf{return true} \]
+                </div>
+
+                <div class="math">
+                    \[ \text{REVISE}(X_i, X_j): \]
+                    \[ \text{revised} \leftarrow \textbf{false} \]
+                    \[ \textbf{for each } x \in D_i: \]
+                    \[ \quad \text{if } \nexists\ y \in D_j \text{ such that } (x,y) \text{ satisfies } C_{ij}: \]
+                    \[ \quad \quad \text{hapus } x \text{ dari } D_i \]
+                    \[ \quad \quad \text{revised} \leftarrow \textbf{true} \]
+                    \[ \textbf{return revised} \]
+                </div>
+
+                <h3>Analisis Kompleksitas</h3>
+                <table>
+                    <tr><th>Metriks</th><th>Nilai</th></tr>
+                    <tr><td>Waktu</td><td>\(O(ed^3)\): \(e\) arc, domain size \(d\)</td></tr>
+                    <tr><td>Ruang</td><td>\(O(d^2)\)</td></tr>
+                </table>
+
+                <div class="note">
+                    <strong>Catatan:</strong> AC-3 tidak menjamin solusi ditemukan &mdash; ia hanya memastikan bahwa setiap arc <em>konsisten</em>. Jika domain tidak kosong setelah AC-3, mungkin masih belum ada solusi. Namun, ini sangat mempercepat backtracking.
+                </div>
+            </div>
+
+            <!-- STRUCTURE -->
+            <div id="structure" class="section" style="--delay:1.5s;">
+                <h2>Struktur CSP &mdash; Tree-Structured CSP</h2>
+                <p>Jika <strong>graf batasan</strong> (constraint graph) berbentuk pohon &mdash; tidak ada siklus &mdash; maka CSP dapat diselesaikan dalam waktu <strong>linier</strong>.</p>
+
+                <div class="math">
+                    \[ \text{Tree-structured CSP: } O(nd^2) \]
+                </div>
+
+                <h3>Algoritma Tree-CSP</h3>
+                <ol>
+                    <li><strong>Choose root</strong>: pilih node akar secara acak.</li>
+                    <li><strong>Topological sort</strong>: tentukan urutan dari root ke daun (parent sebelum child).</li>
+                    <li><strong>Forward pass</strong>: mulai dari daun, untuk setiap \(X_{\text{child}}\), eliminasi nilai yang tidak memiliki nilai kompatibel di \(X_{\text{parent}}\).</li>
+                    <li><strong>Backward pass</strong>: mulai dari root, pilih nilai yang kompatibel untuk setiap child.</li>
+                </ol>
+
+                <div class="concept-grid">
+                    <div class="concept-card" style="--card-delay:0.1s">
+                        <h4><span class="icon">O(nd²)</span> Pohon</h4>
+                        <p>Tree-structured CSP dapat diselesaikan secara <strong>paralel</strong> dengan waktu \(O(\log n)\) pada \(n\) processor. Konsistensi arc cukup untuk menjamin solusi.</p>
+                    </div>
+                    <div class="concept-card" style="--card-delay:0.2s">
+                        <h4><span class="icon">!</span> Cutset Conditioning</h4>
+                        <p>Jika graf memiliki siklus, pilih subset variabel, tetapkan nilainya, dan sisanya akan menjadi tree-structured. Kompleksitas eksponensial pada ukuran cutset, tetapi linear pada sisanya.</p>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>Penting:</strong> Tree-structured CSP adalah kasus langka. Sebagian besar CSP memiliki graf dengan siklus. Namun, pemahaman struktur ini membantu memahami batas efisiensi CSP.
+                </div>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="section" style="--delay:2s;">
+                <h2>Simulasi Interaktif: Map Coloring CSP</h2>
+                <p>Klik wilayah pada peta Australia untuk mengubah warnanya. Constraint (batasan) akan diperiksa secara real-time &mdash; wilayah dengan konflik ditandai merah.</p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Warna Saat Ini</label>
+                        <div class="color-palette" id="colorPalette">
+                            <div class="color-swatch" style="background:#c62828;" data-color="Merah" title="Merah">M</div>
+                            <div class="color-swatch" style="background:#1565c0;" data-color="Biru" title="Biru">B</div>
+                            <div class="color-swatch" style="background:#2e7d32;" data-color="Hijau" title="Hijau">H</div>
+                            <div class="color-swatch erased" data-color="" title="Hapus">✕</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="resetColors()">Reset</button>
+                    <button class="btn" onclick="autoSolve()">Auto Solve</button>
+                    <button class="btn btn-secondary" onclick="showBacktracking()">Tunjukkan Backtracking</button>
+                </div>
+
+                <div class="simulation-container">
+                    <canvas id="mapCanvas" width="900" height="520"></canvas>
+                </div>
+
+                <div style="text-align:center;margin:15px 0;font-size:.9em;">
+                    <span class="constraint-status constraint-ok">✓ Konsisten</span>
+                    <span class="constraint-status constraint-violated">✕ Konflik</span>
+                    <span style="margin-left:15px;color:#6c757d;">Klik wilayah &rarr; pilih warna dari palet &rarr; constraint diperiksa otomatis</span>
+                </div>
+
+                <div id="stepLog" class="step-log" style="display:none;"></div>
+
+                <h3>Penjelasan Peta</h3>
+                <table>
+                    <tr><th>Singkatan</th><th>Nama Wilayah</th><th>Tetangga</th></tr>
+                    <tr><td>WA</td><td>Western Australia</td><td>NT, SA</td></tr>
+                    <tr><td>NT</td><td>Northern Territory</td><td>WA, SA, Q</td></tr>
+                    <tr><td>SA</td><td>South Australia</td><td>WA, NT, Q, NSW, V</td></tr>
+                    <tr><td>Q</td><td>Queensland</td><td>NT, SA, NSW</td></tr>
+                    <tr><td>NSW</td><td>New South Wales</td><td>Q, SA, V</td></tr>
+                    <tr><td>V</td><td>Victoria</td><td>SA, NSW</td></tr>
+                    <tr><td>T</td><td>Tasmania</td><td>(terisolasi)</td></tr>
+                </table>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="section" style="--delay:2.2s;">
+                <h2>Latihan Terselesaikan</h2>
+
+                <div class="exercise">
+                    <h4>Latihan 1 &mdash; MRV vs Degree</h4>
+                    <p>Pada peta Australia, setelah \( \text{WA} = \text{Merah} \), variabel mana yang harus dipilih berikutnya menggunakan MRV? Mengapa?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Setelah \( \text{WA} = \text{Merah} \), domain \( \text{NT} \) dan \( \text{SA} \) masing-masing tersisa \(\{\text{Biru}, \text{Hijau}\}\) (2 nilai). Domain variabel lain masih 3. MRV memilih salah satu dari \(\text{NT}\) atau \(\text{SA}\). Heuristik Degree memilih \(\text{SA}\) karena \(\text{SA}\) terhubung dengan 5 variabel (degree tertinggi), sedangkan \(\text{NT}\) hanya 3.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 2 &mdash; Forward Checking</h4>
+                    <p>Jika \( \text{SA} = \text{Biru} \) diassign pada peta Australia, domain apa yang tersisa untuk setiap variabel setelah forward checking?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Domain setelah forward checking:</p>
+                            <ul>
+                                <li>\(\text{WA} = \{\text{Merah}, \text{Hijau}\}\) (Biru dihapus)</li>
+                                <li>\(\text{NT} = \{\text{Merah}, \text{Hijau}\}\) (Biru dihapus)</li>
+                                <li>\(\text{SA} = \{\text{Biru}\}\) (sudah di-assign)</li>
+                                <li>\(\text{Q} = \{\text{Merah}, \text{Hijau}\}\) (Biru dihapus)</li>
+                                <li>\(\text{NSW} = \{\text{Merah}, \text{Hijau}\}\) (Biru dihapus)</li>
+                                <li>\(\text{V} = \{\text{Merah}, \text{Hijau}\}\) (Biru dihapus)</li>
+                                <li>\(\text{T} = \{\text{Merah}, \text{Biru}, \text{Hijau}\}\) (tidak berubah, terisolasi)</li>
+                            </ul>
+                            <p>Semua domain tetangga \(\text{SA}\) tereduksi. Jika suatu waktu domain tetangga menjadi kosong, backtrack dilakukan.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="exercise">
+                    <h4>Latihan 3 &mdash; Tree-Structured CSP</h4>
+                    <p>Buktikan bahwa CSP berikut memiliki graf berbentuk pohon: variabel \(\{A, B, C, D\}\) dengan constraint \(A \neq B\), \(B \neq C\), \(C \neq D\). Berapa waktu yang diperlukan dengan algoritma Tree-CSP jika setiap domain memiliki ukuran \(d = 3\)?</p>
+                    <details>
+                        <summary>Tampilkan solusi</summary>
+                        <div class="solution">
+                            <p>Graf batasan: \(A - B - C - D\) &mdash; tidak ada siklus, sehingga berbentuk pohon.</p>
+                            <p>Kompleksitas: \(O(nd^2) = O(4 \times 3^2) = O(36)\). Forward pass memproses 3 arc (dari daun ke root), setiap arc memeriksa paling banyak \(d^2 = 9\) kombinasi. Backward pass memproses 3 arc lagi. Total \(\approx 36\) operasi &mdash; sangat cepat dibandingkan \(O(d^n) = O(3^4) = 81\) untuk brute force.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div id="summary" class="section" style="--delay:3s;">
+                <h2>Ringkasan</h2>
+                <div class="summary-box">
+                    <h3>Poin-Poin Penting</h3>
+                    <table>
+                        <tr><th>Komponen</th><th>Penjelasan</th></tr>
+                        <tr><td>CSP = &langle;X, D, C&rangle;</td><td>Variabel, Domain, Constraints</td></tr>
+                        <tr><td>Backtracking</td><td>DFS pada CSP + pemeriksaan konsistensi</td></tr>
+                        <tr><td>MRV</td><td>Pilih variabel paling sedikit nilai tersisa (fail cepat)</td></tr>
+                        <tr><td>Degree</td><td>Pilih variabel dengan constraint paling banyak</td></tr>
+                        <tr><td>LCV</td><td>Coba nilai yang paling sedikit batasi tetangga</td></tr>
+                        <tr><td>Forward Checking</td><td>Propagate domain setelah setiap assignment</td></tr>
+                        <tr><td>AC-3</td><td>Konsistensi arc pada semua arc dalam CSP</td></tr>
+                        <tr><td>Tree-CSP</td><td>O(nd²) untuk graf berbentuk pohon</td></tr>
+                    </table>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Rekomendasi:</strong> Kombinasikan MRV + Forward Checking sebagai strategi dasar. Tambahkan AC-3 untuk masalah yang lebih sulit. Gunakan LCV untuk domain yang besar.</div>
+                    </div>
+                    <div class="key-takeaway">
+                        <div class="takeaway-icon">✓</div>
+                        <div><strong>Penting:</strong> CSP adalah kerangka yang sangat fleksibel &mdash; banyak masalah AI lain (Sudoku, penjadwalan, penugasan) dapat direduksi ke CSP.</div>
+                    </div>
+                </div>
+                <p>Bab berikutnya akan membahas CSP tingkat lanjut, termasuk local search dan optimasi untuk masalah skala besar.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 AIMA Interactive Guide | Bab 6</p>
+                <div class="footernav">
+                    <a class="navbtn" href="chapter5.html" title="Sebelumnya: Bab 5">&larr; Bab 5</a>
+                    <a class="navbtn" href="index.html" title="Beranda">&#127968; Beranda</a>
+                    <span class="navcur">Bab 6</span>
+                </div>
+                <p style="margin-top:15px;">
+                    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});">Kembali ke Atas</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+// ===== MAP DATA =====
+const regions = {
+    'WA':  { cx:120, cy:310, label:'WA',  full:'Western Australia' },
+    'NT':  { cx:280, cy:150, label:'NT',  full:'Northern Territory' },
+    'SA':  { cx:260, cy:310, label:'SA',  full:'South Australia' },
+    'Q':   { cx:450, cy:140, label:'Q',   full:'Queensland' },
+    'NSW': { cx:470, cy:280, label:'NSW', full:'New South Wales' },
+    'V':   { cx:420, cy:410, label:'V',   full:'Victoria' },
+    'T':   { cx:620, cy:420, label:'T',   full:'Tasmania' }
+};
+
+const adjacencies = {
+    'WA':  ['NT', 'SA'],
+    'NT':  ['WA', 'SA', 'Q'],
+    'SA':  ['WA', 'NT', 'Q', 'NSW', 'V'],
+    'Q':   ['NT', 'SA', 'NSW'],
+    'NSW': ['Q', 'SA', 'V'],
+    'V':   ['SA', 'NSW'],
+    'T':   []
+};
+
+const COLORS = {
+    'Merah':  '#c62828',
+    'Biru':   '#1565c0',
+    'Hijau':  '#2e7d32'
+};
+const COLOR_NAMES = Object.keys(COLORS);
+
+let regionColors = {};  // 'WA' -> 'Merah' or null
+let selectedColor = 'Merah';
+let highlightedConflicts = new Set();
+
+// ===== INIT =====
+function init() {
+    Object.keys(regions).forEach(r => regionColors[r] = null);
+    setupPalette();
+    drawMap();
+}
+
+function setupPalette() {
+    document.querySelectorAll('.color-swatch').forEach(el => {
+        el.addEventListener('click', function() {
+            selectedColor = this.dataset.color || null;
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+            if (selectedColor) this.classList.add('active');
+        });
+    });
+    document.querySelector('.color-swatch[data-color="Merah"]').classList.add('active');
+}
+
+// ===== CANVAS DRAWING =====
+const cvs = document.getElementById('mapCanvas');
+const ctx = cvs.getContext('2d');
+
+function drawMap() {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    // Draw edges (adjacency lines)
+    const drawnEdges = new Set();
+    for (const [r, neighbors] of Object.entries(adjacencies)) {
+        for (const nb of neighbors) {
+            const key = [r, nb].sort().join('|');
+            if (drawnEdges.has(key)) continue;
+            drawnEdges.add(key);
+            const a = regions[r], b = regions[nb];
+            const isConf = highlightedConflicts.has(r) && highlightedConflicts.has(nb) &&
+                           regionColors[r] && regionColors[nb] && regionColors[r] === regionColors[nb];
+            ctx.beginPath();
+            ctx.moveTo(a.cx, a.cy);
+            ctx.lineTo(b.cx, b.cy);
+            ctx.strokeStyle = isConf ? '#c62828' : '#90a4ae';
+            ctx.lineWidth = isConf ? 3 : 1.5;
+            ctx.stroke();
+        }
+    }
+
+    // Draw regions
+    for (const [name, data] of Object.entries(regions)) {
+        const colorName = regionColors[name];
+        const fillColor = colorName ? COLORS[colorName] : '#eceff1';
+        const borderColor = highlightedConflicts.has(name) ? '#c62828' : '#78909c';
+        const borderWidth = highlightedConflicts.has(name) ? 3.5 : 2;
+
+        // Region shape (rough polygon approximation)
+        ctx.beginPath();
+        ctx.arc(data.cx, data.cy, 38, 0, 2 * Math.PI);
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = borderWidth;
+        ctx.stroke();
+
+        // Label
+        ctx.fillStyle = colorName ? '#fff' : '#37474f';
+        ctx.font = 'bold 16px Segoe UI, Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(data.label, data.cx, data.cy);
+
+        // Full name below
+        ctx.fillStyle = '#546e7a';
+        ctx.font = '11px Segoe UI, Arial';
+        ctx.fillText(data.full, data.cx, data.cy + 52);
+    }
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+}
+
+// ===== CLICK HANDLING =====
+cvs.addEventListener('click', function(e) {
+    const rect = cvs.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (cvs.width / rect.width);
+    const my = (e.clientY - rect.top) * (cvs.height / rect.height);
+
+    for (const [name, data] of Object.entries(regions)) {
+        const dx = mx - data.cx, dy = my - data.cy;
+        if (dx * dx + dy * dy < 38 * 38) {
+            assignColor(name, selectedColor);
+            return;
+        }
+    }
+});
+
+function assignColor(region, color) {
+    regionColors[region] = color || null;
+    checkConstraints();
+    drawMap();
+}
+
+function checkConstraints() {
+    highlightedConflicts.clear();
+    for (const [r, neighbors] of Object.entries(adjacencies)) {
+        for (const nb of neighbors) {
+            if (regionColors[r] && regionColors[nb] && regionColors[r] === regionColors[nb]) {
+                highlightedConflicts.add(r);
+                highlightedConflicts.add(nb);
+            }
+        }
+    }
+}
+
+function resetColors() {
+    Object.keys(regions).forEach(r => regionColors[r] = null);
+    highlightedConflicts.clear();
+    document.getElementById('stepLog').style.display = 'none';
+    drawMap();
+}
+
+// ===== AUTO SOLVE (Backtracking with MRV + Forward Checking) =====
+function autoSolve() {
+    resetColors();
+    const log = document.getElementById('stepLog');
+    log.style.display = 'block';
+    log.innerHTML = '';
+
+    const assignment = {};
+    const domains = {};
+    Object.keys(regions).forEach(r => domains[r] = new Set(COLOR_NAMES));
+
+    function logMsg(msg) {
+        log.innerHTML += msg + '\n';
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function isConsistent(varName, value) {
+        for (const nb of (adjacencies[varName] || [])) {
+            if (assignment[nb] === value) return false;
+        }
+        return true;
+    }
+
+    function selectUnassignedMRV() {
+        let best = null, bestCount = Infinity;
+        for (const [r, dom] of Object.entries(domains)) {
+            if (!assignment[r] && dom.size > 0 && dom.size < bestCount) {
+                bestCount = dom.size;
+                best = r;
+            }
+        }
+        return best;
+    }
+
+    let stepCount = 0;
+    const maxSteps = 500;
+
+    function backtrack() {
+        if (stepCount++ > maxSteps) { logMsg('>> Batas langkah tercapai.'); return false; }
+        const varName = selectUnassignedMRV();
+        if (!varName) {
+            logMsg('>> Semua variabel di-assign tanpa konflik!');
+            return true;
+        }
+        logMsg('Pilih ' + varName + ' (MRV=' + domains[varName].size + ')');
+        for (const color of COLOR_NAMES) {
+            if (!domains[varName].has(color)) continue;
+            if (isConsistent(varName, color)) {
+                logMsg('  Coba ' + varName + ' = ' + color + ' ✓');
+                assignment[varName] = color;
+                regionColors[varName] = color;
+                checkConstraints();
+                drawMap();
+
+                // Forward checking
+                const removed = {};
+                let deadEnd = false;
+                for (const nb of (adjacencies[varName] || [])) {
+                    if (!assignment[nb] && domains[nb].has(color)) {
+                        domains[nb].delete(color);
+                        if (!removed[nb]) removed[nb] = [];
+                        removed[nb].push(color);
+                        if (domains[nb].size === 0) {
+                            logMsg('  Forward check: domain ' + nb + ' kosong! Backtrack.');
+                            deadEnd = true;
+                        }
+                    }
+                }
+
+                if (!deadEnd && backtrack()) return true;
+
+                // Undo
+                delete assignment[varName];
+                regionColors[varName] = null;
+                for (const [nb, colors] of Object.entries(removed)) {
+                    colors.forEach(c => domains[nb].add(c));
+                }
+                logMsg('  Backtrack ' + varName + ' = ' + color + ' ✗');
+                checkConstraints();
+                drawMap();
+            }
+        }
+        return false;
+    }
+
+    setTimeout(() => {
+        backtrack();
+        drawMap();
+    }, 100);
+}
+
+// ===== SHOW BACKTRACKING STEPS =====
+function showBacktracking() {
+    autoSolve();
+}
+</script>
+</body>
+</html>

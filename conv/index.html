@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convex Optimization — Study Notes</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; line-height: 1.6; color: #1e293b; background: #f8fafc; }
+        .container { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem; }
+        header { text-align: center; margin-bottom: 3rem; }
+        .badge { display: inline-block; background: #3b82f6; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem; }
+        h1 { font-size: 2.5rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem; }
+        .subtitle { color: #64748b; font-size: 1.125rem; max-width: 600px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .card { background: white; border-radius: 12px; padding: 1.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .card h2 { font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 0.75rem; }
+        .card p { color: #475569; font-size: 0.9375rem; margin-bottom: 1rem; }
+        .card .link { display: inline-flex; align-items: center; gap: 0.375rem; color: #3b82f6; text-decoration: none; font-weight: 500; font-size: 0.9375rem; }
+        .card .link:hover { text-decoration: underline; }
+        .card .tag { display: inline-block; background: #f1f5f9; color: #475569; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-right: 0.375rem; margin-bottom: 0.375rem; }
+        .section { margin-bottom: 2.5rem; }
+        .section-title { font-size: 1.25rem; font-weight: 600; color: #0f172a; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; }
+        .chapters-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .chapter-item { display: flex; align-items: center; justify-content: space-between; background: white; padding: 1rem 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0; transition: border-color 0.2s; }
+        .chapter-item:hover { border-color: #3b82f6; }
+        .chapter-info { display: flex; flex-direction: column; gap: 0.25rem; }
+        .chapter-num { font-weight: 700; color: #3b82f6; font-size: 0.875rem; }
+        .chapter-title { font-weight: 500; color: #1e293b; }
+        .chapter-desc { font-size: 0.8125rem; color: #64748b; }
+        .chapter-link { color: #3b82f6; text-decoration: none; font-weight: 500; padding: 0.375rem 0.75rem; border-radius: 6px; transition: background 0.2s; }
+        .chapter-link:hover { background: #eff6ff; }
+        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.875rem; border-top: 1px solid #e2e8f0; }
+        footer a { color: #3b82f6; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        .toc-toggle { display: none; }
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .chapter-item { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <span class="badge">Convex Optimization</span>
+            <h1>Study Notes & Reference</h1>
+            <p class="subtitle">Based on <em>Convex Optimization</em> by Stephen Boyd & Lieven Vandenberghe (Cambridge University Press, 2004/2009)</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <h2>📚 Part I: Theory</h2>
+                <p>Foundations of convex analysis — sets, functions, problem formulations, and duality theory.</p>
+                <span class="tag">Ch. 1–5</span>
+                <span class="tag">Core</span>
+                <a href="conv01.html" class="link">Start Reading →</a>
+            </div>
+            <div class="card">
+                <h2>🔧 Part II: Applications</h2>
+                <p>Modeling real-world problems as convex programs — approximation, estimation, geometry, networks, and engineering.</p>
+                <span class="tag">Ch. 6–10</span>
+                <span class="tag">Modeling</span>
+                <a href="#" class="link">Coming Soon →</a>
+            </div>
+            <div class="card">
+                <h2>⚙️ Part III: Algorithms</h2>
+                <p>Numerical methods for solving convex problems — gradient methods, Newton's method, interior-point, and more.</p>
+                <span class="tag">Ch. 11–16</span>
+                <span class="tag">Numerical</span>
+                <a href="#" class="link">Coming Soon →</a>
+            </div>
+        </div>
+
+        <section class="section">
+            <h2 class="section-title">📖 Chapters</h2>
+            <div class="chapters-list">
+                <div class="chapter-item">
+                    <div class="chapter-info">
+                        <span class="chapter-num">Chapter 1</span>
+                        <span class="chapter-title">Introduction</span>
+                        <span class="chapter-desc">Convex optimization overview, problem classes, and why it matters</span>
+                    </div>
+                    <a href="conv01.html" class="chapter-link">Read</a>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-info">
+                        <span class="chapter-num">Chapter 2</span>
+                        <span class="chapter-title">Convex Sets</span>
+                        <span class="chapter-desc">Affine/convex sets, cones, separation theorems, dual cones, generalized inequalities</span>
+                    </div>
+                    <a href="conv02.html" class="chapter-link">Read</a>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-info">
+                        <span class="chapter-num">Chapter 3</span>
+                        <span class="chapter-title">Convex Functions</span>
+                        <span class="chapter-desc">Definitions, examples, operations preserving convexity, conjugate, quasiconvex, log-convex</span>
+                    </div>
+                    <a href="#" class="chapter-link" style="pointer-events: none; opacity: 0.5;">Planned</a>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-info">
+                        <span class="chapter-num">Chapter 4</span>
+                        <span class="chapter-title">Convex Optimization Problems</span>
+                        <span class="chapter-desc">Standard form, equivalent transformations, LP/QP/SOCP/SDP/GP, optimization over cones</span>
+                    </div>
+                    <a href="#" class="chapter-link" style="pointer-events: none; opacity: 0.5;">Planned</a>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-info">
+                        <span class="chapter-num">Chapter 5</span>
+                        <span class="chapter-title">Duality</span>
+                        <span class="chapter-desc">Lagrangian, weak/strong duality, Slater's condition, KKT conditions, sensitivity analysis</span>
+                    </div>
+                    <a href="#" class="chapter-link" style="pointer-events: none; opacity: 0.5;">Planned</a>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-info">
+                        <span class="chapter-num">Chapters 6–10</span>
+                        <span class="chapter-title">Applications</span>
+                        <span class="chapter-desc">Approximation, statistical estimation, geometric problems, network flow, engineering</span>
+                    </div>
+                    <a href="#" class="chapter-link" style="pointer-events: none; opacity: 0.5;">Planned</a>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-info">
+                        <span class="chapter-num">Chapters 11–16</span>
+                        <span class="chapter-title">Algorithms</span>
+                        <span class="chapter-desc">Unconstrained minimization, equality constraints, interior-point, linear/quadratic programming</span>
+                    </div>
+                    <a href="#" class="chapter-link" style="pointer-events: none; opacity: 0.5;">Planned</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">🔗 Quick Reference</h2>
+            <div class="card" style="text-align: center; padding: 2rem;">
+                <p style="margin-bottom: 1rem;">Free PDF available from the authors:</p>
+                <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank" rel="noopener" class="link" style="font-size: 1.125rem;">web.stanford.edu/~boyd/cvxbook/</a>
+            </div>
+        </section>
+
+        <footer>
+            <p>Generated for <strong>moo-mrpp</strong> research project</p>
+            <p><a href="https://github.com/your-repo" target="_blank" rel="noopener">View Source</a> · <a href="../index.html">← Back to Paper Site</a></p>
+        </footer>
+    </div>
+</body>
+</html>

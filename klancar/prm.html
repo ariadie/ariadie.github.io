@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRM &mdash; Simulasi</title>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1100px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff;padding:30px 40px;text-align:center;}
+        h1{margin:0;font-size:2em;}
+        .subtitle{font-size:1em;opacity:.9;margin-top:6px;}
+        nav{background:#2c3e50;padding:10px 15px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+        nav a{color:#fff;text-decoration:none;padding:6px 16px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font-size:.9em;}
+        .content{padding:30px 35px;}
+        .sim-row{display:flex;gap:20px;flex-wrap:wrap;}
+        .sim-left{flex:2;min-width:500px;}
+        .sim-right{flex:1;min-width:220px;}
+        canvas{border:2px solid #2c3e50;border-radius:8px;cursor:crosshair;display:block;background:#fff;width:100%;max-width:600px;height:auto;}
+        .panel{background:#f5f7fa;border-radius:10px;padding:16px;margin-bottom:12px;}
+        .panel h3{margin:0 0 8px;font-size:1em;color:#2c3e50;}
+        .ctrl{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0;align-items:center;}
+        .ctrl button{background:#3498db;color:#fff;border:none;padding:6px 14px;border-radius:5px;cursor:pointer;font-weight:600;transition:.2s;}
+        .ctrl button:hover{background:#2176ae;}
+        .ctrl button:disabled{background:#bbb;cursor:default;}
+        .ctrl button.danger{background:#e74c3c;}
+        .ctrl button.danger:hover{background:#c0392b;}
+        .ctrl button.success{background:#27ae60;}
+        .ctrl button.success:hover{background:#219a52;}
+        .ctrl button.warning{background:#f39c12;}
+        .ctrl button.warning:hover{background:#d68910;}
+        .ctrl label{display:flex;align-items:center;gap:6px;font-size:.88em;}
+        .ctrl input[type=range]{width:90px;}
+        .legend{font-size:.85em;}
+        .legend span{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:4px;vertical-align:middle;}
+        .info{font-size:.88em;color:#555;margin:4px 0;}
+        .info strong{color:#333;}
+        .status{background:#fff3cd;border-left:4px solid #ffc107;padding:8px 12px;border-radius:4px;font-size:.88em;margin:8px 0;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:20px;margin-top:30px;font-size:.85em;}
+        footer a{color:#7fd1ff;}
+        @media(max-width:700px){.sim-left{min-width:unset;}canvas{max-width:100%;}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>PRM &mdash; Probabilistic Roadmap</h1>
+        <div class="subtitle">Learning phase: bangun graf dari sampel acak &rarr; Query phase: cari path S&ndash;G</div>
+    </header>
+    <nav>
+        <a href="index.html">🏠 Kembali</a>
+        <a href="potential-field.html">Potential Field</a>
+        <a href="rrt.html">RRT</a>
+        <a href="prm.html">PRM</a>
+        <a href="bug-algorithms.html">Bug</a>
+        <a href="graph-search.html">Graph Search</a>
+    </nav>
+    <div class="content">
+        <div class="sim-row">
+            <div class="sim-left">
+                <canvas id="canvas" width="600" height="600"></canvas>
+                <div class="ctrl">
+                    <button class="success" id="btn-learn">📚 Learning Phase</button>
+                    <button class="warning" id="btn-query">🔍 Query Path</button>
+                    <button class="danger" id="btn-reset">↺ Reset</button>
+                </div>
+                <div class="ctrl">
+                    <label>Node: <input type="range" id="numNodes" min="20" max="500" value="150"></label>
+                    <label>Radius (D): <input type="range" id="radius" min="30" max="200" value="80"></label>
+                </div>
+                <div class="status" id="status-msg">Klik kiri = start (S), klik kanan = goal (G). Drag = obstacle.</div>
+            </div>
+            <div class="sim-right">
+                <div class="panel">
+                    <h3>🎯 Petunjuk</h3>
+                    <ul style="margin:0;padding-left:1.2em;font-size:.85em;">
+                        <li><strong>Klik kiri</strong> &rarr; start (S)</li>
+                        <li><strong>Klik kanan</strong> &rarr; goal (G)</li>
+                        <li><strong>Drag</strong> &rarr; obstacle persegi</li>
+                        <li><strong>Learning</strong> &rarr; sampel + hubungkan</li>
+                        <li><strong>Query</strong> &rarr; cari path S&ndash;G di graf</li>
+                    </ul>
+                </div>
+                <div class="panel">
+                    <h3>📊 Info</h3>
+                    <div class="info"><strong>Node graf:</strong> <span id="node-count">0</span></div>
+                    <div class="info"><strong>Edge graf:</strong> <span id="edge-count">0</span></div>
+                    <div class="info"><strong>Path nodes:</strong> <span id="path-nodes">—</span></div>
+                </div>
+                <div class="panel">
+                    <h3>🎨 Legend</h3>
+                    <div class="legend"><span style="background:#2ecc71;border-radius:50%;"></span> Start</div>
+                    <div class="legend"><span style="background:#e74c3c;"></span> Goal</div>
+                    <div class="legend"><span style="background:#333;"></span> Obstacle</div>
+                    <div class="legend"><span style="background:rgba(52,152,219,.5);"></span> Node</div>
+                    <div class="legend"><span style="background:rgba(52,152,219,.2);height:3px;"></span> Edge</div>
+                    <div class="legend"><span style="background:#f39c12;"></span> Path</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p><a href="index.html">🏠 Kembali</a> &mdash; Klančar et al. (2017) Bab 4.2.5</p>
+    </footer>
+</div>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = 600, H = 600;
+let start = null, goal = null;
+let obstacles = [];
+let graphNodes = [], graphEdges = [], pathNodes = [];
+
+function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+function pointInRect(px, py, r) {
+    return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
+}
+function collides(px, py) {
+    if (px < 5 || px > W-5 || py < 5 || py > H-5) return true;
+    for (const o of obstacles)
+        if (pointInRect(px, py, o)) return true;
+    return false;
+}
+function edgeCollides(ax, ay, bx, by) {
+    const steps = Math.ceil(dist({x:ax,y:ay},{x:bx,y:by}) / 4);
+    for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        if (collides(ax + (bx-ax)*t, ay + (by-ay)*t)) return true;
+    }
+    return false;
+}
+
+function buildPRM() {
+    const N = +document.getElementById('numNodes').value;
+    const D = +document.getElementById('radius').value;
+    graphNodes = []; graphEdges = []; pathNodes = [];
+    for (let i = 0; i < N; i++) {
+        let x, y, attempts = 0;
+        do { x = 10 + Math.random() * (W-20); y = 10 + Math.random() * (H-20); attempts++; }
+        while (collides(x, y) && attempts < 50);
+        if (!collides(x, y)) graphNodes.push({x, y});
+    }
+    for (let i = 0; i < graphNodes.length; i++) {
+        for (let j = i + 1; j < graphNodes.length; j++) {
+            if (dist(graphNodes[i], graphNodes[j]) < D &&
+                !edgeCollides(graphNodes[i].x, graphNodes[i].y, graphNodes[j].x, graphNodes[j].y)) {
+                graphEdges.push({from: i, to: j});
+            }
+        }
+    }
+    draw();
+    document.getElementById('node-count').textContent = graphNodes.length;
+    document.getElementById('edge-count').textContent = graphEdges.length;
+    document.getElementById('path-nodes').textContent = '—';
+    document.getElementById('status-msg').textContent = '✅ Learning selesai: ' + graphNodes.length + ' node, ' + graphEdges.length + ' edge.';
+    document.getElementById('status-msg').style.borderLeftColor = '#28a745';
+}
+
+function queryPath() {
+    if (!start || !goal) {
+        setStatus('❌ Tempatkan start dan goal dulu.', false);
+        return;
+    }
+    if (!graphNodes.length) {
+        setStatus('❌ Jalankan Learning Phase dulu.', false);
+        return;
+    }
+    // connect start and goal to nearest nodes
+    let sIdx = -1, gIdx = -1, sDist = Infinity, gDist = Infinity;
+    const D = +document.getElementById('radius').value;
+    for (let i = 0; i < graphNodes.length; i++) {
+        const d = dist(graphNodes[i], start);
+        if (d < sDist) { sDist = d; sIdx = i; }
+        const dg = dist(graphNodes[i], goal);
+        if (dg < gDist) { gDist = dg; gIdx = i; }
+    }
+    if (sDist > D || gDist > D) {
+        setStatus('❌ Start/goal terlalu jauh dari graf. Perbesar radius atau tambah node.', false);
+        return;
+    }
+    // BFS on graph
+    const adj = Array.from({length: graphNodes.length}, () => []);
+    for (const e of graphEdges) {
+        adj[e.from].push(e.to);
+        adj[e.to].push(e.from);
+    }
+    const parent = Array(graphNodes.length).fill(-1);
+    const queue = [sIdx];
+    parent[sIdx] = sIdx;
+    let found = false;
+    while (queue.length) {
+        const cur = queue.shift();
+        if (cur === gIdx) { found = true; break; }
+        for (const nb of adj[cur]) {
+            if (parent[nb] === -1) { parent[nb] = cur; queue.push(nb); }
+        }
+    }
+    if (!found) {
+        setStatus('❌ Tidak ada path di graf. Coba tambah node atau perbesar radius.', false);
+        return;
+    }
+    pathNodes = [];
+    let cur = gIdx;
+    while (cur !== sIdx) {
+        pathNodes.push(graphNodes[cur]);
+        cur = parent[cur];
+    }
+    pathNodes.push(graphNodes[sIdx]);
+    pathNodes.reverse();
+    document.getElementById('path-nodes').textContent = pathNodes.length;
+    setStatus('✅ Path ditemukan: ' + pathNodes.length + ' node.', true);
+    draw();
+}
+
+function setStatus(msg, good) {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.style.borderLeftColor = good ? '#28a745' : '#ffc107';
+}
+
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (const o of obstacles) {
+        ctx.fillStyle = '#333';
+        ctx.fillRect(o.x, o.y, o.w, o.h);
+    }
+    for (const e of graphEdges) {
+        ctx.beginPath();
+        ctx.moveTo(graphNodes[e.from].x, graphNodes[e.from].y);
+        ctx.lineTo(graphNodes[e.to].x, graphNodes[e.to].y);
+        ctx.strokeStyle = 'rgba(52,152,219,.15)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    for (const n of graphNodes) {
+        ctx.beginPath(); ctx.arc(n.x, n.y, 3, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(52,152,219,.6)'; ctx.fill();
+    }
+    if (pathNodes.length > 1) {
+        ctx.beginPath(); ctx.moveTo(pathNodes[0].x, pathNodes[0].y);
+        for (let i = 1; i < pathNodes.length; i++) ctx.lineTo(pathNodes[i].x, pathNodes[i].y);
+        ctx.strokeStyle = '#f39c12'; ctx.lineWidth = 3; ctx.shadowColor = 'rgba(243,156,18,.3)'; ctx.shadowBlur = 6;
+        ctx.stroke(); ctx.shadowBlur = 0;
+    }
+    if (start) {
+        ctx.beginPath(); ctx.arc(start.x, start.y, 8, 0, Math.PI*2);
+        ctx.fillStyle = '#2ecc71'; ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('S', start.x, start.y);
+    }
+    if (goal) {
+        ctx.beginPath(); ctx.arc(goal.x, goal.y, 8, 0, Math.PI*2);
+        ctx.fillStyle = '#e74c3c'; ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('G', goal.x, goal.y);
+    }
+}
+
+// Events
+let dragStart = null;
+canvas.addEventListener('mousedown', e => {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (W / rect.width);
+    const y = (e.clientY - rect.top) * (H / rect.height);
+    if (e.button === 0) {
+        if (e.shiftKey) { dragStart = {x, y}; return; }
+        start = {x, y}; setStatus('Start (S) ditempatkan.'); draw();
+    } else if (e.button === 2) {
+        goal = {x, y}; setStatus('Goal (G) ditempatkan.'); draw();
+    }
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('mouseup', e => {
+    if (!dragStart) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (W / rect.width);
+    const y = (e.clientY - rect.top) * (H / rect.height);
+    const ox = Math.min(dragStart.x, x), oy = Math.min(dragStart.y, y);
+    if (Math.abs(x - dragStart.x) > 5 && Math.abs(y - dragStart.y) > 5) {
+        obstacles.push({x: ox, y: oy, w: Math.abs(x-dragStart.x), h: Math.abs(y-dragStart.y)});
+        setStatus('Obstacle ditambahkan.');
+        draw();
+    }
+    dragStart = null;
+});
+
+document.getElementById('btn-learn').addEventListener('click', buildPRM);
+document.getElementById('btn-query').addEventListener('click', queryPath);
+document.getElementById('btn-reset').addEventListener('click', () => {
+    graphNodes = []; graphEdges = []; pathNodes = [];
+    document.getElementById('node-count').textContent = '0';
+    document.getElementById('edge-count').textContent = '0';
+    document.getElementById('path-nodes').textContent = '—';
+    setStatus('Reset. Tempatkan start, goal, dan obstacle.');
+    draw();
+});
+document.getElementById('numNodes').addEventListener('input', function() {
+    document.getElementById('node-count').textContent = '? (klik Learn)';
+});
+document.getElementById('radius').addEventListener('input', function() {
+    document.getElementById('edge-count').textContent = '? (klik Learn)';
+});
+
+draw();
+setStatus('Tempatkan start (klik kiri), goal (klik kanan), lalu drag untuk obstacle. Klik Learning Phase.');
+</script>
+</body>
+</html>

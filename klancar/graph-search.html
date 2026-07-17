@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Search &mdash; Simulasi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1100px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#2c3e50,#34495e);color:#fff;padding:30px 40px;text-align:center;}
+        h1{margin:0;font-size:2em;}
+        .subtitle{font-size:1em;opacity:.9;margin-top:6px;}
+        nav{background:#2c3e50;padding:10px 15px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+        nav a{color:#fff;text-decoration:none;padding:6px 16px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font-size:.9em;}
+        .content{padding:30px 35px;}
+        .sim-row{display:flex;gap:20px;flex-wrap:wrap;}
+        .sim-left{flex:2;min-width:500px;}
+        .sim-right{flex:1;min-width:220px;}
+        .grid-wrap{position:relative;}
+        canvas.grid-canvas{border:2px solid #2c3e50;border-radius:8px;cursor:pointer;display:block;background:#fff;width:100%;max-width:600px;height:auto;}
+        .panel{background:#f5f7fa;border-radius:10px;padding:16px;margin-bottom:12px;}
+        .panel h3{margin:0 0 8px;font-size:1em;color:#2c3e50;}
+        .ctrl{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0;align-items:center;}
+        .ctrl button{background:#3498db;color:#fff;border:none;padding:6px 14px;border-radius:5px;cursor:pointer;font-weight:600;transition:.2s;font-size:.88em;}
+        .ctrl button:hover{background:#2176ae;}
+        .ctrl button:disabled{background:#bbb;cursor:default;}
+        .ctrl button.danger{background:#e74c3c;}
+        .ctrl button.danger:hover{background:#c0392b;}
+        .ctrl button.success{background:#27ae60;}
+        .ctrl button.success:hover{background:#219a52;}
+        .ctrl label{display:flex;align-items:center;gap:6px;font-size:.85em;}
+        .ctrl select{padding:4px 8px;border-radius:5px;border:1px solid #bbb;font-size:.88em;}
+        .legend{font-size:.82em;line-height:1.5;}
+        .legend span{display:inline-block;width:14px;height:14px;margin-right:3px;vertical-align:middle;border-radius:2px;}
+        .info{font-size:.85em;color:#555;margin:3px 0;}
+        .info strong{color:#333;}
+        .status{background:#fff3cd;border-left:4px solid #ffc107;padding:8px 12px;border-radius:4px;font-size:.85em;margin:8px 0;}
+        .algo-desc{background:#eaf2f8;padding:8px 12px;border-radius:6px;font-size:.85em;margin:8px 0;border-left:4px solid #3498db;min-height:2.5em;}
+        .grid-info{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+        footer{background:#2c3e50;color:#fff;text-align:center;padding:20px;margin-top:30px;font-size:.85em;}
+        footer a{color:#7fd1ff;}
+        @media(max-width:700px){.sim-left{min-width:unset;}canvas.grid-canvas{max-width:100%;}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Graph-Based Search</h1>
+        <div class="subtitle">BFS &middot; DFS &middot; Iterative Deepening &middot; Dijkstra &middot; A* &middot; Greedy Best-First</div>
+    </header>
+    <nav>
+        <a href="index.html">🏠 Kembali</a>
+        <a href="potential-field.html">Potential Field</a>
+        <a href="rrt.html">RRT</a>
+        <a href="prm.html">PRM</a>
+        <a href="bug-algorithms.html">Bug</a>
+        <a href="graph-search.html">Graph Search</a>
+    </nav>
+    <div class="content">
+        <div class="sim-row">
+            <div class="sim-left">
+                <canvas id="canvas" class="grid-canvas" width="600" height="600"></canvas>
+                <div class="ctrl">
+                    <select id="algo-select">
+                        <option value="bfs">BFS (Breadth-First)</option>
+                        <option value="dfs">DFS (Depth-First)</option>
+                        <option value="iddfs">Iterative Deepening DFS</option>
+                        <option value="dijkstra">Dijkstra</option>
+                        <option value="astar" selected>A*</option>
+                        <option value="greedy">Greedy Best-First</option>
+                    </select>
+                    <button class="success" id="btn-search">🔍 Search</button>
+                    <button id="btn-step">⏭ Step</button>
+                    <button class="danger" id="btn-reset">↺ Reset</button>
+                </div>
+                <div class="ctrl">
+                    <label>Speed: <input type="range" id="speed" min="1" max="50" value="20"></label>
+                    <label><input type="checkbox" id="chk-numbers" checked> Tampilkan urutan</label>
+                </div>
+                <div class="algo-desc" id="algo-desc">
+                    <strong>A*:</strong> Urutkan open list berdasarkan \(f = g + h\) (cost-to-here + heuristic). Complete &amp; optimal jika heuristik admissible.
+                </div>
+                <div class="status" id="status-msg">Klik kiri = start (S), klik kanan = goal (G). Klik sel kosong untuk toggle obstacle.</div>
+            </div>
+            <div class="sim-right">
+                <div class="panel">
+                    <h3>🎯 Petunjuk</h3>
+                    <ul style="margin:0;padding-left:1.2em;font-size:.82em;">
+                        <li><strong>Klik kiri</strong> &rarr; start (S)</li>
+                        <li><strong>Klik kanan</strong> &rarr; goal (G)</li>
+                        <li><strong>Klik sel lain</strong> &rarr; toggle obstacle</li>
+                        <li><strong>Scroll</strong> &rarr; zoom tidak tersedia</li>
+                    </ul>
+                </div>
+                <div class="panel">
+                    <h3>📊 Info</h3>
+                    <div class="grid-info">
+                        <div class="info"><strong>Open:</strong> <span id="open-count">0</span></div>
+                        <div class="info"><strong>Closed:</strong> <span id="closed-count">0</span></div>
+                        <div class="info"><strong>Cost:</strong> <span id="path-cost">—</span></div>
+                        <div class="info"><strong>Steps:</strong> <span id="search-steps">0</span></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h3>🎨 Legend</h3>
+                    <div class="legend"><span style="background:#2ecc71;"></span> Start</div>
+                    <div class="legend"><span style="background:#e74c3c;"></span> Goal</div>
+                    <div class="legend"><span style="background:#555;"></span> Obstacle</div>
+                    <div class="legend"><span style="background:rgba(52,152,219,.5);"></span> Open list</div>
+                    <div class="legend"><span style="background:rgba(149,165,166,.5);"></span> Closed list</div>
+                    <div class="legend"><span style="background:#f39c12;"></span> Path</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p><a href="index.html">🏠 Kembali</a> &mdash; Klančar et al. (2017) Bab 4.4</p>
+    </footer>
+</div>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = 600, H = 600;
+const ROWS = 20, COLS = 20;
+const CELL = W / COLS;
+
+let grid = Array.from({length: ROWS}, () => Array(COLS).fill(0)); // 0=free, 1=obstacle
+let start = null, goal = null;
+let openList = [], closedList = [], path = [];
+let searchSteps = 0, found = false, running = false, animId = null;
+let parent = {}, gScore = {}, fScore = {};
+let searchDone = false;
+
+// IDDFS specific
+let iddfsDepth = 0, iddfsVisited = new Set();
+
+function cellKey(r, c) { return r + ',' + c; }
+
+function heuristic(r, c) {
+    if (!goal) return 0;
+    return Math.abs(r - goal.r) + Math.abs(c - goal.c); // Manhattan
+}
+
+function getNeighbors(r, c) {
+    const dirs = [[-1,0],[0,-1],[1,0],[0,1]];
+    const nb = [];
+    for (const [dr, dc] of dirs) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && grid[nr][nc] !== 1)
+            nb.push({r: nr, c: nc});
+    }
+    return nb;
+}
+
+function setStatus(msg, good) {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.style.borderLeftColor = good ? '#28a745' : '#ffc107';
+}
+
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // grid lines
+    for (let r = 0; r <= ROWS; r++) {
+        ctx.beginPath(); ctx.moveTo(0, r * CELL); ctx.lineTo(W, r * CELL);
+        ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5; ctx.stroke();
+    }
+    for (let c = 0; c <= COLS; c++) {
+        ctx.beginPath(); ctx.moveTo(c * CELL, 0); ctx.lineTo(c * CELL, H);
+        ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5; ctx.stroke();
+    }
+    // obstacles
+    for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c < COLS; c++)
+            if (grid[r][c] === 1) {
+                ctx.fillStyle = '#555';
+                ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
+            }
+    // closed
+    for (const key of closedList) {
+        const [r, c] = key.split(',').map(Number);
+        ctx.fillStyle = 'rgba(149,165,166,.4)';
+        ctx.fillRect(c * CELL + 1, r * CELL + 1, CELL - 2, CELL - 2);
+    }
+    // open
+    for (const item of openList) {
+        const [r, c] = item.key.split(',').map(Number);
+        ctx.fillStyle = 'rgba(52,152,219,.35)';
+        ctx.fillRect(c * CELL + 1, r * CELL + 1, CELL - 2, CELL - 2);
+    }
+    // path
+    if (path.length > 1) {
+        ctx.beginPath(); ctx.moveTo(path[0].c * CELL + CELL/2, path[0].r * CELL + CELL/2);
+        for (let i = 1; i < path.length; i++)
+            ctx.lineTo(path[i].c * CELL + CELL/2, path[i].r * CELL + CELL/2);
+        ctx.strokeStyle = '#f39c12'; ctx.lineWidth = 3;
+        ctx.shadowColor = 'rgba(243,156,18,.3)'; ctx.shadowBlur = 6;
+        ctx.stroke(); ctx.shadowBlur = 0;
+    }
+    // numbers
+    if (document.getElementById('chk-numbers').checked) {
+        let idx = 1;
+        for (const key of closedList) {
+            const [r, c] = key.split(',').map(Number);
+            ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.font = '9px sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(idx, c * CELL + CELL/2, r * CELL + CELL/2);
+            idx++;
+        }
+    }
+    // start
+    if (start) {
+        ctx.fillStyle = '#2ecc71';
+        ctx.fillRect(start.c * CELL + 2, start.r * CELL + 2, CELL - 4, CELL - 4);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('S', start.c * CELL + CELL/2, start.r * CELL + CELL/2);
+    }
+    // goal
+    if (goal) {
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(goal.c * CELL + 2, goal.r * CELL + 2, CELL - 4, CELL - 4);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('G', goal.c * CELL + CELL/2, goal.r * CELL + CELL/2);
+    }
+    // cost labels on open nodes (for informed search)
+    const algo = document.getElementById('algo-select').value;
+    if (['astar','dijkstra','greedy'].includes(algo)) {
+        for (const item of openList) {
+            const [r, c] = item.key.split(',').map(Number);
+            const g = gScore[item.key] || 0;
+            const h = heuristic(r, c);
+            const f = algo === 'dijkstra' ? g : (algo === 'greedy' ? h : g + h);
+            ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.font = '8px sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText(f.toFixed(0), c * CELL + CELL/2, r * CELL + 1);
+        }
+    }
+
+    document.getElementById('open-count').textContent = openList.length;
+    document.getElementById('closed-count').textContent = closedList.length;
+    document.getElementById('search-steps').textContent = searchSteps;
+}
+
+function reconstructPath(curKey) {
+    path = [];
+    while (curKey) {
+        const [r, c] = curKey.split(',').map(Number);
+        path.unshift({r, c});
+        curKey = parent[curKey];
+    }
+    let cost = 0;
+    for (let i = 1; i < path.length; i++) {
+        cost += Math.abs(path[i].r - path[i-1].r) + Math.abs(path[i].c - path[i-1].c);
+    }
+    document.getElementById('path-cost').textContent = cost;
+    draw();
+}
+
+function runSearch() {
+    if (!start || !goal) {
+        setStatus('❌ Tempatkan start (klik kiri) dan goal (klik kanan).', false);
+        return;
+    }
+    if (running) return;
+    running = true;
+    searchDone = false; found = false;
+    openList = []; closedList = []; path = []; searchSteps = 0;
+    parent = {}; gScore = {}; fScore = {};
+    iddfsDepth = 0; iddfsVisited = new Set();
+    document.getElementById('btn-search').disabled = true;
+    document.getElementById('path-cost').textContent = '—';
+    const algo = document.getElementById('algo-select').value;
+
+    if (algo === 'iddfs') {
+        // iterative deepening DFS - run recursively with increasing depth
+        runIDDFS();
+        return;
+    }
+
+    const sk = cellKey(start.r, start.c);
+    openList.push({key: sk, priority: 0});
+    gScore[sk] = 0;
+
+    const speed = +document.getElementById('speed').value;
+    function stepSearch() {
+        if (searchDone || !running) { running = false; document.getElementById('btn-search').disabled = false; return; }
+        for (let i = 0; i < speed && !searchDone; i++) {
+            if (openList.length === 0) {
+                setStatus('❌ Tidak ada path ke goal.', false);
+                searchDone = true; break;
+            }
+            // sort by priority
+            if (algo === 'bfs') {
+                // FIFO: already in order
+            } else if (algo === 'dfs') {
+                // LIFO: take last
+            } else {
+                openList.sort((a, b) => a.priority - b.priority);
+            }
+            const cur = algo === 'dfs' ? openList.pop() : openList.shift();
+            const curKey = cur.key;
+            if (closedList.includes(curKey)) continue;
+            closedList.push(curKey);
+            searchSteps++;
+
+            if (curKey === cellKey(goal.r, goal.c)) {
+                found = true;
+                reconstructPath(curKey);
+                setStatus('✅ Path ditemukan!', true);
+                searchDone = true; break;
+            }
+
+            const [cr, cc] = curKey.split(',').map(Number);
+            const nb = getNeighbors(cr, cc);
+            for (const n of nb) {
+                const nk = cellKey(n.r, n.c);
+                if (closedList.includes(nk)) continue;
+                const newG = gScore[curKey] + 1;
+                if (gScore[nk] === undefined || newG < gScore[nk]) {
+                    gScore[nk] = newG;
+                    parent[nk] = curKey;
+                    let priority;
+                    if (algo === 'dijkstra') priority = newG;
+                    else if (algo === 'astar') priority = newG + heuristic(n.r, n.c);
+                    else if (algo === 'greedy') priority = heuristic(n.r, n.c);
+                    else priority = 0; // BFS/DFS
+                    openList.push({key: nk, priority});
+                }
+            }
+        }
+        draw();
+        if (!searchDone) setTimeout(stepSearch, 30);
+        else { running = false; document.getElementById('btn-search').disabled = false; }
+    }
+    stepSearch();
+}
+
+function runIDDFS() {
+    const sk = cellKey(start.r, start.c);
+    const maxDepth = ROWS * COLS;
+    iddfsDepth = 0;
+    const speed = +document.getElementById('speed').value;
+
+    function dls(depthLimit, visited) {
+        const stack = [{key: sk, depth: 0}];
+        const localParent = {};
+        const localClosed = [];
+
+        while (stack.length > 0) {
+            if (!running) { searchDone = true; return false; }
+            const cur = stack.pop();
+            const curKey = cur.key;
+            if (localClosed.includes(curKey)) continue;
+            localClosed.push(curKey);
+            if (!closedList.includes(curKey)) closedList.push(curKey);
+            searchSteps++;
+
+            if (curKey === cellKey(goal.r, goal.c)) {
+                parent[curKey] = localParent[curKey];
+                reconstructPath(curKey);
+                return true;
+            }
+
+            if (cur.depth >= depthLimit) continue;
+
+            const [cr, cc] = curKey.split(',').map(Number);
+            const nb = getNeighbors(cr, cc);
+            for (const n of nb.reverse()) {
+                const nk = cellKey(n.r, n.c);
+                if (!localClosed.includes(nk) && !visited.has(nk)) {
+                    localParent[nk] = curKey;
+                    parent[nk] = curKey;
+                    stack.push({key: nk, depth: cur.depth + 1});
+                }
+            }
+        }
+        return false;
+    }
+
+    function iterate() {
+        if (!running) { document.getElementById('btn-search').disabled = false; return; }
+        closedList = [];
+        iddfsVisited = new Set();
+        setStatus(`⏳ IDDFS mencoba depth limit = ${iddfsDepth}...`);
+        const found_ = dls(iddfsDepth, iddfsVisited);
+        draw();
+        if (found_) {
+            setStatus('✅ Path ditemukan dengan IDDFS!', true);
+            running = false; searchDone = true;
+            document.getElementById('btn-search').disabled = false;
+        } else if (iddfsDepth >= maxDepth) {
+            setStatus('❌ Tidak ada path ke goal.', false);
+            running = false; searchDone = true;
+            document.getElementById('btn-search').disabled = false;
+        } else {
+            iddfsDepth++;
+            setTimeout(iterate, 200);
+        }
+    }
+    iterate();
+}
+
+function stepOnce() {
+    if (!start || !goal) { setStatus('❌ Tempatkan start dan goal.', false); return; }
+    if (running) return;
+    running = true;
+    if (openList.length === 0 && closedList.length === 0) {
+        const sk = cellKey(start.r, start.c);
+        openList.push({key: sk, priority: 0});
+        gScore[sk] = 0;
+    }
+    const algo = document.getElementById('algo-select').value;
+
+    if (algo === 'iddfs') {
+        setStatus('⚠️ Step-by-step tidak didukung untuk IDDFS. Gunakan Search.', false);
+        running = false; return;
+    }
+
+    if (openList.length === 0) {
+        setStatus('❌ Tidak ada path.', false);
+        running = false; return;
+    }
+
+    if (algo !== 'bfs' && algo !== 'dfs')
+        openList.sort((a, b) => a.priority - b.priority);
+    const cur = algo === 'dfs' ? openList.pop() : openList.shift();
+    const curKey = cur.key;
+    if (closedList.includes(curKey)) { running = false; return; }
+    closedList.push(curKey);
+    searchSteps++;
+
+    if (curKey === cellKey(goal.r, goal.c)) {
+        found = true;
+        reconstructPath(curKey);
+        setStatus('✅ Path ditemukan!', true);
+        running = false; return;
+    }
+
+    const [cr, cc] = curKey.split(',').map(Number);
+    const nb = getNeighbors(cr, cc);
+    for (const n of nb) {
+        const nk = cellKey(n.r, n.c);
+        if (closedList.includes(nk)) continue;
+        const newG = gScore[curKey] + 1;
+        if (gScore[nk] === undefined || newG < gScore[nk]) {
+            gScore[nk] = newG;
+            parent[nk] = curKey;
+            let priority;
+            if (algo === 'dijkstra') priority = newG;
+            else if (algo === 'astar') priority = newG + heuristic(n.r, n.c);
+            else if (algo === 'greedy') priority = heuristic(n.r, n.c);
+            else priority = 0;
+            openList.push({key: nk, priority});
+        }
+    }
+    draw();
+    running = false;
+}
+
+function resetSearch() {
+    running = false; searchDone = false;
+    if (animId) cancelAnimationFrame(animId);
+    openList = []; closedList = []; path = []; searchSteps = 0;
+    parent = {}; gScore = {}; iddfsDepth = 0;
+    document.getElementById('btn-search').disabled = false;
+    document.getElementById('path-cost').textContent = '—';
+    setStatus('Reset. Klik sel untuk mengatur start/goal/obstacle.');
+    draw();
+}
+
+// Canvas interaction
+canvas.addEventListener('click', e => {
+    if (running) return;
+    const rect = canvas.getBoundingClientRect();
+    const c = Math.floor((e.clientX - rect.left) * (W / rect.width) / CELL);
+    const r = Math.floor((e.clientY - rect.top) * (H / rect.height) / CELL);
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+
+    if (e.button === 0) {
+        if (e.ctrlKey || e.metaKey) {
+            // toggle obstacle
+            if (start && start.r === r && start.c === c) return;
+            if (goal && goal.r === r && goal.c === c) return;
+            grid[r][c] = grid[r][c] === 1 ? 0 : 1;
+            resetSearch();
+            setStatus(`Obstacle di (${r},${c}) di-toggle.`);
+            draw(); return;
+        }
+        // set start
+        if (grid[r][c] === 1) return;
+        start = {r, c};
+        resetSearch();
+        setStatus('Start (S) ditempatkan.');
+        draw();
+    }
+});
+canvas.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    if (running) return;
+    const rect = canvas.getBoundingClientRect();
+    const c = Math.floor((e.clientX - rect.left) * (W / rect.width) / CELL);
+    const r = Math.floor((e.clientY - rect.top) * (H / rect.height) / CELL);
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+    if (grid[r][c] === 1) return;
+    goal = {r, c};
+    resetSearch();
+    setStatus('Goal (G) ditempatkan.');
+    draw();
+});
+
+// Also allow click + ctrl for obstacle
+canvas.addEventListener('mousedown', e => {
+    if (e.button !== 0 || running) return;
+    if (!e.ctrlKey && !e.metaKey) return;
+    const rect = canvas.getBoundingClientRect();
+    const c = Math.floor((e.clientX - rect.left) * (W / rect.width) / CELL);
+    const r = Math.floor((e.clientY - rect.top) * (H / rect.height) / CELL);
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+    if (start && start.r === r && start.c === c) return;
+    if (goal && goal.r === r && goal.c === c) return;
+    grid[r][c] = grid[r][c] === 1 ? 0 : 1;
+    resetSearch();
+    draw();
+});
+
+// Algorithm descriptions
+const algoDescs = {
+    bfs: '<strong>BFS:</strong> FIFO — shallow nodes dieksplorasi dulu. <em>Complete</em>, path terpendek dalam jumlah langkah, tapi tidak optimal jika bobot transisi bervariasi.',
+    dfs: '<strong>DFS:</strong> LIFO — node terdalam dieksplorasi dulu. Tidak <em>complete</em> (bisa terjebak siklus). Memori kecil. Tidak optimal.',
+    iddfs: '<strong>Iterative Deepening DFS:</strong> DFS dengan batas kedalaman bertahap. <em>Complete</em>, memori kecil, optimal jika biaya seragam.',
+    dijkstra: '<strong>Dijkstra:</strong> Priority queue berdasarkan \(g\) (cost-to-here). <em>Complete</em> &amp; optimal untuk bobot positif.',
+    astar: '<strong>A*:</strong> Priority queue berdasarkan \(f = g + h\). <em>Complete</em> &amp; optimal jika heuristik admissible. Paling efisien.',
+    greedy: '<strong>Greedy Best-First:</strong> Priority queue hanya berdasarkan \(h\) (cost-to-goal). Cepat tapi <em>tidak optimal</em>.'
+};
+
+document.getElementById('algo-select').addEventListener('change', function() {
+    document.getElementById('algo-desc').innerHTML = algoDescs[this.value] || '';
+    resetSearch();
+});
+
+document.getElementById('btn-search').addEventListener('click', runSearch);
+document.getElementById('btn-step').addEventListener('click', stepOnce);
+document.getElementById('btn-reset').addEventListener('click', resetSearch);
+document.getElementById('chk-numbers').addEventListener('change', draw);
+
+resetSearch();
+document.getElementById('algo-desc').innerHTML = algoDescs['astar'];
+</script>
+</body>
+</html>
