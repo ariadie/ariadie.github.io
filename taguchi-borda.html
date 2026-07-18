@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif Metode Taguchi (ortogonal array, rasio S/N) dan Borda Count (aggregasi peringkat) untuk optimasi parameter dan pemilihan profil." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Metode Taguchi &amp; Borda Count — Desain Eksperimen &amp; Agregasi Peringkat" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap Metode Taguchi untuk desain eksperimen robust dan Borda Count untuk agregasi peringkat." />
+  <meta property="og:type" content="website" />
+  <title>Metode Taguchi &amp; Borda Count — Desain Eksperimen &amp; Agregasi Peringkat</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #7c3aed;
+      --primary-2: #a855f7;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --max: 1180px;
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #a78bfa;
+      --primary-2: #60a5fa;
+      --accent: #34d399;
+      --danger: #f87171;
+      --warning: #fbbf24;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124, 58, 237, 0.18), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(168, 85, 247, 0.14), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto; min-height: 76px;
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px; min-width: 0; text-decoration: none;
+    }
+    .brand-mark {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white; font-weight: 900; box-shadow: var(--shadow-soft); flex: none;
+    }
+    .brand-text { display: flex; flex-direction: column; min-width: 0; }
+    .brand-title { font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand-subtitle { color: var(--muted-2); font-size: 0.86rem; margin-top: -2px; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex: none; }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card); color: var(--text);
+      border-radius: 999px; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute; top: calc(100% + 6px); right: 0;
+      z-index: 20; min-width: 180px;
+      border: 1px solid var(--line); border-radius: var(--radius-md);
+      background: var(--card-solid); box-shadow: var(--shadow-soft); padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px; border-radius: 8px; color: var(--text);
+      text-decoration: none; font-size: 0.85rem; font-weight: 700; white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff; box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+    .btn-accent {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent), #059669);
+      color: #fff; box-shadow: 0 16px 30px color-mix(in srgb, var(--accent) 24%, transparent);
+    }
+
+    .hero { padding: 50px 0 30px; text-align: center; }
+    .hero-card {
+      position: relative; overflow: hidden;
+      border: 1px solid var(--line); border-radius: var(--radius-xl);
+      background: var(--card); box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+    .hero-card::before {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 12px; border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary); font-size: 0.82rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05; letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+    .lead {
+      color: var(--muted); font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px; margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    h2 { margin: 0; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.15; letter-spacing: -0.045em; }
+    .section-desc { color: var(--muted); margin: 8px 0 0; max-width: 760px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+    .feature-card, .info-card {
+      border: 1px solid var(--line); border-radius: var(--radius-lg);
+      background: var(--card); padding: 24px; box-shadow: var(--shadow-soft);
+    }
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary); margin-bottom: 16px; font-size: 1.22rem;
+    }
+    .feature-card h3, .info-card h3 { margin: 0 0 8px; font-size: 1.05rem; letter-spacing: -0.02em; }
+    .feature-card p, .info-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .info-card ul { color: var(--muted); font-size: 0.95rem; padding-left: 20px; }
+    .info-card li { margin-bottom: 4px; }
+
+    .steps {
+      counter-reset: step; display: grid; gap: 12px;
+      margin: 0; padding: 0; list-style: none;
+    }
+    .steps li {
+      counter-increment: step;
+      display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: start;
+      padding: 16px; border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+    .steps li::before {
+      content: counter(step); width: 38px; height: 38px; border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white; font-weight: 900;
+    }
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    .formula-box {
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 14px 18px; margin: 12px 0; overflow-x: auto;
+    }
+
+    .sim-card {
+      border: 1px solid var(--line); border-radius: var(--radius-lg);
+      background: var(--card); padding: 24px; box-shadow: var(--shadow-soft);
+    }
+    .sim-card h3 { margin: 0 0 14px; font-size: 1.05rem; letter-spacing: -0.02em; }
+    .sim-label {
+      font-size: 0.72rem; color: var(--muted-2);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      font-weight: 700; margin-bottom: 8px;
+    }
+
+    .control-row {
+      display: flex; flex-wrap: wrap; gap: 14px 22px;
+      align-items: center; margin-bottom: 14px;
+    }
+    .control-group { display: flex; flex-direction: column; gap: 3px; }
+    .control-group label { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+    .control-group textarea {
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      background: var(--card-solid); color: var(--text);
+      padding: 10px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem; resize: vertical; min-height: 70px; width: 100%;
+    }
+    .control-group textarea:focus { outline: none; border-color: var(--primary); }
+    .control-group select {
+      padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+      background: var(--card-solid); color: var(--text); font-weight: 700;
+      font-size: 0.85rem; cursor: pointer;
+    }
+    .control-group input[type="text"], .control-group input[type="number"] {
+      padding: 7px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line);
+      background: var(--card-solid); color: var(--text); font-size: 0.85rem; width: 100%;
+    }
+    .control-group input[type="text"]:focus, .control-group input[type="number"]:focus { outline: none; border-color: var(--primary); }
+
+    .inline-data-table {
+      width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.85rem;
+    }
+    .inline-data-table th, .inline-data-table td {
+      padding: 6px 10px; border: 1px solid var(--line); text-align: center;
+    }
+    .inline-data-table th { background: color-mix(in srgb, var(--primary) 8%, transparent); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    canvas {
+      display: block; width: 100%; border-radius: var(--radius-sm);
+      background: var(--card-solid); border: 1px solid var(--line);
+    }
+
+    .stat-block {
+      margin: 10px 0; padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: color-mix(in srgb, var(--bg-soft) 90%, var(--card-solid));
+      border: 1px solid var(--line);
+    }
+    .stat-block strong { font-size: 1.05rem; }
+    .stat-block .sig { color: var(--danger); font-weight: 900; }
+    .stat-block .ns { color: var(--muted-2); }
+    .stat-block .corrected { color: var(--accent); font-weight: 900; }
+    .stat-block .best { color: var(--primary); font-weight: 900; }
+
+    .ref-list { padding-left: 0; list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+    .ref-list li:last-child { border-bottom: none; }
+
+    .footer { padding: 44px 0 54px; color: var(--muted-2); text-align: center; font-size: 0.92rem; }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+
+    .bar-group { display: flex; align-items: end; gap: 6px; height: 100px; padding-top: 10px; }
+    .bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 2px; transition: height 0.4s ease; }
+    .bar-label { font-size: 0.65rem; color: var(--muted-2); text-align: center; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .section-head { flex-direction: column; align-items: start; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .nav-actions .btn:not(.dd-btn) { display: none; }
+    }
+    @media print {
+      .nav, .hero-actions, .footer { display: none !important; }
+      body { background: white; color: black; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','pre','code','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">Taguchi &amp; Borda</span>
+          <span class="brand-subtitle">Desain Eksperimen &amp; Agregasi Peringkat</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a class="btn" href="#taguchi">Metode Taguchi</a>
+        <a class="btn" href="#borda">Borda Count</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <div class="dropdown">
+          <button class="btn dd-btn" type="button">Materi <span class="dd-arrow">▼</span></button>
+          <div class="dropdown-menu">
+            <a href="./nsga2.html">NSGA-II</a>
+            <a href="./nsga3.html">NSGA-III</a>
+            <a href="./spea2.html">SPEA2</a>
+            <a href="./moea-moga.html">MOEA/MOGA</a>
+            <a href="./convex-opt.html">Convex Opt</a>
+            <a href="./moo.html">MOO</a>
+            <a href="./stat-tests.html">Uji Statistik</a>
+            <a href="./taguchi-borda.html" style="color: var(--primary);">Taguchi &amp; Borda</a>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Design of Experiments &amp; Rank Aggregation</span>
+          <h1>Metode Taguchi &amp; Borda Count</h1>
+          <p class="lead">
+            <strong>Metode Taguchi</strong> dan <strong>Borda Count</strong> — dua alat penting dalam
+            optimasi parameter dan agregasi peringkat. Taguchi digunakan untuk desain eksperimen yang
+            efisien dengan ortogonal array dan rasio S/N. Borda Count digunakan untuk menggabungkan
+            beberapa peringkat menjadi satu keputusan kolektif.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#taguchi">Metode Taguchi</a>
+            <a class="btn btn-accent" href="#borda">Borda Count</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN 3 KOLOM -->
+    <section class="section" aria-label="Ringkasan">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">🧪</div>
+          <h3>Taguchi Orthogonal Array</h3>
+          <p>Desain eksperimen fraksional yang efisien untuk mempelajari efek banyak faktor dengan jumlah run minimal. Menggunakan L4, L9, L18, dan array lainnya.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📏</div>
+          <h3>Signal-to-Noise (S/N) Ratio</h3>
+          <p>Ukuran robustnes yang menggabungkan mean dan varians. Tiga jenis: Larger-the-Better, Smaller-the-Better, dan Nominal-the-Best.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🗳️</div>
+          <h3>Borda Count</h3>
+          <p>Metode agregasi peringkat di mana setiap kandidat mendapat skor berdasarkan posisinya dalam setiap peringkat. Skor tertinggi dipilih sebagai pemenang.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAGUCHI -->
+    <!-- ============================================================ -->
+    <section class="section" id="taguchi" aria-label="Metode Taguchi">
+      <div class="section-head">
+        <div>
+          <h2>Metode Taguchi untuk Desain Eksperimen</h2>
+          <p class="section-desc">Dikembangkan oleh Genichi Taguchi (1950-an) — pendekatan sistematis untuk desain eksperimen yang menekankan robustness dan efisiensi melalui orthogonal arrays.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="info-card">
+            <h3>Konsep Dasar</h3>
+            <p>Metode Taguchi menggunakan <em>orthogonal array</em> (OA) untuk mempelajari banyak faktor secara simultan dengan jumlah eksperimen yang jauh lebih sedikit daripada desain faktorial penuh. Tujuannya adalah mengidentifikasi kombinasi parameter yang <em>robust</em> terhadap variasi noise.</p>
+
+            <h3>Langkah-Langkah</h3>
+            <ol class="steps">
+              <li>
+                <div>
+                  <span class="step-title">Identifikasi faktor dan level</span>
+                  <span class="step-text">Tentukan parameter kontrol dan jumlah level untuk masing-masing.</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Pilih orthogonal array</span>
+                  <span class="step-text">Pilih OA yang sesuai (L4, L9, L18, dll) berdasarkan jumlah faktor dan level.</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Lakukan eksperimen</span>
+                  <span class="step-text">Jalankan eksperimen sesuai konfigurasi OA dan catat respons.</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Hitung rasio S/N</span>
+                  <span class="step-text">Hitung Signal-to-Noise ratio untuk setiap run berdasarkan karakteristik kualitas.</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Analisis dan optimasi</span>
+                  <span class="step-text">Identifikasi level faktor optimal yang memaksimalkan S/N ratio.</span>
+                </div>
+              </li>
+            </ol>
+
+            <h3>Rasio S/N</h3>
+            <p style="font-size:0.9rem;color:var(--muted);">Tiga jenis rasio S/N yang umum:</p>
+            <div class="formula-box">
+              <strong>Smaller-the-Better:</strong>
+              \[
+              S/N = -10 \log_{10}\left(\frac{1}{n}\sum_{i=1}^{n} y_i^2\right)
+              \]
+              <strong>Larger-the-Better:</strong>
+              \[
+              S/N = -10 \log_{10}\left(\frac{1}{n}\sum_{i=1}^{n} \frac{1}{y_i^2}\right)
+              \]
+              <strong>Nominal-the-Best:</strong>
+              \[
+              S/N = 10 \log_{10}\left(\frac{\bar{y}^2}{s^2}\right)
+              \]
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="sim-card">
+            <div class="sim-label">Simulasi Taguchi Orthogonal Array</div>
+            <p style="font-size: 0.85rem; color: var(--muted); margin: 0 0 12px;">Pilih orthogonal array dan masukkan nilai respons untuk setiap run.</p>
+
+            <div class="control-row">
+              <div class="control-group">
+                <label for="taguchiOA">Orthogonal Array</label>
+                <select id="taguchiOA">
+                  <option value="L4">L4 (2³) — 3 faktor, 4 run</option>
+                  <option value="L9" selected>L9 (3⁴) — 4 faktor, 9 run</option>
+                  <option value="L18">L18 (6¹×3⁶) — 7 faktor, 18 run</option>
+                </select>
+              </div>
+              <div class="control-group">
+                <label for="taguchiType">Karakteristik Kualitas</label>
+                <select id="taguchiType">
+                  <option value="larger">Larger-the-Better</option>
+                  <option value="smaller" selected>Smaller-the-Better</option>
+                  <option value="nominal">Nominal-the-Best</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;">
+              <button class="btn btn-primary" id="taguchiRun">Hitung S/N Ratio</button>
+              <button class="btn" id="taguchiReset">Reset Contoh</button>
+            </div>
+
+            <div id="taguchiResult" class="stat-block" style="overflow-x:auto;">
+              <table class="inline-data-table" id="taguchiTable">
+                <thead>
+                  <tr>
+                    <th>Run</th>
+                    <th id="taguchiCols">A</th>
+                    <th>B</th>
+                    <th>C</th>
+                    <th>D</th>
+                    <th>Respons</th>
+                    <th>S/N (dB)</th>
+                  </tr>
+                </thead>
+                <tbody id="taguchiBody">
+                  <tr><td colspan="7">Pilih OA dan tekan <em>Hitung S/N Ratio</em>.</td></tr>
+                </tbody>
+              </table>
+              <p id="taguchiSummary" style="margin:8px 0 0;font-size:0.9rem;">—</p>
+            </div>
+
+            <canvas id="taguchiCanvas" width="500" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- BORDA COUNT -->
+    <!-- ============================================================ -->
+    <section class="section" id="borda" aria-label="Borda Count">
+      <div class="section-head">
+        <div>
+          <h2>Borda Count — Agregasi Peringkat</h2>
+          <p class="section-desc">Dikembangkan oleh Jean-Charles de Borda (1770) — metode voting berbasis peringkat di mana setiap pemilih memberikan skor ke setiap kandidat berdasarkan urutan preferensi.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="info-card">
+            <h3>Konsep Dasar</h3>
+            <p>Dalam Borda Count, setiap pemilih menyusun peringkat \(m\) kandidat. Kandidat dengan peringkat terendah mendapat 0 poin, peringkat di atasnya mendapat 1 poin, dan seterusnya hingga peringkat tertinggi mendapat \(m-1\) poin. Skor total dihitung dan kandidat dengan skor tertinggi menang.</p>
+
+            <h3>Prosedur</h3>
+            <ol class="steps">
+              <li>
+                <div>
+                  <span class="step-title">Kumpulkan peringkat</span>
+                  <span class="step-text">Setiap pemilih (skenario/kriteria) menyusun peringkat kandidat dari yang terbaik ke terburuk.</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Hitung skor Borda</span>
+                  <span class="step-text">Untuk setiap pemilih, kandidat mendapat skor \(m - r\), dengan \(r\) = posisi peringkat (1 = terbaik).</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Agregasi dan seleksi</span>
+                  <span class="step-text">Jumlahkan skor dari semua pemilih. Kandidat dengan total skor tertinggi dipilih sebagai pemenang.</span>
+                </div>
+              </li>
+            </ol>
+
+            <h3>Rumus Skor Borda</h3>
+            <div class="formula-box">
+              \[
+              S_j = \sum_{i=1}^{n} (m - r_{ij})
+              \]
+            </div>
+            <p style="font-size:0.9rem;color:var(--muted);">
+              dengan \(S_j\) = skor total kandidat \(j\), \(m\) = jumlah kandidat,
+              \(r_{ij}\) = peringkat kandidat \(j\) oleh pemilih \(i\),
+              \(n\) = jumlah pemilih. Kandidat dengan \(S_j\) tertinggi adalah pemenang.
+            </p>
+
+            <h3 style="margin-top:18px;">Aplikasi pada Paper JRC</h3>
+            <p style="font-size:0.92rem;color:var(--muted);">
+              Pada studi sensitivitas operator NSGA-II untuk MRPP, Borda Count digunakan untuk
+              mengagregasi peringkat konfigurasi parameter dari tiga skenario peta (S1: open,
+              S2: bottleneck, S3: warehouse). Setiap skenario memberikan peringkat berdasarkan
+              S/N ratio, dan Borda Count memilih profil gabungan terbaik:
+              <strong>WPS=0.4, PPS=0.5, INS=0.1, DEL=0.3, SWD=0.4, WTD=0.0</strong>.
+              Profil ini terkonfirmasi dalam toleransi ±0.5 dB di semua skenario.
+            </p>
+          </div>
+        </div>
+        <div>
+          <div class="sim-card">
+            <div class="sim-label">Simulasi Borda Count</div>
+            <p style="font-size: 0.85rem; color: var(--muted); margin: 0 0 12px;">Masukkan peringkat dari beberapa skenario/kriteria. Peringkat 1 = terbaik.</p>
+
+            <div class="control-row">
+              <div class="control-group" style="flex:1;">
+                <label for="bordaCandidates">Nama Kandidat (dipisah koma)</label>
+                <input type="text" id="bordaCandidates" value="WPS, PPS, INS, DEL, SWD, WTD">
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;">
+              <button class="btn btn-accent" id="bordaRun">Hitung Borda</button>
+              <button class="btn" id="bordaReset">Reset Contoh</button>
+            </div>
+
+            <div id="bordaResult" class="stat-block" style="overflow-x:auto;">
+              <table class="inline-data-table" id="bordaTable">
+                <thead>
+                  <tr>
+                    <th>Kandidat</th>
+                    <th id="bordaScenarioHeaders">S1</th>
+                    <th>S2</th>
+                    <th>S3</th>
+                    <th>Skor Total</th>
+                    <th>Peringkat</th>
+                  </tr>
+                </thead>
+                <tbody id="bordaBody">
+                  <tr><td colspan="6">Tekan <em>Hitung Borda</em> untuk menjalankan agregasi.</td></tr>
+                </tbody>
+              </table>
+              <p id="bordaSummary" style="margin:8px 0 0;font-size:0.9rem;">—</p>
+            </div>
+
+            <canvas id="bordaCanvas" width="500" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi">
+      <div class="hero-card">
+        <h2>Referensi Utama</h2>
+        <ul class="ref-list">
+          <li>Taguchi, G. (1986). <em>Introduction to Quality Engineering: Designing Quality into Products and Processes</em>. Asian Productivity Organization.</li>
+          <li>Taguchi, G., Chowdhury, S., &amp; Wu, Y. (2005). <em>Taguchi's Quality Engineering Handbook</em>. Wiley.</li>
+          <li>Phadke, M. S. (1989). <em>Quality Engineering Using Robust Design</em>. Prentice Hall.</li>
+          <li>de Borda, J.-C. (1781). Mémoire sur les Élections au Scrutin. <em>Histoire de l'Académie Royale des Sciences</em>.</li>
+          <li>Emerson, P. (2013). The original Borda count and partial voting. <em>Social Choice and Welfare</em>, 40(2), 353–358. <a href="https://doi.org/10.1007/s00355-011-0603-9" target="_blank" style="font-weight:700;">doi:10.1007/s00355-011-0603-9</a></li>
+          <li>Peace, G. S. (1993). <em>Taguchi Methods: A Hands-On Approach</em>. Addison-Wesley.</li>
+          <li>Roy, R. K. (2010). <em>A Primer on the Taguchi Method</em> (2nd ed.). Society of Manufacturing Engineers.</li>
+          <li>Nugraha, A. C., Wahyunggoro, O., &amp; Cahyadi, A. I. (2026). Sensitivity Analysis of Operator-Specific Crossover and Mutation Rates for Multi-Robot Path Planning Using NSGA-II: OFAT Analysis and Taguchi-Selected Combined Profile. <em>Journal of Robotics and Control</em>.</li>
+        </ul>
+        <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);">
+          Kembali ke <a href="./index.html" style="font-weight:700;">Beranda</a>
+        </p>
+      </div>
+    </section>
+
+    <div class="footer">
+      &copy; 2026 Ariadie Chandra Nugraha — Metode Taguchi &amp; Borda Count
+    </div>
+
+  </main>
+
+  <script>
+    // ─── Theme ───────────────────────────────────────────────────
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-taguchi-borda");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-taguchi-borda", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // ─── Dropdown toggle ─────────────────────────────────────────
+    document.querySelectorAll(".dropdown .dd-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const dd = btn.closest(".dropdown");
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".dropdown.show").forEach(d => d.classList.remove("show"));
+    });
+
+    // ─── Helper: get CSS color ───────────────────────────────────
+    function getCSS(v) { return getComputedStyle(root).getPropertyValue(v).trim(); }
+
+    // ================================================================
+    // TAGUCHI
+    // ================================================================
+
+    // Orthogonal array definitions
+    const OA_DEFS = {
+      L4: {
+        factors: ["A", "B", "C"],
+        levels: 2,
+        design: [
+          [1, 1, 1],
+          [1, 2, 2],
+          [2, 1, 2],
+          [2, 2, 1]
+        ]
+      },
+      L9: {
+        factors: ["A", "B", "C", "D"],
+        levels: 3,
+        design: [
+          [1, 1, 1, 1],
+          [1, 2, 2, 2],
+          [1, 3, 3, 3],
+          [2, 1, 2, 3],
+          [2, 2, 3, 1],
+          [2, 3, 1, 2],
+          [3, 1, 3, 2],
+          [3, 2, 1, 3],
+          [3, 3, 2, 1]
+        ]
+      },
+      L18: {
+        factors: ["A", "B", "C", "D", "E", "F", "G"],
+        levels: [2, 3, 3, 3, 3, 3, 3],
+        design: [
+          [1,1,1,1,1,1,1], [1,1,2,2,2,2,2], [1,1,3,3,3,3,3],
+          [1,2,1,1,2,2,3], [1,2,2,2,3,3,1], [1,2,3,3,1,1,2],
+          [1,3,1,2,1,3,2], [1,3,2,3,2,1,3], [1,3,3,1,3,2,1],
+          [2,1,1,3,3,2,2], [2,1,2,1,1,3,3], [2,1,3,2,2,1,1],
+          [2,2,1,2,3,1,3], [2,2,2,3,1,2,1], [2,2,3,1,2,3,2],
+          [2,3,1,3,2,3,1], [2,3,2,1,3,1,2], [2,3,3,2,1,2,3]
+        ]
+      }
+    };
+
+    // Default response values for each OA
+    const DEFAULT_RESPONSES = {
+      L4: [5.2, 7.8, 6.1, 9.3],
+      L9: [12.5, 15.3, 18.1, 10.2, 14.7, 16.9, 11.8, 13.4, 17.6],
+      L18: [22.1, 18.5, 15.2, 20.8, 17.3, 13.9, 24.5, 19.1, 14.6, 21.3, 16.7, 12.8, 23.4, 18.9, 15.7, 25.1, 20.2, 16.3]
+    };
+
+    function calcSNRatio(values, type) {
+      const n = values.length;
+      if (type === 'smaller') {
+        const msd = values.reduce((s, v) => s + v * v, 0) / n;
+        return -10 * Math.log10(msd);
+      } else if (type === 'larger') {
+        const msd = values.reduce((s, v) => s + (1 / (v * v)), 0) / n;
+        return -10 * Math.log10(msd);
+      } else if (type === 'nominal') {
+        const mean = values.reduce((s, v) => s + v, 0) / n;
+        const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1);
+        if (variance === 0) return Infinity;
+        return 10 * Math.log10((mean * mean) / variance);
+      }
+      return 0;
+    }
+
+    // Compute mean S/N for each factor level
+    function factorLevelSN(design, snValues, factorIdx, nLevels) {
+      const sums = new Array(nLevels).fill(0);
+      const counts = new Array(nLevels).fill(0);
+      design.forEach((row, ri) => {
+        const level = row[factorIdx] - 1; // 0-indexed
+        sums[level] += snValues[ri];
+        counts[level]++;
+      });
+      return sums.map((s, i) => counts[i] > 0 ? s / counts[i] : 0);
+    }
+
+    function runTaguchi() {
+      const oaName = document.getElementById("taguchiOA").value;
+      const type = document.getElementById("taguchiType").value;
+      const def = OA_DEFS[oaName];
+      const design = def.design;
+      const nRuns = design.length;
+      const nFactors = def.factors.length;
+
+      // Get response values
+      const responses = DEFAULT_RESPONSES[oaName].slice(0, nRuns);
+
+      // Compute S/N for each run (for single response, S/N = transformed value)
+      // In standard Taguchi, each run may have multiple measurements. For simplicity,
+      // we treat each run's response as a single measurement and compute SN accordingly.
+      // Since n=1 per run, we use the individual value transformed.
+      const snValues = responses.map(v => {
+        if (type === 'smaller') return -10 * Math.log10(v * v);
+        if (type === 'larger') return -10 * Math.log10(1 / (v * v));
+        // nominal with single measurement uses v directly
+        return v;
+      });
+
+      // Build table
+      const typeLabel = type === 'smaller' ? 'Smaller-the-Better' : type === 'larger' ? 'Larger-the-Better' : 'Nominal-the-Best';
+      let colHeaders = '<th>Run</th>';
+      const factorLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+      for (let f = 0; f < nFactors; f++) {
+        colHeaders += `<th>${factorLabels[f]}</th>`;
+      }
+      colHeaders += '<th>Respons</th><th>S/N (dB)</th>';
+      document.getElementById("taguchiCols").innerHTML = colHeaders;
+
+      let html = '';
+      for (let r = 0; r < nRuns; r++) {
+        html += '<tr>';
+        html += `<td>${r + 1}</td>`;
+        for (let f = 0; f < nFactors; f++) {
+          html += `<td>${design[r][f]}</td>`;
+        }
+        html += `<td>${responses[r].toFixed(2)}</td>`;
+        html += `<td>${snValues[r].toFixed(3)}</td>`;
+        html += '</tr>';
+      }
+      document.getElementById("taguchiBody").innerHTML = html;
+
+      // Calculate factor level means of S/N
+      const nLevels = Array.isArray(def.levels) ? def.levels : Array(nFactors).fill(def.levels);
+      let summaryHtml = `<strong>Rata-rata S/N per Level:</strong><br>`;
+      const levelMeans = [];
+      for (let f = 0; f < nFactors; f++) {
+        const nl = nLevels[f] || nLevels[0];
+        const means = factorLevelSN(design, snValues, f, nl);
+        levelMeans.push(means);
+        summaryHtml += `<span style="display:inline-block;margin:4px 8px 4px 0;">
+          <strong>${factorLabels[f]}</strong>: ${means.map((m, i) => `L${i+1}=${m.toFixed(2)}`).join(', ')}
+        </span><br>`;
+      }
+      // Best levels
+      summaryHtml += `<br><strong>Level Optimal (maksimasi S/N):</strong> `;
+      const bestLevels = [];
+      for (let f = 0; f < nFactors; f++) {
+        const nl = nLevels[f] || nLevels[0];
+        const means = levelMeans[f];
+        let bestIdx = 0;
+        for (let i = 1; i < means.length; i++) {
+          if (means[i] > means[bestIdx]) bestIdx = i;
+        }
+        bestLevels.push(bestIdx + 1);
+        summaryHtml += `${factorLabels[f]} = ${bestIdx + 1} `;
+      }
+      summaryHtml += `<br><span style="font-size:0.85rem;color:var(--muted-2);">Karakteristik: ${typeLabel}. Total ${nRuns} run dengan ${nFactors} faktor.</span>`;
+      document.getElementById("taguchiSummary").innerHTML = summaryHtml;
+
+      // Draw S/N bar chart
+      drawSNChart(document.getElementById("taguchiCanvas"), snValues, responses, type);
+    }
+
+    function drawSNChart(canvas, snValues, responses, type) {
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width, H = canvas.height;
+      const padL = 50, padR = 16, padT = 24, padB = 30;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = getCSS("--card-solid");
+      ctx.fillRect(0, 0, W, H);
+
+      const n = snValues.length;
+      if (n === 0) return;
+
+      // Grid lines
+      ctx.strokeStyle = getCSS("--line"); ctx.lineWidth = 0.5;
+      for (let i = 0; i <= 4; i++) {
+        const gy = padT + (i / 4) * plotH;
+        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(W - padR, gy); ctx.stroke();
+        ctx.fillStyle = getCSS("--muted"); ctx.font = "9px Inter";
+        ctx.textAlign = "right";
+        const val = Math.min(...snValues) + (i / 4) * (Math.max(...snValues) - Math.min(...snValues));
+        ctx.fillText(val.toFixed(1), padL - 6, gy + 3);
+      }
+
+      const minVal = Math.min(...snValues);
+      const maxVal = Math.max(...snValues);
+      const range = maxVal - minVal || 1;
+      const barW = Math.min(30, (plotW - n * 2) / n);
+
+      const primary = getCSS("--primary");
+      const primary2 = getCSS("--primary-2");
+
+      snValues.forEach((v, i) => {
+        const x = padL + (i / n) * plotW + (plotW / n - barW) / 2;
+        const h = ((v - minVal) / range) * (plotH - 4);
+        const y = padT + plotH - h;
+
+        const grad = ctx.createLinearGradient(0, y, 0, padT + plotH);
+        grad.addColorStop(0, primary);
+        grad.addColorStop(1, primary2);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.roundRect(x, y, barW, h, [3, 3, 0, 0]);
+        ctx.fill();
+
+        ctx.fillStyle = getCSS("--muted-2");
+        ctx.font = "8px Inter";
+        ctx.textAlign = "center";
+        ctx.fillText(`R${i+1}`, x + barW / 2, H - 4);
+      });
+
+      ctx.fillStyle = getCSS("--muted");
+      ctx.font = "9px Inter";
+      ctx.textAlign = "center";
+      ctx.fillText("S/N Ratio per Run (dB)", W / 2, 12);
+    }
+
+    // Canvas roundRect polyfill
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+        const r = Array.isArray(radii) ? radii : [radii];
+        const tl = r[0] || 0, tr = r[1] || tl, br = r[2] || tl, bl = r[3] || tl;
+        this.moveTo(x + tl, y);
+        this.arcTo(x + w, y, x + w, y + h, tr);
+        this.arcTo(x + w, y + h, x, y + h, br);
+        this.arcTo(x, y + h, x, y, bl);
+        this.arcTo(x, y, x + w, y, tl);
+        this.closePath();
+        return this;
+      };
+    }
+
+    document.getElementById("taguchiRun").addEventListener("click", runTaguchi);
+    document.getElementById("taguchiReset").addEventListener("click", () => {
+      document.getElementById("taguchiOA").value = "L9";
+      document.getElementById("taguchiType").value = "smaller";
+      runTaguchi();
+    });
+
+    // ================================================================
+    // BORDA COUNT
+    // ================================================================
+
+    // Default data: 6 operators ranked across 3 scenarios
+    const DEFAULT_BORDA_CAND = ["WPS", "PPS", "INS", "DEL", "SWD", "WTD"];
+    const DEFAULT_BORDA_RANKS = [
+      [4, 3, 6, 5, 1, 2],   // S1 (Open)   — SWD best
+      [3, 4, 6, 5, 1, 2],   // S2 (Bottleneck) — SWD best
+      [5, 1, 6, 4, 2, 3]    // S3 (Warehouse) — PPS best
+    ];
+    const DEFAULT_SCENARIOS = ["S1 (Open)", "S2 (Bottleneck)", "S3 (Warehouse)"];
+
+    let bordaCandidates = [...DEFAULT_BORDA_CAND];
+    let bordaScenarios = [...DEFAULT_SCENARIOS];
+    let bordaRanks = DEFAULT_BORDA_RANKS.map(r => [...r]);
+
+    function generateRankInputs() {
+      const container = document.getElementById("bordaRankInputs");
+      if (!container) return;
+      const nCand = bordaCandidates.length;
+      const nScen = bordaScenarios.length;
+
+      let html = '';
+      for (let s = 0; s < nScen; s++) {
+        html += `<div class="control-group" style="flex:1;min-width:120px;">
+          <label for="bordaS${s}">${bordaScenarios[s]}</label>
+          <input type="text" id="bordaS${s}" value="${bordaRanks[s].join(', ')}" style="width:100%;">
+        </div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function readBordaRanks() {
+      const nScen = bordaScenarios.length;
+      const nCand = bordaCandidates.length;
+      const ranks = [];
+      for (let s = 0; s < nScen; s++) {
+        const input = document.getElementById(`bordaS${s}`);
+        if (!input) return null;
+        const vals = input.value.split(",").map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+        if (vals.length !== nCand) return null;
+        if (new Set(vals).size !== nCand) return null;
+        if (vals.some(v => v < 1 || v > nCand)) return null;
+        ranks.push(vals);
+      }
+      return ranks;
+    }
+
+    function runBorda() {
+      const candStr = document.getElementById("bordaCandidates").value.trim();
+      const cands = candStr.split(",").map(s => s.trim()).filter(s => s.length > 0);
+      if (cands.length < 2) {
+        document.getElementById("bordaBody").innerHTML = "<tr><td colspan='6'>Masukkan minimal 2 kandidat.</td></tr>";
+        document.getElementById("bordaSummary").textContent = "—";
+        drawBordaChart(document.getElementById("bordaCanvas"), [], []);
+        return;
+      }
+
+      bordaCandidates = cands;
+      bordaScenarios = DEFAULT_SCENARIOS;
+      generateRankInputs();
+
+      const ranks = readBordaRanks();
+      if (!ranks) {
+        document.getElementById("bordaBody").innerHTML = `<tr><td colspan='6'>Peringkat tidak valid. Pastikan setiap skenario memiliki ${cands.length} peringkat unik 1-${cands.length}.</td></tr>`;
+        document.getElementById("bordaSummary").textContent = "Masukkan peringkat yang valid.";
+        drawBordaChart(document.getElementById("bordaCanvas"), [], []);
+        return;
+      }
+      bordaRanks = ranks;
+
+      const m = cands.length;
+      const nScen = bordaScenarios.length;
+
+      // Calculate Borda scores
+      const scores = new Array(m).fill(0);
+      for (let s = 0; s < nScen; s++) {
+        for (let c = 0; c < m; c++) {
+          scores[c] += (m - ranks[s][c]);
+        }
+      }
+
+      // Ranking by scores (descending)
+      const indexed = scores.map((s, i) => ({ name: cands[i], score: s, idx: i }));
+      indexed.sort((a, b) => b.score - a.score || a.idx - b.idx);
+      const rankMap = {};
+      indexed.forEach((item, r) => { rankMap[item.idx] = r + 1; });
+
+      // Build table
+      let scenarioHeaders = '';
+      for (let s = 0; s < nScen; s++) {
+        scenarioHeaders += `<th>${bordaScenarios[s]}</th>`;
+      }
+      document.getElementById("bordaScenarioHeaders").innerHTML = scenarioHeaders;
+
+      let html = '';
+      for (let c = 0; c < m; c++) {
+        html += '<tr>';
+        html += `<td><strong>${cands[c]}</strong></td>`;
+        for (let s = 0; s < nScen; s++) {
+          const r = ranks[s][c];
+          html += `<td>${r}</td>`;
+        }
+        html += `<td class="best">${scores[c].toFixed(0)}</td>`;
+        html += `<td>${rankMap[c]}</td>`;
+        html += '</tr>';
+      }
+      document.getElementById("bordaBody").innerHTML = html;
+
+      const winner = indexed[0].name;
+      document.getElementById("bordaSummary").innerHTML =
+        `<strong>Pemenang Borda:</strong> <span class="best">${winner}</span> (` +
+        `skor ${indexed[0].score.toFixed(0)} dari maksimal ${(m - 1) * nScen})` +
+        `<br><span style="font-size:0.85rem;color:var(--muted-2);">` +
+        `Skor dihitung dengan rumus S = Σ(m − r) dengan m = ${m} kandidat, ${nScen} skenario.` +
+        `</span>`;
+
+      // Draw chart
+      drawBordaChart(document.getElementById("bordaCanvas"), cands, scores);
+    }
+
+    function drawBordaChart(canvas, cands, scores) {
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width, H = canvas.height;
+      const padL = 50, padR = 30, padT = 24, padB = 30;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = getCSS("--card-solid");
+      ctx.fillRect(0, 0, W, H);
+
+      if (cands.length === 0 || scores.length === 0) return;
+
+      // Grid
+      ctx.strokeStyle = getCSS("--line"); ctx.lineWidth = 0.5;
+      for (let i = 0; i <= 4; i++) {
+        const gy = padT + (1 - i / 4) * plotH;
+        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(W - padR, gy); ctx.stroke();
+        ctx.fillStyle = getCSS("--muted"); ctx.font = "9px Inter";
+        ctx.textAlign = "right";
+        ctx.fillText(Math.round(i / 4 * Math.max(...scores, 1)).toString(), padL - 6, gy + 3);
+      }
+
+      const maxScore = Math.max(...scores, 1);
+      const n = cands.length;
+      const barW = Math.min(40, (plotW - n * 4) / n);
+      const accent = getCSS("--accent");
+      const primary = getCSS("--primary");
+
+      const sortedIdx = scores.map((s, i) => i).sort((a, b) => scores[b] - scores[a]);
+      const winnerIdx = sortedIdx[0];
+
+      cands.forEach((name, i) => {
+        const x = padL + (i / n) * plotW + (plotW / n - barW) / 2;
+        const h = (scores[i] / maxScore) * (plotH - 4);
+        const y = padT + plotH - h;
+
+        const isWinner = (i === winnerIdx);
+        ctx.fillStyle = isWinner ? accent : primary;
+        ctx.beginPath();
+        ctx.roundRect(x, y, barW, Math.max(h, 2), [3, 3, 0, 0]);
+        ctx.fill();
+
+        // Score label
+        ctx.fillStyle = getCSS("--muted");
+        ctx.font = "10px Inter";
+        ctx.textAlign = "center";
+        ctx.fillText(scores[i].toFixed(0), x + barW / 2, y - 4);
+
+        // Candidate name
+        ctx.fillStyle = isWinner ? getCSS("--accent") : getCSS("--muted-2");
+        ctx.font = isWinner ? "bold 10px Inter" : "9px Inter";
+        ctx.fillText(name, x + barW / 2, H - 4);
+      });
+
+      ctx.fillStyle = getCSS("--muted");
+      ctx.font = "9px Inter";
+      ctx.textAlign = "center";
+      ctx.fillText("Skor Borda per Kandidat", W / 2, 12);
+    }
+
+    document.getElementById("bordaRun").addEventListener("click", runBorda);
+    document.getElementById("bordaReset").addEventListener("click", () => {
+      document.getElementById("bordaCandidates").value = DEFAULT_BORDA_CAND.join(", ");
+      bordaCandidates = [...DEFAULT_BORDA_CAND];
+      bordaScenarios = [...DEFAULT_SCENARIOS];
+      bordaRanks = DEFAULT_BORDA_RANKS.map(r => [...r]);
+      generateRankInputs();
+      runBorda();
+    });
+
+    // ─── Init ─────────────────────────────────────────────────────
+    runTaguchi();
+    // Init Borda with rank inputs
+    generateRankInputs();
+    runBorda();
+  </script>
+</body>
+</html>
