@@ -358,7 +358,10 @@
             Phase 1 employs a One-Factor-At-A-Time (OFAT) design, sweeping each operator probability across 11 discrete levels on three 25×25 map topologies (S1: open, S2: bottleneck, S3: warehouse), totaling 1,980 runs. A conditional testing design is introduced to handle the structural dependency between INS and DEL. Phase 2 applies a Taguchi L18 orthogonal array (540 runs) to identify a cross-scenario combined parameter profile, subsequently validated in a 30-run confirmation experiment.
           </p>
           <p>
-            <em>Key results:</em> SWD exhibits the strongest and most consistent sensitivity (Kruskal-Wallis p &lt; 0.001 in all scenarios), with a clear inverted-U response peaking at rate 0.2–0.3 (improvements of +32% to +76% over A*-baseline). PPS achieves the highest single-scenario gain (+79% on S3). The Taguchi phase yields the <strong>Borda-selected combined profile</strong>: WPS = 0.4, PPS = 0.5, INS = 0.1, DEL = 0.3, SWD = 0.4, WTD = 0.0, confirmed within ±0.5 dB tolerance (S/N gaps: −0.009, −0.104, −0.023 dB).
+            <em>Key results:</em> SWD exhibits the strongest and most consistent sensitivity (Kruskal-Wallis p &lt; 0.001 in all scenarios), with a clear inverted-U response peaking at rate 0.2–0.3 (improvements of +32% to +76% over A*-baseline). PPS achieves the highest single-scenario gain (+79% on S3). The Taguchi phase yields the <strong>plurality-selected combined profile</strong>: WPS = 0.4, PPS = 0.5, INS = 0.1, DEL = 0.3, SWD = 0.4, WTD = 0.0, confirmed within ±0.5 dB tolerance (S/N gaps: −0.009, −0.104, −0.023 dB).
+          </p>
+          <p style="margin-top:16px; font-size:0.88rem; border-top:1px solid var(--line); padding-top:12px;">
+            <strong>Keywords</strong> — Multi-robot path planning; NSGA-II; Genetic operators; Crossover probability; Mutation probability; Sensitivity analysis; Taguchi orthogonal array; Operator interaction; Multi-objective optimization; Warehouse navigation
           </p>
         </div>
       </section>
@@ -455,19 +458,19 @@
             </tbody>
           </table>
 
-          <h3 style="font-size:0.95rem;color:var(--primary-2);">3.3 Taguchi L18 &amp; Borda Profile</h3>
+          <h3 style="font-size:0.95rem;color:var(--primary-2);">3.3 Taguchi L18 &amp; Plurality Profile</h3>
           <p>
-            The cross-scenario Taguchi recommendation uses <strong>unweighted Borda aggregation</strong> to combine per-scenario rankings of parameter levels into a single robust profile.
+            The cross-scenario Taguchi recommendation uses <strong>unweighted plurality consensus voting</strong> to combine per-scenario best levels of parameter settings into a single robust profile.
           </p>
 
           <div class="stat-box">
-            <strong>Borda-Selected Combined Profile:</strong><br>
+            <strong>Plurality-Selected Combined Profile:</strong><br>
             WPS = 0.4 &nbsp;|&nbsp; PPS = 0.5 &nbsp;|&nbsp; INS = 0.1 &nbsp;|&nbsp; DEL = 0.3 &nbsp;|&nbsp; SWD = 0.4 &nbsp;|&nbsp; WTD = 0.0<br>
-            <em>Dipilih dengan Borda Count dari 3 skenario (S1, S2, S3)</em>
+            <em>Dipilih dengan plurality voting dari 3 skenario (S1, S2, S3)</em>
           </div>
 
           <p>
-            <strong>Confirmation experiment:</strong> The Borda profile [MLLLHL] was validated in 30 runs (10 per scenario). All scenarios satisfy ±0.5 dB Taguchi tolerance.
+            <strong>Confirmation experiment:</strong> The plurality-selected profile [MLLLHL] was validated in 30 runs (10 per scenario). All scenarios satisfy ±0.5 dB Taguchi tolerance.
           </p>
 
           <table class="data-table">
@@ -488,10 +491,65 @@
             </tbody>
           </table>
 
-          <h3 style="font-size:0.95rem;color:var(--primary-2); margin-top:24px;">Aplikasi Borda Count pada Paper Ini</h3>
+          <h3 style="font-size:0.95rem;color:var(--primary-2); margin-top:24px;">Aplikasi Plurality Voting pada Paper Ini</h3>
           <p>
-            Borda Count digunakan untuk mengagregasi peringkat level faktor terbaik dari tiga skenario peta (S1: open, S2: bottleneck, S3: warehouse). Setiap skenario memberikan peringkat berdasarkan S/N ratio dari Taguchi L18 main effects — semakin tinggi S/N, semakin robust konfigurasi tersebut terhadap noise. Dengan Borda Count, level yang secara konsisten mendapat peringkat tinggi di semua skenario dipilih, menghasilkan profil gabungan yang <em>robust across scenarios</em>. Profil ini kemudian divalidasi dalam confirmation experiment dan terbukti berada dalam toleransi ±0.5 dB.
+            Plurality voting digunakan untuk mengagregasi level faktor terbaik dari tiga skenario peta (S1: open, S2: bottleneck, S3: warehouse). Untuk setiap faktor, skenario memberikan suara (vote) pada level terbaiknya berdasarkan S/N ratio dari Taguchi L18 main effects. Level dengan perolehan suara terbanyak dipilih untuk menghasilkan profil gabungan yang <em>robust across scenarios</em>. Profil ini kemudian divalidasi dalam confirmation experiment dan terbukti berada dalam toleransi ±0.5 dB.
           </p>
+
+          <h3 style="font-size:0.95rem;color:var(--primary-2); margin-top:24px;">Visualisasi Eksperimen Konfirmasi</h3>
+          <div class="grid-2" style="margin-top:16px; margin-bottom:24px;">
+            <div class="info-card" style="padding:12px; text-align:center;">
+              <img src="images/fig10a_hv_distribution.png" alt="Distribusi Hypervolume Konfirmasi" style="width:100%; border-radius:var(--radius-sm); margin-bottom:8px;" />
+              <span style="font-size:0.8rem; color:var(--muted-2);">Fig 1. Distribusi HV (box plots, 10 replikasi) untuk profil terpilih di setiap skenario</span>
+            </div>
+            <div class="info-card" style="padding:12px; text-align:center;">
+              <img src="images/fig10b_sn_comparison.png" alt="Perbandingan S/N Ratio Konfirmasi" style="width:100%; border-radius:var(--radius-sm); margin-bottom:8px;" />
+              <span style="font-size:0.8rem; color:var(--muted-2);">Fig 2. Deviasi S/N terhadap grand mean: hasil observasi vs. prediksi model aditif</span>
+            </div>
+          </div>
+
+          <h3 style="font-size:0.95rem;color:var(--primary-2); margin-top:24px;">Peta Lintasan Perwakilan (A* vs. NSGA-II Optimized)</h3>
+          <div style="margin-top:16px; display:flex; flex-direction:column; gap:20px;">
+            <div>
+              <h4 style="margin: 0 0 8px; font-size:0.9rem; color:var(--text);">Skenario 1 (Open Map)</h4>
+              <div class="grid-2">
+                <div class="info-card" style="padding:8px; text-align:center;">
+                  <img src="images/fig11a_s1_initial_astar.png" alt="Rute Awal S1" style="width:100%; border-radius:var(--radius-sm); margin-bottom:4px;" />
+                  <span style="font-size:0.75rem; color:var(--muted-2);">A* Initial (Rute awal seeding)</span>
+                </div>
+                <div class="info-card" style="padding:8px; text-align:center;">
+                  <img src="images/fig11b_s1_optimized_nsga2.png" alt="Rute Teroptimasi S1" style="width:100%; border-radius:var(--radius-sm); margin-bottom:4px;" />
+                  <span style="font-size:0.75rem; color:var(--muted-2);">NSGA-II Optimized (Hasil optimasi bebas tabrakan)</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 style="margin: 0 0 8px; font-size:0.9rem; color:var(--text);">Skenario 2 (Bottleneck Map)</h4>
+              <div class="grid-2">
+                <div class="info-card" style="padding:8px; text-align:center;">
+                  <img src="images/fig11c_s2_initial_astar.png" alt="Rute Awal S2" style="width:100%; border-radius:var(--radius-sm); margin-bottom:4px;" />
+                  <span style="font-size:0.75rem; color:var(--muted-2);">A* Initial (Rute awal seeding)</span>
+                </div>
+                <div class="info-card" style="padding:8px; text-align:center;">
+                  <img src="images/fig11d_s2_optimized_nsga2.png" alt="Rute Teroptimasi S2" style="width:100%; border-radius:var(--radius-sm); margin-bottom:4px;" />
+                  <span style="font-size:0.75rem; color:var(--muted-2);">NSGA-II Optimized (Koordinasi melalui penyempitan tengah)</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 style="margin: 0 0 8px; font-size:0.9rem; color:var(--text);">Skenario 3 (Warehouse Map)</h4>
+              <div class="grid-2">
+                <div class="info-card" style="padding:8px; text-align:center;">
+                  <img src="images/fig11e_s3_initial_astar.png" alt="Rute Awal S3" style="width:100%; border-radius:var(--radius-sm); margin-bottom:4px;" />
+                  <span style="font-size:0.75rem; color:var(--muted-2);">A* Initial (Rute awal seeding)</span>
+                </div>
+                <div class="info-card" style="padding:8px; text-align:center;">
+                  <img src="images/fig11f_s3_optimized_nsga2.png" alt="Rute Teroptimasi S3" style="width:100%; border-radius:var(--radius-sm); margin-bottom:4px;" />
+                  <span style="font-size:0.75rem; color:var(--muted-2);">NSGA-II Optimized (Navigasi lorong bebas konflik)</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="info-card">
@@ -501,7 +559,7 @@
             <li>PPS: highest single gain +79% (S3), no collapse at rate = 1.0</li>
             <li>WTD: topology-dependent, +29% in S3 only</li>
             <li>DEL: threshold-active, +7.7% in S3 over INS baseline</li>
-            <li>Borda profile [MLLLHL] confirmed within ±0.5 dB in all 3 scenarios</li>
+            <li>Plurality-selected profile [MLLLHL] confirmed within ±0.5 dB in all 3 scenarios</li>
           </ul>
         </div>
       </section>
