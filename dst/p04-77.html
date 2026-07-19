@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Draf Paper 04 — Sensitivity Analysis of Operator-Specific Crossover and Mutation Rates for MRPP Using NSGA-II" />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Paper 04 — OFAT &amp; Taguchi Analysis | NSGA-II MRPP" />
+  <meta property="og:description" content="Draf paper: Sensitivity analysis operator NSGA-II untuk multi-robot path planning dengan OFAT dan Taguchi L18." />
+  <meta property="og:type" content="website" />
+  <title>Paper 04 — OFAT &amp; Taguchi Analysis | NSGA-II MRPP</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #7c3aed;
+      --primary-2: #a855f7;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --max: 1180px;
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #a78bfa;
+      --primary-2: #60a5fa;
+      --accent: #34d399;
+      --danger: #f87171;
+      --warning: #fbbf24;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124, 58, 237, 0.18), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(168, 85, 247, 0.14), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto; min-height: 76px;
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px; min-width: 0; text-decoration: none;
+    }
+    .brand-mark {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white; font-weight: 900; box-shadow: var(--shadow-soft); flex: none;
+    }
+    .brand-text { display: flex; flex-direction: column; min-width: 0; }
+    .brand-title { font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand-subtitle { color: var(--muted-2); font-size: 0.86rem; margin-top: -2px; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex: none; }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card); color: var(--text);
+      border-radius: 999px; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute; top: calc(100% + 6px); right: 0;
+      z-index: 20; min-width: 180px;
+      border: 1px solid var(--line); border-radius: var(--radius-md);
+      background: var(--card-solid); box-shadow: var(--shadow-soft); padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px; border-radius: 8px; color: var(--text);
+      text-decoration: none; font-size: 0.85rem; font-weight: 700; white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff; box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero { padding: 50px 0 30px; text-align: center; }
+    .hero-card {
+      position: relative; overflow: hidden;
+      border: 1px solid var(--line); border-radius: var(--radius-xl);
+      background: var(--card); box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+    .hero-card::before {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 12px; border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary); font-size: 0.82rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05; letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+    .lead {
+      color: var(--muted); font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px; margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    h2 { margin: 0; font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.15; letter-spacing: -0.045em; }
+    .section-desc { color: var(--muted); margin: 8px 0 0; max-width: 760px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .info-card {
+      border: 1px solid var(--line); border-radius: var(--radius-lg);
+      background: var(--card); padding: 24px; box-shadow: var(--shadow-soft);
+    }
+    .info-card h3 { margin: 0 0 8px; font-size: 1.05rem; letter-spacing: -0.02em; }
+    .info-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    .data-table {
+      width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.85rem;
+    }
+    .data-table th, .data-table td {
+      padding: 8px 12px; border: 1px solid var(--line); text-align: center;
+    }
+    .data-table th {
+      background: color-mix(in srgb, var(--primary) 8%, transparent);
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .data-table .highlight { background: color-mix(in srgb, var(--accent) 12%, transparent); font-weight: 700; color: var(--accent); }
+    .data-table tfoot td { font-size: 0.8rem; background: color-mix(in srgb, var(--primary) 4%, transparent); }
+
+    .stat-box {
+      border: 1px solid var(--line); border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--bg-soft) 90%, var(--card-solid));
+      padding: 18px 22px; margin: 16px 0; font-size: 0.95rem;
+    }
+    .stat-box strong { color: var(--primary); }
+    .stat-box em { color: var(--muted-2); font-size: 0.85rem; }
+
+    .ref-list { padding-left: 0; list-style: none; font-size: 0.88rem; }
+    .ref-list li { padding: 6px 0; border-bottom: 1px solid var(--line); color: var(--muted); }
+    .ref-list li:last-child { border-bottom: none; }
+
+    .footer { padding: 44px 0 54px; color: var(--muted-2); text-align: center; font-size: 0.92rem; }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+
+    /* ─── Lock Screen (same design language) ─── */
+    .lock-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      display: flex; align-items: center; justify-content: center;
+      background: inherit;
+    }
+    .lock-overlay.hidden { display: none; }
+    .lock-card {
+      background: var(--card-solid);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 48px 40px;
+      max-width: 400px; width: calc(100% - 32px);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .lock-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      display: grid; place-items: center;
+      margin: 0 auto 20px; font-size: 1.6rem; color: #fff;
+    }
+    .lock-card h2 { margin: 0 0 8px; font-size: 1.4rem; letter-spacing: -0.03em; }
+    .lock-card p { color: var(--muted); font-size: 0.9rem; margin: 0 0 24px; }
+    .lock-input {
+      width: 100%; padding: 12px 16px;
+      border: 1px solid var(--line); border-radius: 12px;
+      background: var(--card); color: var(--text);
+      font-size: 1rem; text-align: center; letter-spacing: 0.2em;
+      outline: none; transition: border-color .2s; font-family: inherit;
+    }
+    .lock-input:focus { border-color: var(--primary); }
+    .lock-btn {
+      margin-top: 14px; width: 100%; padding: 12px;
+      border: none; border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff; font-weight: 800; font-size: 1rem; font-family: inherit;
+      cursor: pointer; transition: transform .2s, box-shadow .2s;
+    }
+    .lock-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 30%, transparent); }
+    .lock-error { color: var(--danger); font-size: 0.85rem; margin-top: 12px; min-height: 20px; }
+
+    /* ─── Content hidden until auth ─── */
+    #content { display: none; }
+    #content.visible { display: block; }
+
+    @media (max-width: 980px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .section-head { flex-direction: column; align-items: start; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .nav-actions .btn:not(.dd-btn) { display: none; }
+      .lock-card { padding: 32px 24px; }
+    }
+    @media print {
+      .nav, .hero-actions, .footer, .lock-overlay { display: none !important; }
+      body { background: white; color: black; }
+      #content { display: block !important; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','pre','code','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+
+
+  <!-- ═══ CONTENT ═══ -->
+  <div id="content">
+
+    <nav class="nav" aria-label="Navigasi utama">
+      <div class="nav-inner">
+        <a class="brand" href="../index.html" aria-label="Beranda">
+          <div class="brand-mark">ACN</div>
+          <div class="brand-text">
+            <span class="brand-title">Paper 04</span>
+            <span class="brand-subtitle">OFAT &amp; Taguchi — NSGA-II MRPP</span>
+          </div>
+        </a>
+        <div class="nav-actions">
+          <a class="btn" href="#abstrak">Abstrak</a>
+          <a class="btn" href="#isi">Isi</a>
+          <a class="btn" href="#referensi">Referensi</a>
+          <div class="dropdown">
+            <button class="btn dd-btn" type="button">Materi <span class="dd-arrow">▼</span></button>
+            <div class="dropdown-menu">
+              <a href="../nsga2.html">NSGA-II</a>
+              <a href="../nsga3.html">NSGA-III</a>
+              <a href="../spea2.html">SPEA2</a>
+              <a href="../moea-moga.html">MOEA/MOGA</a>
+              <a href="../convex-opt.html">Convex Opt</a>
+              <a href="../moo.html">MOO</a>
+              <a href="../stat-tests.html">Uji Statistik</a>
+              <a href="../taguchi-borda.html">Taguchi &amp; Borda</a>
+              <a href="./paper04.html" style="color: var(--primary);">Paper 04</a>
+            </div>
+          </div>
+          <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="page">
+
+      <!-- HERO -->
+      <section class="hero" aria-label="Judul paper">
+        <div class="hero-card">
+          <div class="hero-content">
+            <span class="eyebrow">Draft Paper — JRC 2026</span>
+            <h1 style="font-size:clamp(1.4rem,2.8vw,2.6rem);letter-spacing:-0.04em;">Sensitivity Analysis of Operator-Specific Crossover and Mutation Rates for Multi-Robot Path Planning Using NSGA-II</h1>
+            <p class="lead">
+              <strong>Ariadie Chandra Nugraha</strong><sup>1,2</sup>,
+              <strong>Oyas Wahyunggoro</strong><sup>1*</sup>,
+              <strong>Adha Imam Cahyadi</strong><sup>1</sup><br>
+              <span style="font-size:0.82rem;color:var(--muted-2);">
+                <sup>1</sup> Dept. of Electrical Engineering and Information Technology, FT, UGM &nbsp;|&nbsp;
+                <sup>2</sup> Dept. of Electrical Engineering Education, UNY &nbsp;|&nbsp;
+                <sup>*</sup> Corresponding Author
+              </span>
+            </p>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px;">
+              <a class="btn btn-primary" href="#abstrak">Baca Abstrak</a>
+              <a class="btn" href="../taguchi-borda.html">← Taguchi &amp; Borda</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABSTRAK -->
+      <section class="section" id="abstrak" aria-label="Abstrak">
+        <div class="info-card">
+          <p>
+            <strong>Abstract</strong> — This paper presents a two-phase empirical sensitivity study of six operator-specific activation probabilities in an NSGA-II framework for three-agent grid-based multi-robot path planning. The operators under investigation are two crossover operators, whole-path swap (WPS) and partial-path swap (PPS), and four mutation operators: insert-zero (INS), delete-zero (DEL), direction-swap (SWD), and wait-detour (WTD). All six operators are domain-specific and feasibility-aware.
+          </p>
+          <p>
+            Phase 1 employs a One-Factor-At-A-Time (OFAT) design, sweeping each operator probability across 11 discrete levels on three 25×25 map topologies (S1: open, S2: bottleneck, S3: warehouse), totaling 1,980 runs. A conditional testing design is introduced to handle the structural dependency between INS and DEL. Phase 2 applies a Taguchi L18 orthogonal array (540 runs) to identify a cross-scenario combined parameter profile, subsequently validated in a 30-run confirmation experiment.
+          </p>
+          <p>
+            <em>Key results:</em> SWD exhibits the strongest and most consistent sensitivity (Kruskal-Wallis p &lt; 0.001 in all scenarios), with a clear inverted-U response peaking at rate 0.2–0.3 (improvements of +32% to +76% over A*-baseline). PPS achieves the highest single-scenario gain (+79% on S3). The Taguchi phase yields the <strong>Borda-selected combined profile</strong>: WPS = 0.4, PPS = 0.5, INS = 0.1, DEL = 0.3, SWD = 0.4, WTD = 0.0, confirmed within ±0.5 dB tolerance (S/N gaps: −0.009, −0.104, −0.023 dB).
+          </p>
+        </div>
+      </section>
+
+      <!-- ISI PAPER -->
+      <section class="section" id="isi" aria-label="Isi paper">
+        <div class="section-head">
+          <div>
+            <h2>Isi Paper</h2>
+            <p class="section-desc">Ringkasan lengkap metodologi, hasil, dan analisis dari eksperimen 2.550 run.</p>
+          </div>
+        </div>
+
+        <div class="info-card" style="margin-bottom:18px;">
+          <h3>1. Introduction</h3>
+          <p>
+            Path planning for multiple autonomous robots in shared environments presents a fundamental combinatorial challenge. When formulated as a Multi-Objective Optimization (MOO) problem that simultaneously minimizes individual robot travel times, the problem space grows exponentially with the number of agents. Among evolutionary approaches, NSGA-II has become a widely adopted framework for MOO in path planning.
+          </p>
+          <p>
+            A critical design question remains underexplored: <em>what activation probability should each individual operator be assigned?</em> Conventional GA literature often prescribes high crossover (Pc = 0.7–0.9) and low mutation (Pm &lt; 0.1), but these are not universally applicable for domain-specific operators. This paper addresses this gap through systematic OFAT and Taguchi analysis.
+          </p>
+        </div>
+
+        <div class="info-card" style="margin-bottom:18px;">
+          <h3>2. Method</h3>
+          <p>
+            <strong>Chromosome encoding:</strong> Each gene uses integer codes {0, 1, 2, 3, 4} for no movement, up, down, left, right. Initial population via A* algorithm.
+          </p>
+          <p>
+            <strong>Six genetic operators:</strong> WPS (whole-path swap), PPS (partial-path swap), INS (insert-zero), DEL (delete-zero), SWD (direction-swap), WTD (wait-detour).
+          </p>
+          <p>
+            <strong>Phase 1 — OFAT:</strong> 11 levels × 10 seeds × 6 operator blocks × 3 scenarios = 1,980 runs. Fixed 100-generation budget.
+          </p>
+          <p>
+            <strong>Phase 2 — Taguchi L18:</strong> L18(2¹×3⁷) orthogonal array, 6 factors, 3 levels per factor. 18 conditions × 3 scenarios × 10 replicates = 540 runs + 30 confirmation runs = 2,550 total.
+          </p>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Factor</th>
+                <th>Operator</th>
+                <th>L</th>
+                <th>M</th>
+                <th>H</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>A</td><td>WPS</td><td>0.1</td><td>0.4</td><td>0.7</td></tr>
+              <tr><td>B</td><td>PPS</td><td>0.5</td><td>0.7</td><td>0.9</td></tr>
+              <tr><td>C</td><td>INS</td><td>0.1</td><td>0.2</td><td>0.2</td></tr>
+              <tr><td>D</td><td>DEL</td><td>0.3</td><td>0.8</td><td>0.9</td></tr>
+              <tr><td>E</td><td>SWD</td><td>0.2</td><td>0.3</td><td>0.4</td></tr>
+              <tr><td>F</td><td>WTD</td><td>0.0</td><td>0.1</td><td>0.2</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="info-card" style="margin-bottom:18px;">
+          <h3>3. Results &amp; Discussion</h3>
+
+          <h3 style="font-size:0.95rem;color:var(--primary-2);">3.1 OFAT Crossover Sensitivity</h3>
+          <p>
+            <strong>WPS:</strong> KW significant in all scenarios. Rate = 1.0 collapses to baseline (population homogenization). Rec. range: 0.1–0.4.<br>
+            <strong>PPS:</strong> Significant in S1/S2, ns in S3 (uniformly high). At rate = 1.0, maintains +31% to +79%. Rec.: 0.8.
+          </p>
+
+          <h3 style="font-size:0.95rem;color:var(--primary-2);">3.2 OFAT Mutation Sensitivity</h3>
+          <p>
+            <strong>SWD:</strong> Most consistent — KW *** in all scenarios. Inverted-U peak at 0.2–0.3 (+32% to +76%).<br>
+            <strong>WTD:</strong> Topology-dependent; significant only in S3 (+29% at rate = 0.1).<br>
+            <strong>INS/DEL:</strong> INS solo significant only in S1 (+2.3%). DEL threshold-active in S3 (+7.7% over INS baseline). Rec.: INS = 0.2, DEL = 0.3.
+          </p>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Op.</th>
+                <th>H<sub>max</sub></th>
+                <th>Sig.</th>
+                <th>Max Δ</th>
+                <th>Rec.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>SWD</td><td>89.7</td><td>3/3 ***</td><td>+76%</td><td>0.3</td></tr>
+              <tr><td>2</td><td>PPS</td><td>23.3</td><td>2/3</td><td>+79%</td><td>0.8</td></tr>
+              <tr><td>3</td><td>WPS</td><td>79.9</td><td>3/3 ***</td><td>+75%</td><td>0.4</td></tr>
+              <tr><td>4</td><td>WTD</td><td>43.9</td><td>1/3 ***</td><td>+29%</td><td>0.1</td></tr>
+              <tr><td>5</td><td>INS</td><td>20.0</td><td>1/3 *</td><td>+2.3%</td><td>0.2</td></tr>
+              <tr><td>6</td><td>DEL</td><td>5.12</td><td>0/3 ns</td><td>+7.7%</td><td>0.3</td></tr>
+            </tbody>
+          </table>
+
+          <h3 style="font-size:0.95rem;color:var(--primary-2);">3.3 Taguchi L18 &amp; Borda Profile</h3>
+          <p>
+            The cross-scenario Taguchi recommendation uses <strong>unweighted Borda aggregation</strong> to combine per-scenario rankings of parameter levels into a single robust profile.
+          </p>
+
+          <div class="stat-box">
+            <strong>Borda-Selected Combined Profile:</strong><br>
+            WPS = 0.4 &nbsp;|&nbsp; PPS = 0.5 &nbsp;|&nbsp; INS = 0.1 &nbsp;|&nbsp; DEL = 0.3 &nbsp;|&nbsp; SWD = 0.4 &nbsp;|&nbsp; WTD = 0.0<br>
+            <em>Dipilih dengan Borda Count dari 3 skenario (S1, S2, S3)</em>
+          </div>
+
+          <p>
+            <strong>Confirmation experiment:</strong> The Borda profile [MLLLHL] was validated in 30 runs (10 per scenario). All scenarios satisfy ±0.5 dB Taguchi tolerance.
+          </p>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Sc.</th>
+                <th>HV Mean ± Std</th>
+                <th>S/N<sub>pred</sub></th>
+                <th>S/N<sub>obs</sub></th>
+                <th>Gap (dB)</th>
+                <th>Cons.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>S1</td><td>14,129.86 ± 8.64</td><td>83.0117</td><td>83.0027</td><td>−0.0089</td><td class="highlight">✓</td></tr>
+              <tr><td>S2</td><td>45,486.23 ± 637.55</td><td>93.2595</td><td>93.1551</td><td>−0.1044</td><td class="highlight">✓</td></tr>
+              <tr><td>S3</td><td>14,348.41 ± 0.00</td><td>83.1594</td><td>83.1361</td><td>−0.0234</td><td class="highlight">✓</td></tr>
+            </tbody>
+          </table>
+
+          <h3 style="font-size:0.95rem;color:var(--primary-2); margin-top:24px;">Aplikasi Borda Count pada Paper Ini</h3>
+          <p>
+            Borda Count digunakan untuk mengagregasi peringkat level faktor terbaik dari tiga skenario peta (S1: open, S2: bottleneck, S3: warehouse). Setiap skenario memberikan peringkat berdasarkan S/N ratio dari Taguchi L18 main effects — semakin tinggi S/N, semakin robust konfigurasi tersebut terhadap noise. Dengan Borda Count, level yang secara konsisten mendapat peringkat tinggi di semua skenario dipilih, menghasilkan profil gabungan yang <em>robust across scenarios</em>. Profil ini kemudian divalidasi dalam confirmation experiment dan terbukti berada dalam toleransi ±0.5 dB.
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h3>4. Conclusion</h3>
+          <ul>
+            <li>SWD: strongest &amp; most consistent sensitivity, peak 0.2–0.3 (+32–76%)</li>
+            <li>PPS: highest single gain +79% (S3), no collapse at rate = 1.0</li>
+            <li>WTD: topology-dependent, +29% in S3 only</li>
+            <li>DEL: threshold-active, +7.7% in S3 over INS baseline</li>
+            <li>Borda profile [MLLLHL] confirmed within ±0.5 dB in all 3 scenarios</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- REFERENSI -->
+      <section class="section" id="referensi" aria-label="Referensi">
+        <div class="hero-card">
+          <h2>Referensi</h2>
+          <ol class="ref-list">
+            <li>[1] G. Sharon et al., "Conflict-based search for optimal multi-agent pathfinding," <em>Artif. Intell.</em>, vol. 219, pp. 40–66, 2015.</li>
+            <li>[2] S. Lin et al., "Bio particle swarm optimization and reinforcement learning algorithm for path planning of AGVs," <em>Sci. Rep.</em>, vol. 15, no. 1, p. 463, 2025.</li>
+            <li>[3] S. M. LaValle, <em>Planning Algorithms</em>. Cambridge University Press, 2006.</li>
+            <li>[4] Q. Shen et al., "A novel multi-objective dung beetle optimizer for Multi-UAV cooperative path planning," <em>Heliyon</em>, vol. 10, no. 17, e37286, 2024.</li>
+            <li>[5] J. Yu and S. LaValle, "Structure and Intractability of Optimal Multi-Robot Path Planning on Graphs," <em>Proc. AAAI</em>, vol. 27, no. 1, pp. 1443–1449, 2013.</li>
+            <li>[6] B. K. Patle et al., "A review: On path planning strategies for navigation of mobile robot," <em>Def. Technol.</em>, vol. 15, no. 4, pp. 582–606, 2019.</li>
+            <li>[7] K. Deb et al., "A fast and elitist multiobjective genetic algorithm: NSGA-II," <em>IEEE Trans. Evol. Comput.</em>, vol. 6, no. 2, pp. 182–197, 2002.</li>
+            <li>[8] R. Yuhang and Z. Liang, "An Adaptive Evolutionary MOEA and Its Application to Multi-UAV Path Planning," <em>IEEE Access</em>, vol. 11, pp. 50038–50051, 2023.</li>
+            <li>[9] A. C. Nugraha et al., "Path planning as multi-objective optimization using the NSGA-II algorithm," <em>ICE-ELINVO 2023</em>, p. 030005, 2025.</li>
+            <li>[10] A. Nait Chabane and O. Guenounou, "An enhanced genetic algorithm for optimized task allocation and planning in heterogeneous multi-robot systems," <em>Complex Intell. Syst.</em>, vol. 11, no. 10, p. 435, 2025.</li>
+            <li>[11] D. E. Goldberg, <em>Genetic algorithms in search, optimization, and machine learning</em>. Addison-Wesley, 1989.</li>
+            <li>[12] A. E. Eiben and J. E. Smith, <em>Introduction to Evolutionary Computing</em>. Springer, 2015.</li>
+            <li>[13] W. M. Spears, "Crossover or Mutation?," in <em>Foundations of Genetic Algorithms</em>, vol. 2, pp. 221–237, 1993.</li>
+            <li>[14] T. Feng et al., "The Optimal Global Path Planning of Mobile Robot Based on Improved Hybrid Adaptive GA," <em>IEEE Access</em>, vol. 12, pp. 18400–18415, 2024.</li>
+            <li>[15] A. Saltelli, <em>Global sensitivity analysis: the primer</em>. Wiley, 2008.</li>
+            <li>[16] E. Zitzler and L. Thiele, "Multiobjective evolutionary algorithms: a comparative case study and the strength Pareto approach," <em>IEEE Trans. Evol. Comput.</em>, vol. 3, no. 4, pp. 257–271, 1999.</li>
+            <li>[17] N. Beume et al., "SMS-EMOA: Multiobjective selection based on dominated hypervolume," <em>European J. Oper. Res.</em>, vol. 181, no. 3, pp. 1653–1669, 2007.</li>
+            <li>[18] W. H. Kruskal and W. A. Wallis, "Use of Ranks in One-Criterion Variance Analysis," <em>J. Am. Stat. Assoc.</em>, vol. 47, no. 260, pp. 583–621, 1952.</li>
+            <li>[19] H. B. Mann and D. R. Whitney, "On a Test of Whether one of Two Random Variables is Stochastically Larger than the Other," <em>Ann. Math. Stat.</em>, vol. 18, no. 1, pp. 50–60, 1947.</li>
+            <li>[20] M. S. Phadke, <em>Quality engineering using robust design</em>. Prentice Hall, 1989.</li>
+          </ol>
+          <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);">
+            Kembali ke <a href="../taguchi-borda.html" style="font-weight:700;">Taguchi &amp; Borda</a>
+          </p>
+        </div>
+      </section>
+
+      <div class="footer">
+        &copy; 2026 Ariadie Chandra Nugraha — Paper 04: OFAT &amp; Taguchi Analysis
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // ─── Theme ───────────────────────────────────────────────────
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-paper04");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-paper04", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // ─── Dropdown toggle ─────────────────────────────────────────
+    document.querySelectorAll(".dropdown .dd-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const dd = btn.closest(".dropdown");
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".dropdown.show").forEach(d => d.classList.remove("show"));
+    });
+
+    // ─── Password protection ──────────────────────────────────────
+    const PASSWORD = "acn77";
+    const lockOverlay = document.getElementById("lockOverlay");
+    const content = document.getElementById("content");
+    const passwordInput = document.getElementById("passwordInput");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const lockError = document.getElementById("lockError");
+
+    function tryUnlock() {
+      const entered = passwordInput.value;
+      if (entered === PASSWORD) {
+        lockOverlay.classList.add("hidden");
+        content.classList.add("visible");
+        lockError.textContent = "";
+      } else {
+        window.location.href = "../taguchi-borda.html";
+      }
+    }
+
+    unlockBtn.addEventListener("click", tryUnlock);
+    passwordInput.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") tryUnlock();
+    });
+  </script>
+</body>
+</html>
