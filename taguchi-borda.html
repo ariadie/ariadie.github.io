@@ -549,6 +549,18 @@
               </li>
             </ol>
 
+            <h3 style="margin-top:18px;">Penanganan Seri (Tie)</h3>
+            <p style="font-size:0.92rem;color:var(--muted);">
+              Dalam Borda Count klasik, jika dua atau lebih kandidat memiliki skor total yang sama,
+              maka terjadi <em>tie</em> (seri). Borda sendiri tidak mendefinisikan aturan pemutus
+              khusus — semua kandidat yang seri dianggap setara pada peringkat tersebut. Dalam
+              praktiknya, tie-breaking dapat dilakukan dengan: (1) <em>plurality</em> — melihat
+              jumlah peringkat pertama, (2) <em>head-to-head</em> — membandingkan preferensi
+              langsung antar kandidat yang seri, atau (3) aturan institusional tambahan.
+              Pada simulasi di atas, peringkat ditampilkan dengan format <code>1=2</code>
+              untuk menunjukkan posisi bersama.
+            </p>
+
             <h3>Rumus Skor Borda</h3>
             <div class="formula-box">
               \[
@@ -567,7 +579,7 @@
         <div>
           <div class="sim-card">
             <div class="sim-label">Simulasi Borda Count</div>
-            <p style="font-size: 0.85rem; color: var(--muted); margin: 0 0 12px;">Masukkan peringkat dari beberapa skenario/kriteria. Peringkat 1 = terbaik.</p>
+            <p style="font-size: 0.85rem; color: var(--muted); margin: 0 0 12px;">Masukkan peringkat dari beberapa skenario/kriteria. Peringkat 1 = terbaik. Contoh: kandidat <strong>Restoran A, B, C, D</strong> dengan skenario <strong>Harga, Cita Rasa, Suasana</strong> — isi peringkat misalnya <code>1, 3, 2, 4</code> (A=1, B=3, C=2, D=4).</p>
 
             <div class="control-row">
               <div class="control-group" style="flex:1;">
@@ -575,6 +587,8 @@
                 <input type="text" id="bordaCandidates" value="Restoran A, Restoran B, Restoran C, Restoran D">
               </div>
             </div>
+
+            <div class="control-row" id="bordaRankInputs"></div>
 
             <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;">
               <button class="btn btn-accent" id="bordaRun">Hitung Borda</button>
@@ -586,9 +600,7 @@
                 <thead>
                   <tr>
                     <th>Kandidat</th>
-                    <th id="bordaScenarioHeaders">S1</th>
-                    <th>S2</th>
-                    <th>S3</th>
+                    <th id="bordaScenarioHeaders" colspan="3">Skenario</th>
                     <th>Skor Total</th>
                     <th>Peringkat</th>
                   </tr>
@@ -618,7 +630,6 @@
           <li>Emerson, P. (2013). The original Borda count and partial voting. <em>Social Choice and Welfare</em>, 40(2), 353–358. <a href="https://doi.org/10.1007/s00355-011-0603-9" target="_blank" style="font-weight:700;">doi:10.1007/s00355-011-0603-9</a></li>
           <li>Peace, G. S. (1993). <em>Taguchi Methods: A Hands-On Approach</em>. Addison-Wesley.</li>
           <li>Roy, R. K. (2010). <em>A Primer on the Taguchi Method</em> (2nd ed.). Society of Manufacturing Engineers.</li>
-          <li>Nugraha, A. C., Wahyunggoro, O., &amp; Cahyadi, A. I. (2026). Sensitivity Analysis of Operator-Specific Crossover and Mutation Rates for Multi-Robot Path Planning Using NSGA-II: OFAT Analysis and Taguchi-Selected Combined Profile. <em>Journal of Robotics and Control</em>.</li>
         </ul>
         <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);">
           Kembali ke <a href="./index.html" style="font-weight:700;">Beranda</a>
@@ -957,9 +968,23 @@
         return;
       }
 
-      bordaCandidates = cands;
-      bordaScenarios = DEFAULT_SCENARIOS;
-      generateRankInputs();
+      // Read current ranks from inputs before any regeneration
+      const currentRanks = readBordaRanks();
+
+      // Check if candidates list changed
+      const candChanged = JSON.stringify(cands) !== JSON.stringify(bordaCandidates);
+      if (candChanged) {
+        bordaRanks = DEFAULT_SCENARIOS.map(() => cands.map((_, i) => i + 1));
+        bordaCandidates = cands;
+        bordaScenarios = DEFAULT_SCENARIOS;
+        generateRankInputs();
+      } else {
+        bordaCandidates = cands;
+        bordaScenarios = DEFAULT_SCENARIOS;
+        if (currentRanks && currentRanks.length === DEFAULT_SCENARIOS.length && currentRanks[0].length === cands.length) {
+          bordaRanks = currentRanks;
+        }
+      }
 
       const ranks = readBordaRanks();
       if (!ranks) {
@@ -981,37 +1006,54 @@
         }
       }
 
-      // Ranking by scores (descending)
+      // Ranking by scores (descending) with tie-aware shared ranks
       const indexed = scores.map((s, i) => ({ name: cands[i], score: s, idx: i }));
       indexed.sort((a, b) => b.score - a.score || a.idx - b.idx);
       const rankMap = {};
-      indexed.forEach((item, r) => { rankMap[item.idx] = r + 1; });
-
-      // Build table
-      let scenarioHeaders = '';
-      for (let s = 0; s < nScen; s++) {
-        scenarioHeaders += `<th>${bordaScenarios[s]}</th>`;
+      let r = 1, i = 0;
+      while (i < indexed.length) {
+        let j = i;
+        while (j < indexed.length && indexed[j].score === indexed[i].score) j++;
+        const sharedRank = r + (j - i > 1 ? `=${r + (j - i) - 1}` : '');
+        for (let k = i; k < j; k++) rankMap[indexed[k].idx] = sharedRank;
+        r += (j - i);
+        i = j;
       }
-      document.getElementById("bordaScenarioHeaders").innerHTML = scenarioHeaders;
+
+      // Build table header — replace scenario header cell content
+      const headCell = document.getElementById("bordaScenarioHeaders");
+      headCell.colSpan = nScen;
+      headCell.textContent = bordaScenarios.join(' / ');
 
       let html = '';
+      const bestScore = indexed[0].score;
       for (let c = 0; c < m; c++) {
+        const isBest = scores[c] === bestScore;
         html += '<tr>';
         html += `<td><strong>${cands[c]}</strong></td>`;
         for (let s = 0; s < nScen; s++) {
-          const r = ranks[s][c];
-          html += `<td>${r}</td>`;
+          const rVal = ranks[s][c];
+          html += `<td>${rVal}</td>`;
         }
-        html += `<td class="best">${scores[c].toFixed(0)}</td>`;
+        html += `<td class="${isBest ? 'best' : ''}">${scores[c].toFixed(0)}</td>`;
         html += `<td>${rankMap[c]}</td>`;
         html += '</tr>';
       }
       document.getElementById("bordaBody").innerHTML = html;
 
-      const winner = indexed[0].name;
+      // Detect ties
+      const maxScore = indexed[0].score;
+      const tiedWinners = indexed.filter(item => item.score === maxScore).map(item => item.name);
+      const isTie = tiedWinners.length > 1;
+      let winnerText = isTie
+        ? `Seri: <span class="best">${tiedWinners.join('</span> & <span class="best">')}</span>`
+        : `<span class="best">${tiedWinners[0]}</span>`;
+      const tieNote = isTie
+        ? `<br><span style="font-size:0.83rem;color:var(--muted-2);">Borda klasik: skor sama → hasil seri. Pemutus dapat menggunakan <em>tie-breaking</em> (plurality, head-to-head, atau aturan tambahan).</span>`
+        : '';
       document.getElementById("bordaSummary").innerHTML =
-        `<strong>Pemenang Borda:</strong> <span class="best">${winner}</span> (` +
-        `skor ${indexed[0].score.toFixed(0)} dari maksimal ${(m - 1) * nScen})` +
+        `<strong>Pemenang Borda:</strong> ${winnerText} ` +
+        `(skor ${maxScore.toFixed(0)} dari maksimal ${(m - 1) * nScen})${tieNote}` +
         `<br><span style="font-size:0.85rem;color:var(--muted-2);">` +
         `Skor dihitung dengan rumus S = Σ(m − r) dengan m = ${m} kandidat, ${nScen} skenario.` +
         `</span>`;
@@ -1048,15 +1090,14 @@
       const accent = getCSS("--accent");
       const primary = getCSS("--primary");
 
-      const sortedIdx = scores.map((s, i) => i).sort((a, b) => scores[b] - scores[a]);
-      const winnerIdx = sortedIdx[0];
+      const bestScore = Math.max(...scores);
 
       cands.forEach((name, i) => {
         const x = padL + (i / n) * plotW + (plotW / n - barW) / 2;
         const h = (scores[i] / maxScore) * (plotH - 4);
         const y = padT + plotH - h;
 
-        const isWinner = (i === winnerIdx);
+        const isWinner = (scores[i] === bestScore);
         ctx.fillStyle = isWinner ? accent : primary;
         ctx.beginPath();
         ctx.roundRect(x, y, barW, Math.max(h, 2), [3, 3, 0, 0]);
