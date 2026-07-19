@@ -561,15 +561,7 @@
               \(n\) = jumlah pemilih. Kandidat dengan \(S_j\) tertinggi adalah pemenang.
             </p>
 
-            <h3 style="margin-top:18px;">Aplikasi pada Paper JRC</h3>
-            <p style="font-size:0.92rem;color:var(--muted);">
-              Pada studi sensitivitas operator NSGA-II untuk MRPP, Borda Count digunakan untuk
-              mengagregasi peringkat konfigurasi parameter dari tiga skenario peta (S1: open,
-              S2: bottleneck, S3: warehouse). Setiap skenario memberikan peringkat berdasarkan
-              S/N ratio, dan Borda Count memilih profil gabungan terbaik:
-              <strong>WPS=0.4, PPS=0.5, INS=0.1, DEL=0.3, SWD=0.4, WTD=0.0</strong>.
-              Profil ini terkonfirmasi dalam toleransi ±0.5 dB di semua skenario.
-            </p>
+
           </div>
         </div>
         <div>
@@ -580,7 +572,7 @@
             <div class="control-row">
               <div class="control-group" style="flex:1;">
                 <label for="bordaCandidates">Nama Kandidat (dipisah koma)</label>
-                <input type="text" id="bordaCandidates" value="WPS, PPS, INS, DEL, SWD, WTD">
+                <input type="text" id="bordaCandidates" value="Restoran A, Restoran B, Restoran C, Restoran D">
               </div>
             </div>
 
@@ -910,14 +902,14 @@
     // BORDA COUNT
     // ================================================================
 
-    // Default data: 6 operators ranked across 3 scenarios
-    const DEFAULT_BORDA_CAND = ["WPS", "PPS", "INS", "DEL", "SWD", "WTD"];
+    // Default data: restaurants ranked across 3 criteria
+    const DEFAULT_BORDA_CAND = ["Restoran A", "Restoran B", "Restoran C", "Restoran D"];
     const DEFAULT_BORDA_RANKS = [
-      [4, 3, 6, 5, 1, 2],   // S1 (Open)   — SWD best
-      [3, 4, 6, 5, 1, 2],   // S2 (Bottleneck) — SWD best
-      [5, 1, 6, 4, 2, 3]    // S3 (Warehouse) — PPS best
+      [1, 3, 2, 4],   // Harga — A termurah
+      [2, 1, 4, 3],   // Cita Rasa — B terenak
+      [3, 2, 1, 4]    // Suasana — C terbaik
     ];
-    const DEFAULT_SCENARIOS = ["S1 (Open)", "S2 (Bottleneck)", "S3 (Warehouse)"];
+    const DEFAULT_SCENARIOS = ["Harga", "Cita Rasa", "Suasana"];
 
     let bordaCandidates = [...DEFAULT_BORDA_CAND];
     let bordaScenarios = [...DEFAULT_SCENARIOS];
