@@ -650,6 +650,75 @@
       </div>
     </section>
 
+    <!-- CONVEX vs CONCAVE -->
+    <section class="section" id="cembung-cekung" aria-label="Cembung vs Cekung">
+      <div class="section-head">
+        <div>
+          <h2>Convex vs Concave — Cembung vs Cekung</h2>
+          <p class="section-desc">Dua istilah yang paling sering tertukar. Dalam bahasa Indonesia: <strong>convex = cembung</strong> (seperti mangkuk), <strong>concave = cekung</strong> (seperti kubah). Hafalkan dengan ilustrasi di bawah.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <article class="algo-card highlight">
+          <h3>✅ Convex — Cembung</h3>
+          <div style="text-align:center;margin:10px 0;overflow:hidden;border-radius:12px;background:color-mix(in srgb, var(--card-solid) 70%, transparent);padding:8px 0;">
+            <svg viewBox="0 0 300 200" style="max-width:100%;height:auto;display:block;margin:0 auto;" role="img" aria-label="Grafik fungsi convex cembung">
+              <rect width="300" height="200" fill="none"/>
+              <line x1="40" y1="155" x2="280" y2="155" stroke="#94a3b8" stroke-width="1" opacity="0.5"/>
+              <line x1="160" y1="20" x2="160" y2="185" stroke="#94a3b8" stroke-width="1" opacity="0.5"/>
+              <polyline points="64,35 88,87.5 112,125 136,147.5 160,155 184,147.5 208,125 232,87.5 256,35" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="88" y1="87.5" x2="232" y2="87.5" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.8"/>
+              <line x1="160" y1="87.5" x2="160" y2="155" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,3"/>
+              <circle cx="88" cy="87.5" r="4" fill="#dc2626"/>
+              <circle cx="232" cy="87.5" r="4" fill="#dc2626"/>
+              <circle cx="160" cy="155" r="4" fill="#2563eb"/>
+              <text x="160" y="170" text-anchor="middle" fill="#475569" font-size="11" font-family="Inter,sans-serif">x = 0</text>
+              <text x="56" y="184" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="Inter,sans-serif">−2</text>
+              <text x="256" y="184" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="Inter,sans-serif">2</text>
+            </svg>
+          </div>
+          <p style="font-size:0.92rem;color:var(--muted);">
+            Ruas garis (chord) <strong>di atas</strong> grafik.
+            \(f(\theta x + (1-\theta)y) \le \theta f(x) + (1-\theta)f(y)\).
+            <br><em>Ciri: \(f''(x) \ge 0\). Contoh: \(f(x)=x^2\).</em>
+          </p>
+        </article>
+
+        <article class="algo-card highlight" style="border-left-color:var(--accent-2);">
+          <h3>❌ Concave — Cekung</h3>
+          <div style="text-align:center;margin:10px 0;overflow:hidden;border-radius:12px;background:color-mix(in srgb, var(--card-solid) 70%, transparent);padding:8px 0;">
+            <svg viewBox="0 0 300 200" style="max-width:100%;height:auto;display:block;margin:0 auto;" role="img" aria-label="Grafik fungsi concave cekung">
+              <rect width="300" height="200" fill="none"/>
+              <line x1="40" y1="35" x2="280" y2="35" stroke="#94a3b8" stroke-width="1" opacity="0.5"/>
+              <line x1="160" y1="20" x2="160" y2="185" stroke="#94a3b8" stroke-width="1" opacity="0.5"/>
+              <polyline points="64,155 88,102.5 112,65 136,42.5 160,35 184,42.5 208,65 232,102.5 256,155" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="88" y1="102.5" x2="232" y2="102.5" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.8"/>
+              <line x1="160" y1="35" x2="160" y2="102.5" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,3"/>
+              <circle cx="88" cy="102.5" r="4" fill="#dc2626"/>
+              <circle cx="232" cy="102.5" r="4" fill="#dc2626"/>
+              <circle cx="160" cy="35" r="4" fill="#10b981"/>
+              <text x="160" y="190" text-anchor="middle" fill="#475569" font-size="11" font-family="Inter,sans-serif">x = 0</text>
+              <text x="56" y="190" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="Inter,sans-serif">−2</text>
+              <text x="256" y="190" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="Inter,sans-serif">2</text>
+            </svg>
+          </div>
+          <p style="font-size:0.92rem;color:var(--muted);">
+            Ruas garis (chord) <strong>di bawah</strong> grafik.
+            \(f(\theta x + (1-\theta)y) \ge \theta f(x) + (1-\theta)f(y)\).
+            <br><em>Ciri: \(f''(x) \le 0\). Contoh: \(f(x)=-x^2\).</em>
+          </p>
+        </article>
+      </div>
+
+      <div class="highlight-box" style="margin-top:16px;">
+        <p><strong>🧠 Mnemonik:</strong> <em>Convex</em> (cembung) = <strong>mangkuk</strong> 🥣 — air tidak tumpah. <em>Concave</em> (cekung) = <strong>gua/kubah</strong> 🏛️ — melengkung ke dalam. Jika lupa: <em>"convex"</em> mirip "<em>con-</em> vex" seperti mangkuk <em>convex</em> (cekung ke atas → cembung).</p>
+      </div>
+      <div class="highlight-box" style="margin-top:8px;border-left-color:var(--accent-2);">
+        <p><strong>⚠️ Kesalahan umum:</strong> Dalam percakapan sehari-hari, "<em>cembung</em>" berarti melengkung keluar (seperti bola). Namun dalam matematika/optimasi, <strong>fungsi cembung (convex)</strong> justru berbentuk seperti mangkuk — karena definisinya berdasarkan <strong>epigraf</strong> (epigraph), yaitu daerah <em>di atas</em> kurva, yang harus merupakan <em>convex set</em>. Jadi acuannya bukan bentuk kurvanya, melainkan bentuk epigrafnya.</p>
+      </div>
+    </section>
+
     <!-- PENJELASAN -->
     <section class="section" id="penjelasan" aria-label="Penjelasan">
       <div class="section-head">
