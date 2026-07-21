@@ -440,18 +440,30 @@
             <h3>Rasio S/N</h3>
             <p style="font-size:0.9rem;color:var(--muted);">Tiga jenis rasio S/N yang umum:</p>
             <div class="formula-box">
-              <strong>Smaller-the-Better:</strong>
+              <strong>Smaller-the-Better (STB):</strong>
               \[
               S/N = -10 \log_{10}\left(\frac{1}{n}\sum_{i=1}^{n} y_i^2\right)
               \]
-              <strong>Larger-the-Better:</strong>
+              <strong>Larger-the-Better (LTB):</strong>
               \[
               S/N = -10 \log_{10}\left(\frac{1}{n}\sum_{i=1}^{n} \frac{1}{y_i^2}\right)
               \]
-              <strong>Nominal-the-Best:</strong>
+              <strong>Nominal-the-Best (NTB):</strong>
               \[
               S/N = 10 \log_{10}\left(\frac{\bar{y}^2}{s^2}\right)
               \]
+            </div>
+
+            <div style="margin-top:16px;padding:14px;background:var(--bg-soft);border-radius:var(--radius-md);font-size:0.88rem;">
+              <strong style="color:var(--primary);">Makna Tiap Karakteristik</strong>
+              <ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);">
+                <li><strong>Smaller-the-Better (STB)</strong> — digunakan ketika nilai respons <em>semakin kecil semakin baik</em>, misalnya: cacat produk, waktu pemrosesan, biaya, error rate. Formula S/N membagi kuadrat rata-rata deviasi (MSD); semakin kecil \(y\), semakin besar (kurang negatif) nilai S/N. <span style="color:var(--accent);">Tujuan: maksimasi S/N → meminimasi \(y\).</span></li>
+                <li><strong>Larger-the-Better (LTB)</strong> — digunakan ketika nilai respons <em>semakin besar semakin baik</em>, misalnya: kekuatan tarik, efisiensi energi, persentase yield, signal strength. Transformasi kebalikan membuat S/N naik seiring membesarnya \(y\). <span style="color:var(--accent);">Tujuan: maksimasi S/N → memaksimasi \(y\).</span></li>
+                <li><strong>Nominal-the-Best (NTB)</strong> — digunakan ketika nilai respons ideal berada pada <em>target spesifik</em> tertentu, misalnya: dimensi komponen (5.00 ± 0.05 mm), voltase output, temperatur ruang. S/N di sini mengukur rasio antara mean kuadrat terhadap varians — semakin kecil penyebaran di sekitar target, semakin tinggi S/N. <span style="color:var(--accent);">Tujuan: maksimasi S/N → menekan varians dengan mean tetap pada target.</span></li>
+              </ul>
+              <p style="margin:10px 0 0;color:var(--muted-2);font-size:0.83rem;">
+                <strong>Prinsip umum Taguchi:</strong> apa pun karakteristiknya, <em>S/N ratio selalu dimaksimalkan</em>. Level faktor yang memberi S/N tertinggi dipilih sebagai konfigurasi optimal yang paling <em>robust</em> terhadap noise.
+              </p>
             </div>
           </div>
         </div>
@@ -487,24 +499,21 @@
             <div id="taguchiResult" class="stat-block" style="overflow-x:auto;">
               <table class="inline-data-table" id="taguchiTable">
                 <thead>
-                  <tr>
-                    <th>Run</th>
-                    <th id="taguchiCols">A</th>
-                    <th>B</th>
-                    <th>C</th>
-                    <th>D</th>
-                    <th>Respons</th>
-                    <th>S/N (dB)</th>
-                  </tr>
+                  <tr id="taguchiHeaderRow"></tr>
                 </thead>
                 <tbody id="taguchiBody">
-                  <tr><td colspan="7">Pilih OA dan tekan <em>Hitung S/N Ratio</em>.</td></tr>
+                  <tr><td colspan="9">Pilih OA dan tekan <em>Hitung S/N Ratio</em>.</td></tr>
                 </tbody>
               </table>
               <p id="taguchiSummary" style="margin:8px 0 0;font-size:0.9rem;">—</p>
             </div>
 
             <canvas id="taguchiCanvas" width="500" height="220"></canvas>
+
+            <div id="taguchiInterpretation" style="margin-top:16px;padding:14px;background:var(--bg-soft);border-radius:var(--radius-md);font-size:0.88rem;display:none;">
+              <strong style="color:var(--accent);">📊 Makna Hasil Simulasi</strong>
+              <div id="taguchiInterpBody" style="margin-top:8px;color:var(--muted);"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -623,13 +632,13 @@
       <div class="hero-card">
         <h2>Referensi Utama</h2>
         <ul class="ref-list">
-          <li>Taguchi, G. (1986). <em>Introduction to Quality Engineering: Designing Quality into Products and Processes</em>. Asian Productivity Organization.</li>
-          <li>Taguchi, G., Chowdhury, S., &amp; Wu, Y. (2005). <em>Taguchi's Quality Engineering Handbook</em>. Wiley.</li>
-          <li>Phadke, M. S. (1989). <em>Quality Engineering Using Robust Design</em>. Prentice Hall.</li>
-          <li>de Borda, J.-C. (1781). Mémoire sur les Élections au Scrutin. <em>Histoire de l'Académie Royale des Sciences</em>.</li>
+          <li>Taguchi, G. (1986). <em><a href="https://books.google.com/books?id=1NtTAAAAMAAJ" target="_blank">Introduction to Quality Engineering: Designing Quality into Products and Processes</a></em>. Asian Productivity Organization. <a href="https://www.amazon.com/Introduction-Quality-Engineering-Designing-Processes/dp/9283310845" target="_blank" style="font-weight:700;">Amazon</a></li>
+          <li>Taguchi, G., Chowdhury, S., &amp; Wu, Y. (2005). <em><a href="https://www.wiley.com/en-us/Taguchi%27s+Quality+Engineering+Handbook-p-9780471413349" target="_blank">Taguchi's Quality Engineering Handbook</a></em>. Wiley. <a href="https://www.amazon.com/Taguchis-Quality-Engineering-Handbook-Taguchi/dp/0471413348" target="_blank" style="font-weight:700;">Amazon</a></li>
+          <li>Phadke, M. S. (1989). <em><a href="https://books.google.com/books?id=Hs1TAAAAMAAJ" target="_blank">Quality Engineering Using Robust Design</a></em>. Prentice Hall. <a href="https://www.amazon.com/Quality-Engineering-Using-Robust-Design/dp/0137451679" target="_blank" style="font-weight:700;">Amazon</a></li>
+          <li>de Borda, J.-C. (1781). <em><a href="https://archive.org/details/mmoiresurleslec00daungoog" target="_blank">Mémoire sur les Élections au Scrutin</a></em>. Histoire de l'Académie Royale des Sciences.</li>
           <li>Emerson, P. (2013). The original Borda count and partial voting. <em>Social Choice and Welfare</em>, 40(2), 353–358. <a href="https://doi.org/10.1007/s00355-011-0603-9" target="_blank" style="font-weight:700;">doi:10.1007/s00355-011-0603-9</a></li>
-          <li>Peace, G. S. (1993). <em>Taguchi Methods: A Hands-On Approach</em>. Addison-Wesley.</li>
-          <li>Roy, R. K. (2010). <em>A Primer on the Taguchi Method</em> (2nd ed.). Society of Manufacturing Engineers.</li>
+          <li>Peace, G. S. (1993). <em><a href="https://books.google.com/books?id=ZeBTAAAAMAAJ" target="_blank">Taguchi Methods: A Hands-On Approach</a></em>. Addison-Wesley. <a href="https://www.amazon.com/Taguchi-Methods-Hands-Glen-Peace/dp/0201563110" target="_blank" style="font-weight:700;">Amazon</a></li>
+          <li>Roy, R. K. (2010). <em><a href="https://www.sme.org/store/content/books-pdf/a-primer-on-the-taguchi-method-second-edition.html" target="_blank">A Primer on the Taguchi Method</a></em> (2nd ed.). Society of Manufacturing Engineers. <a href="https://www.amazon.com/Primer-Taguchi-Method-Ranjit-Roy/dp/0872638642" target="_blank" style="font-weight:700;">Amazon</a></li>
         </ul>
         <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);">
           Kembali ke <a href="./index.html" style="font-weight:700;">Beranda</a>
@@ -753,37 +762,31 @@
       return sums.map((s, i) => counts[i] > 0 ? s / counts[i] : 0);
     }
 
-    function runTaguchi() {
+    function readTaguchiResponses() {
+      const inpEls = document.querySelectorAll("#taguchiBody input.taguchi-resp");
+      const vals = [];
+      inpEls.forEach(el => {
+        const v = parseFloat(el.value);
+        vals.push(isNaN(v) ? 0 : v);
+      });
+      return vals;
+    }
+
+    function generateTaguchiTable() {
       const oaName = document.getElementById("taguchiOA").value;
-      const type = document.getElementById("taguchiType").value;
       const def = OA_DEFS[oaName];
       const design = def.design;
       const nRuns = design.length;
       const nFactors = def.factors.length;
+      const defaults = DEFAULT_RESPONSES[oaName];
 
-      // Get response values
-      const responses = DEFAULT_RESPONSES[oaName].slice(0, nRuns);
-
-      // Compute S/N for each run (for single response, S/N = transformed value)
-      // In standard Taguchi, each run may have multiple measurements. For simplicity,
-      // we treat each run's response as a single measurement and compute SN accordingly.
-      // Since n=1 per run, we use the individual value transformed.
-      const snValues = responses.map(v => {
-        if (type === 'smaller') return -10 * Math.log10(v * v);
-        if (type === 'larger') return -10 * Math.log10(1 / (v * v));
-        // nominal with single measurement uses v directly
-        return v;
-      });
-
-      // Build table
-      const typeLabel = type === 'smaller' ? 'Smaller-the-Better' : type === 'larger' ? 'Larger-the-Better' : 'Nominal-the-Best';
-      let colHeaders = '<th>Run</th>';
       const factorLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+      let colHeaders = '<th>Run</th>';
       for (let f = 0; f < nFactors; f++) {
         colHeaders += `<th>${factorLabels[f]}</th>`;
       }
       colHeaders += '<th>Respons</th><th>S/N (dB)</th>';
-      document.getElementById("taguchiCols").innerHTML = colHeaders;
+      document.getElementById("taguchiHeaderRow").innerHTML = colHeaders;
 
       let html = '';
       for (let r = 0; r < nRuns; r++) {
@@ -792,11 +795,51 @@
         for (let f = 0; f < nFactors; f++) {
           html += `<td>${design[r][f]}</td>`;
         }
-        html += `<td>${responses[r].toFixed(2)}</td>`;
-        html += `<td>${snValues[r].toFixed(3)}</td>`;
+        html += `<td><input class="taguchi-resp" type="number" step="any" value="${defaults[r]}"
+          style="width:70px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;
+                 background:var(--card);color:var(--text);font-family:inherit;font-size:0.85rem;
+                 text-align:center;" /></td>`;
+        html += '<td class="taguchi-sn">—</td>';
         html += '</tr>';
       }
       document.getElementById("taguchiBody").innerHTML = html;
+    }
+
+    function runTaguchi() {
+      const oaName = document.getElementById("taguchiOA").value;
+      const type = document.getElementById("taguchiType").value;
+      const def = OA_DEFS[oaName];
+      const design = def.design;
+      const nRuns = design.length;
+      const nFactors = def.factors.length;
+
+      // Read user response values from input fields
+      const responses = readTaguchiResponses();
+
+      // If no inputs exist yet (initial), use defaults
+      if (responses.length === 0) {
+        generateTaguchiTable();
+        const updated = readTaguchiResponses();
+        responses.length = 0;
+        responses.push(...updated);
+      }
+
+      // Compute S/N for each run
+      const snValues = responses.map(v => {
+        if (type === 'smaller') return -10 * Math.log10(v * v);
+        if (type === 'larger') return -10 * Math.log10(1 / (v * v));
+        return v;
+      });
+
+      // Update S/N cells
+      const snCells = document.querySelectorAll("#taguchiBody .taguchi-sn");
+      snCells.forEach((cell, i) => {
+        if (i < snValues.length) cell.textContent = snValues[i].toFixed(3);
+      });
+
+      // Build summary
+      const typeLabel = type === 'smaller' ? 'Smaller-the-Better' : type === 'larger' ? 'Larger-the-Better' : 'Nominal-the-Best';
+      const factorLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 
       // Calculate factor level means of S/N
       const nLevels = Array.isArray(def.levels) ? def.levels : Array(nFactors).fill(def.levels);
@@ -828,6 +871,73 @@
 
       // Draw S/N bar chart
       drawSNChart(document.getElementById("taguchiCanvas"), snValues, responses, type);
+
+      // Show interpretation
+      showTaguchiInterpretation(oaName, type, responses, snValues, levelMeans, nLevels, bestLevels, factorLabels);
+    }
+
+    function showTaguchiInterpretation(oaName, type, responses, snValues, levelMeans, nLevels, bestLevels, factorLabels) {
+      const el = document.getElementById("taguchiInterpretation");
+      const body = document.getElementById("taguchiInterpBody");
+      el.style.display = "block";
+
+      const typeName = type === 'smaller' ? 'Smaller-the-Better' : type === 'larger' ? 'Larger-the-Better' : 'Nominal-the-Best';
+      const typeDesc = type === 'smaller'
+        ? 'nilai respons kecil = bagus'
+        : type === 'larger'
+        ? 'nilai respons besar = bagus'
+        : 'nilai mendekati target = bagus';
+
+      // Find best run
+      let bestSNIdx = 0;
+      for (let i = 1; i < snValues.length; i++) {
+        if (snValues[i] > snValues[bestSNIdx]) bestSNIdx = i;
+      }
+      const bestRun = bestSNIdx + 1;
+
+      // Interpret S/N range
+      const minSN = Math.min(...snValues);
+      const maxSN = Math.max(...snValues);
+      const snSpread = (maxSN - minSN).toFixed(2);
+
+      // Identify key factors (largest range)
+      const ranges = levelMeans.map(means => Math.max(...means) - Math.min(...means));
+      const factorRank = ranges.map((r, i) => ({ idx: i, range: r }))
+        .sort((a, b) => b.range - a.range);
+
+      let html = '';
+      html += `<p><strong>Konfigurasi:</strong> ${oaName} &middot; ${typeName} (${typeDesc}) &middot; ${responses.length} run.</p>`;
+
+      html += `<p><strong>Run dengan S/N tertinggi:</strong> Run #${bestRun} (S/N = ${snValues[bestSNIdx].toFixed(2)} dB, respons = ${responses[bestSNIdx]}).
+      ${type === 'smaller'
+        ? ` Run ini memiliki nilai respons terkecil, yang berarti paling sesuai karakteristik STB.`
+        : type === 'larger'
+        ? ` Run ini memiliki nilai respons terbesar, yang berarti paling sesuai karakteristik LTB.`
+        : ` Run ini paling mendekati target nominal.`
+      }</p>`;
+
+      html += `<p><strong>Rentang S/N:</strong> ${minSN.toFixed(2)} &ndash; ${maxSN.toFixed(2)} dB (selisih ${snSpread} dB).
+      Semakin lebar rentang, semakin besar pengaruh perubahan level faktor terhadap respons.</p>`;
+
+      // Factor ranking
+      html += `<p><strong>Peringkat pengaruh faktor</strong> (berdasarkan selisih S/N antar level):</p><ol style="margin:4px 0 0;padding-left:18px;">`;
+      factorRank.forEach((fr, rank) => {
+        const fName = factorLabels[fr.idx];
+        const nl = Array.isArray(nLevels) ? nLevels[fr.idx] : nLevels[0];
+        const bestLevel = (bestLevels[fr.idx] !== undefined) ? bestLevels[fr.idx] : '—';
+        html += `<li><strong>${fName}</strong> &mdash; rentang ${fr.range.toFixed(2)} dB, level optimal = ${bestLevel}`;
+        if (rank === 0) html += ' <span style="color:var(--accent);">(paling berpengaruh)</span>';
+        html += '</li>';
+      });
+      html += `</ol>`;
+
+      html += `<p style="font-size:0.83rem;color:var(--muted-2);margin-top:8px;">
+        <strong>Kesimpulan:</strong> Atur level faktor sesuai profil optimal di atas untuk memaksimalkan S/N ratio.
+        Faktor dengan rentang S/N kecil (${factorRank[factorRank.length-1].range.toFixed(2)} dB untuk ${factorLabels[factorRank[factorRank.length-1].idx]})
+        memiliki pengaruh yang relatif kecil &mdash; dapat disetel berdasarkan pertimbangan biaya atau kemudahan.
+      </p>`;
+
+      body.innerHTML = html;
     }
 
     function drawSNChart(canvas, snValues, responses, type) {
@@ -902,10 +1012,15 @@
       };
     }
 
+    document.getElementById("taguchiOA").addEventListener("change", () => {
+      generateTaguchiTable();
+      runTaguchi();
+    });
     document.getElementById("taguchiRun").addEventListener("click", runTaguchi);
     document.getElementById("taguchiReset").addEventListener("click", () => {
       document.getElementById("taguchiOA").value = "L9";
       document.getElementById("taguchiType").value = "smaller";
+      generateTaguchiTable();
       runTaguchi();
     });
 
@@ -1132,6 +1247,7 @@
     });
 
     // ─── Init ─────────────────────────────────────────────────────
+    generateTaguchiTable();
     runTaguchi();
     // Init Borda with rank inputs
     generateRankInputs();

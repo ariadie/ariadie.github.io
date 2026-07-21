@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login &mdash; MOO-MRPP Disertasi</title>
+<script src="auth.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#1a2a6c 0%,#2c3e50 50%,#0f3460 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.card{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:40px;max-width:400px;width:100%;text-align:center;animation:fadeIn .6s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+h1{color:#0f3460;font-size:1.5em;margin-bottom:8px;}
+p{color:#555;margin-bottom:24px;font-size:.95em;}
+input{width:100%;padding:12px 16px;border:2px solid #ddd;border-radius:8px;font-size:1em;outline:none;transition:border .2s;}
+input:focus{border-color:#0f3460;}
+button{background:#0f3460;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:1em;cursor:pointer;margin-top:16px;transition:background .2s;width:100%;}
+button:hover{background:#1a5276;}
+.error{color:#e74c3c;font-size:.9em;margin-top:12px;min-height:1.2em;}
+.lock-icon{font-size:3em;margin-bottom:16px;}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="lock-icon">🔒</div>
+<h1>Halaman Dilindungi</h1>
+<p>Dokumen disertasi ini dilindungi. Masukkan password untuk melanjutkan.</p>
+<input type="password" id="pwd" placeholder="Password" autofocus>
+<button onclick="tryLogin()">Buka</button>
+<div class="error" id="error"></div>
+</div>
+<script>
+async function tryLogin() {
+  const pwd = document.getElementById('pwd').value;
+  const ok = await verifyPassword(pwd);
+  if (ok) {
+    sessionStorage.setItem('moo_auth', '1');
+    const ret = new URLSearchParams(window.location.search).get('return') || 'index.html';
+    window.location.replace(ret);
+  } else {
+    document.getElementById('error').textContent = 'Password salah.';
+  }
+}
+document.getElementById('pwd').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') tryLogin();
+});
+</script>
+</body>
+</html>

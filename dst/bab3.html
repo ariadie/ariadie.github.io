@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bab 3 &mdash; Metode Penelitian</title>
+<script src="auth.js"></script><script>requireAuth();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+<style>
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a2a6c 0%,#2c3e50 50%,#0f3460 100%);min-height:100vh;}
+.container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+header{background:linear-gradient(135deg,#0f3460,#1a5276);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);}
+h1{margin:0;font-size:2.2em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+h2{color:#0f3460;border-bottom:3px solid #e74c3c;padding-bottom:8px;margin-top:40px;font-size:1.6em;}
+h3{color:#1a5276;margin-top:30px;font-size:1.3em;}
+h4{color:#2c3e50;margin-top:25px;font-size:1.15em;}
+.subtitle{font-size:1.1em;opacity:.9;margin-top:8px;position:relative;z-index:1;}
+.content{padding:40px;}
+footer{background:#0f3460;color:#fff;text-align:center;padding:30px;margin-top:45px;}
+.footer-content{max-width:800px;margin:0 auto;font-size:.9em;opacity:.85;}
+.footer-content a{color:#7fd1ff;}
+nav{background:#0f3460;padding:12px 15px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;}
+nav a{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);}
+table{border-collapse:collapse;width:100%;margin:15px 0;font-size:.9em;}
+th,td{border:1px solid #ddd;padding:8px 12px;text-align:left;}
+th{background:#0f3460;color:#fff;}
+tr:nth-child(even){background:#f5f7fa;}
+ul,ol{margin:10px 0;padding-left:25px;}
+li{margin:5px 0;}
+.cite{color:#555;font-style:italic;}
+.eq{text-align:center;margin:15px 0;padding:10px;background:#f8f9fa;border-radius:8px;}
+blockquote{background:#f0f4f8;border-left:4px solid #e74c3c;padding:15px 20px;margin:15px 0;border-radius:0 8px 8px 0;}
+pre{background:#f4f4f4;border:1px solid #ddd;border-left:3px solid #0f3460;padding:15px;overflow-x:auto;border-radius:4px;font-size:.9em;}
+@media(max-width:768px){body{padding:10px;}h1{font-size:1.8em;}.content{padding:20px;}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>BAB III: METODE PENELITIAN</h1>
+<div class="subtitle">Perencanaan Jalur Multi-Robot Berbasis <em>Multiobjective Genetic Algorithm</em></div>
+</header>
+<nav>
+<a href="index.html">Beranda</a>
+<a href="ringkasan.html">Abstrak</a>
+<a href="bab1.html">Bab&nbsp;1</a>
+<a href="bab2.html">Bab&nbsp;2</a>
+<a href="bab4.html">Bab&nbsp;4</a>
+<a href="bab5.html">Bab&nbsp;5</a>
+<a href="nomenklatur.html">Nomenklatur</a>
+<a href="lampiran.html">Lampiran</a>
+</nav>
+<div class="content">
+
+<h2>3.1 Metode Penelitian dan Alur Enam Tahap</h2>
+<p>Permasalahan perencanaan jalur multi-robot pada lingkungan dinamis memiliki kompleksitas tinggi. Metode konvensional yang terpisah (<em>decoupled</em>) sering gagal memperhitungkan interaksi antaragen, sehingga meningkatkan risiko tabrakan. Di sisi lain, penggunaan Algoritma Genetika standar dengan inisialisasi acak kerap menghadapi konvergensi yang lambat menuju solusi yang <em>feasible</em>. Untuk mengatasi keterbatasan tersebut, penelitian ini mengusulkan metode <strong>NSGA2-A*</strong> yang memanfaatkan algoritma pencarian deterministik A* untuk inisialisasi populasi pada optimasi multi-objektif NSGA-II. Populasi awal dibentuk dari lintasan yang sudah valid terlebih dahulu, lalu dievolusi oleh NSGA-II sehingga kualitas jalur membaik dari segi jarak, waktu, dan keamanan secara bersamaan.</p>
+
+<p>Penelitian dikembangkan dalam <strong>enam tahap</strong> sebagai berikut:</p>
+<ol>
+<li><strong>Tahap 1</strong> &mdash; Perencanaan jalur satu robot dengan NSGA2-A* pada empat peta N1&ndash;N4 berukuran 29&times;29.</li>
+<li><strong>Tahap 2</strong> &mdash; Perluasan ke koordinasi multi-robot melalui kasus dua robot dengan aksi tunggu dan koordinasi ruang-waktu bebas tabrakan.</li>
+<li><strong>Tahap 3</strong> &mdash; Perbandingan tiga formulasi MOO pada 12 skenario (3 peta &times; \(R \in \{2,3,4,5\}\) robot).</li>
+<li><strong>Tahap 4</strong> &mdash; Analisis sensitivitas enam operator genetika domain-spesifik dengan OFAT dan Taguchi L18.</li>
+<li><strong>Tahap 5</strong> &mdash; Perbandingan tiga algoritma MOEA (NSGA-II, NSGA-III, SPEA2).</li>
+<li><strong>Tahap 6</strong> &mdash; Pengujian ketahanan kerangka pada lingkungan dinamis dengan rintangan bergerak.</li>
+</ol>
+
+<p>Urutan ini sengaja dirancang: lima tahap pertama mengunci formulasi, profil operator, dan mesin seleksi pada lingkungan statis yang terkendali sehingga setiap faktor dapat diuji secara terpisah, sedangkan tahap keenam menguji ketahanan konfigurasi yang telah dikunci pada lingkungan dinamis.</p>
+
+<h2>3.2 Kerangka Umum Perencanaan Jalur Multi-Robot Berbasis MOEA</h2>
+
+<h3>3.2.1 Operator <em>Crossover</em> untuk Perencanaan Jalur</h3>
+<p>Penelitian ini mengembangkan operator <em>crossover</em> yang bersifat <em>domain-spesifik</em> untuk perencanaan jalur multi-robot, yaitu melakukan pertukaran pada tingkat segmen jalur robot secara utuh. Dua operator <em>crossover</em> yang dikembangkan adalah <em>Whole-Path Swap</em> (WPS) dan <em>Partial-Path Swap</em> (PPS).</p>
+
+<p><strong><em>Whole-Path Swap</em> (WPS)</strong> melakukan pertukaran seluruh segmen jalur dari salah satu robot antara dua kromosom induk:</p>
+<div class="eq">\[
+\mathbf{P}_r^{(c1)} = \begin{cases} \mathbf{P}_r^{(2)}, & \text{jika } u_r < P^{\text{WPS}} \\ \mathbf{P}_r^{(1)}, & \text{sebaliknya} \end{cases} \quad u_r \sim \mathcal{U}(0,1)
+\]</div>
+
+<p><strong><em>Partial-Path Swap</em> (PPS)</strong> melakukan pertukaran segmen parsial koordinat dengan memilih titik potong acak \(k\) dalam jalur setiap robot dan menukar segmen akhirnya:</p>
+<div class="eq">\[
+\mathbf{P}_r^{(c1)}[k:] = \mathbf{P}_r^{(2)}[k:], \quad \mathbf{P}_r^{(c2)}[k:] = \mathbf{P}_r^{(1)}[k:]
+\]</div>
+
+<p>Dalam implementasinya, WPS dan PPS bersifat <em>mutually exclusive</em> pada setiap segmen agen: WPS diperiksa terlebih dahulu, dan apabila WPS terpicu, PPS dilewati untuk segmen robot yang sama.</p>
+
+<h3>3.2.2 Operator Mutasi untuk Perencanaan Jalur</h3>
+<p>Empat operator mutasi <em>domain-spesifik</em> dikembangkan: <em>Insert-Zero</em> (INS), <em>Delete-Zero</em> (DEL), <em>Swap Direction</em> (SWD), dan <em>Wait-Detour</em> (WTD). Keempat operator ini bersifat <em>feasibility-aware</em>, yaitu mampu melakukan modifikasi lintasan secara terstruktur dengan tetap menjaga keabsahan jalur terhadap rintangan statis.</p>
+
+<p><strong><em>Insert-Zero</em> (INS)</strong> menyisipkan gen bernilai nol (aksi menunggu) pada posisi acak yang bukan nol:</p>
+<div class="eq">\[
+\mathbf{P}_r' = [v_{r,1}, \ldots, v_{r,k-1}, 0, v_{r,k}, \ldots, v_{r,N-1}], \quad v_{r,k} \neq 0
+\]</div>
+
+<p><strong><em>Delete-Zero</em> (DEL)</strong> menghapus satu gen bernilai nol dari urutan gen-gen nol yang berurutan (tidak termasuk <em>padding</em> akhir):</p>
+<div class="eq">\[
+\mathbf{P}_r' = [v_{r,1}, \ldots, v_{r,k-1}, v_{r,k+1}, \ldots, v_{r,N}, 0]
+\]</div>
+
+<p><strong><em>Swap Direction</em> (SWD)</strong> menukar dua aksi gerakan berurutan yang bersesuaian dengan arah ortogonal (horizontal dan vertikal), asalkan jalur yang dihasilkan tetap bebas rintangan statis:</p>
+<div class="eq">\[
+(v_{r,k}, v_{r,k+1})' = \begin{cases} (v_{r,k+1}, v_{r,k}) & \text{jika jalur hasil valid} \\ (v_{r,k}, v_{r,k+1}) & \text{sebaliknya} \end{cases}
+\]</div>
+
+<p><strong><em>Wait-Detour</em> (WTD)</strong> menyisipkan sepasang kode gerakan berlawanan arah pada posisi tertentu, menciptakan <em>detour</em> temporal singkat tanpa mengubah titik akhir spasial robot:</p>
+<div class="eq">\[
+\mathbf{P}_r' = [v_{r,1}, \ldots, v_{r,k-1}, a, \bar{a}, v_{r,k}, \ldots, v_{r,N-2}], \quad (a, \bar{a}) \in \{(1,2),(2,1),(3,4),(4,3)\}
+\]</div>
+
+<h2>3.3 Tahap 1 &mdash; Metode Perencanaan Jalur Satu Robot dengan NSGA2-A*</h2>
+<p>Tahap 1 merupakan fondasi historis kerangka NSGA2-A*. Empat peta N1&ndash;N4 berukuran 29&times;29 digunakan sebagai kasus uji; peta tersebut merupakan modifikasi Peta 1, 4, 7, dan 12 dari Nazarahari dkk. (2019). N1&ndash;N3 dipilih untuk menyediakan ruang perbaikan terhadap jalur A*, sedangkan N4 merepresentasikan kasus padat ketika jalur A* telah sangat terbatas oleh rintangan.</p>
+
+<p>Populasi awal dibentuk dari jalur A* dengan panjang kromosom \(L=\lfloor1{,}5n_{A^*}\rfloor\). Dua fungsi objektif diminimalkan:</p>
+<div class="eq">\[
+f_1^{(1)} = |g_x - r_x| + |g_y - r_y|
+\]</div>
+<div class="eq">\[
+f_2^{(1)} = \sum_{i=1}^{n-1} \mathbf{1}(m_i \ne m_{i+1})
+\]</div>
+
+<p>Optimasi memakai NSGA-II pada Pymoo 0.4.2.1, <em>two-point crossover</em> dengan probabilitas 0,9, dan <em>integer polynomial mutation</em> dengan probabilitas 0,01. Ukuran populasi adalah 800 dan batas generasi 100. Waktu tempuh dihitung sebagai panjang jalur ditambah jumlah belokan.</p>
+
+<h2>3.4 Tahap 2 &mdash; Metode Perencanaan Jalur Dua Robot dengan NSGA-II</h2>
+<p>Transisi dari perencanaan jalur satu robot ke koordinasi multi-robot memerlukan rekonstruksi mendasar. Pada sistem multi-robot, keberadaan robot lain bertindak sebagai rintangan dinamis (<em>spatiotemporal</em>). Tahap 2 memperkenalkan aksi tunggu dengan lima kode gerakan: 0 (menunggu), 1 (atas), 2 (bawah), 3 (kiri), dan 4 (kanan).</p>
+
+<p>Robot dimodelkan sebagai DDMR diskrit pada <em>grid</em>: translasi dibatasi pada empat arah dan orientasi berubah dalam kelipatan 90&deg;. Satu langkah translasi, satu rotasi 90&deg;, dan satu aksi menunggu masing-masing menambah satu satuan waktu.</p>
+
+<p>Tiga peta digunakan: T1 dan T2 berukuran 7&times;7, serta T3 berukuran 29&times;29. Tiga fungsi objektif diformulasikan sebagai <strong>Formulasi 1</strong> (<em>aggregated-objective formulation without explicit constraints</em>):</p>
+
+<div class="eq">\[
+f_1 = \sum_{r=1}^{R} \left( |x_{L_r} - x_{G_r}| + |y_{L_r} - y_{G_r}| \right)
+\]</div>
+<div class="eq">\[
+f_2 = C_{\mathrm{vertex}} + C_{\mathrm{edge}}
+\]</div>
+<div class="eq">\[
+f_3 = \sum_{r=1}^{R} T_r
+\]</div>
+
+<p>Metrik tabrakan mencakup <em>vertex collision</em> (dua robot menempati sel yang sama pada waktu yang sama) dan <em>edge-swap collision</em> (dua robot saling bertukar posisi pada langkah berurutan).</p>
+
+<p>Karena luaran optimasi berupa himpunan solusi, lapisan pemilihan solusi preferensi menetapkan satu solusi untuk dieksekusi. Penelitian ini menggunakan strategi <strong>minimum total waktu tempuh (min-TTT)</strong> sebagai strategi baku.</p>
+
+<h2>3.5 Tahap 3 &mdash; Perbandingan Tiga Formulasi Multi-Objektif</h2>
+
+<p>Seluruh gerakan robot direpresentasikan menggunakan <strong>kode integer tunggal</strong> 0&ndash;4. Kromosom seluruh robot digabungkan menjadi satu vektor keputusan:</p>
+
+<div class="eq">\[
+\mathbf{X}^{(k)} = \left[\mathbf{P}_1^{(k)} \,\middle|\, \mathbf{P}_2^{(k)} \,\middle|\, \cdots \,\middle|\, \mathbf{P}_R^{(k)}\right]
+\]</div>
+
+<p>Panjang segmen kromosom setiap robot ditetapkan proporsional terhadap jalur A*-nya:</p>
+<div class="eq">\[
+L_r = \left\lfloor 1{,}5 \times n_r^{A^*} \right\rfloor
+\]</div>
+
+<p><strong>Formulasi 2</strong> (<em>per-agent-objective formulation with constraints</em>) memperlakukan waktu tempuh setiap robot sebagai fungsi objektif terpisah, sementara pencapaian tujuan dan penghindaran tabrakan dijadikan sebagai <em>hard constraint</em>:</p>
+
+<div class="eq">\[
+\min \quad f_r = T_r, \quad r = 1, 2, \ldots, R
+\]</div>
+<div class="eq">\[
+g_1 = \sum_{r=1}^{R} \left( |x_r(T) - x_{G_r}| + |y_r(T) - y_{G_r}| \right) \leq 0
+\]</div>
+<div class="eq">\[
+g_2 = C_{\mathrm{vertex}} + C_{\mathrm{edge}} \leq 0
+\]</div>
+
+<p>di mana waktu tempuh efektif robot \(r\) dihitung sebagai:</p>
+<div class="eq">\[
+T_r = n_{\text{move},r} + n_{\text{rotate},r} + n_{\text{wait},r}
+\]</div>
+
+<p><strong>Formulasi 3</strong> (<em>per-agent-objective formulation without explicit constraints</em>) menggabungkan fungsi objektif agregat dan per-agen tanpa menerapkan <em>hard constraint</em>:</p>
+<div class="eq">\[
+\min \quad [f_1,\; f_2,\; T_1,\; T_2,\; \ldots,\; T_R]
+\]</div>
+
+<p>Perbandingan ketiga formulasi dilakukan pada <strong>12 skenario eksperimen</strong>: kombinasi tiga peta (E1: <em>open</em>, E2: <em>bottleneck</em>, E3: <em>warehouse</em>) dengan empat variasi jumlah robot (\(R \in \{2,3,4,5\}\)). Ketiga peta berukuran 25&times;25 sel.</p>
+
+<table>
+<caption>Indeks peta uji beserta tahap penggunaannya</caption>
+<thead><tr><th>Penanda</th><th>Topologi</th><th>Ukuran</th><th>Dipakai pada</th></tr></thead>
+<tbody>
+<tr><td>N1&ndash;N4</td><td>Variasi kepadatan rintangan</td><td>29&times;29</td><td>Tahap 1 (satu robot)</td></tr>
+<tr><td>T1&ndash;T2</td><td>Peta demonstrasi kecil</td><td>7&times;7</td><td>Tahap 2 (dua robot)</td></tr>
+<tr><td>T3</td><td>Rintangan padat</td><td>29&times;29</td><td>Tahap 2 (dua robot)</td></tr>
+<tr><td>E1</td><td>Terbuka (<em>open</em>)</td><td>25&times;25</td><td>Tahap 3&ndash;6</td></tr>
+<tr><td>E2</td><td>Koridor sempit (<em>bottleneck</em>)</td><td>25&times;25</td><td>Tahap 3&ndash;6</td></tr>
+<tr><td>E3</td><td>Gudang (<em>warehouse</em>)</td><td>25&times;25</td><td>Tahap 3&ndash;6</td></tr>
+<tr><td>E4</td><td>Gudang (<em>warehouse</em>)</td><td>50&times;50</td><td>Tahap 5&ndash;6</td></tr>
+</tbody>
+</table>
+
+<h3>3.5.1 Desain Eksperimen dan Analisis Statistik Studi Formulasi</h3>
+<p>Studi perbandingan formulasi menggunakan konfigurasi NSGA-II seragam: ukuran populasi dan <em>offspring</em> sebesar 100, probabilitas seluruh operator <em>crossover</em> dan mutasi sebesar 0,5. Setiap skenario dijalankan dengan 10 <em>seed</em> independen, sehingga total 360 <em>run</em>.</p>
+
+<p>Dua <em>budget regime</em> digunakan:</p>
+<ul>
+<li><strong><em>Convergence budget regime</em></strong> &mdash; maksimum 250 generasi dengan penghentian dini berbasis HV; dipakai pada 1 <em>run</em> representatif per skenario untuk visualisasi.</li>
+<li><strong><em>Fixed budget regime</em></strong> &mdash; tepat 100 generasi tanpa penghentian dini; dipakai pada seluruh 10 <em>run</em> per skenario untuk rekapitulasi kuantitatif dan uji statistik.</li>
+</ul>
+
+<p>Sebuah <em>run</em> dinyatakan <strong><em>feasible</em></strong> apabila solusi terpilihnya bebas tabrakan (NC = 0) dan seluruh robot tepat mencapai tujuannya. Perbedaan antarformulasi diuji secara statistik dengan uji nonparametrik (Kruskal-Wallis, Mann-Whitney U dengan koreksi Holm-Bonferroni, dan Friedman) pada \(\alpha = 0{,}05\).</p>
+
+<p>Nilai HV dihitung dalam <strong>ruang objektif bersama</strong> tiga dimensi (\(f_1, f_2, f_3\)) untuk diagnosis lintas formulasi. Untuk setiap skenario, <em>reference point</em> HV ditetapkan sebesar 1,10 kali nilai maksimum setiap objektif dari gabungan 30 <em>run</em>.</p>
+
+<h2>3.6 Tahap 4 &mdash; Analisis Sensitivitas Operator Genetika Domain-Spesifik</h2>
+
+<p>Keenam operator domain-spesifik (WPS, PPS, INS, DEL, SWD, WTD) diuji menggunakan pendekatan dua fase.</p>
+
+<p><strong>Fase 1 (OFAT)</strong>: probabilitas setiap operator disapu secara independen pada 11 tingkat diskrit (\(\{0{,}0; 0{,}1; \ldots; 1{,}0\}\)) sementara semua operator lain dinonaktifkan. Setiap tingkat diulang dengan 10 <em>seed</em>, menghasilkan 110 <em>run</em> per blok operator-skenario. Total 1.980 <em>run</em> pada tiga skenario.</p>
+
+<table>
+<caption>Blok eksperimen OFAT (fase 1)</caption>
+<thead><tr><th>Blok</th><th>Operator</th><th>Kondisi</th><th><em>Run</em>/Skenario</th></tr></thead>
+<tbody>
+<tr><td>P04-X1</td><td>WPS</td><td>Semua lain = 0</td><td>110</td></tr>
+<tr><td>P04-X2</td><td>PPS</td><td>Semua lain = 0</td><td>110</td></tr>
+<tr><td>P04-M1</td><td>INS (solo)</td><td>DEL = 0, lain = 0</td><td>110</td></tr>
+<tr><td>P04-M2</td><td>SWD</td><td>Semua lain = 0</td><td>110</td></tr>
+<tr><td>P04-M3</td><td>WTD</td><td>Semua lain = 0</td><td>110</td></tr>
+<tr><td>P04-C1</td><td>DEL (kondisional)</td><td>INS = 0,2</td><td>110</td></tr>
+</tbody>
+</table>
+
+<p><strong>Fase 2 (Taguchi L18)</strong>: rancangan <em>Taguchi L18 Orthogonal Array</em> (540 <em>run</em>) untuk mengidentifikasi profil parameter gabungan. Level L/M/H yang diuji adalah WPS (0,1/0,4/0,7), PPS (0,5/0,7/0,9), INS (0,1/0,2/0,2), DEL (0,3/0,8/0,9), SWD (0,2/0,3/0,4), dan WTD (0,0/0,1/0,2).</p>
+
+<p>Agregasi lintas-skenario dilakukan dengan agregasi Borda berbasis jumlah peringkat. Profil konsensus Borda yang terpilih kemudian diuji melalui 30 <em>run</em> konfirmasi. Kesesuaian observasi dengan prediksi model aditif Taguchi dinilai menggunakan toleransi selisih S/N \(\pm0{,}5\) dB.</p>
+
+<h2>3.7 Tahap 5 &mdash; Perbandingan Algoritma <em>Multi-Objective Evolutionary Algorithm</em></h2>
+<p>Tiga algoritma MOEA dibandingkan: <strong>NSGA-II</strong> (algoritma <em>baseline</em>), <strong>NSGA-III</strong> dengan mekanisme <em>niching</em> berbasis arah referensi, dan <strong>SPEA2</strong> dengan arsip eksternal solusi nondominasi. Perbandingan dilakukan pada desain bersilang penuh: <strong>5 blok &times; 3 algoritma &times; 10 <em>seed</em> = 150 <em>run</em></strong>.</p>
+
+<table>
+<caption>Blok eksperimen perbandingan algoritma MOEA</caption>
+<thead><tr><th>Blok</th><th>Peta (Ukuran)</th><th>Robot</th><th>Peran</th></tr></thead>
+<tbody>
+<tr><td>A1</td><td><em>Open</em> 25&times;25</td><td>3</td><td>Kontrol kontinuitas (3-obj)</td></tr>
+<tr><td>A2</td><td><em>Bottleneck</em> 25&times;25</td><td>3</td><td><strong>Blok diskriminasi utama (3-obj)</strong></td></tr>
+<tr><td>A3</td><td><em>Warehouse</em> 25&times;25</td><td>3</td><td>Kontrol kontinuitas (3-obj)</td></tr>
+<tr><td>A4</td><td><em>Bottleneck</em> 25&times;25</td><td>4</td><td><strong>Uji tekanan 4-obj</strong></td></tr>
+<tr><td>B1</td><td><em>Warehouse</em> 50&times;50</td><td>4</td><td>Pemeriksaan skalabilitas</td></tr>
+</tbody>
+</table>
+
+<p>Semua algoritma menggunakan profil operator yang sama (dikunci dari Fase Taguchi), anggaran evaluasi yang identik (10.000 evaluasi fungsi objektif), dan <em>seed</em> yang sama.</p>
+
+<h2>3.8 Tahap 6 &mdash; Pengujian Ketahanan pada Lingkungan Dinamis</h2>
+
+<p>Pengujian ketahanan dilakukan pada <strong>5 blok eksperimen</strong> dengan 3 tingkat kepadatan rintangan bergerak: 0MO (tanpa rintangan), 2MO (dua rintangan), dan 4MO (empat rintangan bergerak). Setiap blok menjalankan 10 <em>run</em> independen per kondisi, total 150 <em>run</em>. Sistem menggunakan <em>pipeline</em> yang dikunci: jalur direncanakan sekali sebelum eksekusi tanpa perencanaan ulang daring.</p>
+
+<table>
+<caption>Blok eksperimen pengujian ketahanan dinamis</caption>
+<thead><tr><th>Blok</th><th>Peta</th><th>Robot</th><th>Ukuran</th></tr></thead>
+<tbody>
+<tr><td>D1</td><td><em>Open</em></td><td>3</td><td>25&times;25</td></tr>
+<tr><td>D2</td><td><em>Bottleneck</em></td><td>3</td><td>25&times;25</td></tr>
+<tr><td>D3</td><td><em>Warehouse</em></td><td>3</td><td>25&times;25</td></tr>
+<tr><td>D4</td><td><em>Bottleneck</em></td><td>4</td><td>25&times;25</td></tr>
+<tr><td>D5</td><td><em>Warehouse</em></td><td>4</td><td>50&times;50</td></tr>
+</tbody>
+</table>
+
+<p>Dua metrik interaksi <em>spatiotemporal</em> dihitung: tingkat perjumpaan (<em>encounter rate</em>) dan jarak bebas minimum (<em>minimum clearance</em>).</p>
+
+<p>Seluruh perbandingan antaralgoritma MOEA dan pengujian dinamis menggunakan <strong>Formulasi 2</strong> yang telah dipilih dan <strong>profil konsensus Borda</strong> yang telah divalidasi pada Tahap 4.</p>
+
+</div>
+<footer>
+<div class="footer-content">
+<p><a href="index.html">Kembali ke Halaman Utama</a></p>
+<p>&copy; 2026 Ariadie Chandra Nugraha. Disertasi Program Doktor Teknik Elektro, Universitas Gadjah Mada.</p>
+</div>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bab 5 &mdash; Kesimpulan dan Saran</title>
+<script src="auth.js"></script><script>requireAuth();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+<style>
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a2a6c 0%,#2c3e50 50%,#0f3460 100%);min-height:100vh;}
+.container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+header{background:linear-gradient(135deg,#0f3460,#1a5276);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);}
+h1{margin:0;font-size:2.2em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+h2{color:#0f3460;border-bottom:3px solid #e74c3c;padding-bottom:8px;margin-top:40px;font-size:1.6em;}
+h3{color:#1a5276;margin-top:30px;font-size:1.3em;}
+h4{color:#2c3e50;margin-top:25px;font-size:1.15em;}
+.subtitle{font-size:1.1em;opacity:.9;margin-top:8px;position:relative;z-index:1;}
+.content{padding:40px;}
+footer{background:#0f3460;color:#fff;text-align:center;padding:30px;margin-top:45px;}
+.footer-content{max-width:800px;margin:0 auto;font-size:.9em;opacity:.85;}
+.footer-content a{color:#7fd1ff;}
+nav{background:#0f3460;padding:12px 15px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;}
+nav a{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);}
+table{border-collapse:collapse;width:100%;margin:15px 0;font-size:.9em;}
+th,td{border:1px solid #ddd;padding:8px 12px;text-align:left;}
+th{background:#0f3460;color:#fff;}
+tr:nth-child(even){background:#f5f7fa;}
+ul,ol{margin:10px 0;padding-left:25px;}
+li{margin:5px 0;}
+.cite{color:#555;font-style:italic;}
+blockquote{background:#f0f4f8;border-left:4px solid #e74c3c;padding:15px 20px;margin:15px 0;border-radius:0 8px 8px 0;}
+@media(max-width:768px){body{padding:10px;}h1{font-size:1.8em;}.content{padding:20px;}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>BAB V: KESIMPULAN DAN SARAN</h1>
+<div class="subtitle">Perencanaan Jalur Multi-Robot dalam Lingkungan Dinamis Menggunakan <em>Multiobjective Genetic Algorithm</em></div>
+</header>
+<nav>
+<a href="index.html">Beranda</a>
+<a href="ringkasan.html">Abstrak</a>
+<a href="bab1.html">Bab&nbsp;1</a>
+<a href="bab2.html">Bab&nbsp;2</a>
+<a href="bab3.html">Bab&nbsp;3</a>
+<a href="bab4.html">Bab&nbsp;4</a>
+<a href="nomenklatur.html">Nomenklatur</a>
+<a href="lampiran.html">Lampiran</a>
+</nav>
+<div class="content">
+
+<h2>5.1 Kesimpulan</h2>
+
+<p>Penelitian ini berhasil mengembangkan kerangka perencanaan jalur multi-robot berbasis NSGA-II dengan inisialisasi populasi berbasis A* (NSGA2-A*) untuk menghasilkan lintasan bebas tabrakan pada lingkungan statis maupun lingkungan dengan rintangan bergerak. Berbeda dengan pendekatan terdahulu yang memperlakukan penghindaran tabrakan sebagai luaran atau suku fungsi objektif, kerangka ini menegakkan pencapaian tujuan dan bebas tabrakan sebagai kendala keras pada tingkat formulasi.</p>
+
+<p><strong>Pertama</strong>, kerangka NSGA2-A* terbukti menghasilkan lintasan bebas tabrakan melalui dua mekanisme saling melengkapi: inisialisasi A* memastikan jalur bebas rintangan statis, sedangkan koordinasi temporal melalui aksi tunggu menyelesaikan konflik antarrobot. Pada kasus dua robot, NSGA-II menghasilkan solusi bebas tabrakan dengan total waktu tempuh lebih rendah daripada A* yang bertabrakan.</p>
+
+<p><strong>Kedua</strong>, perbandingan tiga formulasi MOO pada 12 skenario (360 <em>run</em>) menetapkan formulasi per-agen berkendala (Formulasi 2) sebagai formulasi yang menjamin kelayakan seluruh solusi <em>Pareto front</em>. F2 <em>feasible</em> penuh (10/10) pada seluruh skenario, sedangkan F3 kehilangan kelayakan hingga menyisakan 1/10 pada lima robot. Ketika pencapaian tujuan dan penghindaran tabrakan diperlakukan sebagai objektif (F1, F3), keduanya dapat dipertukarkan dengan waktu tempuh sehingga solusi tidak <em>feasible</em> tetap bertahan pada <em>front</em> akhir.</p>
+
+<p><strong>Ketiga</strong>, analisis sensitivitas enam operator domain-spesifik melalui OFAT dan Taguchi L18 (2.550 <em>run</em>) menghasilkan profil probabilitas yang tervalidasi melalui eksperimen konfirmasi. Temuan yang lebih bermakna: kepentingan operator bergantung pada ruang gerak yang tersedia. Pada lingkungan terbuka, parameter nyaris tidak berpengaruh; pada lingkungan gudang yang padat, parameter menjadi penentu.</p>
+
+<p><strong>Keempat</strong>, NSGA-II, NSGA-III, dan SPEA2 menghasilkan <em>hypervolume</em> yang setara secara statistik pada seluruh blok. Perbedaan hanya muncul pada cakupan <em>front</em>, bukan pada kemampuan mencapainya. Pada pengujian ketahanan, kerangka yang dikunci pada lingkungan statis mempertahankan kelayakan penuh pada seluruh 150 <em>run</em> rintangan bergerak tanpa penyetelan ulang parameter.</p>
+
+<p>Kedua hipotesis penelitian didukung. H1 didukung oleh kesimpulan kedua dan keempat (formulasi per-agen berkendala valid dan informatif pada lingkungan statis maupun dinamis). H2 didukung oleh kesimpulan pertama, ketiga, dan keempat (operator domain-spesifik meningkatkan kualitas solusi, inisialisasi A* menyediakan jalur awal bebas rintangan, dan kesetaraan antaralgoritma menegaskan bahwa desain ruang masalah lebih menentukan daripada pilihan mesin seleksi).</p>
+
+<h2>5.2 Kontribusi Penelitian</h2>
+<ol>
+<li><strong>Kerangka MRPP NSGA2-A*.</strong> Kerangka yang memadukan inisialisasi A* dengan NSGA-II, terbukti menghasilkan jalur bebas tabrakan pada lingkungan statis maupun dinamis, dan divalidasi terhadap CBS dan Priority-A* sebagai acuan eksternal.</li>
+<li><strong>Formulasi MOO per-agen berkendala.</strong> Studi komparatif tiga formulasi pada 12 skenario (360 <em>run</em>) menunjukkan F2 menghasilkan seluruh solusi <em>Pareto front</em> akhir yang <em>feasible</em> dan bermakna operasional.</li>
+<li><strong>Panduan konfigurasi operator genetika domain-spesifik.</strong> Analisis sensitivitas OFAT dan Taguchi atas enam operator (2.550 <em>run</em>) menghasilkan profil parameter konsensus Borda yang tervalidasi.</li>
+<li><strong>Konfirmasi empiris dominasi formulasi dan operator.</strong> Perbandingan NSGA-II, NSGA-III, dan SPEA2 membuktikan kesetaraan HV secara statistik (\(p>0{,}05\)).</li>
+<li><strong>Validasi ketahanan pada lingkungan dinamis.</strong> Uji rintangan bergerak pada 150 <em>run</em> mempertahankan <em>feasibility</em> 100%.</li>
+</ol>
+
+<h2>5.3 Keterbatasan Penelitian</h2>
+<ol>
+<li><strong>Pendekatan terpusat.</strong> Seluruh jalur dibangun oleh satu perencana terpusat; temuan belum tentu berlaku pada arsitektur terdistribusi.</li>
+<li><strong>Cakupan pembanding.</strong> Perbandingan dilakukan terhadap A*, tiga MOEA (NSGA-II, NSGA-III, SPEA2), serta CBS dan Priority-A*; belum mencakup perencana MAPF dinamis modern atau berbasis pembelajaran.</li>
+<li><strong>Validasi simulatif.</strong> Seluruh eksperimen pada simulasi berbasis <em>grid</em>; faktor dunia nyata seperti <em>slip</em> roda, <em>noise</em> sensor, dan latensi komunikasi belum tercakup.</li>
+<li><strong>Skala pengujian.</strong> Studi formulasi hingga \(R \le 5\); kampanye statistik lainnya pada \(R \le 4\); karakteristik pada \(R>5\) memerlukan kajian lanjutan.</li>
+<li><strong><em>Confounding</em> pada Formulasi 3.</strong> Kegagalan F3 memuat dua sebab saling <em>confounded</em>: hilangnya <em>hard constraint</em> dan dimensi objektif tertinggi (\(R+2\)).</li>
+<li><strong>Ukuran populasi bersama.</strong> Ukuran populasi 100 yang diseragamkan menjadi restriktif pada formulasi per-agen berdimensi tinggi.</li>
+<li><strong>Indikator ruang objektif bersama.</strong> HV dan IGD hasil proyeksi tidak dapat ditafsirkan sebagai ukuran <em>feasibility</em>; solusi dengan tabrakan masih dapat memperluas cakupan proyeksi.</li>
+<li><strong>Peta uji kustom.</strong> Perbandingan langsung dengan <em>benchmark</em> MAPF publik belum dapat dilakukan.</li>
+</ol>
+
+<h2>5.4 Implikasi Ilmiah</h2>
+<ol>
+<li>Pola formulasi per-agen dengan kendala <em>feasibility</em> dapat dipindahkan ke masalah koordinasi multi-agen lain yang berbagi struktur serupa. Kuncinya bukan pada rumus objektif, melainkan pada keputusan menempatkan <em>feasibility</em> sebagai kendala yang ditegakkan.</li>
+<li>Desain ruang masalah lebih menentukan daripada mesin seleksi. Langkah yang lebih menjanjikan adalah meninjau ulang representasi solusi, perumusan kendala, dan rancangan operator, sebelum berpindah ke algoritma yang lebih baru.</li>
+<li>Prosedur penalaan operator (OFAT &rarr; Taguchi &rarr; agregasi keputusan) dapat direplikasi pada masalah lain yang memiliki banyak operator domain-spesifik.</li>
+</ol>
+
+<h2>5.5 Saran</h2>
+<ol>
+<li><strong>Implementasi pada perangkat keras robot riil</strong> (TurtleBot3) merupakan langkah lanjutan yang paling mendesak untuk mengonfirmasi aplikabilitas metode.</li>
+<li><strong>Pengembangan perencanaan ulang daring (<em>online replanning</em>)</strong> akan memungkinkan respons adaptif terhadap perubahan lingkungan yang tidak terduga.</li>
+<li><strong>Skalabilitas terhadap jumlah robot lebih besar (\(R > 5\))</strong> perlu dikaji dengan strategi dekomposisi masalah, komputasi paralel, atau pendekatan hierarkis.</li>
+<li><strong>Perluasan kajian sensitivitas operator</strong> ke konfigurasi robot lebih dari tiga agen dan peta berukuran 50&times;50.</li>
+<li><strong>Investigasi lanjutan terhadap peningkatan HV akibat rintangan bergerak</strong> pada blok D4 dan D5 (apakah disebabkan diversifikasi paksa atau redistribusi referensi HV).</li>
+<li><strong>Perluasan kajian perbandingan MOEA</strong> dengan NSGA-III adaptif atau MOEA/D yang mendukung <em>hard constraint</em>, untuk memisahkan dua penyebab keruntuhan F3 yang saling <em>confounded</em>.</li>
+<li><strong>Perluasan studi komparatif dengan perencana MAPF dinamis modern</strong> seperti CBS-SIPP dengan model kinodinamis yang disamakan.</li>
+<li><strong>Eksplorasi strategi pemilihan solusi akhir</strong> berbasis preferensi <em>feasible</em>, seperti titik lutut, <em>augmented Chebyshev</em>, atau keseimbangan beban antarrobot.</li>
+<li><strong>Pengujian pada lingkungan yang lebih beragam</strong>, termasuk topologi lebih kompleks, lingkungan semi-statis, dan skenario multi-lantai untuk aplikasi AMR dan intralogistik.</li>
+</ol>
+
+</div>
+<footer>
+<div class="footer-content">
+<p><a href="index.html">Kembali ke Halaman Utama</a></p>
+<p>&copy; 2026 Ariadie Chandra Nugraha. Disertasi Program Doktor Teknik Elektro, Universitas Gadjah Mada.</p>
+</div>
+</footer>
+</div>
+</body>
+</html>

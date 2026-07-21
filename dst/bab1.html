@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bab 1 &mdash; Pendahuluan</title>
+<script src="auth.js"></script><script>requireAuth();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+<style>
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a2a6c 0%,#2c3e50 50%,#0f3460 100%);min-height:100vh;}
+.container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+header{background:linear-gradient(135deg,#0f3460,#1a5276);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);}
+h1{margin:0;font-size:2.2em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+h2{color:#0f3460;border-bottom:3px solid #e74c3c;padding-bottom:8px;margin-top:40px;font-size:1.6em;}
+h3{color:#1a5276;margin-top:30px;font-size:1.3em;}
+h4{color:#2c3e50;margin-top:25px;font-size:1.15em;}
+.subtitle{font-size:1.1em;opacity:.9;margin-top:8px;position:relative;z-index:1;}
+.content{padding:40px;}
+footer{background:#0f3460;color:#fff;text-align:center;padding:30px;margin-top:45px;}
+.footer-content{max-width:800px;margin:0 auto;font-size:.9em;opacity:.85;}
+.footer-content a{color:#7fd1ff;}
+nav{background:#0f3460;padding:12px 15px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;}
+nav a{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);}
+table{border-collapse:collapse;width:100%;margin:15px 0;font-size:.9em;}
+th,td{border:1px solid #ddd;padding:8px 12px;text-align:left;}
+th{background:#0f3460;color:#fff;}
+tr:nth-child(even){background:#f5f7fa;}
+ul,ol{margin:10px 0;padding-left:25px;}
+li{margin:5px 0;}
+.cite{color:#555;font-style:italic;}
+.eq{text-align:center;margin:15px 0;padding:10px;background:#f8f9fa;border-radius:8px;}
+blockquote{background:#f0f4f8;border-left:4px solid #e74c3c;padding:15px 20px;margin:15px 0;border-radius:0 8px 8px 0;}
+@media(max-width:768px){body{padding:10px;}h1{font-size:1.8em;}.content{padding:20px;}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>BAB I: PENDAHULUAN</h1>
+<div class="subtitle">Perencanaan Jalur Multi-Robot dalam Lingkungan Dinamis Menggunakan <em>Multiobjective Genetic Algorithm</em></div>
+</header>
+<nav>
+<a href="index.html">Beranda</a>
+<a href="ringkasan.html">Abstrak</a>
+<a href="bab2.html">Bab&nbsp;2</a>
+<a href="bab3.html">Bab&nbsp;3</a>
+<a href="bab4.html">Bab&nbsp;4</a>
+<a href="bab5.html">Bab&nbsp;5</a>
+<a href="nomenklatur.html">Nomenklatur</a>
+<a href="lampiran.html">Lampiran</a>
+</nav>
+<div class="content">
+
+<h2>1.1 Latar Belakang</h2>
+
+<p>Saat ini, robot bergerak semakin banyak digunakan dalam berbagai bidang kehidupan sehari-hari. Mulai dari penggunaan robot pembersih lantai pada lingkungan rumah tangga <span class="cite">(Pandey, 2014; Joon dkk., 2021)</span>, robot pemindah barang pada sebuah kompleks pergudangan <span class="cite">(Corbato dkk., 2018; Han dkk., 2019)</span>, hingga pengembangan mobil tanpa pengendara <span class="cite">(Zhao dkk., 2018; Tomzcak dkk., 2019)</span>. Salah satu kemampuan yang harus dimiliki robot bergerak otonom adalah perencanaan jalur (<em>path planning</em>). Perencanaan jalur adalah tugas menemukan jalur kontinu yang akan mengarahkan robot dari titik awal hingga konfigurasi tujuan <span class="cite">(Klančar, 2017)</span>. Metode yang dipakai untuk perencanaan jalur pun beragam, sedikitnya 13 metode dirangkum dalam kajian Patle dkk. <span class="cite">(Patle dkk., 2019)</span>.</p>
+
+<p>Fokus kajian perencanaan jalur kemudian bergeser ke skenario yang lebih kompleks: sistem multi-robot dan lingkungan dinamis. Pergeseran ini memunculkan persoalan metodologis yang tidak dijumpai pada robot tunggal. Jalur setiap robot tidak lagi dapat direncanakan secara terpisah karena <em>feasibility</em> solusi menuntut jaminan bebas konflik antar-robot pada dimensi ruang sekaligus waktu, sehingga perencana harus menjadwalkan kapan setiap robot berada di suatu sel, bukan sekadar menentukan sel mana yang dilalui. Kehadiran objek bergerak menambah tuntutan koordinasi <em>spatiotemporal</em> yang tidak ditangani perencana jalur statis. Kedua persoalan tersebut belum terjawab oleh metode perencanaan jalur robot tunggal yang telah mapan. Kajian Patle dkk. mengonfirmasi bahwa penelitian pada lingkungan dinamis, sistem multi-robot, dan algoritma hibrida jumlahnya masih jauh tertinggal dibandingkan perencanaan robot tunggal pada lingkungan statis <span class="cite">(Patle dkk., 2019)</span>.</p>
+
+<p>Secara teoretis, perencanaan jalur multi-robot dengan waktu tempuh optimal pada graf <em>grid</em> 2D yang memiliki penghalang telah terbukti bersifat NP-hard <span class="cite">(Banfi, 2017)</span>, sehingga metode pencarian eksak menjadi tidak praktis ketika jumlah robot bertambah dan pendekatan metaheuristik banyak ditempuh sebagai alternatif. Algoritma Genetik (AG) juga banyak dipakai untuk memecahkan masalah perencanaan jalur robot otonom. Salah satu kajian pertama yang menggunakan AG untuk masalah perencanaan jalur adalah kajian yang dilakukan pada tahun 1988 oleh Cleghorn dkk. yang membuat perencana jalur satu robot pada peta medan dengan ukuran 10&times;10 dan 15&times;15 <span class="cite">(Cleghorn dkk., 1988)</span>. Yang dkk. mengusulkan <em>knowledge based Genetic Algorithm</em> untuk perencanaan jalur beberapa robot pada lingkungan yang dinamis <span class="cite">(Yang dkk., 2006)</span>. Qu dkk. mengembangkan apa yang disebut <em>Co-evolutionary Improved Genetic Algorithm</em> (CIGA) untuk perencanaan alur global dari beberapa robot bergerak <span class="cite">(Qu dkk., 2013)</span>.</p>
+
+<p>Nazarahari dkk. menggunakan kombinasi algoritma <em>Artificial Potential Fields</em> (APF) dan AG untuk mencari jalur optimal pada lingkungan kontinu <span class="cite">(Nazarahari dkk., 2019)</span>. Nazarahari dkk. memaparkan perencanaan jalur <em>multi-objective</em> dengan merumuskan sebuah fungsi objektif yang merupakan jumlah linear berbobot (<em>weighted linear sum</em>) dari tiga fungsi objektif yang mengukur panjang jalur, kehalusan jalur, dan keamanan jalur. Metode ini kemudian dikembangkan juga untuk pencarian jalur 4 robot. Nazarahari dkk. juga memaparkan bahwa terdapat jenis AG yang lebih cocok untuk perencanaan jalur multi-robot seperti <em>Non-dominated Sorting Genetic Algorithm</em>-II (NSGA-II).</p>
+
+<p>NSGA-II yang disebutkan di atas merupakan salah satu varian dari <em>Multi-Objective Evolutionary Algorithm</em> (MOEA), yaitu kelas algoritma evolusioner yang dirancang khusus untuk memecahkan masalah Optimasi Multi-Objektif (<em>Multi-Objective Optimization</em>, MOO). Sebagaimana dikemukakan oleh Emmerich dan Deutz <span class="cite">(Emmerich &amp; Deutz, 2018)</span>, selain NSGA-II, metode seperti SPEA2, SMS-EMOA, MOPSO, dan MOEA/D juga banyak digunakan untuk menyelesaikan masalah MOO. Ciri utama dari masalah MOO adalah adanya himpunan solusi optimal yang disebut himpunan optimal Pareto <span class="cite">(Benitez-Hidalgo dkk., 2019)</span>. Pada himpunan ini, peningkatan satu tujuan hanya dapat dicapai dengan mengorbankan tujuan lainnya <span class="cite">(Deb dkk., 2002)</span>.</p>
+
+<p>Di antara berbagai variasi MOEA, penelitian ini memilih NSGA-II sebagai algoritma utama untuk melandasi seluruh kerangka kerja yang dikembangkan. Pemilihan NSGA-II didasarkan pada empat pertimbangan teoretis dan metodologis:</p>
+<ol>
+<li>NSGA-II merupakan salah satu varian MOEA yang paling mapan, terpopuler, dan teruji keandalannya sebagai <em>baseline</em> dalam berbagai literatur optimasi rekayasa dan perencanaan lintasan.</li>
+<li>Mekanisme seleksi elitisnya menggunakan penyortiran nondominasi cepat (<em>fast non-dominated sorting</em>) yang efisien untuk jumlah objektif rendah hingga sedang (\(M \le 3\)), yang sangat sesuai dengan dimensi fungsi objektif per-agen dalam penelitian ini.</li>
+<li>Penggunaan metrik jarak berkerumun (<em>crowding distance</em>) untuk memelihara keragaman populasi menggantikan konsep <em>sharing parameter</em> pada versi pertamanya yang memerlukan penalaan sensitif.</li>
+<li>Kedudukannya sebagai algoritma standar memberikan landasan pembanding yang kuat sebelum efektivitasnya diperluas dan diuji secara komparatif terhadap algoritma yang lebih kompleks seperti NSGA-III dan SPEA2 pada tahap lanjut.</li>
+</ol>
+
+<p>Riset mengenai perencanaan jalur banyak robot sebagai masalah MOO sebenarnya telah dilakukan, namun konsep Pareto yang menjadi ciri utama MOO belum banyak dibahas secara eksplisit. Tulisan Nazarahari dkk. <span class="cite">(Nazarahari dkk., 2019)</span> berjudul "<em>Multi-objective multi-robot path planning in continuous environment using an enhanced genetic algorithm</em>", namun tidak membahas konsep Pareto. Demikian pula, Yang dkk. <span class="cite">(Yang dkk., 2006)</span> dan Qu dkk. <span class="cite">(Qu dkk., 2013)</span>, yang memaparkan riset perencanaan jalur untuk multi-robot, juga tidak menyinggung konsep Pareto.</p>
+
+<p>Ketiadaan pembahasan Pareto tersebut bukan sekadar perbedaan penyajian, melainkan berdampak pada kualitas solusi yang dapat diperoleh. Penelitian-penelitian di atas mengagregasi beberapa objektif menjadi satu fungsi skalar berbobot (<em>weighted sum</em>). Pendekatan agregasi memiliki tiga keterbatasan yang telah lama dikenal dalam literatur optimasi multi-objektif <span class="cite">(Miettinen, 1999; Deb, 2001; Coello Coello, 2007)</span>:</p>
+<ol>
+<li>Hasilnya peka terhadap pemilihan bobot, padahal bobot yang tepat jarang diketahui sebelum solusi terlihat.</li>
+<li>Setiap <em>run</em> hanya menghasilkan satu solusi, sehingga <em>trade-off</em> antarrobot tidak tersaji dan pengambil keputusan kehilangan pilihan.</li>
+<li>Kombinasi berbobot tidak mampu menjangkau solusi pada bagian <em>Pareto front</em> yang tidak cembung, sehingga sebagian solusi kompromi yang absah tidak akan pernah ditemukan berapa pun bobot yang dipakai.</li>
+</ol>
+
+<p>Conesa-Munoz dkk. memaparkan perencanaan multi jalur untuk sekelompok robot dengan NSGA-II di bidang pertanian, yaitu mengendalikan gulma pada sebuah lahan berbentuk persegi panjang <span class="cite">(Conesa-Munoz dkk., 2012)</span>. Namun pada perencanaan jalur tersebut tidak ada rintangan dan jalur robot didesain menghindari tabrakan dengan mekanisme prioritas bagian lahan yang dikerjakan terlebih dahulu. Singh dkk. <span class="cite">(Singh dkk., 2023)</span> dan Ghambari dkk. <span class="cite">(Ghambari dkk., 2020)</span> menggunakan NSGA-II untuk perencanaan jalur <em>Unmanned Aerial Vehicle</em> (UAV), namun hanya untuk satu UAV. Begitu juga Xue <span class="cite">(Xue, 2018)</span> menerapkan NSGA-II untuk perencanaan jalur satu robot dengan menggunakan tiga fungsi objektif.</p>
+
+<p>Cara penelitian-penelitian di atas menangani tabrakan antarrobot juga patut dicermati. Sebagian penelitian menghindari konflik melalui mekanisme prioritas atau penjadwalan urutan kerja. Sebagian lain mengandalkan penalti lunak (<em>soft penalty</em>) pada fungsi kebugaran. Ketiganya tidak memberikan jaminan bebas tabrakan yang bersifat mutlak.</p>
+
+<p>Dari uraian tersebut tampak dua keterbatasan yang saling berkaitan. Penelitian yang menempatkan Pareto sebagai inti umumnya berhenti pada satu agen, sedangkan penelitian multi-robot yang menangani koordinasi antarrobot umumnya kembali memakai objektif teragregasi atau mekanisme prioritas. Akibatnya, belum tersedia bukti mengenai formulasi objektif seperti apa yang mampu menjaga <em>feasibility</em> seluruh solusi ketika jumlah robot bertambah.</p>
+
+<p>Perlu ditegaskan bahwa lingkungan dinamis pada penelitian ini ditempatkan sebagai target validasi akhir, bukan satu-satunya arena pengujian. Pengaruh formulasi objektif, operator genetika, dan mesin seleksi MOEA harus dipisahkan terlebih dahulu pada lingkungan statis yang terkendali. Karena itu penelitian ini menempuh desain bertahap: kerangka dikalibrasi dan diuji secara statistik pada lingkungan statis (Tahap 1&ndash;5), kemudian ketahanannya divalidasi pada lingkungan dengan rintangan bergerak tanpa penyetelan ulang parameter (Tahap 6).</p>
+
+<h2>1.2 Rumusan Masalah</h2>
+<p>Keterbatasan yang diuraikan pada latar belakang mengerucut menjadi empat pertanyaan penelitian berikut:</p>
+<ol>
+<li>Bagaimana merancang kerangka perencanaan jalur multi-robot berbasis MOEA yang menjamin lintasan bebas tabrakan dalam ruang-waktu tanpa bergantung pada perencanaan tiap robot secara terpisah?</li>
+<li>Di antara formulasi objektif teragregasi, formulasi per-agen berkendala, dan formulasi per-agen tanpa kendala, formulasi mana yang menjamin seluruh solusi pada <em>Pareto front</em> akhir <em>feasible</em> dieksekusi seiring bertambahnya jumlah robot?</li>
+<li>Berapa probabilitas operator genetika domain-spesifik yang menghasilkan kualitas solusi terbaik, dan sejauh mana nilai tersebut bergantung pada topologi lingkungan?</li>
+<li>Seberapa besar pengaruh pilihan mesin seleksi MOEA terhadap kualitas solusi dibandingkan pengaruh desain formulasi dan operator, dan apakah kerangka yang dikunci pada lingkungan statis tetap <em>feasible</em> ketika dihadapkan pada rintangan bergerak?</li>
+</ol>
+
+<h2>1.3 Batasan Penelitian</h2>
+<ol>
+<li><strong>Arsitektur perencanaan.</strong> Jalur seluruh robot dibangun oleh satu perencana terpusat.</li>
+<li><strong>Platform robot.</strong> Metode ditujukan bagi robot beroda <em>differential drive</em> dengan kinematika sederhana.</li>
+<li><strong>Model lingkungan.</strong> Lingkungan dimodelkan sebagai <em>grid</em> dua dimensi berukuran 25&times;25 dan 50&times;50 dengan tiga topologi: terbuka, berkoridor sempit, dan gudang.</li>
+<li><strong>Skala pengujian.</strong> Jumlah robot dibatasi hingga lima pada studi formulasi dan hingga empat pada kampanye eksperimen statistik lainnya.</li>
+<li><strong>Fungsi objektif.</strong> Objektif yang dioptimasi adalah waktu tempuh yang mencakup langkah translasi, rotasi, dan tunggu.</li>
+<li><strong>Perencanaan luring.</strong> Jalur direncanakan satu kali sebelum eksekusi.</li>
+<li><strong>Metode validasi.</strong> Seluruh evaluasi dilakukan melalui simulasi berbasis <em>grid</em>.</li>
+</ol>
+
+<h2>1.4 Tujuan Penelitian</h2>
+<ol>
+<li>Membangun kerangka perencanaan jalur multi-robot berbasis NSGA-II dengan inisialisasi populasi berbasis A* (NSGA2-A*) yang menghasilkan lintasan bebas tabrakan pada lingkungan statis maupun dinamis.</li>
+<li>Membandingkan tiga formulasi MOO untuk MRPP, yaitu formulasi teragregasi, formulasi per-agen berkendala, dan formulasi per-agen tanpa kendala.</li>
+<li>Menetapkan profil probabilitas enam operator genetika domain-spesifik (WPS, PPS, INS, DEL, SWD, WTD) melalui analisis sensitivitas OFAT dan <em>Taguchi L18 orthogonal array</em>.</li>
+<li>Mengevaluasi sensitivitas kerangka terhadap pilihan mesin seleksi MOEA (NSGA-II, NSGA-III, dan SPEA2) serta ketahanannya terhadap kehadiran rintangan bergerak.</li>
+</ol>
+
+<h2>1.5 Keaslian dan Kontribusi Penelitian</h2>
+
+<h3>1.5.1 State of the Art dan Research Gap</h3>
+<p><strong>Gap 1 &mdash; Formulasi objektif.</strong> Sebagian besar studi MRPP yang mengklaim sifat multi-objektif pada kenyataannya masih memakai formulasi teragregasi (<em>weighted sum</em>) atau didominasi optimasi satu agen saja. Penelitian ini menutup celah tersebut dengan mengusulkan formulasi objektif per-agen berkendala.</p>
+<p><strong>Gap 2 &mdash; Jaminan <em>feasibility</em> solusi.</strong> Penghindaran tabrakan antarrobot pada optimasi evolusioner umumnya hanya diperlakukan sebagai tujuan penalti atau luaran sekunder tanpa jaminan kelayakan solusi akhir. Penelitian ini menetapkan kelayakan ruang-waktu sebagai kendala keras (\(g_1\) dan \(g_2\)).</p>
+<p><strong>Gap 3 &mdash; Pemilihan operator dan parameter.</strong> Desain operator genetika dan penalaan parameter probabilitasnya seringkali dipilih secara generik tanpa analisis sensitivitas sistematis. Penelitian ini merancang enam operator domain-spesifik dan memetakan sensitivitasnya menggunakan OFAT dan Taguchi L18.</p>
+<p><strong>Gap 4 &mdash; Pengujian lingkungan dinamis.</strong> Sebagian besar <em>pipeline</em> MRPP hanya diuji pada lingkungan statis. Penelitian ini menguji ketahanan <em>pipeline</em> yang dikalibrasi statis terhadap rintangan bergerak.</p>
+
+<p>Ringkasan posisi penelitian ini terhadap penelitian terdahulu satu dekade terakhir (2017&ndash;2026) disajikan pada tabel berikut:</p>
+
+<table>
+<caption>Posisi penelitian ini terhadap penelitian terdahulu (2017&ndash;2026)</caption>
+<thead><tr><th>Aspek</th><th>Evolusioner robot tunggal</th><th>Evolusioner multi-robot non-Pareto</th><th>MOEA multi-robot Pareto</th><th>Penelitian ini</th></tr></thead>
+<tbody>
+<tr><td>Koordinasi multi-robot</td><td>&times;</td><td>&check;</td><td>&check;</td><td>&check;</td></tr>
+<tr><td><em>Pareto front</em> eksplisit</td><td>&triangle;</td><td>&times;</td><td>&check;</td><td>&check;</td></tr>
+<tr><td>Formulasi objektif per-agen</td><td>&times;</td><td>&times;</td><td>&times;</td><td>&check;</td></tr>
+<tr><td>Kendala keras bebas tabrakan ruang-waktu</td><td>&times;</td><td>&triangle;</td><td>&triangle;</td><td>&check;</td></tr>
+<tr><td>Inisialisasi populasi terstruktur (A*)</td><td>&triangle;</td><td>&triangle;</td><td>&triangle;</td><td>&check;</td></tr>
+<tr><td>Penalaan operator sistematis (OFAT + Taguchi)</td><td>&times;</td><td>&times;</td><td>&times;</td><td>&check;</td></tr>
+<tr><td>Komparasi tiga formulasi MOO terkendali</td><td>&times;</td><td>&times;</td><td>&times;</td><td>&check;</td></tr>
+<tr><td>Komparasi mesin seleksi MOEA pada kerangka identik</td><td>&times;</td><td>&times;</td><td>&times;</td><td>&check;</td></tr>
+<tr><td>Pengujian rintangan bergerak</td><td>&triangle;</td><td>&triangle;</td><td>&times;</td><td>&check;</td></tr>
+</tbody>
+</table>
+
+<p style="font-size:.9em;color:#666;">Keterangan: &check; = dibahas/dipenuhi; &triangle; = sebagian penelitian dalam kelompok; &times; = tidak dibahas.</p>
+
+<h3>1.5.2 Keaslian Penelitian</h3>
+<p>Disertasi ini mengusulkan kerangka MRPP berbasis NSGA-II yang mengintegrasikan formulasi optimasi multi-objektif berbasis tujuan per-agen dengan kendala <em>feasibility</em>, inisialisasi populasi berbasis A*, serta operator genetika domain-spesifik yang telah dioptimasi.</p>
+<ol>
+<li><strong>Kebaruan inti: studi komparatif tiga formulasi MOO untuk MRPP.</strong> Formulasi teragregasi, per-agen berkendala, dan per-agen tanpa kendala diuji berdampingan dalam satu kerangka terkendali.
+Kualitas front dibandingkan melalui HV dan IGD setelah proyeksi ke ruang objektif bersama.</li>
+<li><strong>Profil operator genetika domain-spesifik.</strong> Enam operator dianalisis melalui OFAT dan Taguchi L18.</li>
+<li><strong>Bukti empiris atas peran desain ruang masalah.</strong> Formulasi, <em>hard constraint</em>, dan operator memberi pengaruh lebih besar daripada pergantian algoritma.</li>
+<li><strong>Transfer ketahanan ke lingkungan dinamis.</strong> Kerangka yang dikunci pada lingkungan statis tetap mempertahankan <em>feasibility</em> penuh pada skenario rintangan bergerak.</li>
+</ol>
+
+<h3>1.5.3 Kontribusi Penelitian</h3>
+<p><strong>Kontribusi keilmuan</strong> terletak pada penetapan formulasi objektif sebagai faktor rancangan yang menentukan pada MRPP berbasis MOEA.</p>
+<p><strong>Kontribusi metodologis</strong> berupa kerangka NSGA2-A* yang memadukan inisialisasi A*, formulasi per-agen berkendala, dan enam operator domain-spesifik yang probabilitasnya telah ditala.</p>
+<p><strong>Kontribusi praktis</strong> berupa perencana jalur yang menghasilkan lintasan bebas tabrakan dengan <em>feasibility</em> penuh pada seluruh skenario statis maupun pada kehadiran rintangan bergerak.</p>
+
+<h2>1.6 Manfaat Penelitian</h2>
+<p>Penelitian ini diharapkan menyediakan metode navigasi yang tangguh dan efisien bagi robot otonom, khususnya tipe <em>differential drive</em>. Lintasan yang dihasilkan menjaga keselamatan operasional karena bebas tabrakan antarrobot, sementara jumlah titik belok dan total jarak tempuh ditekan seminimal mungkin.</p>
+
+<h2>1.7 Sistematika Penulisan</h2>
+<p>Disertasi ini disusun dalam lima bab. <strong>Bab I</strong> memuat latar belakang, rumusan masalah, batasan penelitian, tujuan penelitian, keaslian dan kontribusi penelitian, manfaat penelitian, serta sistematika penulisan. <strong>Bab II</strong> menyajikan tinjauan pustaka dan analisis kritis penelitian terdahulu, diikuti landasan teori yang mendukung penelitian serta perumusan hipotesis. <strong>Bab III</strong> menjelaskan metode penelitian, formulasi masalah, dan rancangan eksperimen. <strong>Bab IV</strong> memaparkan hasil dan pembahasan untuk keenam tahap penelitian. <strong>Bab V</strong> berisi kesimpulan, kontribusi, keterbatasan, dan saran penelitian.</p>
+
+</div>
+<footer>
+<div class="footer-content">
+<p><a href="index.html">Kembali ke Halaman Utama</a></p>
+<p>&copy; 2026 Ariadie Chandra Nugraha. Disertasi Program Doktor Teknik Elektro, Universitas Gadjah Mada.</p>
+</div>
+</footer>
+</div>
+</body>
+</html>

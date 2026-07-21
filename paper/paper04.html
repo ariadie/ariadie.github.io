@@ -9,7 +9,7 @@
   <meta property="og:description" content="Draf paper: Sensitivity analysis operator NSGA-II untuk multi-robot path planning dengan OFAT dan Taguchi L18." />
   <meta property="og:type" content="website" />
   <title>Paper 04 — OFAT &amp; Taguchi Analysis | NSGA-II MRPP</title>
-
+  <script src="auth.js"></script>
   <style>
     :root {
       color-scheme: light;
@@ -629,17 +629,17 @@
       document.querySelectorAll(".dropdown.show").forEach(d => d.classList.remove("show"));
     });
 
-    // ─── Password protection ──────────────────────────────────────
-    const PASSWORD = "acn77";
+    // ─── Password protection (SHA-256, tanpa teks password di source) ───
     const lockOverlay = document.getElementById("lockOverlay");
     const content = document.getElementById("content");
     const passwordInput = document.getElementById("passwordInput");
     const unlockBtn = document.getElementById("unlockBtn");
     const lockError = document.getElementById("lockError");
 
-    function tryUnlock() {
+    async function tryUnlock() {
       const entered = passwordInput.value;
-      if (entered === PASSWORD) {
+      const ok = await verifyPassword(entered);
+      if (ok) {
         lockOverlay.classList.add("hidden");
         content.classList.add("visible");
         lockError.textContent = "";

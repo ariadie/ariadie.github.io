@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ringkasan — Abstrak Disertasi</title>
+    <script src="auth.js"></script><script>requireAuth();</script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a2a6c 0%,#2c3e50 50%,#0f3460 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#0f3460,#1a5276);color:#fff;padding:50px 40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.6em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        h2{color:#0f3460;border-bottom:3px solid #2980b9;padding-bottom:8px;margin-top:40px;}
+        h3{color:#1a5276;margin-top:30px;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        .content{padding:40px;}
+        .intro{text-align:center;max-width:820px;margin:0 auto 35px;font-size:1.08em;color:#495057;}
+        footer{background:#0f3460;color:#fff;text-align:center;padding:30px;margin-top:45px;}
+        .footer-content{max-width:800px;margin:0 auto;font-size:.9em;opacity:.85;}
+        .footer-content a{color:#7fd1ff;}
+        nav{background:#0f3460;padding:12px 15px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;}
+        nav a{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);}
+        .keywords{background:#f0f4f8;border-left:4px solid #2980b9;padding:15px 20px;margin:25px 0;border-radius:0 8px 8px 0;}
+        .keywords strong{color:#0f3460;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Ringkasan / Abstract</h1>
+        <div class="subtitle">Disertasi Program Doktor — Ariadie Chandra Nugraha</div>
+    </header>
+
+    <nav>
+        <a href="../index.html">Beranda</a>
+        <a href="ringkasan.html">Abstrak</a>
+        <a href="bab1.html">Bab&nbsp;1</a>
+        <a href="bab2.html">Bab&nbsp;2</a>
+        <a href="bab3.html">Bab&nbsp;3</a>
+        <a href="bab4.html">Bab&nbsp;4</a>
+        <a href="bab5.html">Bab&nbsp;5</a>
+        <a href="nomenklatur.html">Nomenklatur</a>
+        <a href="lampiran.html">Lampiran</a>
+    </nav>
+
+    <div class="content">
+
+        <h2>Abstrak (Bahasa Indonesia)</h2>
+
+        <p>Disertasi ini mengusulkan kerangka perencanaan jalur multi-robot (MRPP) berbasis Non-dominated Sorting Genetic Algorithm II (NSGA-II) yang mengintegrasikan formulasi optimasi multi-objektif berbasis tujuan per-agen dengan kendala feasibility, inisialisasi populasi berbasis A*, serta operator genetika domain-spesifik yang telah dioptimasi, untuk menghasilkan solusi Pareto yang feasible, efisien, dan andal pada lingkungan statis maupun dinamis.</p>
+
+        <p>Enam operator genetika domain-spesifik dirancang agar setiap perubahan lintasan tetap menghasilkan jalur yang absah. Keenam operator terdiri atas dua operator crossover (Whole-Path Swap dan Partial-Path Swap) serta empat operator mutasi (Swap Direction, Delete-Zero, Insert-Zero, dan Wait-Detour). Masing-masing operator dirancang untuk mengeksplorasi aspek lintasan yang berbeda tanpa melanggar kendala gerak robot maupun tabrakan antarroll.</p>
+
+        <p>Probabilitas keenam operator ditala melalui analisis One-Factor-At-A-Time dan Taguchi L18 orthogonal array. Penalaan ini bertujuan menemukan kombinasi probabilitas operator yang memberikan kualitas solusi Pareto optimal, diukur melalui metrik hypervolume dan Inverted Generational Distance.</p>
+
+        <p>Studi komparatif tiga formulasi mencakup 360 run dengan 10 seed per skenario. Formulasi berbasis tujuan per-agen (MO-fitness) terbukti unggul secara signifikan dibandingkan formulasi agregat dan formulasi tanpa inisialisasi A* pada seluruh 12 skenario pengujian (3 peta &times; 2&ndash;5 robot).</p>
+
+        <p>Analisis 2.550 run menghasilkan profil parameter konsensus plurality yang tervalidasi melalui eksperimen konfirmasi. Profil ini terdiri atas bobot crossover 0,90, bobot mutasi 0,10, dengan proporsi operator WPS 0,50, PPS 0,50, SWD 0,30, DEL 0,30, INS 0,20, dan WTD 0,20.</p>
+
+        <p>Uji 150 run rintangan bergerak (0, 2, dan 4 rintangan) mencapai tingkat feasibility 100% pada seluruh konfigurasi, menunjukkan keandalan metode yang diusulkan dalam lingkungan dinamis. Temuan eksperimen juga mengonfirmasi bahwa kendala tabrakan antarroll (inter-robot collision) merupakan faktor dominan yang mempersulit pencarian solusi dibandingkan kendala rintangan statis maupun rintangan bergerak.</p>
+
+        <div class="keywords">
+            <strong>Kata kunci:</strong> perencanaan jalur multi-robot, optimasi multi-objektif, NSGA-II, A*, hypervolume, analisis Taguchi, lingkungan dinamis, rintangan bergerak.
+        </div>
+
+        <h2>Abstract (English)</h2>
+
+        <p>This dissertation proposes a multi-robot path planning (MRPP) framework based on the Non-dominated Sorting Genetic Algorithm II (NSGA-II) that integrates a per-agent-objective multi-objective optimization formulation with feasibility constraints, A*-based population initialization, and optimized domain-specific genetic operators to produce feasible, efficient, and reliable Pareto solutions in both static and dynamic environments.</p>
+
+        <p>Six domain-specific genetic operators are designed to ensure that every trajectory modification remains valid. The six operators consist of two crossover operators (Whole-Path Swap and Partial-Path Swap) and four mutation operators (Swap Direction, Delete-Zero, Insert-Zero, and Wait-Detour). Each operator is designed to explore different aspects of the trajectory without violating robot motion constraints or inter-robot collisions.</p>
+
+        <p>Operator probabilities are tuned through One-Factor-At-A-Time analysis and the Taguchi L18 orthogonal array. This tuning aims to find the operator probability combination that yields the best Pareto solution quality, measured by hypervolume and Inverted Generational Distance metrics.</p>
+
+        <p>A comparative study of three formulations covers 360 runs with 10 seeds per scenario. The per-agent-objective formulation (MO-fitness) is proven to be significantly superior to the aggregate formulation and the formulation without A* initialization across all 12 test scenarios (3 maps &times; 2&ndash;5 robots).</p>
+
+        <p>Analysis of 2,550 runs produces a plurality consensus parameter profile validated through confirmation experiments. This profile comprises a crossover weight of 0.90, mutation weight of 0.10, with operator proportions of WPS 0.50, PPS 0.50, SWD 0.30, DEL 0.30, INS 0.20, and WTD 0.20.</p>
+
+        <p>A moving obstacle robustness test of 150 runs (0, 2, and 4 obstacles) achieves a 100% feasibility rate across all configurations, demonstrating the reliability of the proposed method in dynamic environments. Experimental findings also confirm that the inter-robot collision constraint is the dominant factor complicating solution search compared to static obstacle constraints and moving obstacle constraints.</p>
+
+        <div class="keywords">
+            <strong>Keywords:</strong> multi-robot path planning, multi-objective optimization, NSGA-II, A*, hypervolume, Taguchi analysis, dynamic environment, moving obstacles.
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>
+                <a href="../index.html">Beranda</a> &middot;
+                <a href="bab1.html">Bab&nbsp;1</a> &middot;
+                <a href="bab2.html">Bab&nbsp;2</a> &middot;
+                <a href="bab3.html">Bab&nbsp;3</a> &middot;
+                <a href="bab4.html">Bab&nbsp;4</a> &middot;
+                <a href="bab5.html">Bab&nbsp;5</a> &middot;
+                <a href="nomenklatur.html">Nomenklatur</a> &middot;
+                <a href="lampiran.html">Lampiran</a>
+            </p>
+            <p>&copy; 2026 Ariadie Chandra Nugraha. Disertasi Program Doktor Teknik Elektro, Universitas Gadjah Mada.</p>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bab 4 &mdash; Hasil dan Pembahasan</title>
+<script src="auth.js"></script><script>requireAuth();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+<style>
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a2a6c 0%,#2c3e50 50%,#0f3460 100%);min-height:100vh;}
+.container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+header{background:linear-gradient(135deg,#0f3460,#1a5276);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);}
+h1{margin:0;font-size:2.2em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+h2{color:#0f3460;border-bottom:3px solid #e74c3c;padding-bottom:8px;margin-top:40px;font-size:1.6em;}
+h3{color:#1a5276;margin-top:30px;font-size:1.3em;}
+h4{color:#2c3e50;margin-top:25px;font-size:1.15em;}
+.subtitle{font-size:1.1em;opacity:.9;margin-top:8px;position:relative;z-index:1;}
+.content{padding:40px;}
+footer{background:#0f3460;color:#fff;text-align:center;padding:30px;margin-top:45px;}
+.footer-content{max-width:800px;margin:0 auto;font-size:.9em;opacity:.85;}
+.footer-content a{color:#7fd1ff;}
+nav{background:#0f3460;padding:12px 15px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;}
+nav a{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);}
+table{border-collapse:collapse;width:100%;margin:15px 0;font-size:.9em;}
+th,td{border:1px solid #ddd;padding:8px 12px;text-align:left;}
+th{background:#0f3460;color:#fff;}
+tr:nth-child(even){background:#f5f7fa;}
+ul,ol{margin:10px 0;padding-left:25px;}
+li{margin:5px 0;}
+.cite{color:#555;font-style:italic;}
+.eq{text-align:center;margin:15px 0;padding:10px;background:#f8f9fa;border-radius:8px;}
+blockquote{background:#f0f4f8;border-left:4px solid #e74c3c;padding:15px 20px;margin:15px 0;border-radius:0 8px 8px 0;}
+pre{background:#f4f4f4;border:1px solid #ddd;border-left:3px solid #0f3460;padding:15px;overflow-x:auto;border-radius:4px;font-size:.9em;}
+@media(max-width:768px){body{padding:10px;}h1{font-size:1.8em;}.content{padding:20px;}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>BAB IV: HASIL DAN PEMBAHASAN</h1>
+<div class="subtitle">Enam Tahap Pengujian Kerangka NSGA2-A* untuk Perencanaan Jalur Multi-Robot</div>
+</header>
+<nav>
+<a href="index.html">Beranda</a>
+<a href="ringkasan.html">Abstrak</a>
+<a href="bab1.html">Bab&nbsp;1</a>
+<a href="bab2.html">Bab&nbsp;2</a>
+<a href="bab3.html">Bab&nbsp;3</a>
+<a href="bab5.html">Bab&nbsp;5</a>
+<a href="nomenklatur.html">Nomenklatur</a>
+<a href="lampiran.html">Lampiran</a>
+</nav>
+<div class="content">
+
+<p>Bab ini menyajikan hasil dan pembahasan mengikuti enam tahap penelitian yang diuraikan pada Bab III. Tahap 1&ndash;5 merupakan kampanye kalibrasi dan pengujian statistik pada lingkungan statis, sedangkan Tahap 6 memvalidasi ketahanan konfigurasi terpilih pada lingkungan dinamis dengan rintangan bergerak.</p>
+
+<h2>4.1 Tahap 1 &mdash; Perencanaan Jalur Satu Robot dengan NSGA2-A*</h2>
+<p>Tahap 1 membandingkan A* dan NSGA2-A* pada empat peta N1&ndash;N4 berukuran 29&times;29. NSGA2-A* dijalankan dengan populasi 800 dan maksimum 100 generasi.</p>
+
+<table>
+<caption>Perbandingan kinerja A* dan NSGA2-A* pada empat peta (perencanaan jalur satu robot)</caption>
+<thead><tr><th>Peta</th><th>Algoritma</th><th>Panjang Jalur</th><th>Jumlah Belokan</th><th>Waktu Tempuh</th></tr></thead>
+<tbody>
+<tr><td rowspan="2">1</td><td>A*</td><td>45</td><td>13</td><td>58</td></tr>
+<tr><td>NSGA2-A*</td><td>45</td><td><strong>8</strong></td><td><strong>53</strong></td></tr>
+<tr><td rowspan="2">2</td><td>A*</td><td>41</td><td>12</td><td>53</td></tr>
+<tr><td>NSGA2-A*</td><td>41</td><td><strong>8</strong></td><td><strong>49</strong></td></tr>
+<tr><td rowspan="2">3</td><td>A*</td><td>108</td><td>41</td><td>149</td></tr>
+<tr><td>NSGA2-A*</td><td>108</td><td><strong>26</strong></td><td><strong>134</strong></td></tr>
+<tr><td rowspan="2">4</td><td>A*</td><td>67</td><td>26</td><td>93</td></tr>
+<tr><td>NSGA2-A*</td><td>67</td><td>26</td><td>93</td></tr>
+</tbody>
+</table>
+
+<p>NSGA2-A* memperbaiki jumlah belokan tanpa menambah panjang jalur pada N1&ndash;N3. Pada Peta N4 (sangat padat), hasil kedua algoritma identik karena ruang optimasi sangat terbatas. Solusi optimal ditemukan pada generasi ke-10 (N1), ke-7 (N2), dan ke-85 (N3).</p>
+
+<h3>Pembahasan</h3>
+<p>Keberhasilan NSGA2-A* bersumber dari kemampuannya mengatasi batasan diskretisasi kisi pada A*. A* dengan metrik Manhattan tidak memberikan penalti terhadap rotasi fisik, sehingga rawan menghasilkan mikro-belokan. NSGA2-A* memanfaatkan lintasan A* sebagai <em>seeding</em> populasi awal yang menjamin kelayakan spasial, lalu mengarahkan operator mutasi spasial untuk meluruskan segmen zig-zag. Kegagalan optimasi pada Peta N4 menunjukkan batas metode: pada lingkungan dengan <em>feasible-to-infeasible ratio</em> yang sangat rendah, algoritma mengalami stagnasi evolusioner karena tekanan seleksi didominasi penegakan kelayakan jalur.</p>
+
+<h2>4.2 Tahap 2 &mdash; Perencanaan Jalur Dua Robot dengan NSGA-II</h2>
+<p>Tahap 2 membandingkan jalur dua robot hasil A* independen dengan hasil optimasi NSGA-II pada tiga peta uji. Peta T1 sebagai kontrol (solusi A* bebas tabrakan), T2 dan T3 menguji kemampuan NSGA-II memperbaiki jalur yang bertabrakan.</p>
+
+<table>
+<caption>Perbandingan kinerja perencanaan jalur pada Peta T2</caption>
+<thead><tr><th>Algoritma</th><th>\(f_1\)</th><th>\(f_2\)</th><th>Robot 1 Waktu</th><th>Robot 2 Waktu</th><th>\(f_3\)</th></tr></thead>
+<tbody>
+<tr><td>A*</td><td>0</td><td>6</td><td>17</td><td>17</td><td>34</td></tr>
+<tr><td>NSGA-II</td><td>0</td><td>0</td><td>18</td><td>14</td><td>32</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Perbandingan kinerja perencanaan jalur pada Peta T3</caption>
+<thead><tr><th>Algoritma</th><th>\(f_1\)</th><th>\(f_2\)</th><th>Robot 1 Waktu</th><th>Robot 2 Waktu</th><th>\(f_3\)</th></tr></thead>
+<tbody>
+<tr><td>A*</td><td>0</td><td>2</td><td>137</td><td>74</td><td>211</td></tr>
+<tr><td>NSGA-II</td><td>0</td><td>0</td><td>127</td><td>75</td><td>202</td></tr>
+</tbody>
+</table>
+
+<p>NSGA-II menghasilkan solusi bebas tabrakan dengan total waktu tempuh lebih rendah daripada A* yang bertabrakan. Strategi <em>waiting time</em> melalui operator <em>insert-zero</em> terbukti efektif: resolusi konflik dicapai secara temporal (menunda waktu, bukan mengubah rute spasial), menghasilkan TTT yang lebih rendah.</p>
+
+<p>Namun, pada Peta T3 masih teramati pergerakan zig-zag pada jalur Robot 1, menunjukkan bahwa algoritma konvergen pada solusi yang memenuhi kendala utama tetapi belum optimal dari sisi kehalusan lintasan. Fenomena ini mencerminkan dinamika seleksi evolusioner pada lanskap multi-objektif berkendala.</p>
+
+<h2>4.3 Tahap 3 &mdash; Perbandingan Tiga Formulasi MOO pada 12 Skenario Eksperimen</h2>
+
+<h3>4.3.1 Rekapitulasi Kinerja dan Uji Statistik</h3>
+<p>Studi perbandingan mencakup 12 skenario (3 peta &times; \(R \in \{2,3,4,5\}\)) dengan 10 <em>seed</em> independen per skenario, total 360 <em>run</em>. Tiga formulasi yang dibandingkan: F1 (agregat), F2 (per-agen berkendala), dan F3 (per-agen tanpa kendala).</p>
+
+<table>
+<caption>Rekapitulasi total waktu tempuh (TTT, mean\(\pm\)SD) dan tingkat <em>feasibility</em> tiga formulasi pada 12 skenario</caption>
+<thead><tr><th>Peta</th><th>R</th><th>A*</th><th>F1 (AGG)</th><th>F2 (AWC)</th><th>F3 (AWOC)</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>2</td><td>88</td><td>73,0\(\pm\)0,0 (10/10)</td><td>73,0\(\pm\)0,0 (10/10)</td><td>73,0\(\pm\)0,0 (10/10)</td></tr>
+<tr><td>1</td><td>3</td><td>122</td><td>102,6\(\pm\)0,8 (10/10)</td><td>102,0\(\pm\)0,0 (10/10)</td><td>105,5\(\pm\)5,3 (10/10)</td></tr>
+<tr><td>1</td><td>4</td><td>155</td><td>132,7\(\pm\)1,3 (10/10)</td><td>133,0\(\pm\)1,2 (10/10)</td><td>178,9\(\pm\)29,8 (8/10)</td></tr>
+<tr><td>1</td><td>5</td><td>189</td><td>163,9\(\pm\)2,1 (10/10)</td><td>171,0\(\pm\)3,5 (10/10)</td><td>-- (2/10)</td></tr>
+<tr><td>2</td><td>2</td><td>98</td><td>79,8\(\pm\)0,6 (10/10)</td><td>79,7\(\pm\)0,5 (10/10)</td><td>79,9\(\pm\)0,6 (10/10)</td></tr>
+<tr><td>2</td><td>3</td><td>143</td><td>122,1\(\pm\)1,0 (10/10)</td><td>122,7\(\pm\)0,9 (10/10)</td><td>176,0\(\pm\)10,4 (8/10)</td></tr>
+<tr><td>2</td><td>4</td><td>176</td><td>156,0\(\pm\)1,2 (10/10)</td><td>156,1\(\pm\)1,0 (10/10)</td><td>-- (3/10)</td></tr>
+<tr><td>2</td><td>5</td><td>221</td><td>204,3\(\pm\)4,2 (10/10)</td><td>210,8\(\pm\)3,3 (10/10)</td><td>-- (1/10)</td></tr>
+<tr><td>3</td><td>2</td><td>111</td><td>83,0\(\pm\)0,0 (10/10)</td><td>83,0\(\pm\)0,0 (10/10)</td><td>83,0\(\pm\)0,0 (10/10)</td></tr>
+<tr><td>3</td><td>3</td><td>133</td><td>105,0\(\pm\)0,0 (10/10)</td><td>105,0\(\pm\)0,0 (10/10)</td><td>106,6\(\pm\)2,9 (10/10)</td></tr>
+<tr><td>3</td><td>4</td><td>155</td><td>127,1\(\pm\)0,3 (10/10)</td><td>127,0\(\pm\)0,0 (10/10)</td><td>134,2\(\pm\)11,6 (10/10)</td></tr>
+<tr><td>3</td><td>5</td><td>174</td><td>165,6\(\pm\)1,3 (10/10)</td><td>172,6\(\pm\)3,8 (10/10)</td><td>-- (2/10)</td></tr>
+</tbody>
+</table>
+
+<p>Tiga pola utama terlihat: (1) F1 dan F2 <em>feasible</em> penuh (10/10) pada seluruh 12 skenario, sedangkan <em>feasibility</em> F3 runtuh hingga 1&ndash;2/10 pada \(R=5\); (2) pada skenario dua robot, ketiga formulasi mencapai TTT identik; (3) pada \(R \ge 3\) TTT F3 memburuk tajam.</p>
+
+<table>
+<caption>Nilai \(p\) Kruskal-Wallis dan nilai \(p\) berpasangan teradjust Holm untuk TTT <em>run feasible</em></caption>
+<thead><tr><th>R</th><th>Peta</th><th>\(p_{\mathrm{KW}}\)</th><th>AGG&ndash;AWC</th><th>AGG&ndash;AWOC</th><th>AWC&ndash;AWOC</th></tr></thead>
+<tbody>
+<tr><td>2</td><td>1</td><td>n/a</td><td>---</td><td>---</td><td>---</td></tr>
+<tr><td>2</td><td>2</td><td>0,74405</td><td>---</td><td>---</td><td>---</td></tr>
+<tr><td>2</td><td>3</td><td>n/a</td><td>---</td><td>---</td><td>---</td></tr>
+<tr><td>3</td><td>1</td><td><strong>0,01006</strong></td><td>0,06941</td><td>0,11338</td><td><strong>0,01775</strong></td></tr>
+<tr><td>3</td><td>2</td><td><strong>0,00012</strong></td><td>0,22847</td><td><strong>0,00108</strong></td><td><strong>0,00080</strong></td></tr>
+<tr><td>3</td><td>3</td><td><strong>0,01184</strong></td><td>1,00000</td><td>0,10453</td><td>0,06969</td></tr>
+<tr><td>4</td><td>1</td><td><strong>0,00011</strong></td><td>0,33470</td><td><strong>0,00089</strong></td><td><strong>0,00077</strong></td></tr>
+<tr><td>4</td><td>2</td><td><strong>0,01767</strong></td><td>0,81138</td><td><strong>0,03472</strong></td><td><strong>0,02438</strong></td></tr>
+<tr><td>4</td><td>3</td><td><strong><0,001</strong></td><td>0,36812</td><td><strong>0,00012</strong></td><td><strong>0,00012</strong></td></tr>
+<tr><td>5</td><td>1</td><td><strong>0,00024</strong></td><td><strong>0,00071</strong></td><td>&dagger;</td><td>&dagger;</td></tr>
+<tr><td>5</td><td>2</td><td><strong>0,00181</strong></td><td><strong>0,00618</strong></td><td>&dagger;</td><td>&dagger;</td></tr>
+<tr><td>5</td><td>3</td><td><strong>0,00028</strong></td><td><strong>0,00086</strong></td><td>&dagger;</td><td>&dagger;</td></tr>
+</tbody>
+</table>
+
+<p>F1 dan F2 tidak pernah berbeda signifikan pada \(R \le 4\). Pada \(R=5\), F1 unggul signifikan 5&ndash;7 langkah. F3 tidak dapat dinilai pada \(R=5\) karena <em>run feasible</em> &le; 2.</p>
+
+<h3>4.3.2 HV dan IGD pada Ruang Objektif Bersama</h3>
+<table>
+<caption>HV ternormalisasi dan IGD pada ruang objektif bersama, mean\(\pm\)SD atas 10 <em>run</em></caption>
+<thead><tr><th>R</th><th>Peta</th><th>HV AGG</th><th>HV AWC</th><th>HV AWOC</th><th>IGD AGG</th><th>IGD AWC</th><th>IGD AWOC</th></tr></thead>
+<tbody>
+<tr><td>2</td><td>1</td><td>0,43\(\pm\)0,12</td><td>0,27\(\pm\)0,00</td><td>0,39\(\pm\)0,11</td><td>0,018\(\pm\)0,011</td><td>0,315\(\pm\)0,000</td><td>0,022\(\pm\)0,010</td></tr>
+<tr><td>3</td><td>2</td><td>0,60\(\pm\)0,00</td><td>0,57\(\pm\)0,00</td><td>0,74\(\pm\)0,01</td><td>0,157\(\pm\)0,005</td><td>0,181\(\pm\)0,003</td><td>0,121\(\pm\)0,015</td></tr>
+<tr><td>5</td><td>3</td><td>0,77\(\pm\)0,03</td><td>0,70\(\pm\)0,01</td><td>0,71\(\pm\)0,06</td><td>0,044\(\pm\)0,014</td><td>0,097\(\pm\)0,010</td><td>0,190\(\pm\)0,079</td></tr>
+</tbody>
+</table>
+
+<p>AWOC memperoleh HV terbesar pada sebagian besar skenario 2&ndash;4 robot, sedangkan AGG memimpin pada 5 robot. Namun, HV dan IGD tidak dipakai sendirian sebagai dasar pemilihan karena cakupannya masih memuat solusi berkonflik.</p>
+
+<h3>4.3.3 Pembahasan</h3>
+<p><strong>Formulasi 2 (per-agen berkendala)</strong> dipilih sebagai kerangka utama berdasarkan kombinasi: <em>feasibility</em> penuh di seluruh skenario, <em>front</em> yang fokus dan interpretatif, serta kesetaraan statistik TTT dengan F1 hingga 4 robot. Keunggulan F2 tidak terletak pada TTT semata, melainkan pada jaminan <em>feasibility</em> penuh dan <em>trade-off</em> per-robot yang eksplisit.</p>
+
+<p>Kegagalan F3 pada \(R \ge 3\) merupakan konsekuensi <em>curse of dimensionality</em> dalam optimasi Pareto. Dengan \(M = R+2\) (hingga 7 objektif), probabilitas individu menjadi saling tidak mendominasi meningkat eksponensial, melemahkan tekanan seleksi. F2 menangkalnya dengan mereduksi dimensi menjadi \(M=R\) dan menggunakan CDP yang memprioritaskan individu <em>feasible</em> secara mutlak.</p>
+
+<h2>4.4 Tahap 4 &mdash; Analisis Sensitivitas Operator Genetika Domain-Spesifik</h2>
+
+<h3>4.4.1 Hasil OFAT</h3>
+<p><strong>WPS</strong>: menunjukkan fenomena <em>collapse</em> pada <em>rate</em> = 1,0 di ketiga skenario karena homogenisasi populasi. Rekomendasi: \(P^{\text{WPS}} = 0{,}1\text{--}0{,}4\).</p>
+
+<p><strong>PPS</strong>: tidak mengalami <em>collapse</em> pada <em>rate</em> = 1,0. Peningkatan terbaik +79,2% pada S3. Rekomendasi: \(P^{\text{PPS}} = 0{,}5\text{--}0{,}9\).</p>
+
+<p><strong>SWD</strong>: pola <em>inverted-U</em> dengan puncak pada <em>rate</em> 0,2&ndash;0,3. Peningkatan +76,3% pada S3. Rekomendasi paling stabil: \(P^{\text{SWD}} = 0{,}2\text{--}0{,}3\).</p>
+
+<p><strong>WTD</strong>: respons bergantung topologi; signifikan hanya pada S3 (<em>warehouse</em>) dengan peningkatan +29% pada <em>rate</em> = 0,1. Rekomendasi: \(P^{\text{WTD}} = 0{,}0\text{--}0{,}1\).</p>
+
+<p><strong>INS</strong>: efek positif kecil pada S1 dan respons datar pada S3. Nilai optimal: INS* = 0,2.</p>
+
+<p><strong>DEL</strong> (kondisional dengan INS = 0,2): pola <em>threshold-active</em> pada S3. Rekomendasi: \(P^{\text{DEL}} = 0{,}3\).</p>
+
+<h3>4.4.2 Profil Taguchi dan Eksperimen Konfirmasi</h3>
+<table>
+<caption>Profil parameter operator terpilih berdasarkan konsensus Borda (Taguchi L18)</caption>
+<thead><tr><th>Operator</th><th>Nilai Terpilih</th></tr></thead>
+<tbody>
+<tr><td>WPS</td><td>0,4</td></tr>
+<tr><td>PPS</td><td>0,5</td></tr>
+<tr><td>INS</td><td>0,1</td></tr>
+<tr><td>DEL</td><td>0,3</td></tr>
+<tr><td>SWD</td><td>0,4</td></tr>
+<tr><td>WTD</td><td>0,0</td></tr>
+</tbody>
+</table>
+
+<p>Eksperimen konfirmasi menunjukkan selisih S/N antara observasi dan prediksi dalam toleransi \(\pm0{,}5\) dB: S1 = \(-0{,}009\) dB, S2 = \(-0{,}104\) dB, S3 = \(-0{,}023\) dB.</p>
+
+<h3>4.4.3 Pembahasan</h3>
+<p>SWD bertindak sebagai mekanisme perbaikan lokal yang efektif. WPS pada <em>rate</em> penuh menyebabkan keruntuhan karena merusak koordinasi <em>spatiotemporal</em> yang telah terbentuk. Ketergantungan topologi memiliki implikasi mendasar: pada lingkungan terbuka, algoritma tidak sensitif terhadap pilihan parameter; pada koridor sempit, operator penunda waktu menjadi penentu; pada gudang, operator detour spasial mendominasi.</p>
+
+<h2>4.5 Tahap 5 &mdash; Perbandingan Kinerja NSGA-II, NSGA-III, dan SPEA2</h2>
+
+<h3>4.5.1 <em>Feasibility</em> dan <em>Hypervolume</em></h3>
+<p>Seluruh 150 <em>run</em> menghasilkan solusi <em>feasible</em> (100%). Uji Kruskal-Wallis menunjukkan tidak ada perbedaan HV signifikan antaralgoritma pada seluruh blok (semua \(p > 0{,}05\)).</p>
+
+<table>
+<caption>Perbandingan nilai HV rata-rata dan uji Kruskal-Wallis antaralgoritma</caption>
+<thead><tr><th>Blok</th><th>Konfigurasi</th><th>NSGA-II</th><th>NSGA-III</th><th>SPEA2</th><th>KW (\(H\), \(p\))</th></tr></thead>
+<tbody>
+<tr><td>A1</td><td>3R, <em>open</em> 25&times;25</td><td>75,86</td><td>76,15</td><td>76,15</td><td>\(H=2{,}00\), \(p=0{,}368\) (ns)</td></tr>
+<tr><td>A2</td><td>3R, <em>bottleneck</em> 25&times;25</td><td>9010,50</td><td>8918,20</td><td>9005,20</td><td>\(H=3{,}12\), \(p=0{,}211\) (ns)</td></tr>
+<tr><td>A3</td><td>3R, <em>warehouse</em> 25&times;25</td><td>94,08</td><td>94,66</td><td>94,37</td><td>\(H=2{,}15\), \(p=0{,}342\) (ns)</td></tr>
+<tr><td>A4</td><td>4R, <em>bottleneck</em> 25&times;25</td><td colspan="3">(tidak ditampilkan)</td><td>\(H=2{,}56\), \(p=0{,}278\) (ns)</td></tr>
+</tbody>
+</table>
+
+<h3>4.5.2 Perbandingan dengan Perencana MAPF Klasik</h3>
+<table>
+<caption>Perbandingan CBS dan Priority-A* terhadap NSGA-II pada kelima blok statis</caption>
+<thead><tr><th>Blok</th><th colspan="2">CBS</th><th colspan="2">Priority-A*</th><th>NSGA-II</th></tr>
+<tr><th></th><th>TTT</th><th>Tabrakan</th><th>TTT</th><th>Tabrakan</th><th>TTT (rerata)</th></tr></thead>
+<tbody>
+<tr><td>A1 (<em>open</em>, 3R)</td><td>101</td><td>0</td><td>101</td><td>0</td><td>102,0</td></tr>
+<tr><td>A2 (<em>bottleneck</em>, 3R)</td><td>120</td><td>6</td><td>121</td><td>8</td><td>122,7</td></tr>
+<tr><td>A3 (<em>warehouse</em>, 3R)</td><td>101</td><td>0</td><td>101</td><td>0</td><td>105,0</td></tr>
+<tr><td>A4 (<em>bottleneck</em>, 4R)</td><td>154</td><td>6</td><td>156</td><td>1</td><td>156,1</td></tr>
+<tr><td>B1 (<em>warehouse</em> 50&times;50, 4R)</td><td>291</td><td>1</td><td>306</td><td>1</td><td>289,7</td></tr>
+</tbody>
+</table>
+
+<p>Pada blok berkoridor sempit (A2, A4, B1), konversi kinodinamis memunculkan tabrakan pada jalur CBS dan Priority-A* akibat <em>grid-kinodynamic discrepancy</em>: rencana <em>grid</em> mengabaikan waktu rotasi fisik, sehingga akumulasi tundaan putar menggeser jadwal dan memicu konflik. Pada B1, rerata TTT NSGA-II (289,7) lebih rendah dari solusi CBS (291) yang masih memuat satu tabrakan.</p>
+
+<h3>4.5.3 Pembahasan</h3>
+<p>Kesetaraan HV secara statistik menunjukkan bahwa batas kualitas solusi lebih ditentukan oleh kualitas inisialisasi populasi dan desain operator domain-spesifik daripada mesin seleksi MOEA. NSGA-II dipertahankan sebagai algoritma utama berdasarkan kesetaraan kinerja dan kesederhanaan implementasi.</p>
+
+<h2>4.6 Tahap 6 &mdash; Pengujian Ketahanan pada Lingkungan Dinamis</h2>
+
+<h3>4.6.1 <em>Feasibility</em> dan Interaksi <em>Spatiotemporal</em></h3>
+<p>Seluruh 150 <em>run</em> menghasilkan solusi <em>feasible</em> dan bebas tabrakan (100%) pada semua kondisi 0MO, 2MO, dan 4MO.</p>
+
+<table>
+<caption>Metrik interaksi <em>spatiotemporal</em> per blok (median atas 10 <em>run</em>)</caption>
+<thead><tr><th>Blok</th><th colspan="3"><em>Encounter rate</em> &le; 1 sel (%)</th><th colspan="3"><em>Min. clearance</em> (sel)</th></tr>
+<tr><th></th><th>0MO</th><th>2MO</th><th>4MO</th><th>0MO</th><th>2MO</th><th>4MO</th></tr></thead>
+<tbody>
+<tr><td>D1</td><td>---</td><td>0,88</td><td>2,19</td><td>---</td><td>1</td><td>1</td></tr>
+<tr><td>D2</td><td>---</td><td>2,25</td><td>4,65</td><td>---</td><td>1</td><td>1</td></tr>
+<tr><td>D3</td><td>---</td><td>0,00</td><td>3,90</td><td>---</td><td>2</td><td>1</td></tr>
+<tr><td>D4</td><td>---</td><td>4,03</td><td>4,89</td><td>---</td><td>1</td><td>1</td></tr>
+<tr><td>D5</td><td>---</td><td>0,00</td><td>2,19</td><td>---</td><td>7</td><td>1</td></tr>
+</tbody>
+</table>
+
+<h3>4.6.2 Ketahanan TTT dan Waktu Komputasi</h3>
+<table>
+<caption>Perbandingan TTT rata-rata (0MO vs. 4MO) dan signifikansi statistik per blok</caption>
+<thead><tr><th>Blok</th><th>Konfigurasi</th><th>TTT 0MO</th><th>TTT 4MO</th><th>Perubahan (%)</th><th>KW Sig.</th></tr></thead>
+<tbody>
+<tr><td>D1</td><td>3R, <em>open</em></td><td>102,0</td><td>102,0</td><td>0,00</td><td>ns</td></tr>
+<tr><td>D2</td><td>3R, <em>bottleneck</em></td><td>122,5</td><td>122,4</td><td>&minus;0,08</td><td>ns</td></tr>
+<tr><td>D3</td><td>3R, <em>warehouse</em></td><td>102,0</td><td>103,2</td><td>+1,18</td><td>\(p<0{,}001\)**</td></tr>
+<tr><td>D4</td><td>4R, <em>bottleneck</em></td><td>156,4</td><td>156,2</td><td>&minus;0,13</td><td>ns</td></tr>
+<tr><td>D5</td><td>4R, <em>warehouse</em></td><td>289,7</td><td>287,7</td><td>&minus;0,69</td><td>ns</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Perbandingan <em>runtime</em> komputasi rata-rata (detik) antara 0MO dan 4MO per blok</caption>
+<thead><tr><th>Blok</th><th><em>Runtime</em> 0MO (s)</th><th><em>Runtime</em> 4MO (s)</th><th>Perubahan (%)</th></tr></thead>
+<tbody>
+<tr><td>D1</td><td>100,4</td><td>99,0</td><td>&minus;1,37</td></tr>
+<tr><td>D2</td><td>86,3</td><td>89,6</td><td>+3,83</td></tr>
+<tr><td>D3</td><td>86,2</td><td>87,4</td><td>+1,39</td></tr>
+<tr><td>D4</td><td>95,2</td><td>98,2</td><td>+3,13</td></tr>
+<tr><td>D5</td><td>354,1</td><td>367,3</td><td>+3,74</td></tr>
+</tbody>
+</table>
+
+<h3>4.6.3 Dampak terhadap HV dan <em>Pareto front</em></h3>
+<table>
+<caption>Perubahan HV dan jumlah titik <em>Pareto front</em> antara 0MO dan 4MO per blok</caption>
+<thead><tr><th>Blok</th><th>HV 0MO</th><th>Perubahan HV (%)</th><th><em>Pareto</em> 0MO</th><th><em>Pareto</em> 4MO</th><th>KW HV</th></tr></thead>
+<tbody>
+<tr><td>D1</td><td>617,3</td><td>&minus;2,25</td><td>54,9</td><td>9,8</td><td>sig.</td></tr>
+<tr><td>D2</td><td>4.726,6</td><td>&minus;7,08</td><td>31,9</td><td>32,0</td><td>sig.</td></tr>
+<tr><td>D3</td><td>92,4</td><td>&minus;30,70</td><td>91,2</td><td>46,2</td><td>sig.</td></tr>
+<tr><td>D4</td><td>2.491.662,7</td><td>&minus;4,63</td><td>38,5</td><td>47,9</td><td>sig.</td></tr>
+<tr><td>D5</td><td>6.157,8</td><td>+34,48</td><td>63,3</td><td>47,6</td><td>sig.</td></tr>
+</tbody>
+</table>
+
+<h3>4.6.4 Pembahasan</h3>
+<p>Kemampuan <em>locked pipeline</em> mempertahankan <em>feasibility</em> 100% tanpa perencanaan ulang daring bersandar pada pergeseran temporal lokal: gen bernilai 0 (<em>insert-zero</em>) berfungsi sebagai peredam gangguan yang menyerap perubahan pergerakan rintangan dinamis secara lokal tanpa mengubah rute spasial global. TTT relatif stabil terhadap penambahan rintangan bergerak. Dampak terbesar rintangan bergerak terletak pada <em>Pareto front</em> (volume dan jumlah titik), bukan pada TTT solusi terpilih. Peningkatan HV tak terduga pada D5 (+34,48%) menunjukkan bahwa dalam konfigurasi tertentu, tekanan dari rintangan bergerak dapat mendorong algoritma mengeksplorasi bagian ruang solusi yang sebelumnya tidak terjangkau.</p>
+
+<h2>4.7 Evaluasi Hipotesis</h2>
+<p><strong>H1</strong> didukung oleh: (1) studi komparatif formulasi (F2 <em>feasible</em> penuh 10/10 di 12 skenario dengan <em>trade-off</em> informatif), dan (2) pengujian dinamis (150 <em>run</em> <em>feasible</em> pada 0MO, 2MO, dan 4MO).</p>
+<p><strong>H2</strong> didukung oleh: (1) analisis sensitivitas operator (SWD hingga +76,3%, PPS hingga +79,2% dengan profil Borda tervalidasi), dan (2) perbandingan MOEA (HV setara secara statistik, menegaskan peran desain operator dan inisialisasi).</p>
+
+</div>
+<footer>
+<div class="footer-content">
+<p><a href="index.html">Kembali ke Halaman Utama</a></p>
+<p>&copy; 2026 Ariadie Chandra Nugraha. Disertasi Program Doktor Teknik Elektro, Universitas Gadjah Mada.</p>
+</div>
+</footer>
+</div>
+</body>
+</html>

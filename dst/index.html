@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disertasi — Perencanaan Jalur Multi-Robot dengan MOGA</title>
+    <script src="auth.js"></script><script>requireAuth();</script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a2a6c 0%,#2c3e50 50%,#0f3460 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#0f3460,#1a5276);color:#fff;padding:50px 40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.6em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        .subtitle{font-size:1.2em;opacity:.9;margin-top:10px;position:relative;z-index:1;}
+        .content{padding:40px;}
+        .intro{text-align:center;max-width:820px;margin:0 auto 35px;font-size:1.08em;color:#495057;}
+        .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:30px;margin-top:30px;}
+        .chapter-card{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);border-radius:12px;padding:28px;border-left:5px solid #2980b9;transition:all .3s ease;text-decoration:none;color:#333;display:block;}
+        .chapter-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 14px 30px rgba(0,0,0,.18);background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);}
+        .chapter-card .num{display:inline-block;background:#2980b9;color:#fff;font-weight:700;border-radius:50%;width:42px;height:42px;line-height:42px;text-align:center;font-size:1.2em;margin-bottom:12px;}
+        .chapter-card h3{margin:0 0 10px;color:#2c3e50;font-size:1.35em;}
+        .chapter-card p{margin:0;color:#495057;font-size:.95em;}
+        .chapter-card .go{margin-top:14px;display:inline-block;color:#2980b9;font-weight:700;}
+        .note{background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-left:5px solid #ff9800;padding:15px 20px;margin:30px auto 0;max-width:820px;border-radius:8px;}
+        footer{background:#0f3460;color:#fff;text-align:center;padding:30px;margin-top:45px;}
+        .footer-content{max-width:800px;margin:0 auto;font-size:.9em;opacity:.85;}
+        .footer-content a{color:#7fd1ff;}
+        .badge{margin-top:10px;padding:2px 10px;border-radius:10px;font-size:.8em;display:inline-block;}
+        .badge-feat{background:#27ae60;color:#fff;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:2em;}.content{padding:20px;}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Perencanaan Jalur Multi-Robot dalam Lingkungan Dinamis Menggunakan <em>Multiobjective Genetic Algorithm</em></h1>
+        <div class="subtitle">Disertasi Program Doktor — Ariadie Chandra Nugraha</div>
+    </header>
+
+    <nav style="background:#0f3460;padding:12px 15px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;">
+        <a href="../index.html" style="color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);">Beranda</a>
+        <a href="ringkasan.html" style="color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);">Abstrak</a>
+        <a href="nomenklatur.html" style="color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);">Nomenklatur</a>
+    </nav>
+
+    <div class="content">
+        <p class="intro">
+            Disertasi ini mengusulkan kerangka perencanaan jalur multi-robot berbasis 
+            <em>Non-dominated Sorting Genetic Algorithm II</em> (NSGA-II) dengan inisialisasi 
+            populasi A*, formulasi per-agen berkendala, dan operator genetika domain-spesifik 
+            untuk menghasilkan solusi Pareto yang <em>feasible</em> pada lingkungan statis maupun dinamis.
+        </p>
+
+        <div class="card-grid">
+            <a class="chapter-card" href="ringkasan.html" style="border-left-color:#8e44ad;">
+                <span class="num" style="background:#8e44ad;">R</span>
+                <h3>Ringkasan &mdash; Abstrak</h3>
+                <p>Abstrak Bahasa Indonesia dan Inggris, mencakup tujuan, metode, hasil utama, dan kata kunci disertasi.</p>
+                <span class="go" style="color:#8e44ad;">Baca Ringkasan &#8594;</span>
+            </a>
+
+            <a class="chapter-card" href="nomenklatur.html" style="border-left-color:#1abc9c;">
+                <span class="num" style="background:#1abc9c;">N</span>
+                <h3>Nomenklatur dan Daftar Singkatan</h3>
+                <p>Singkatan algoritma, metode, operator genetika, dan istilah penting yang digunakan dalam disertasi.</p>
+                <span class="go" style="color:#1abc9c;">Lihat Nomenklatur &#8594;</span>
+            </a>
+
+            <a class="chapter-card" href="bab1.html" style="border-left-color:#e74c3c;">
+                <span class="num" style="background:#e74c3c;">1</span>
+                <h3>Pendahuluan</h3>
+                <p>Latar belakang, rumusan masalah, batasan, tujuan, keaslian dan kontribusi penelitian, serta sistematika penulisan.</p>
+                <span class="go" style="color:#e74c3c;">Baca Bab 1 &#8594;</span>
+            </a>
+
+            <a class="chapter-card" href="bab2.html" style="border-left-color:#f39c12;">
+                <span class="num" style="background:#f39c12;">2</span>
+                <h3>Tinjauan Pustaka dan Landasan Teori</h3>
+                <p>Perencanaan jalur, A*, algoritma genetik, MOEA (NSGA-II/III, SPEA2), MAPF klasik (CBS, Priority-A*), dan perumusan hipotesis.</p>
+                <span class="go" style="color:#f39c12;">Baca Bab 2 &#8594;</span>
+            </a>
+
+            <a class="chapter-card" href="bab3.html" style="border-left-color:#27ae60;">
+                <span class="num" style="background:#27ae60;">3</span>
+                <h3>Metode Penelitian</h3>
+                <p>Alur enam tahap, kerangka NSGA2-A*, operator domain-spesifik, tiga formulasi MOO, desain eksperimen OFAT dan Taguchi, serta uji ketahanan dinamis.</p>
+                <span class="go" style="color:#27ae60;">Baca Bab 3 &#8594;</span>
+            </a>
+
+            <a class="chapter-card" href="bab4.html" style="border-left-color:#2980b9;">
+                <span class="num" style="background:#2980b9;">4</span>
+                <h3>Hasil dan Pembahasan</h3>
+                <p>Hasil enam tahap: satu robot, dua robot, perbandingan tiga formulasi (360 run), sensitivitas operator (2.550 run), perbandingan MOEA (150 run), dan uji ketahanan dinamis (150 run).</p>
+                <span class="go" style="color:#2980b9;">Baca Bab 4 &#8594;</span>
+            </a>
+
+            <a class="chapter-card" href="bab5.html" style="border-left-color:#c0392b;">
+                <span class="num" style="background:#c0392b;">5</span>
+                <h3>Kesimpulan dan Saran</h3>
+                <p>Kesimpulan, kontribusi, keterbatasan, implikasi ilmiah, dan sembilan saran untuk penelitian lanjutan.</p>
+                <span class="go" style="color:#c0392b;">Baca Bab 5 &#8594;</span>
+            </a>
+
+            <a class="chapter-card" href="lampiran.html" style="border-left-color:#16a085;">
+                <span class="num" style="background:#16a085;">L</span>
+                <h3>Lampiran</h3>
+                <p>Hasil per-skenario studi perbandingan formulasi: tabel dan visualisasi untuk seluruh 12 skenario (3 peta &times; 2&ndash;5 robot).</p>
+                <span class="go" style="color:#16a085;">Lihat Lampiran &#8594;</span>
+            </a>
+        </div>
+
+        <div class="note">
+            <strong>Tips:</strong> Persamaan matematis dirender menggunakan KaTeX dari CDN.
+            Halaman ini merupakan versi HTML dari disertasi <em>"Perencanaan Jalur Multi-Robot dalam
+            Lingkungan Dinamis Menggunakan Multiobjective Genetic Algorithm"</em> (Ariadie Chandra Nugraha, 2026).
+            Seluruh konten disarikan dari naskah LaTeX asli.
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p style="margin-top:10px;">
+                <a href="ringkasan.html">Ringkasan</a> &middot;
+                <a href="bab1.html">Bab&nbsp;1</a> &middot;
+                <a href="bab2.html">Bab&nbsp;2</a> &middot;
+                <a href="bab3.html">Bab&nbsp;3</a> &middot;
+                <a href="bab4.html">Bab&nbsp;4</a> &middot;
+                <a href="bab5.html">Bab&nbsp;5</a> &middot;
+                <a href="lampiran.html">Lampiran</a>
+            </p>
+            <p>&copy; 2026 Ariadie Chandra Nugraha. Disertasi Program Doktor Teknik Elektro, Universitas Gadjah Mada.</p>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

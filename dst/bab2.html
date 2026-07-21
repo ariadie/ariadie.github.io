@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bab 2 — Tinjauan Pustaka dan Landasan Teori</title>
+    <script src="auth.js"></script><script>requireAuth();</script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+    <style>
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a2a6c 0%,#2c3e50 50%,#0f3460 100%);min-height:100vh;}
+        .container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .8s ease-in;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        header{background:linear-gradient(135deg,#0f3460,#1a5276);color:#fff;padding:40px;text-align:center;position:relative;overflow:hidden;}
+        header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);}
+        h1{margin:0;font-size:2.2em;text-shadow:2px 2px 4px rgba(0,0,0,.3);position:relative;z-index:1;}
+        h2{color:#0f3460;border-bottom:3px solid #f39c12;padding-bottom:8px;margin-top:40px;font-size:1.6em;}
+        h3{color:#1a5276;margin-top:30px;font-size:1.3em;}
+        h4{color:#2c3e50;margin-top:25px;}
+        .subtitle{font-size:1.1em;opacity:.9;margin-top:8px;position:relative;z-index:1;}
+        .content{padding:40px;}
+        footer{background:#0f3460;color:#fff;text-align:center;padding:30px;margin-top:45px;}
+        .footer-content{max-width:800px;margin:0 auto;font-size:.9em;opacity:.85;}
+        .footer-content a{color:#7fd1ff;}
+        nav{background:#0f3460;padding:12px 15px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;}
+        nav a{color:#fff;text-decoration:none;padding:8px 18px;border-radius:20px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);}
+        table{border-collapse:collapse;width:100%;margin:15px 0;font-size:.9em;}
+        th,td{border:1px solid #ddd;padding:8px 10px;text-align:left;}
+        th{background:#0f3460;color:#fff;}
+        tr:nth-child(even){background:#f5f7fa;}
+        .eq{text-align:center;margin:15px 0;padding:10px;background:#f8f9fa;border-radius:8px;}
+        ul,ol{margin:10px 0;padding-left:25px;}
+        li{margin:5px 0;}
+        .cite{color:#2980b9;font-size:.9em;}
+        .fig-placeholder{background:#f0f4f8;border:1px dashed #bdc3c7;border-radius:8px;padding:25px;text-align:center;margin:20px 0;color:#7f8c8d;}
+        .fig-placeholder .icon{font-size:2em;display:block;margin-bottom:8px;}
+        @media(max-width:768px){body{padding:10px;}h1{font-size:1.8em;}.content{padding:20px;}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>BAB II<br>Tinjauan Pustaka dan Landasan Teori</h1>
+        <div class="subtitle">Perencanaan Jalur Multi-Robot dalam Lingkungan Dinamis Menggunakan <em>Multiobjective Genetic Algorithm</em></div>
+    </header>
+
+    <nav>
+        <a href="../index.html">Beranda</a>
+        <a href="ringkasan.html">Ringkasan</a>
+        <a href="bab1.html">Bab&nbsp;1</a>
+        <a href="bab3.html">Bab&nbsp;3</a>
+        <a href="bab4.html">Bab&nbsp;4</a>
+        <a href="bab5.html">Bab&nbsp;5</a>
+        <a href="nomenklatur.html">Nomenklatur</a>
+        <a href="lampiran.html">Lampiran</a>
+    </nav>
+
+    <div class="content">
+
+        <!-- ============================================================ -->
+        <!-- Section: Perencanaan Jalur (Path Planning)                   -->
+        <!-- ============================================================ -->
+        <h2>Perencanaan Jalur (<em>Path Planning</em>)</h2>
+
+        <p>Perencanaan jalur (<em>path planning</em>) adalah tugas menemukan jalur kontinu yang akan mengarahkan robot dari titik awal hingga konfigurasi tujuan <span class="cite">(Klancar, 2017)</span>. Gambar 2.1 menunjukkan ilustrasi bagaimana masalah <em>path planning</em> diselesaikan. Kemampuan ini diperlukan pada hampir semua jenis penggunaan robot bergerak. Studi mengenai perencanaan jalur untuk robot pembersih sudah dilakukan sejak lama, misalnya oleh Hofner dan Schmidt pada tahun 1995 <span class="cite">(Hofner &amp; Schmidt, 1995)</span>, namun studi terkait perencanaan jalur untuk robot pembersih masih berkembang hingga kini, misalnya studi oleh Choe, dkk. yang mengajukan penggunaan pendekatan probabilistik dan <em>deep learning</em> <span class="cite">(Choe, 2021)</span>.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F5FA;</span>
+            <strong>Gambar 2.1</strong> &mdash; (A) Lingkungan dengan rintangan dan konfigurasi mulai dan tujuan, dan (B) salah satu jalur yang mungkin dari titik awal hingga konfigurasi tujuan <span class="cite">(Klancar, 2017)</span>
+        </div>
+
+        <p>Beberapa penulis kemudian mencoba melakukan inventarisasi dan klasifikasi terhadap berbagai metode perencanaan jalur yang telah dikembangkan. Zafar dan Mohanta (2018) mengklasifikasikan metode perencanaan jalur menjadi dua kelompok, yaitu pendekatan klasik dan pendekatan heuristis <span class="cite">(Zafar &amp; Mohanta, 2018)</span>. Pada kajian tersebut mereka tidak memberikan definisi dari dua pendekatan tersebut, namun langsung memberikan daftar total 17 metode perencanaan jalur, sebagaimana dirangkum pada Tabel 2.1.</p>
+
+        <p><strong>Tabel 2.1</strong> Klasifikasi berbagai metode perencanaan jalur oleh Zafar dan Mohanta <span class="cite">(Zafar &amp; Mohanta, 2018)</span></p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pendekatan Klasik</th>
+                    <th>Pendekatan Heuristis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1. <em>Potential Field</em> (1979)</td><td>1. <em>Neural Network Technique</em> (1943)</td></tr>
+                <tr><td>2. <em>Roadmap Cell Decomposition</em> (1987)</td><td>2. <em>Fuzzy Logic Technique</em> (1965)</td></tr>
+                <tr><td>3. <em>Grid Based</em> (1988)</td><td>3. <em>Genetic Algorithm Technique</em> (1989)</td></tr>
+                <tr><td>4. PRM (<em>Probabilistic Roadmap</em>) (1996)</td><td>4. <em>Ant Colony Optimization Technique</em> (1992)</td></tr>
+                <tr><td>5. <em>Rapidly Exploring Random Tree</em> (1998)</td><td>5. <em>Particle Swarm Optimization Technique</em> (1995)</td></tr>
+                <tr><td>6. <em>Virtual Impedance Method</em></td><td>6. <em>Bacterial Foraging Optimization</em> (2002)</td></tr>
+                <tr><td>7. <em>Convex Hull and Local Search Method</em></td><td>7. <em>Bee Colony Optimization Technique</em> (2005)</td></tr>
+                <tr><td>8. <em>Divide and Conquer Method</em></td><td>8. <em>Firefly Algorithm Optimization Technique</em> (2008)</td></tr>
+                <tr><td></td><td>9. <em>Grey Wolf Optimization</em> (2014)</td></tr>
+            </tbody>
+        </table>
+
+        <p>Upaya klasifikasi lain dilakukan oleh Patle, dkk. yang membagi metode perencanaan jalur menjadi dua kelompok besar: pendekatan klasik dan pendekatan reaktif <span class="cite">(Patle, 2019)</span>. Pendekatan klasik menjamin jalur akan ditemukan jika memang ada, atau ketiadaannya terkonfirmasi jika jalur tidak dapat diperoleh. Kelemahan utama dari pendekatan ini adalah biaya komputasi yang tinggi dan kurang mampu menanggapi ketidakpastian yang ada di lingkungan, sehingga pendekatan ini kurang disukai untuk implementasi waktu nyata. Patle, dkk. secara singkat menyatakan pendekatan reaktif adalah pendekatan navigasi lokal dan secara praktis memasukkan metode-metode yang berkembang dari bidang kecerdasan buatan dalam kelompok ini, sebagaimana dirangkum pada Tabel 2.2.</p>
+
+        <p><strong>Tabel 2.2</strong> Klasifikasi berbagai metode perencanaan jalur oleh Patle, dkk. <span class="cite">(Patle, 2019)</span></p>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:60px;">No.</th>
+                    <th style="width:200px;">Pendekatan</th>
+                    <th>Metode</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Pendekatan Klasik</td>
+                    <td>
+                        <ol>
+                            <li><em>Cell Decomposition</em> (CD)</li>
+                            <li><em>Roadmap Approach</em> (RA)</li>
+                            <li><em>Artificial Potential Field</em> (APF)</li>
+                        </ol>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Pendekatan Reaktif</td>
+                    <td>
+                        <ol>
+                            <li>Algoritma Genetik (AG)</li>
+                            <li>Logika Fuzzy (LF)</li>
+                            <li><em>Neural Network</em> (NN)</li>
+                            <li><em>Firefly Algorithm</em> (FA)</li>
+                            <li><em>Particle Swarm Optimization</em> (PSO)</li>
+                            <li><em>Ant Colony Optimization</em> (ACO)</li>
+                            <li><em>Bacterial Foraging Optimization</em> (BFO)</li>
+                            <li><em>Artificial Bee Colony</em> (ABC)</li>
+                            <li><em>Cuckoo Search</em> (CS)</li>
+                            <li><em>Shuffled Frog Leaping Algorithm</em> (SFLA)</li>
+                            <li><em>Other Miscellaneous Algorithms</em> (OMA)</li>
+                        </ol>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ============================================================ -->
+        <!-- Subsection: Perencanaan Jalur untuk Beberapa Robot (MRPP)    -->
+        <!-- ============================================================ -->
+        <h3>Perencanaan Jalur untuk Beberapa Robot</h3>
+
+        <p>Seperti telah disampaikan di bagian Pendahuluan, Patle, dkk. menyatakan makalah terkait perencanaan jalur robot untuk sistem beberapa robot relatif sedikit dibandingkan dengan perencanaan jalur sistem robot bergerak tunggal <span class="cite">(Patle, 2019)</span>. Patle, dkk. mencatat perencanaan jalur untuk beberapa robot yang diusulkan menggunakan berbagai jenis metode, yaitu AG, ACO, LF, FA, ABC, CSA, PSO, FA, APFA, dan beberapa metode lainnya. Metode yang paling banyak digunakan untuk masalah ini adalah AG yang digunakan 6 dari 19 makalah yang disurvei Patle, dkk. Penggunaan AG pada masalah ini akan dibahas di Subbab 2.8. Penggunaan metode yang lain relatif merata, masing-masing berkisar satu hingga tiga makalah.</p>
+
+        <p>Kajian terhadap literatur perencanaan jalur beberapa robot menunjukkan transisi paradigma yang konsisten dari pendekatan kontrol reaktif lokal menuju pendekatan optimasi global terdistribusi. Penerapan metode berbasis kecerdasan buatan seperti <em>Adaptive Neuro Fuzzy Inference System</em> (ANFIS) oleh Al-Jarrah, dkk. <span class="cite">(Al-Jarrah, 2015)</span> dan Pothal, dkk. <span class="cite">(Pothal, 2015)</span> membuktikan bahwa navigasi multi-robot dapat diselesaikan secara waktu nyata tanpa memerlukan peta global yang statis. Pada skema navigasi tersebut, validasi dilakukan baik melalui simulasi maupun eksperimen fisik menggunakan <em>mobile robot</em> (sebagaimana diperlihatkan pada Gambar 2.2). Namun, arsitektur koordinasi yang diadopsi oleh kedua penelitian tersebut bertumpu pada skema <em>leader-follower</em>. Struktur ini memiliki keterbatasan metodologis yang inheren: kegagalan operasional pada robot pemimpin menghentikan navigasi seluruh kelompok (<em>single point of failure</em>), dan robot pengikut rentan terjebak pada rintangan statis yang tidak berada dalam lintasan robot pemimpin.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F916;</span>
+            <strong>Gambar 2.2</strong> &mdash; Eksperimen dengan 4 robot Khepera oleh Pothal, dkk. <span class="cite">(Pothal, 2015)</span>
+        </div>
+
+        <p>Untuk mengatasi ketergantungan tersebut, beberapa peneliti beralih ke integrasi <em>Artificial Potential Field</em> (APF) dengan pembelajaran penguatan (<em>reinforcement learning</em>) terdistribusi, seperti metode <em>mixed experience multiagent deep deterministic policy gradient</em> (ME-MADDPG) oleh Wu, dkk. <span class="cite">(Wu, 2021)</span> atau kombinasi struktur virtual dan APF oleh Yan, dkk. <span class="cite">(Yan, 2021)</span>. Pendekatan ini memberikan otonomi yang setara bagi setiap agen untuk merespons dinamika lingkungan secara mandiri. Meskipun demikian, sifat lokal dari medan potensial buatan memicu kelemahan ilmiah berupa kerentanan terhadap jebakan minimum lokal (<em>local minima</em>). Ketika beberapa agen berinteraksi di area sempit, gaya tolak-menolak antar-agen sering kali menghasilkan perilaku osilasi tanpa henti atau kemacetan sistemik (<em>deadlock</em>). Pola perkembangan ini menegaskan bahwa penyelesaian konflik koordinasi tidak cukup hanya mengandalkan aturan keputusan reaktif lokal; diperlukan suatu mekanisme optimasi global berbasis lintasan yang dapat memproyeksikan pergerakan <em>spatiotemporal</em> seluruh agen sejak awal perencanaan.</p>
+
+        <!-- ============================================================ -->
+        <!-- Subsection: CBS dan Prioritized Planning                      -->
+        <!-- ============================================================ -->
+        <h3>Algoritma Koordinasi MAPF Klasik: CBS dan <em>Prioritized Planning</em></h3>
+
+        <p>Dalam literatur <em>Multi-Agent Path Finding</em> (MAPF), terdapat dua pendekatan koordinasi klasik tersentralisasi yang luas digunakan sebagai acuan performa: <em>Conflict-Based Search</em> (CBS) dan perencanaan berbasis prioritas (<em>prioritized planning</em>).</p>
+
+        <p>CBS, yang diperkenalkan oleh Sharon, dkk., merupakan algoritma pencarian optimal dan lengkap (<em>complete</em>) yang bekerja pada dua tingkatan <span class="cite">(Sharon, 2015)</span>. Tingkat tinggi mengelola pohon kendala (<em>constraint tree</em>). Setiap simpul mewakili sekumpulan kendala <em>spatiotemporal</em> per robot (misalnya &ldquo;robot \(i\) tidak boleh berada di sel \((x,y)\) pada waktu \(t\)&rdquo;). Jika jalur-jalur solusi simpul masih berkonflik, simpul dipecah menjadi dua anak yang masing-masing menambahkan satu kendala baru bagi salah satu robot yang berkonflik. Tingkat rendah merencanakan jalur individual tiap robot dengan pencarian <em>spatiotemporal</em> (A* ruang-waktu) yang mematuhi seluruh kendala simpul. Dengan menambahkan kendala secara bertahap hanya saat konflik terdeteksi, CBS menghindari eksplorasi ruang keadaan gabungan yang sangat besar sambil tetap menjamin optimalitas jumlah biaya (<em>sum of costs</em>) pada model <em>grid</em> yang dipakainya <span class="cite">(Sharon, 2015)</span>.</p>
+
+        <p><em>Prioritized planning</em> merupakan pendekatan heuristik yang sangat efisien. Gagasan dasarnya diperkenalkan oleh Erdmann dan Lozano-Pérez <span class="cite">(Erdmann &amp; Lozano-Pérez, 1987)</span> dan diformalkan untuk pencarian <em>spatiotemporal</em> oleh Silver melalui tabel reservasi kooperatif (<em>Cooperative A*</em>) <span class="cite">(Silver, 2005)</span>. Robot direncanakan berurutan sesuai prioritas. Jalur robot berprioritas tinggi dicatat ke tabel reservasi ruang-waktu, dan robot berikutnya memperlakukan reservasi tersebut sebagai rintangan <em>spatiotemporal</em> yang tidak boleh dilanggar (termasuk tabrakan tukar-posisi). Pendekatan ini cepat dan skalabel karena memecah koordinasi menjadi pencarian robot-tunggal sekuensial, tetapi tidak optimal dan tidak lengkap. Kegagalan dapat terjadi bila robot berprioritas tinggi memblokir jalur satu-satunya robot berprioritas rendah <span class="cite">(Silver, 2005)</span>. Kedua algoritma klasik ini dirancang untuk lingkungan statis pada <em>grid</em> abstrak. Keduanya digunakan pada Bab IV sebagai acuan pembanding eksternal kondisi statis bagi kerangka evolusioner yang diusulkan.</p>
+
+        <!-- ============================================================ -->
+        <!-- Subsection: Perencanaan Jalur Robot pada Lingkungan Dinamis  -->
+        <!-- ============================================================ -->
+        <h3>Perencanaan Jalur Robot pada Lingkungan Dinamis</h3>
+
+        <p>Seperti telah dipaparkan sebelumnya, Patle, dkk. menyatakan riset terkait perencanaan jalur pada lingkungan dinamis relatif lebih sedikit dibandingkan dengan lingkungan statis <span class="cite">(Patle, 2019)</span>. Walaupun banyak riset mengenai perencanaan jalur pada lingkungan dinamis, definisi lingkungan dinamis sendiri jarang dibahas secara rinci. Dalam studi ekstensif mengenai berbagai metode navigasi robot baik pada lingkungan statis maupun dinamis, Sanyal, dkk. menjelaskan lingkungan dinamis sebagai lingkungan dengan rintangan dan tujuan yang bergerak (<em>moving obstacles and goals</em>) <span class="cite">(Sanyal, 2021)</span>.</p>
+
+        <p>Wang, dkk. pada risetnya menyebut sebuah lingkungan kompleks yang dinamis yang mempunyai 6 rintangan statis, dua rintangan bergerak teratur (reguler) dan 1 rintangan bergerak tidak teratur (<em>irregular moving obstacles</em>) <span class="cite">(Wang, 2021)</span>. Dua rintangan teratur akan bergerak dengan arah tertentu, yang satu dengan arah 315&deg;, dan satunya pada arah 135&deg;. Adapun rintangan tidak teratur mempunyai arah gerakan yang berubah secara acak. Desain lingkungan dinamis yang diusulkan Wang, dkk. ditampilkan pada Gambar 2.3.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F30D;</span>
+            <strong>Gambar 2.3</strong> &mdash; Desain lingkungan dinamis oleh Wang, dkk. <span class="cite">(Wang, 2021)</span>
+        </div>
+
+        <p>Yang, dkk. menggunakan lingkungan dinamis dengan cara agak berbeda. Mereka mendesain algoritma yang dapat merencanakan jalur untuk dua robot bergerak pada tiga kondisi sebagai berikut: 1) lokasi awal berbeda dan target berbeda, 2) lokasi awal yang sama dengan target berbeda, dan 3) lokasi awal yang sama dan target yang sama <span class="cite">(Yang, 2006)</span>. Gambar 2.4 menunjukkan skenario pertama, sedangkan Gambar 2.5 menunjukkan skenario ketiga (skenario kedua tidak difigurkan dalam makalah asli Yang, dkk. <span class="cite">(Yang, 2006)</span>).</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F9E0;</span>
+            <strong>Gambar 2.4</strong> &mdash; Simulasi perencanaan jalur untuk dua robot yang dilakukan Yang, dkk. <span class="cite">(Yang, 2006)</span>
+        </div>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F3E0;</span>
+            <strong>Gambar 2.5</strong> &mdash; Desain lingkungan dinamis oleh Yang, dkk. dengan lokasi awal dan akhir dua robot yang sama <span class="cite">(Yang, 2006)</span>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- Section: Algoritma A* (A Star)                                -->
+        <!-- ============================================================ -->
+        <h2>Algoritma A* (A Star)</h2>
+
+        <p>Algoritma A* (dibaca &ldquo;A-star&rdquo;) merupakan algoritma pencarian jalur (<em>pathfinding</em>) yang banyak digunakan dalam robotika, <em>game</em>, dan sistem navigasi karena kemampuannya menggabungkan keoptimalan pencarian biaya seragam (<em>Uniform Cost Search</em>) dan efisiensi pencarian heuristik (<em>Greedy Best-First Search</em>) <span class="cite">(Klancar, 2017)</span>. Algoritma ini dirancang untuk menemukan jalur dengan biaya terendah dari suatu simpul awal (<em>start</em>) ke simpul tujuan (<em>goal</em>) dalam sebuah graf berbobot. Kunci kinerja A* terletak pada fungsi evaluasi \(f(n) = g(n) + h(n)\), dengan \(g(n)\) merepresentasikan biaya aktual dari titik awal ke simpul \(n\), dan \(h(n)\) adalah fungsi heuristik yang mengestimasi biaya dari simpul \(n\) ke tujuan <span class="cite">(Duchoň, 2014)</span>.</p>
+
+        <p>Fungsi heuristik \(h(n)\) harus bersifat <em>admissible</em>, artinya tidak pernah melebihkan biaya sebenarnya menuju tujuan, agar A* dapat menjamin menemukan jalur optimal. Dalam lingkungan <em>grid</em> 2D dengan gerakan empat arah (atas, bawah, kiri, kanan), heuristik Jarak Manhattan \(h(n) = |x_{\text{goal}} - x_n| + |y_{\text{goal}} - y_n|\) sering digunakan karena memenuhi syarat tersebut dan sesuai dengan domain gerak robot <span class="cite">(Duchoň, 2014)</span>. Prosedur A* dikelola melalui dua struktur data utama: <em>open list</em> yang berisi simpul-simpul yang ditemukan namun belum dievaluasi (diurutkan berdasarkan \(f(n)\) terkecil), dan <em>closed list</em> yang berisi simpul-simpul yang telah dievaluasi. Algoritma akan secara iteratif mengekspansi simpul dengan nilai \(f(n)\) terkecil hingga mencapai tujuan atau menyimpulkan bahwa tidak ada jalur yang tersedia <span class="cite">(Klancar, 2017)</span>.</p>
+
+        <p>Meskipun unggul, A* memiliki beberapa keterbatasan saat diaplikasikan pada perencanaan jalur robot. Pertama, jalur yang dihasilkan pada ruang diskrit seperti <em>grid</em> cenderung memiliki banyak belokan tajam (<em>zig-zag</em>) yang tidak efisien untuk robot bergerak karena memerlukan banyak manuver berhenti dan berputar. Kedua, dalam konteks multi-robot, menjalankan A* secara terpisah untuk setiap robot (<em>decoupled planning</em>) akan mengabaikan interaksi dinamis antaragen, sehingga berisiko menghasilkan jalur yang saling bertabrakan <span class="cite">(Duchoň, 2014)</span>. Kedua keterbatasan inilah yang mendasari pemanfaatan solusi awal A* pada penelitian ini sebagai populasi inisialisasi yang valid dan berkualitas, untuk kemudian dioptimasi lebih lanjut oleh algoritma <em>Non-dominated Sorting Genetic Algorithm II</em> (NSGA-II). Pendekatan hibrida yang disebut <em>NSGA2-A*</em> ini bertujuan untuk mempertahankan keoptimalan jarak dari A* sambil secara simultan mengoptimasi kriteria lain seperti kelancaran jalur (<em>smoothness</em>) dan menjamin kebebasan dari tabrakan antarrobot.</p>
+
+        <!-- ============================================================ -->
+        <!-- Section: Algoritma Genetik                                    -->
+        <!-- ============================================================ -->
+        <h2>Algoritma Genetik</h2>
+
+        <p>Algoritma genetik (AG) merupakan teknik optimasi global untuk masalah berdimensi tinggi dan bersifat nonlinear. Keunggulan AG terletak pada kemampuannya mempertahankan bagian solusi yang sudah baik, sambil terus memperbaiki bagian yang belum optimal dari generasi ke generasi.</p>
+
+        <p>Agar AG dapat dipergunakan untuk memecahkan masalah, parameter masalah (fenotipe/<em>phenotype</em>) harus disandikan dalam sebuah genotipe (<em>genotype</em>). Cara penyandian fenotipe ke dalam genotipe inilah yang sangat menentukan performa AG dalam memecahkan masalah.</p>
+
+        <p>Algoritma genetik bekerja pada populasi genotip yang melakukan pencarian optimum secara global melalui operasi-operasi genetika pada genotip dengan memperhatikan kualitas genotipenya. Kualitas genotip ditentukan dengan mengekstraksi keterwakilan fenotip dan mengevaluasi kecocokan fenotip.</p>
+
+        <!-- Subsection: Prinsip dan Siklus Evolusi AG -->
+        <h3>Prinsip dan Siklus Evolusi Algoritma Genetik</h3>
+
+        <p>Algoritma Genetik, yang diperkenalkan oleh Holland pada 1975, adalah metaheuristik berbasis populasi yang meniru mekanisme seleksi alam. Solusi-solusi kandidat disandikan sebagai kromosom, dievaluasi dengan fungsi <em>fitness</em>, lalu diperbaiki dari generasi ke generasi melalui seleksi, <em>crossover</em>, dan mutasi <span class="cite">(Eiben &amp; Smith, 2015)</span>. Sebagai pencari global yang tidak memerlukan informasi gradien, AG efektif pada masalah kombinatorial berdimensi tinggi dan menjadi salah satu metode yang paling banyak diadopsi untuk optimasi teknik, termasuk perencanaan jalur robot <span class="cite">(Katoch, 2021)</span>. Satu siklus evolusi terdiri atas pembentukan populasi awal, evaluasi, seleksi induk, reproduksi melalui operator genetika, dan penggantian populasi, yang diulang hingga kriteria penghentian terpenuhi. Diagram alirnya ditampilkan pada Gambar 2.6.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F504;</span>
+            <strong>Gambar 2.6</strong> &mdash; Diagram alir algoritma genetik sederhana menurut Salustowicz <span class="cite">(Salustowicz, 1995)</span>
+        </div>
+
+        <p>Dua keputusan desain yang paling menentukan dalam penerapan AG adalah cara penyandian solusi (representasi) dan pemilihan operator yang sesuai dengan representasi tersebut, karena keduanya menentukan apakah keturunan yang dihasilkan tetap merupakan solusi yang absah dan bermakna <span class="cite">(Eiben &amp; Smith, 2015)</span>. Representasi yang lazim mencakup string biner, vektor integer atau riil, dan permutasi <span class="cite">(Katoch, 2021)</span>. Pada perencanaan jalur berbasis <em>grid</em>, kromosom umumnya menyandikan barisan aksi gerak atau barisan sel yang dilalui robot, sehingga panjang kromosom dan validitas jalur terhadap rintangan menjadi perhatian utama dalam perancangan penyandian <span class="cite">(Xue, 2018; Chen, 2021)</span>.</p>
+
+        <!-- Subsection: Evaluasi Fitness, Inisialisasi, dan Seleksi -->
+        <h3>Evaluasi <em>Fitness</em>, Inisialisasi, dan Seleksi</h3>
+
+        <p>Fungsi <em>fitness</em> memetakan setiap kromosom ke ukuran kualitas yang memandu arah pencarian. Pada masalah multi-objektif, evaluasi ini digeneralisasi menjadi beberapa fungsi objektif yang diproses melalui konsep dominasi Pareto sebagaimana diuraikan pada Subbab 2.9 <span class="cite">(Eiben &amp; Smith, 2015)</span>. Inisialisasi populasi lazim dilakukan secara acak dalam domain solusi dengan tetap memperhatikan kendala masalah. Namun pada masalah berkendala ketat seperti perencanaan jalur, penyemaian (<em>seeding</em>) populasi awal dengan solusi bermutu dari heuristik deterministik terbukti mempercepat konvergensi menuju wilayah <em>feasible</em> <span class="cite">(Katoch, 2021; Chen, 2021)</span>. Pendekatan inilah yang diadopsi penelitian ini melalui inisialisasi populasi berbasis A* (Bab III). Mekanisme seleksi, antara lain <em>roulette wheel</em>, <em>tournament</em>, dan elitisme, mengatur tekanan seleksi: tekanan yang terlalu kuat mendorong konvergensi prematur, sedangkan tekanan yang terlalu lemah memperlambat perbaikan, sehingga keseimbangan eksplorasi&ndash;eksploitasi menjadi pertimbangan utama dalam merancang AG yang efektif <span class="cite">(Eiben &amp; Smith, 2015; Katoch, 2021)</span>.</p>
+
+        <!-- Subsection: Operator Genetika -->
+        <h3>Operator Genetika</h3>
+
+        <p>Operator <em>crossover</em> menggabungkan material genetik dua induk untuk menghasilkan keturunan. Varian klasiknya meliputi penyilangan satu titik, banyak titik, dan seragam, sedangkan mutasi melakukan perubahan kecil secara acak untuk menjaga keragaman populasi dan memunculkan kembali material genetik yang hilang akibat seleksi. Bentuk operator yang absah bergantung langsung pada representasi kromosom (biner, integer, riil, maupun permutasi), sehingga pemilihan operator tidak dapat dipisahkan dari pemilihan penyandian <span class="cite">(Eiben &amp; Smith, 2015; Katoch, 2021)</span>. Probabilitas <em>crossover</em> (\(p_c\)) dan probabilitas mutasi (\(p_m\)) mengendalikan keseimbangan antara rekombinasi dan gangguan acak. Nilai baku yang lazim (\(p_c\) tinggi dan \(p_m\) kecil, misalnya \(p_m \approx 1/n\) dengan \(n\) panjang kromosom <span class="cite">(Michalewicz, 1996)</span>) tidak selalu optimal, karena penyetelan yang tepat bergantung pada semantik operator dan karakteristik masalah yang diselesaikan <span class="cite">(Eiben &amp; Smith, 2015)</span>.</p>
+
+        <p>Pada perencanaan jalur robot, operator generik yang bekerja pada posisi gen individual kerap menghasilkan jalur yang menabrak rintangan atau terputus. Studi-studi terkini menjawab persoalan ini dengan merancang operator domain-spesifik yang sadar-<em>feasibility</em> (<em>feasibility-aware</em>), misalnya penyilangan pada tingkat segmen jalur dan mutasi yang mempertahankan validitas lintasan, serta menala probabilitasnya secara empiris terhadap operator dan lingkungan <em>grid</em> yang digunakan <span class="cite">(Xue, 2018; Chen, 2021)</span>. Prinsip inilah yang mendasari perancangan enam operator domain-spesifik pada penelitian ini (Bab III) beserta analisis sensitivitas parameternya (Bab IV).</p>
+
+        <!-- Subsection: Penentuan Parameter -->
+        <h3>Penentuan Parameter</h3>
+
+        <p>Parameter yang dimaksud di sini adalah parameter kontrol algoritma evolusioner. Parameter kontrol utama pada algoritma genetik standar adalah ukuran populasi (<em>popsize</em>), peluang <em>crossover</em> (\(p_c\)), dan peluang mutasi (\(p_m\)).</p>
+
+        <h4>Pendekatan Klasik Penentuan Parameter</h4>
+
+        <p>Dalam perkembangan awal algoritma genetik berobjektif tunggal, penentuan parameter kontrol sangat bergantung pada studi empiris pionir dan pedoman heuristik. Beberapa rekomendasi klasik yang paling sering dirujuk dalam literatur adalah sebagai berikut:</p>
+
+        <ol style="list-style-type:lower-alpha;">
+            <li><strong>Rekomendasi De Jong <span class="cite">(De Jong, 1975):</span></strong> Berdasarkan analisis awal perilaku kelas sistem adaptif genetik, De Jong menyarankan kombinasi parameter: (<em>popsize</em>; \(p_c\); \(p_m\)) = (50&ndash;100; 0,6; 0,001) untuk menjaga kestabilan pencarian global.</li>
+            <li><strong>Rekomendasi Grefenstette <span class="cite">(Grefenstette, 1986):</span></strong> Menggunakan pendekatan <em>meta-genetic algorithm</em> untuk mengoptimalkan parameter kontrol secara otomatis dan menyarankan konfigurasi (<em>popsize</em>; \(p_c\); \(p_m\)) = (30; 0,95; 0,01) untuk kinerja <em>online</em> yang agresif, serta (80; 0,45; 0,018) untuk kinerja <em>offline</em> yang stabil.</li>
+            <li><strong>Rekomendasi Schaffer, dkk. <span class="cite">(Schaffer, 1989):</span></strong> Melakukan studi sensitivitas ekstensif terhadap interaksi parameter kontrol dan menyarankan rentang operasional: (<em>popsize</em>; \(p_c\); \(p_m\)) = (20&ndash;30; 0,75&ndash;0,95; 0,005&ndash;0,01).</li>
+        </ol>
+
+        <p>Secara umum, buku teks klasik oleh Goldberg <span class="cite">(Goldberg, 1989)</span> dan Michalewicz <span class="cite">(Michalewicz, 1996)</span> menjelaskan bahwa penentuan parameter-parameter di atas bertujuan menyeimbangkan tekanan seleksi (<em>selection pressure</em>) dan diversitas populasi guna mencegah konvergensi prematur. Batasan ukuran populasi yang relatif kecil (\(\le 30\)) pada beberapa rekomendasi klasik tersebut disarankan terutama untuk membatasi beban komputasi pada perangkat keras generasi awal, dan bukan sebagai batas teoretis mutlak <em>feasibility</em> pencarian.</p>
+
+        <h4>Parameterisasi pada Optimasi Multi-Objektif dan Banyak-Objektif</h4>
+
+        <p>Rekomendasi klasik di atas tidak dapat diterapkan secara langsung pada optimasi multi-objektif (<em>Multi-Objective Optimization</em> &mdash; MOO) seperti perencanaan jalur multi-robot otonom. Pada MOO, algoritma bertujuan menemukan sekumpulan solusi <em>trade-off</em> yang tersebar merata di sepanjang <em>Pareto front</em>, sehingga diperlukan populasi yang jauh lebih besar (umumnya <em>popsize</em> \(\ge 100\)) untuk menjaga diversitas dan sebaran solusi nondominasi <span class="cite">(Deb, 2002)</span>.</p>
+
+        <p>Ukuran populasi juga sangat dipengaruhi oleh dimensi objektif (\(M\)) dari formulasi masalah. Pada koordinasi multi-robot otonom berbasis formulasi per-agen (<em>per-agent formulation</em>), jumlah objektif tumbuh linier terhadap jumlah robot (\(R\)) yang dikoordinasikan. Ketika dimensi objektif melebihi tiga (\(M \ge 4\)), tekanan seleksi berbasis dominansi Pareto murni pada algoritma seperti NSGA-II mengalami degradasi tajam <span class="cite">(Deb &amp; Jain, 2014)</span>. Fenomena ini disebabkan oleh peningkatan eksponensial proporsi individu nondominasi dalam populasi, yang pada akhirnya menjenuhkan populasi berukuran standar (seperti populasi 100) dan menghentikan konvergensi.</p>
+
+        <p>Akibatnya, penentuan parameter populasi pada koordinasi multi-robot otonom skala besar memerlukan penyesuaian ukuran populasi yang lebih dinamis atau transisi ke algoritma berbasis titik referensi seperti NSGA-III <span class="cite">(Deb &amp; Jain, 2014)</span> atau berbasis dekomposisi seperti MOEA/D <span class="cite">(Blank &amp; Deb, 2020)</span>.</p>
+
+        <p>Kriteria penghentian (<em>termination criteria</em>) juga bergeser dari batas generasi maksimum tetap (\(N_{\text{gen}}\)) menjadi kriteria berbasis konvergensi metrik performa multi-objektif. Salah satu pendekatan yang digunakan adalah pemantauan stabilitas nilai <em>hypervolume</em> (HV) dari <em>Pareto front</em> sepanjang jendela generasi tertentu (misalnya toleransi perubahan \(\Delta \text{HV} \le 0{,}002\) selama 20 generasi berturut-turut) untuk menghentikan proses evolusi secara dinamis saat konvergensi tercapai.</p>
+
+        <h4>Probabilitas Operator Domain-Spesifik dan Desain Eksperimen</h4>
+
+        <p>Pada penerapan praktis untuk perencanaan jalur robot, penggunaan probabilitas <em>crossover</em> dan mutasi global (misalnya \(p_c = 0{,}8\) dan \(p_m = 0{,}09\) <span class="cite">(Chen, 2022)</span>) kurang efektif jika algoritma memanfaatkan operator genetika domain-spesifik (<em>domain-specific operators</em>). Karena setiap operator domain-spesifik memiliki peran semantik yang berbeda dalam memodifikasi lintasan (seperti penyisipan langkah tunggu atau penukaran subsegmen jalur), probabilitas aktivasinya harus ditala secara individual (<em>operator-specific rates</em>) daripada menggunakan satu probabilitas global seragam.</p>
+
+        <p>Penalaan probabilitas individual untuk banyak operator menimbulkan tantangan interaksi parameter yang kompleks. Untuk merancang eksperimen penalaan yang efisien dan mengambil keputusan terbaik lintas skenario dari hasil penalaan tersebut, metodologi Desain Eksperimen Taguchi dan agregasi peringkat atau suara lintas-skenario secara umum dapat diterapkan. Konsep dasarnya dijabarkan pada Subbab 2.12.1 dan Subbab 2.12.2.</p>
+
+        <!-- ============================================================ -->
+        <!-- Section: Penggunaan AG untuk Path Planning                    -->
+        <!-- ============================================================ -->
+        <h2>Penggunaan Algoritma Genetik untuk <em>Path Planning</em></h2>
+
+        <p>Salah satu kajian pertama yang menggunakan Algoritma Genetik (AG) untuk masalah <em>path planning</em> adalah kajian yang dilakukan pada tahun 1988 oleh Cleghorn, dkk. yang saat itu bekerja pada bagian Mission Planning and Analysis Division, NASA/Johnson Space Center <span class="cite">(Cleghorn, 1988)</span>. Mereka membuat perencana jalur satu robot pada sebuah peta yang dilengkapi informasi rintangan-rintangan yang ada serta elevasi titik-titik pada peta tersebut dengan menggunakan AG. Algoritma yang diusulkan mempunyai karakteristik 1) panjang dari <em>list</em> (genotip) yang bervariasi (tidak tetap), 2) operasi <em>crossover</em> dan mutasi yang disesuaikan kebutuhan, dan 3) adanya proses <em>deification</em>, yaitu penyimpanan individu terbaik setiap generasi sepanjang beberapa generasi berikutnya. Salah satu penyesuaian operasi <em>crossover</em> yang dilakukan hanya jika ada satu atau lebih titik <em>grid</em> yang sama pada kedua individu yang bertindak sebagai orang tua. Pada operasi mutasi, sebuah titik pada jalur akan dipilih dan kemudian jalur dari titik tersebut sampai ke tujuan akan diganti jalur baru hasil dari generator jalur acak.</p>
+
+        <p>Yang, dkk. mengusulkan AG berbasis pengetahuan (<em>Knowledge Based Genetic Algorithm</em>) untuk perencanaan jalur beberapa robot pada lingkungan yang dinamis <span class="cite">(Yang, 2006)</span>. Algoritma yang diusulkan memasukkan pengetahuan <em>domain</em> ke dalam operator khusus, yang secara komputasi efisien dan dapat digunakan untuk lingkungan dinamis dengan banyak robot. Selain <em>crossover</em> dan mutasi, mereka mengenalkan tiga operator khusus yang didesain memanfaatkan pengetahuan yang spesifik terhadap masalah yang diselesaikan, yaitu <em>repair</em>, <em>deletion</em>, dan <em>improvement</em>. Pengujian algoritma dilakukan dengan simulasi untuk kasus dua robot dengan berbagai skenario lokasi awal dan lokasi tujuan, namun demikian tidak ada simulasi untuk pengujian lebih lanjut pada lingkungan dinamis.</p>
+
+        <p>Qu, dkk. mengembangkan apa yang disebut <em>Co-evolutionary Improved Genetic Algorithm</em> (CIGA) untuk perencanaan alur global dari beberapa robot bergerak <span class="cite">(Qu, 2013)</span>. Metode ini menggunakan mekanisme <em>co-evolution</em>: populasi AG dipecah menjadi beberapa subpopulasi sesuai jumlah robot yang terlibat, dan terdapat operator interaksi antarsubpopulasi atau disebut <em>cross function</em> yang akan menentukan individu-individu terbaik pada masing-masing subpopulasi. Qu, dkk. menguji metode yang dikembangkan pada simulasi 3 robot, namun tidak melakukan pengujian pada robot riil.</p>
+
+        <p>Meskipun penggunaan Algoritma Genetik (AG) untuk perencanaan jalur telah dirintis sejak dekade 1980-an oleh Cleghorn, dkk. <span class="cite">(Cleghorn, 1988)</span>, efektivitas penerapannya masih dibatasi oleh tantangan validitas representasi genetik. Kromosom yang diinisialisasi secara acak pada lingkungan <em>grid</em> yang padat memiliki probabilitas kelayakan (<em>feasibility rate</em>) yang mendekati nol, karena sebagian besar jalur acak akan memotong rintangan fisik. Upaya mitigasi menggunakan <em>knowledge-based operator</em> (seperti operasi <em>repair</em> dan <em>deletion</em> oleh Yang, dkk. <span class="cite">(Yang, 2006)</span> serta mekanisme subpopulasi koevolusioner oleh Qu, dkk. <span class="cite">(Qu, 2013)</span>) terbukti mempercepat penemuan solusi layak. Namun, metode-metode tersebut memperlakukan kelayakan jalur secara terisolasi untuk masing-masing robot. Pada skenario koordinasi multi-robot, dimensi ruang pencarian tumbuh secara kombinatorial terhadap jumlah robot. Konflik <em>spatiotemporal</em> antar-robot (tabrakan antar-agen) tidak dapat diselesaikan hanya melalui perbaikan lokal lintasan individual tanpa koordinasi yang tersinkronisasi. Oleh karena itu, diperlukan integrasi antara inisialisasi populasi terstruktur yang menjamin kelayakan terhadap rintangan statis (seperti penyemaian berbasis A*) dan operator genetika domain-spesifik yang dirancang khusus untuk memelihara kelayakan <em>spatiotemporal</em> antar-robot sepanjang proses evolusi.</p>
+
+        <!-- ============================================================ -->
+        <!-- Section: Differential-Drive Mobile Robot                      -->
+        <!-- ============================================================ -->
+        <h2><em>Differential-Drive Mobile Robot</em></h2>
+
+        <p>Robot Bergerak <em>Differential-Drive</em> (<em>Differential-Drive Mobile Robot</em> &mdash; DDMR) merupakan arsitektur mekanis yang mendominasi platform robotika bergerak beroda untuk penelitian dan aplikasi dalam ruangan (<em>indoor</em>) <span class="cite">(Siegwart &amp; Nourbakhsh, 2011)</span>. Konfigurasinya sederhana: dua roda penggerak independen terpasang pada satu sumbu bersama, ditopang satu atau lebih roda pasif (<em>castor wheel</em>) sebagai penjaga stabilitas. Kesederhanaan ini memberikan kehandalan mekanis, efisiensi daya, dan model kinematik yang relatif mudah diturunkan. Popularitas DDMR dalam literatur, yang meliputi platform seperti Pioneer, Khepera, iRobot Create, dan TurtleBot3 (yang dalam penelitian ini menjadi contoh platform DDMR yang dipakai sebagai acuan model kinematika) menjadikannya model yang paling umum digunakan untuk menguji dan mengembangkan algoritma navigasi otonom <span class="cite">(Cao, 2024)</span>.</p>
+
+        <p>Dinamika gerak DDMR berakar pada prinsip diferensial kecepatan roda. Kecepatan linier robot \(v\) dan kecepatan sudut \(\omega\) terkait langsung dengan kecepatan sudut roda kiri \(\omega_L\) dan kanan \(\omega_R\) melalui persamaan kinematika standar <span class="cite">(Siegwart &amp; Nourbakhsh, 2011)</span>:</p>
+
+        <div class="eq">
+            \[v = \frac{r (\omega_R + \omega_L)}{2}, \quad \omega = \frac{r (\omega_R - \omega_L)}{L},\]
+        </div>
+
+        <p>dengan \(r\) adalah jari-jari roda dan \(L\) adalah jarak antarroda (<em>track width</em>). Dari persamaan ini, model kinematik non-holonomik yang menghubungkan kecepatan robot dalam ruang konfigurasi \(q = [x, y, \theta]^T\) dengan input roda dapat dinyatakan dalam bentuk matriks transisi berikut <span class="cite">(Siegwart &amp; Nourbakhsh, 2011)</span>:</p>
+
+        <div class="eq">
+            \[\begin{bmatrix}
+                \dot{x} \\ \dot{y} \\ \dot{\theta}
+            \end{bmatrix}
+            =
+            \begin{bmatrix}
+                \cos\theta & 0 \\
+                \sin\theta & 0 \\
+                0 & 1
+            \end{bmatrix}
+            \begin{bmatrix}
+                v \\ \omega
+            \end{bmatrix}
+            =
+            \begin{bmatrix}
+                \frac{r}{2}\cos\theta & \frac{r}{2}\cos\theta \\
+                \frac{r}{2}\sin\theta & \frac{r}{2}\sin\theta \\
+                -\frac{r}{L} & \frac{r}{L}
+            \end{bmatrix}
+            \begin{bmatrix}
+                \omega_L \\ \omega_R
+            \end{bmatrix}.\]
+        </div>
+
+        <p>Kendala non-holonomik yang melekat, \(\dot{x} \sin\theta - \dot{y} \cos\theta = 0\), membatasi arah gerak instan robot sejajar dengan sumbu rodanya, sehingga lintasan yang dapat dilacak (<em>feasible</em>) harus mempertimbangkan keterbatasan ini <span class="cite">(Siegwart &amp; Nourbakhsh, 2011)</span>.</p>
+
+        <p>Dalam konteks perencanaan jalur, karakteristik DDMR menimbulkan tantangan dan pertimbangan desain algoritma yang spesifik <span class="cite">(Cao, 2024)</span>:</p>
+        <ol>
+            <li><strong>Kelancaran Jalur (<em>Path Smoothness</em>):</strong> Lintasan dengan belokan tajam atau perubahan sudut mendadak memerlukan kecepatan sudut \(\omega\) yang tinggi, yang sering kali berada di luar batas dinamik motor atau menyebabkan slip, sehingga meminimalkan jumlah dan ketajaman belokan menjadi fungsi objektif penting, seperti yang dilakukan dalam formulasi NSGA-II pada penelitian ini.</li>
+            <li><strong>Ketertelusuran (<em>Path Trackability</em>):</strong> Jalur yang direncanakan dalam ruang kerja (misalnya, <em>grid</em>) perlu diterjemahkan menjadi serangkaian perintah kecepatan \((v, \omega)\) yang dapat dilacak oleh pengendali robot. Jalur yang tidak memperhatikan jari-jari belokan minimum atau kontinuitas orientasi akan sulit atau mustahil untuk diikuti oleh DDMR.</li>
+            <li><strong>Koordinasi Multi-Robot:</strong> Pada sistem multi-robot DDMR, penghindaran tabrakan harus mempertimbangkan posisi sekaligus orientasi dan profil kecepatan masing-masing robot, karena manuver menghindar yang aman bergantung pada kemampuan belok yang terbatas.</li>
+        </ol>
+
+        <p>Pemahaman tentang kinematika DDMR bukan sekadar landasan teori; pemahaman ini memandu langsung formulasi masalah dan fungsi objektif dalam kerangka <em>Multi-Objective Optimization</em> yang diusulkan. Kriteria seperti <em>makespan</em> dan minimasi belokan dalam fungsi objektif NSGA-II pada Bab III dirancang dengan mempertimbangkan secara eksplisit karakteristik dan batasan operasional platform DDMR seperti TurtleBot3 <span class="cite">(TurtleBot3 Manual)</span>.</p>
+
+        <!-- ============================================================ -->
+        <!-- Section: Optimasi Multi Objektif (MOO)                        -->
+        <!-- ============================================================ -->
+        <h2>Optimasi Multi Objektif (<em>Multi Objective Optimization</em>)</h2>
+
+        <p>Perencanaan jalur untuk beberapa robot dapat dipandang sebagai masalah Optimasi Multi Objektif (MOO), di mana penentuan rencana tugas maupun lintasan yang optimal secara statistik sering kali melibatkan pertimbangan banyak tujuan yang saling bertentangan <span class="cite">(Wilde, 2024)</span>. MOO dicirikan dengan adanya dua atau lebih fungsi tujuan yang saling bertentangan yang harus dimaksimalkan atau diminimalkan pada saat yang sama, sehingga nilai optimal fungsi-fungsi tersebut adalah seperangkat solusi <em>trade-off</em> yang dikenal sebagai himpunan optimal Pareto <span class="cite">(Benitez-Hidalgo, 2019)</span>. Pada masalah perencanaan jalur untuk beberapa robot, jalur dari masing-masing robot akan menjadi fungsi tujuan yang berbeda. Terdapat pula <em>constraint</em> bahwa jalur yang diperoleh tidak boleh menyebabkan dua atau lebih robot bertabrakan.</p>
+
+        <p>Pada MOO terdapat <em>Pareto front</em>, berdasar gagasan dominasi Pareto: X yang didefinisikan dengan seperangkat nilai variabel keputusan mendominasi solusi lain X&rsquo; <strong>jika dan hanya jika</strong> X lebih baik dari X&rsquo; untuk semua tujuan dan pada minimal satu tujuan X benar-benar lebih baik daripada X&rsquo; <span class="cite">(Villa, 2011)</span>. Himpunan solusi nondominasi dinotasikan dengan Pareto optimal. Contoh masalah minimisasi dua fungsi tujuan \(f_1\) dan \(f_2\), dengan C didominasi oleh A dan B sehingga bukan bagian <em>Pareto front</em>, serta A dan B tidak didominasi dan optimal Pareto dapat dilihat pada Gambar 2.7.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F4CA;</span>
+            <strong>Gambar 2.7</strong> &mdash; Contoh dari <em>Pareto front</em> pada dua objektif <span class="cite">(Villa, 2011)</span>
+        </div>
+
+        <p>Ada banyak algoritma yang dikembangkan untuk memecahkan masalah MOO. Pymoo, sebuah framework yang mengimplementasikan berbagai algoritma MOO menyebut paling tidak ada 10 algoritma sebagai berikut: BRKGA, DE, Nelder-Mead, CMA-ES, NSGA-II, RNSGA-II, NSGA-III, UNSGA-III, RNSGA-III, dan MOEAD <span class="cite">(Blank &amp; Deb, 2020)</span>. Kelompok yang paling banyak dikaji dan digunakan adalah keluarga algoritma evolusioner multi-objektif, yang diuraikan pada bagian berikut.</p>
+
+        <!-- ============================================================ -->
+        <!-- Section: Multi-Objective Evolutionary Algorithm (MOEA)        -->
+        <!-- ============================================================ -->
+        <h2><em>Multi-Objective Evolutionary Algorithm</em> (MOEA)</h2>
+
+        <p>Algoritma evolusioner (<em>Evolutionary Algorithm</em>, EA) merupakan istilah payung bagi metaheuristik berbasis populasi yang meniru mekanisme evolusi alami. Keluarga ini mencakup <em>evolution strategies</em> dan <em>evolutionary programming</em> yang muncul pada awal 1960-an, serta algoritma genetika (Subbab 2.5) yang kemudian menjadi varian paling luas digunakan. Istilah EA sendiri baru menjadi baku pada awal 1990-an ketika komunitas-komunitas riset tersebut melebur <span class="cite">(Eiben &amp; Smith, 2015)</span>. <em>Multi-Objective Evolutionary Algorithm</em> (MOEA) adalah subkelas EA yang secara khusus dikembangkan untuk menyelesaikan masalah MOO <span class="cite">(Emmerich &amp; Deutz, 2018)</span>. Berbeda dengan pendekatan konvensional yang mengagregasi berbagai tujuan menjadi satu fungsi skalar (misalnya dengan <em>weighted sum</em>) agar dapat diselesaikan oleh algoritma optimasi objektif-tunggal, MOEA bekerja langsung dengan sekumpulan solusi yang menghampiri <em>Pareto front</em> sebagaimana diuraikan pada Subbab 2.9, sehingga luarannya menyajikan <em>trade-off</em> optimal antarfungsi tujuan yang saling bertentangan secara eksplisit <span class="cite">(Konak, 2006)</span>.</p>
+
+        <p>Subkelompok MOEA yang mekanisme pencariannya berbasis operator genetika (populasi, seleksi, <em>crossover</em>, dan mutasi) sering pula disebut <em>Multi-Objective Genetic Algorithm</em> (MOGA) <span class="cite">(Konak, 2006)</span>; istilah MOGA juga digunakan secara historis untuk algoritma spesifik usulan Fonseca dan Fleming <span class="cite">(Fonseca &amp; Fleming, 1993)</span>. Ketiga algoritma yang dikaji dalam penelitian ini, yaitu NSGA-II, NSGA-III, dan SPEA2, seluruhnya berbasis operator genetika, sehingga tercakup dalam pengertian MOGA sebagaimana dimaksud pada judul disertasi ini. Untuk kepresisian taksonomi, naskah ini selanjutnya menggunakan istilah MOEA secara konsisten.</p>
+
+        <p>Secara arsitektural, MOEA berbasis genetika mengikuti kerangka dasar algoritma genetika, yaitu bekerja dengan populasi kandidat solusi, seleksi, <em>crossover</em>, dan mutasi <span class="cite">(Katoch, 2021)</span>. Namun, mekanisme seleksinya didasarkan pada konsep dominansi Pareto dan strategi khusus untuk menjaga keberagaman (<em>diversity</em>) solusi. Tiga tujuan utama desain MOEA adalah: (1) konvergensi, yaitu mendekati <em>Pareto front</em> sebenarnya, (2) penyebaran (<em>spread</em>), yaitu solusi mencakup area ekstrem dari <em>front</em>, dan (3) keseragaman (<em>uniformity</em>), yaitu solusi tersebar merata di sepanjang <em>front</em>. Hal ini bertujuan agar pengambil keputusan memperoleh variasi pilihan yang beragam <span class="cite">(von Lücken, 2014)</span>.</p>
+
+        <p>Sharma dan Kumar mengelompokkan teknik optimasi multi-objektif ke dalam pendekatan evolusioner, berbasis kawanan, dan hibrida; khusus pada MOEA, mekanisme pencarian dapat dibedakan menjadi pendekatan berbasis dominansi, indikator, dan dekomposisi <span class="cite">(Sharma &amp; Kumar, 2022)</span>. Sejalan dengan itu, berdasarkan paradigma utamanya MOEA dapat diklasifikasikan menjadi tiga kategori besar <span class="cite">(Emmerich &amp; Deutz, 2018; von Lücken, 2014)</span>:</p>
+
+        <ol>
+            <li><strong><em>Pareto-based</em>:</strong> Kategori ini menggunakan konsep dominansi Pareto untuk memberi peringkat dan memilih solusi. Contoh utamanya adalah NSGA-II (<em>Non-dominated Sorting Genetic Algorithm II</em>), yang terkenal karena efisiensinya menggunakan <em>Fast Non-dominated Sorting</em> dan mekanisme <em>Crowding Distance</em> untuk menjaga diversitas tanpa parameter tambahan <span class="cite">(Deb, 2002)</span>.</li>
+            <li><strong><em>Decomposition-based</em>:</strong> Kategori ini mendekomposisi masalah MOO menjadi beberapa submasalah optimasi tunggal yang diselesaikan secara paralel. MOEA/D (<em>Multi-Objective Evolutionary Algorithm based on Decomposition</em>) adalah perwakilan utama yang sangat efisien secara komputasi, terutama untuk masalah dengan banyak tujuan (<em>many-objective problems</em>) dan telah diimplementasikan dalam kerangka kerja optimasi seperti Pymoo <span class="cite">(Blank &amp; Deb, 2020)</span>.</li>
+            <li><strong><em>Indicator-based</em>:</strong> Kategori ini menggunakan indikator kualitas, seperti <em>Hypervolume</em>, untuk mengukur dan menyeleksi solusi. SMS-EMOA (<em>S-Metric Selection Evolutionary Multi-Objective Algorithm</em>) adalah contoh algoritma yang memilih dan mempertahankan solusi berdasarkan kontribusinya terhadap nilai <em>hypervolume</em> total dari populasi, dan juga tersedia dalam pustaka Pymoo <span class="cite">(Blank &amp; Deb, 2020)</span>.</li>
+        </ol>
+
+        <p>MOEA telah berhasil diterapkan dalam berbagai bidang teknik yang kompleks, seperti desain sirkuit cetak (PCB) dengan konflik antara panjang kabel dan keandalan <span class="cite">(Konak, 2006)</span>, penjadwalan perawatan sistem keselamatan nuklir dengan tujuan memaksimalkan keandalan dan meminimalkan biaya <span class="cite">(Di Somma, 2016)</span>, hingga pemilihan portofolio proyek dengan banyak dimensi tujuan (masalah <em>many-objective knapsack</em>) <span class="cite">(von Lücken, 2014)</span>. Fleksibilitasnya dalam menangani variabel diskrit/kontinu dan kendala yang kompleks, serta kemampuannya menyajikan serangkaian pilihan <em>trade-off</em> (<em>Pareto front</em>) menjadikan MOEA alat pendukung keputusan yang efektif untuk perencanaan sistem teknik dengan banyak pertimbangan. Tiga algoritma MOEA yang digunakan dalam penelitian ini diuraikan pada subbab berikut.</p>
+
+        <!-- Subsection: NSGA-II -->
+        <h3><em>Non-dominated Sorting Genetic Algorithm-II</em> (NSGA-II)</h3>
+
+        <p>NSGA-II adalah algoritma yang diajukan Deb, dkk. pada tahun 2002 untuk mengatasi kelemahan NSGA <span class="cite">(Deb, 2002)</span>. Mekanisme inti seleksi elitisnya diilustrasikan pada Gambar 2.8.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F9EC;</span>
+            <strong>Gambar 2.8</strong> &mdash; Prosedur seleksi elitis NSGA-II: populasi gabungan \(R_t = P_t \cup Q_t\) disortir ke dalam <em>front</em> nondominasi (\(F_1, F_2, \dots\)), kemudian \(N\) anggota terbaik dipilih <em>front</em> demi <em>front</em>. Selanjutnya, <em>front</em> terakhir yang tidak termuat penuh dipangkas berdasarkan <em>crowding distance</em> <span class="cite">(Deb, 2002)</span>
+        </div>
+
+        <p>Sebagai algoritma yang luas digunakan dan kerap dijadikan <em>baseline</em>, NSGA-II efektif terutama pada masalah dengan dua hingga tiga objektif. Ketika jumlah objektif meningkat, semakin banyak solusi menjadi saling nondominasi sehingga tekanan seleksi berbasis dominansi dapat melemah <span class="cite">(Sharma &amp; Kumar, 2022)</span>. Keterbatasan ini menjadi salah satu alasan berkembangnya algoritma untuk masalah banyak-objektif, termasuk NSGA-III. Pemilihan NSGA-II sebagai kerangka utama dalam riset ini didasari oleh status elitisnya yang kuat (menjamin solusi terbaik tidak hilang sepanjang generasi), ketiadaan kebutuhan parameter pembagian diversitas eksternal yang sensitif (<em>sharing parameter</em>), serta kompleksitas komputasinya yang efisien pada rentang objektif berdimensi rendah (\(M \le 3\)) yang sangat sesuai untuk formulasi per-agen yang diajukan.</p>
+
+        <p>Beberapa riset telah menerapkan NSGA-II untuk perencanaan jalur robot. Conesa-Munoz, dkk. memaparkan perencanaan multi jalur untuk sekelompok robot dengan NSGA-II di bidang pertanian, yaitu mengendalikan gulma pada sebuah lahan berbentuk persegi panjang <span class="cite">(Conesa-Munoz, 2012)</span>. Perencanaan jalur yang dipaparkan termasuk kategori perencanaan jalur cakupan (<em>coverage</em>): beberapa robot direncanakan bergerak pada kolom-kolom dan berpindah dari kolom satu ke kolom lain, seperti ditampilkan pada Gambar 2.9.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F916;</span>
+            <strong>Gambar 2.9</strong> &mdash; Contoh jalur yang direncanakan untuk tiga robot <span class="cite">(Conesa-Munoz, 2012)</span>
+        </div>
+
+        <p>Singh, dkk. <span class="cite">(Singh, 2023)</span> menggunakan NSGA-II untuk perencanaan jalur terbang sebuah UAV yang ditugaskan mengambil data dari <em>wireless sensor network</em> (WSN). Pada penelitian ini, digunakan dua fungsi objektif, yaitu 1) konsumsi energi UAV dan 2) konsumsi energi simpul dari WSN. Adapun Ghambari, dkk. <span class="cite">(Ghambari, 2020)</span> menggunakan NSGA-II untuk perencanaan jalur sebuah UAV pada lingkungan perkotaan. Mereka menyederhanakan peta lingkungan menjadi peta 2 dimensi dan mengodekan informasi ketinggian terbang pada kromosom yang digunakan, sebagaimana ditampilkan pada Gambar 2.10.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F4C8;</span>
+            <strong>Gambar 2.10</strong> &mdash; Penyandian kromosom yang digunakan Ghambari, dkk. <span class="cite">(Ghambari, 2020)</span>
+        </div>
+
+        <p>Xue <span class="cite">(Xue, 2018)</span> menerapkan NSGA-II untuk perencanaan jalur satu robot dengan menggunakan tiga fungsi objektif, yaitu panjang jalur, kehalusan (<em>smoothness</em>) jalur dan keamanan jalur. Pada penelitian ini jalur yang direncanakan disandikan dalam serangkaian <em>rotation point</em> (RP), p = [S = p<sub>0</sub>, p<sub>1</sub>, p<sub>2</sub>, ..., p<sub>n</sub>, p<sub>n+1</sub> = T], dengan p<sub>i</sub> adalah RP ke-i, seperti ditampilkan pada Gambar 2.11.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F4CD;</span>
+            <strong>Gambar 2.11</strong> &mdash; Penyandian jalur yang digunakan Xue <span class="cite">(Xue, 2018)</span>
+        </div>
+
+        <p>Hasil perencanaan jalur yang diperoleh dari penelitian Xue ditunjukkan pada Gambar 2.12.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F3AF;</span>
+            <strong>Gambar 2.12</strong> &mdash; Hasil perencanaan jalur dari penelitian Xue <span class="cite">(Xue, 2018)</span>
+        </div>
+
+        <!-- Subsection: NSGA-III -->
+        <h3><em>Non-dominated Sorting Genetic Algorithm-III</em> (NSGA-III)</h3>
+
+        <p>NSGA-III merupakan pengembangan dari NSGA-II yang diusulkan oleh Deb dan Jain pada tahun 2014 <span class="cite">(Deb &amp; Jain, 2014)</span>, dirancang khusus untuk menangani masalah optimasi banyak-objektif (<em>many-objective optimization</em>) dengan tiga objektif atau lebih. Pada ruang objektif berdimensi tinggi, mekanisme <em>crowding distance</em> milik NSGA-II cenderung kehilangan kemampuannya membedakan solusi, sehingga distribusi populasi di sepanjang <em>Pareto front</em> menjadi tidak merata.</p>
+
+        <p>Perbedaan mendasarnya terletak pada mekanisme pemilihan solusi dari <em>front</em> terakhir. NSGA-III menggantikan <em>crowding distance</em> dengan pendekatan berbasis <em>reference point</em> (titik referensi) yang didistribusikan secara seragam di <em>hyperplane</em> ternormalisasi. Setiap solusi dikaitkan dengan <em>reference point</em> terdekatnya. Kandidat yang dipilih adalah yang mempertahankan asosiasi dengan <em>reference point</em> paling jarang terwakili dalam populasi. Hasilnya adalah distribusi solusi yang lebih merata di seluruh <em>Pareto front</em>, terutama ketika jumlah objektif melebihi tiga. Ilustrasi penempatan <em>reference point</em> pada <em>hyperplane</em> ternormalisasi untuk kasus tiga objektif ditunjukkan pada Gambar 2.13.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F4D0;</span>
+            <strong>Gambar 2.13</strong> &mdash; <em>Reference points</em> yang tersebar merata pada <em>normalized hyperplane</em> untuk masalah tiga objektif. Setiap <em>reference point</em> mendefinisikan sebuah <em>reference line</em> dari <em>ideal point</em>, dengan NSGA-III mengganti <em>crowding distance</em> NSGA-II dengan asosiasi solusi ke garis-garis referensi ini <span class="cite">(Deb &amp; Jain, 2014)</span>
+        </div>
+
+        <p>Secara arsitektur, alur NSGA-III identik dengan NSGA-II, yaitu terdiri atas inisialisasi populasi, evaluasi fungsi objektif, <em>non-dominated sorting</em>, seleksi berbasis <em>niching</em> <em>reference point</em>, dan reproduksi. Implementasinya tersedia dalam pustaka <em>pymoo</em> <span class="cite">(Blank &amp; Deb, 2020)</span>. Dalam penelitian ini, NSGA-III digunakan sebagai pembanding NSGA-II khususnya pada skenario empat robot, karena <em>Pareto front</em> berdimensi empat membuat <em>crowding distance</em> rentan terhadap degradasi performa.</p>
+
+        <!-- Subsection: SPEA2 -->
+        <h3><em>Strength Pareto Evolutionary Algorithm 2</em> (SPEA2)</h3>
+
+        <p>SPEA2 merupakan algoritma evolusioner multi-objektif yang diusulkan oleh Zitzler, Laumanns, dan Thiele pada tahun 2001 sebagai penyempurnaan dari SPEA <span class="cite">(Zitzler, Laumanns, &amp; Thiele, 2001)</span>. Berbeda dengan NSGA-II yang mengelola seluruh solusi dalam satu populasi, SPEA2 mempertahankan sebuah <em>archive</em> eksternal yang menyimpan solusi-solusi nondominasi terbaik sepanjang proses evolusi.</p>
+
+        <p>Setiap individu \(i\) diberi nilai kekuatan (<em>strength value</em>) \(S(i)\), yaitu jumlah solusi dalam populasi dan arsip yang didominasi oleh \(i\). Nilai ketangguhan (<em>fitness</em>) individu dihitung dari akumulasi \(S\) milik semua individu yang mendominasinya. Keberagaman solusi dijaga melalui estimasi kepadatan berbasis jarak \(k\)-<em>nearest-neighbour</em> (\(k\)-NN): solusi yang berada di wilayah padat mendapat nilai ketangguhan lebih tinggi, sehingga solusi yang terisolasi di bagian <em>front</em> yang jarang lebih diutamakan dalam seleksi. Perbedaan skema penetapan <em>fitness</em> antara SPEA dan SPEA2 diperlihatkan pada Gambar 2.14.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x1F4C9;</span>
+            <strong>Gambar 2.14</strong> &mdash; Perbandingan skema penetapan <em>fitness</em> pada SPEA (kiri) dan SPEA2 (kanan) untuk masalah maksimasi dua objektif. SPEA2 memakai <em>raw fitness</em> berbutir halus yang memperhitungkan kekuatan (<em>strength</em>) para pendominasi, sehingga tekanan seleksi tetap terjaga meski hanya sedikit solusi yang saling mendominasi <span class="cite">(Zitzler, Laumanns, &amp; Thiele, 2001)</span>
+        </div>
+
+        <p>Ukuran arsip dikendalikan melalui operator pemotongan (<em>truncation</em>) yang secara iteratif menghapus individu dengan jarak terkecil ke tetangganya sampai arsip mencapai ukuran yang ditetapkan. Kombinasi arsip eksternal dan estimasi kepadatan \(k\)-NN ini cenderung menghasilkan <em>Pareto front</em> yang lebih merata dibandingkan pendekatan berbasis <em>crowding distance</em>. Penelitian ini menyertakan SPEA2 sebagai pembanding ketiga untuk menguji apakah mekanisme seleksi berbasis <em>archive</em> memberikan keunggulan nyata pada konfigurasi MRPP yang dievaluasi. Cara kerja operator <em>truncation</em> yang menjaga solusi batas diilustrasikan pada Gambar 2.15.</p>
+
+        <div class="fig-placeholder">
+            <span class="icon">&#x2702;&#xFE0F;</span>
+            <strong>Gambar 2.15</strong> &mdash; Ilustrasi operator <em>archive truncation</em> SPEA2. Ketika himpunan nondominasi melebihi ukuran arsip (\(\bar{N}=5\)), individu dengan jarak \(k\)-NN terkecil (paling berdesakan) dibuang secara iteratif, namun solusi batas (<em>extreme points</em>) dijamin tetap dipertahankan <span class="cite">(Zitzler, Laumanns, &amp; Thiele, 2001)</span>
+        </div>
+
+        <!-- Subsection: Perbandingan NSGA-II, NSGA-III, SPEA2 -->
+        <h3>Perbandingan NSGA-II, NSGA-III, dan SPEA2</h3>
+
+        <p>Ketiga algoritma yang diuraikan pada Subbab 2.11.1 hingga 2.11.3 sama-sama berlandaskan seleksi berbasis dominansi Pareto, namun berbeda pada mekanisme penjagaan diversitas dan arsitektur elitismenya. NSGA-II mengandalkan <em>crowding distance</em> yang ringan dan efektif untuk dua hingga tiga objektif, tetapi estimasi kepadatannya menurun pada ruang objektif berdimensi tinggi. NSGA-III mempertahankan seluruh kerangka NSGA-II dan hanya menggantikan <em>crowding distance</em> dengan pendekatan berbasis <em>reference point</em>, sehingga lebih sesuai untuk masalah <em>many-objective</em>. SPEA2 menempuh pendekatan berbeda melalui arsip eksternal dan estimasi kepadatan \(k\)-<em>nearest-neighbour</em> yang cenderung menghasilkan sebaran <em>Pareto front</em> lebih merata seiring bertambahnya jumlah objektif. Tabel 2.3 merangkum perbedaan inti ketiganya, sedangkan perbandingan kinerja empirisnya pada kasus MRPP dibahas pada Bab IV.</p>
+
+        <p><strong>Tabel 2.3</strong> Perbandingan karakteristik inti NSGA-II, NSGA-III, dan SPEA2</p>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:170px;">Aspek</th>
+                    <th>NSGA-II</th>
+                    <th>NSGA-III</th>
+                    <th>SPEA2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Mekanisme konvergensi</td>
+                    <td><em>Fast non-dominated sorting</em></td>
+                    <td><em>Non-dominated sorting</em> (sama seperti NSGA-II)</td>
+                    <td><em>Raw fitness</em> berbasis <em>strength</em> pendominasi + arsip</td>
+                </tr>
+                <tr>
+                    <td>Mekanisme diversitas</td>
+                    <td><em>Crowding distance</em></td>
+                    <td><em>Reference points</em> (asosiasi + <em>niching</em>)</td>
+                    <td>Densitas \(k\)-NN</td>
+                </tr>
+                <tr>
+                    <td>Elitisme / arsip</td>
+                    <td>Populasi gabungan (<em>parent</em>+<em>offspring</em>)</td>
+                    <td>Sama seperti NSGA-II</td>
+                    <td>Arsip eksternal terpisah, ukuran tetap</td>
+                </tr>
+                <tr>
+                    <td>Penjagaan solusi batas</td>
+                    <td><em>Crowding distance</em> \(=\infty\) pada titik batas</td>
+                    <td>Titik ekstrem pembentuk <em>hyperplane</em></td>
+                    <td>Operator <em>truncation</em> (menjaga solusi batas)</td>
+                </tr>
+                <tr>
+                    <td>Parameter khusus diversitas</td>
+                    <td>Tanpa parameter</td>
+                    <td>Tanpa parameter (\(H\) = jumlah titik <em>trade-off</em>)</td>
+                    <td>\(k\) dan ukuran arsip</td>
+                </tr>
+                <tr>
+                    <td>Kompleksitas per generasi</td>
+                    <td>\(O(MN^2)\) (sedang)</td>
+                    <td>\(O(N^2\log^{M-2}N)\) (sedang-tinggi)</td>
+                    <td>\(O(M^2\log M)\) (lebih tinggi)</td>
+                </tr>
+                <tr>
+                    <td>Cocok untuk (jumlah objektif)</td>
+                    <td>2&ndash;3 objektif</td>
+                    <td>Banyak objektif (\(>3\), hingga 15)</td>
+                    <td>2&ndash;4 objektif</td>
+                </tr>
+                <tr>
+                    <td>Penanganan kendala</td>
+                    <td><em>Constrained-domination</em> (2002)</td>
+                    <td><em>Constrained</em> + adaptif (Part II, 2014)</td>
+                    <td>Tidak dibahas eksplisit</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ============================================================ -->
+        <!-- Section: Analisis Penelitian Terdahulu                        -->
+        <!-- ============================================================ -->
+        <h2>Analisis Penelitian Terdahulu</h2>
+
+        <p>Tabel 2.4 menganalisis penelitian-penelitian yang paling relevan dari tahun 2006 hingga 2026 <span class="cite">(Badamasi, 2026)</span> pada lima dimensi: fokus utama, metode, formulasi objektif, penanganan tabrakan, dan keterbatasan utamanya, sebagai dasar identifikasi <em>research gap</em> pada bagian berikutnya. Penelitian relevan lain yang tidak dimuat pada tabel, seperti pendekatan evolusioner awal <span class="cite">(Vadakkepat, 2000)</span> dan navigasi berbasis kendali <span class="cite">(Al-Jarrah, 2015; Pothal, 2015)</span>, telah dibahas pada narasi subbab sebelumnya.</p>
+
+        <p><strong>Tabel 2.4</strong> Analisis penelitian terdahulu yang relevan pada perencanaan jalur evolusioner dan posisi penelitian ini</p>
+        <div style="overflow-x:auto;">
+            <table style="font-size:.8em;">
+                <thead>
+                    <tr>
+                        <th style="width:30px;">No.</th>
+                        <th style="width:140px;">Penelitian</th>
+                        <th style="width:180px;">Fokus utama</th>
+                        <th style="width:190px;">Metode</th>
+                        <th style="width:170px;">Objektif dan formulasi</th>
+                        <th style="width:170px;">Penanganan tabrakan</th>
+                        <th style="width:220px;">Keterbatasan utama</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Yang, dkk. (2006) <span class="cite">(Yang, 2006)</span></td>
+                        <td>Jalur beberapa robot, lingkungan dinamis</td>
+                        <td>AG berbasis pengetahuan</td>
+                        <td>Agregat</td>
+                        <td>Bukan kendala eksplisit</td>
+                        <td>Tanpa konsep Pareto; bebas tabrakan tidak dijamin</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Conesa-Muñoz, dkk. (2012) <span class="cite">(Conesa-Munoz, 2012)</span></td>
+                        <td>Multi-jalur kendali gulma pertanian</td>
+                        <td>NSGA-II</td>
+                        <td>Multi-objektif (Pareto)</td>
+                        <td>Prioritas urutan bagian lahan</td>
+                        <td>Tanpa rintangan; hanya berlaku bila tugas dapat diurutkan</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Qu, dkk. (2013) <span class="cite">(Qu, 2013)</span></td>
+                        <td>Jalur global beberapa robot</td>
+                        <td>CIGA (<em>co-evolutionary improved GA</em>)</td>
+                        <td>Agregat</td>
+                        <td>Bukan kendala eksplisit</td>
+                        <td>Tanpa konsep Pareto; dinamika hanya sebagian</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Das, dkk. (2016) <span class="cite">(Das, 2016)</span></td>
+                        <td>Koordinasi multi-robot</td>
+                        <td>Hibrida evolusioner</td>
+                        <td>Agregat (<em>makespan</em>)</td>
+                        <td>Penalti lunak</td>
+                        <td>Metrik tunggal menyembunyikan <em>trade-off</em> antarrobot; kelayakan tidak dijamin</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Xue (2018) <span class="cite">(Xue, 2018)</span></td>
+                        <td>Jalur robot tunggal</td>
+                        <td>NSGA-II, inisialisasi acak</td>
+                        <td>Multi-objektif 3 objektif (Pareto)</td>
+                        <td>&mdash; (robot tunggal)</td>
+                        <td>Tanpa interaksi antarrobot; statis</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Nazarahari, dkk. (2019) <span class="cite">(Nazarahari, 2019)</span></td>
+                        <td>Jalur 1 dan 4 robot, lingkungan kontinu</td>
+                        <td>APF + AG (EGA), inisialisasi sebagian A*</td>
+                        <td><em>Weighted sum</em></td>
+                        <td>Bukan kendala eksplisit</td>
+                        <td>Tanpa Pareto; hasil multi-robot tanpa analisis mendalam</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Ghambari, dkk. (2020) <span class="cite">(Ghambari, 2020)</span></td>
+                        <td>Jalur satu UAV</td>
+                        <td>NSGA-II (<em>enhanced</em>), inisialisasi acak</td>
+                        <td>Multi-objektif (Pareto)</td>
+                        <td>&mdash; (agen tunggal)</td>
+                        <td>Satu UAV; statis</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Tang, dkk. (2020) <span class="cite">(Tang, 2020)</span></td>
+                        <td>Jalur multi-robot</td>
+                        <td>AG, inisialisasi acak</td>
+                        <td>Objektif tunggal</td>
+                        <td>Bukan kendala eksplisit</td>
+                        <td>Tanpa <em>trade-off</em>; statis</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Yanes Luis, dkk. (2022) <span class="cite">(Yanes Luis, 2022)</span></td>
+                        <td>Patroli multi-ASV</td>
+                        <td>MOEA berbasis Pareto, inisialisasi acak</td>
+                        <td>Multi-objektif 3 objektif</td>
+                        <td>Bukan kendala eksplisit</td>
+                        <td>Kelayakan bebas tabrakan tidak dijamin; statis</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>García, dkk. (2023) <span class="cite">(García, 2023)</span></td>
+                        <td>Jalur multi-robot (3&ndash;30 robot)</td>
+                        <td>AG + inisialisasi A*</td>
+                        <td>Objektif tunggal</td>
+                        <td>Keras (prosedural)</td>
+                        <td>Tanpa <em>trade-off</em> multi-objektif; statis</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Singh, dkk. (2023) <span class="cite">(Singh, 2023)</span></td>
+                        <td>Jalur satu UAV</td>
+                        <td>NSGA-II, inisialisasi acak</td>
+                        <td>Multi-objektif (Pareto)</td>
+                        <td>&mdash; (agen tunggal)</td>
+                        <td>Satu UAV; statis</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td>Yang, dkk. (2023) <span class="cite">(Yang, 2023)</span></td>
+                        <td>Jalur multi-robot, lingkungan dinamis</td>
+                        <td>AG dengan prioritas, inisialisasi acak</td>
+                        <td>Berbasis prioritas</td>
+                        <td>Prioritas antarrobot</td>
+                        <td>Tanpa Pareto; solusi bergantung urutan prioritas</td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td>Duan, dkk. (2024) <span class="cite">(Duan, 2024)</span></td>
+                        <td>Jalur robot tunggal</td>
+                        <td>MOEA, inisialisasi hibrida</td>
+                        <td>Multi-objektif 3 objektif (Pareto)</td>
+                        <td>&mdash; (robot tunggal)</td>
+                        <td>Tanpa interaksi antarrobot; statis</td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td>Poy, dkk. (2024) <span class="cite">(Poy, 2024)</span></td>
+                        <td>Jalur multi-robot, lingkungan dinamis</td>
+                        <td>Metaheuristik evolusioner, inisialisasi acak</td>
+                        <td>Agregat</td>
+                        <td>Eksplisit (tidak dirinci)</td>
+                        <td>Tanpa Pareto; mekanisme kendala tidak diformalkan</td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td>Rekabi Bana, dkk. (2024) <span class="cite">(Rekabi Bana, 2024)</span></td>
+                        <td>Jalur multi-robot, lingkungan dinamis</td>
+                        <td>Evolusioner (agregat risiko), inisialisasi acak</td>
+                        <td>Agregat</td>
+                        <td>Penalti lunak</td>
+                        <td>Kelayakan tidak dijamin; <em>trade-off</em> antarrobot tersembunyi</td>
+                    </tr>
+                    <tr>
+                        <td>16</td>
+                        <td>Foster, dkk. (2025) <span class="cite">(Foster, 2025)</span></td>
+                        <td>Jalur multi-robot</td>
+                        <td>MOEA + <em>seeding</em> A*</td>
+                        <td>Multi-objektif (Pareto)</td>
+                        <td>Keras (konstruktif)</td>
+                        <td>Tanpa uji rintangan bergerak; tanpa penalaan operator sistematis</td>
+                    </tr>
+                    <tr style="background:#fff9c4; font-weight:600;">
+                        <td>17</td>
+                        <td><strong>Penelitian ini (2026)</strong></td>
+                        <td><strong>MRPP grid, statis dan dinamis</strong></td>
+                        <td><strong>NSGA2-A* (mesin seleksi NSGA-II/NSGA-III/SPEA2), operator domain-spesifik ditala OFAT + Taguchi</strong></td>
+                        <td><strong>Per-agen berkendala (Pareto); komparasi tiga formulasi</strong></td>
+                        <td><strong>Kendala keras \(g_1\), \(g_2\) (CDP)</strong></td>
+                        <td><strong>Trajektori rintangan diketahui; tanpa <em>replanning</em> daring (Subbab 1.3)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>Kolom keterbatasan utama pada Tabel 2.4 memperlihatkan dua pola yang berulang: <em>trade-off</em> antarrobot yang hilang ketika objektif diagregasi, dan jaminan bebas tabrakan yang lepas ketika penanganan konflik diserahkan pada penalti lunak atau prioritas. Kedua pola tersebut dianalisis lebih lanjut pada sintesis berikut.</p>
+
+        <p>Sintesis kritis terhadap seluruh penelitian terdahulu yang dirangkum pada Tabel 2.4 memetakan adanya kesenjangan metodologis yang saling bertolak belakang antara dua kelompok besar penelitian perencanaan jalur evolusioner.</p>
+
+        <p>Kelompok penelitian pertama berfokus pada optimasi multi-objektif berbasis Pareto eksplisit (misalnya <span class="cite">(Xue, 2018; Liu, 2024; Duan, 2024)</span>). Kelompok ini berhasil menunjukkan nilai penting visualisasi <em>Pareto front</em> dalam menyajikan variasi solusi kompromi (seperti panjang vs kelancaran lintasan) bagi pengambil keputusan. Namun, validasi metodologi mereka terbatas pada skala robot tunggal. Akibatnya, pemodelan yang digunakan mengabaikan interaksi temporal antar-agen, sehingga tidak dapat diterapkan pada sistem multi-robot di mana koordinasi <em>spatiotemporal</em> bebas tabrakan menjadi syarat mutlak kelayakan misi.</p>
+
+        <p>Sebaliknya, kelompok penelitian kedua berfokus pada penyelesaian koordinasi multi-robot (misalnya <span class="cite">(Das, 2016; Nazarahari, 2019; García, 2023; Rekabi Bana, 2024)</span>). Kelompok ini berhasil memecahkan masalah tabrakan antar-robot, tetapi dengan mengorbankan sifat multi-objektif dari masalah tersebut. Penggunaan formulasi agregat (<em>weighted-sum</em>) atau minimasi metrik tunggal (<em>makespan</em>) menyembunyikan informasi pengorbanan individual antar-robot (<em>unfairness</em>). Dalam skenario nyata, demi optimalitas waktu total armada, satu robot mungkin dipaksa mengambil jalur memutar yang sangat tidak efisien. Tanpa visualisasi <em>Pareto front</em> yang memisahkan biaya setiap robot sebagai objektif mandiri, pengambil keputusan tidak memiliki dasar ilmiah untuk menganalisis keadilan distribusi beban tugas tersebut. Selain itu, penanganan kendala tabrakan pada kelompok ini umumnya diintegrasikan sebagai fungsi penalti lunak (<em>soft penalty</em>) dalam fungsi kebugaran. Pendekatan ini secara metodologis lemah karena tidak menjamin solusi akhir terbebas dari tabrakan secara mutlak; lintasan yang tidak layak secara fisik dapat lolos seleksi karena terkompensasi oleh nilai objektif jarak yang sangat pendek.</p>
+
+        <p>Kesenjangan ilmiah inilah yang melatarbelakangi perlunya penelitian yang diusulkan. Penelitian ini menjembatani kedua kelompok tersebut dengan mengusulkan Formulasi Per-Agen Berkendala (<em>Per-Agent Constrained Formulation</em>). Dengan memperlakukan biaya lintasan setiap robot sebagai fungsi objektif independen (\(M = R\)), <em>trade-off</em> koordinasi antar-robot disajikan secara transparan pada <em>Pareto front</em> akhir. Penegakan kendala bebas tabrakan dilakukan secara keras (<em>hard constraint</em>) melalui <em>Constrained-Domination Principle</em> (CDP) untuk menjamin kelayakan fisik solusi secara mutlak. Peningkatan dimensi objektif seiring bertambahnya robot membawa tantangan teoritis berupa penurunan tekanan seleksi pada algoritma berbasis dominansi Pareto konvensional seperti NSGA-II. Oleh karena itu, komparasi sistematis dengan varian algoritma berbasis titik referensi (NSGA-III) dan berbasis arsip eksternal (SPEA2) pada lingkungan dinamis diperlukan untuk memetakan batas efektivitas masing-masing mesin seleksi dalam menangani kompleksitas <em>spatiotemporal</em> multi-robot.</p>
+
+        <!-- ============================================================ -->
+        <!-- Section: Landasan Teori                                       -->
+        <!-- ============================================================ -->
+        <h2>Landasan Teori</h2>
+
+        <p>Landasan teori penelitian ini dijabarkan dari tinjauan pustaka di atas dan bertumpu pada tiga gagasan utama. <strong>Pertama</strong>, sebagaimana diuraikan pada Subbab 2.2 dan 2.9, perencanaan jalur multi-robot dapat diformulasikan sebagai masalah optimasi multi-objektif, dengan waktu tempuh atau biaya jalur masing-masing robot diperlakukan sebagai fungsi objektif terpisah (<em>per-agent-objective formulation</em>) sehingga <em>Pareto front</em> yang dihasilkan merepresentasikan <em>trade-off</em> antarrobot secara eksplisit; analisis penelitian terdahulu pada Subbab 2.12 menunjukkan bahwa formulasi semacam ini, dikombinasikan dengan kendala bebas tabrakan yang diberlakukan secara keras, belum diterapkan pada skenario multi-robot di lingkungan dinamis. <strong>Kedua</strong>, keluarga algoritma MOEA yang diuraikan pada Subbab 2.11.1 hingga 2.11.3 menyediakan mekanisme pencarian populasi berbasis dominansi Pareto yang sesuai untuk mengeksplorasi ruang solusi multi-robot yang besar dan kompleks, termasuk pada lingkungan dengan rintangan bergerak yang dibahas pada Subbab 2.4. <strong>Ketiga</strong>, tinjauan atas operator genetika dan penerapan algoritma genetik untuk perencanaan jalur (Subbab 2.5.3 dan 2.8) menunjukkan bahwa kualitas solusi MOEA untuk perencanaan jalur multi-robot dipengaruhi secara signifikan oleh rancangan operator genetika dan strategi inisialisasi populasi, sehingga penggunaan operator domain-spesifik dan inisialisasi berbasis A* (Subbab 2.6) dipandang relevan untuk menjaga <em>feasibility</em> jalur sekaligus meningkatkan efektivitas pencarian solusi.</p>
+
+        <p>Perwujudan operasional dari ketiga gagasan utama di atas menuntut perangkat metodologis pendukung untuk merancang eksperimen penalaan parameter secara efisien, mengagregasikan keputusan lintas skenario yang diuji, menegakkan kendala pada proses pencarian evolusioner, mengukur kualitas <em>Pareto front</em> secara objektif, memilih satu solusi akhir yang akan dieksekusi, serta membuktikan signifikansi perbedaan performa algoritma stokastik secara statistik. Alat-alat metodologis umum tersebut dijabarkan pada subbab berikut.</p>
+
+        <!-- Subsection: Desain Eksperimen Robust dengan Metode Taguchi -->
+        <h3>Desain Eksperimen Robust dengan Metode Taguchi</h3>
+
+        <p>Metode Taguchi merupakan teknik desain eksperimen (<em>Design of Experiments</em> &mdash; DOE) yang dikembangkan oleh Genichi Taguchi untuk mengoptimalkan kinerja sistem dengan jumlah percobaan yang minimal namun tetap representatif <span class="cite">(Phadke, 1989; Hu, 2024)</span>. Karakteristik utama dari metode ini adalah penggunaan matriks ortogonal (<em>orthogonal array</em>) dan analisis rasio sinyal terhadap derau (<em>signal-to-noise ratio</em> &mdash; S/N ratio).</p>
+
+        <p>Matriks ortogonal (\(L_a(b^c)\)) digunakan untuk merancang kombinasi parameter (faktor) kontrol secara seimbang, dengan \(a\) menyatakan jumlah run eksperimen, \(b\) menyatakan jumlah level parameter, dan \(c\) menyatakan jumlah faktor maksimum yang dapat diuji. Ortogonalitas menjamin bahwa pengaruh satu faktor dapat diestimasi secara independen tanpa terpengaruh oleh faktor lain, sehingga mereduksi jumlah eksperimen penuh (\(b^c\)) secara signifikan.</p>
+
+        <p>Untuk mengukur tingkat kekokohan (<em>robustness</em>) sistem terhadap variasi tak terkendali (derau), Taguchi memperkenalkan rasio S/N (\(\eta\), dalam dB). Berdasarkan karakteristik luaran sistem yang ingin dicapai, formulasi rasio S/N yang dirujuk dari metode Taguchi standar <span class="cite">(Phadke, 1989)</span> untuk evaluasi performa algoritma optimasi adalah:</p>
+
+        <ol>
+            <li><strong><em>Larger-is-Better</em></strong> (digunakan untuk memaksimalkan luaran, seperti nilai metrik <em>hypervolume</em>):
+                <div class="eq">
+                    \[\text{S/N} = -10 \log_{10} \left( \frac{1}{n} \sum_{i=1}^{n} \frac{1}{y_i^2} \right)\]
+                </div>
+            </li>
+            <li><strong><em>Smaller-is-Better</em></strong> (digunakan untuk meminimalkan luaran, seperti waktu tempuh atau jumlah belokan):
+                <div class="eq">
+                    \[\text{S/N} = -10 \log_{10} \left( \frac{1}{n} \sum_{i=1}^{n} y_i^2 \right)\]
+                </div>
+            </li>
+        </ol>
+
+        <p>dengan \(y_i\) adalah nilai metrik luaran pada replikasi ke-\(i\), dan \(n\) adalah jumlah replikasi independen. Pengaruh masing-masing faktor dianalisis menggunakan analisis rata-rata (<em>Analysis of Mean</em> &mdash; ANOM) untuk menentukan peringkat kontribusi relatif dari setiap parameter kontrol.</p>
+
+        <!-- Subsection: Agregasi Keputusan Lintas Skenario -->
+        <h3>Agregasi Keputusan Lintas Skenario</h3>
+
+        <p>Dalam masalah optimasi yang diuji pada berbagai skenario dengan karakteristik spasial yang bertentangan, sering kali tidak ditemukan satu profil parameter tunggal yang mendominasi di seluruh kasus. Salah satu keluarga pendekatan untuk membentuk rekomendasi konsensus adalah agregasi peringkat atau suara lintas-skenario. Pada Borda klasik, seluruh alternatif memperoleh skor berdasarkan posisi peringkatnya sehingga informasi peringkat lengkap ikut menentukan hasil <span class="cite">(Borda, 1781)</span>. Jumlah peringkat merupakan bentuk ekuivalen untuk masalah minimisasi skor: alternatif dengan jumlah peringkat terkecil menjadi konsensus terbaik.</p>
+
+        <p>Pendekatan lain adalah suara peringkat-pertama (<em>first-preference plurality voting</em>). Setiap skenario \(s \in S\) bertindak sebagai pemilih yang memberikan tepat satu suara kepada alternatif \(c \in C\) yang menempati peringkat pertama pada skenario tersebut. Akumulasi suara peringkat-pertama (\(V_c\)) dihitung berdasarkan aturan plurality voting standar <span class="cite">(Borda, 1781)</span> sebagai:</p>
+
+        <div class="eq">
+            \[V_c = \sum_{s \in S} \mathbf{1}(\text{rank}(c, s) = 1)\]
+        </div>
+
+        <p>dengan \(\mathbf{1}(\cdot)\) adalah fungsi indikator. Alternatif dengan suara \(V_c\) terbanyak menjadi konsensus peringkat-pertama. Berbeda dari Borda, mekanisme ini tidak memberi skor kepada alternatif pada peringkat kedua dan seterusnya. Pemilihan antara agregasi jumlah peringkat dan plurality merupakan keputusan metode yang harus dinyatakan bersama aturan pemecahan seri; penerapannya dalam penelitian ini dijelaskan pada Bab III.</p>
+
+        <!-- Subsection: Penanganan Kendala pada MOO Evolusioner -->
+        <h3>Penanganan Kendala pada Optimasi Multi-Objektif Evolusioner</h3>
+
+        <p>Penanganan kendala pada optimasi multi-objektif evolusioner merupakan bidang kajian tersendiri dengan tiga keluarga teknik utama <span class="cite">(Liang, 2023)</span>: (1) aturan <em>feasibility</em> (<em>feasibility rules</em> atau <em>constrained-dominance principle</em>, CDP) yang selalu mengutamakan individu <em>feasible</em> atas individu tidak <em>feasible</em>, dan di antara sesama individu tidak <em>feasible</em> mengutamakan pelanggaran kendala total yang lebih kecil; (2) fungsi penalti yang melebur besaran pelanggaran kendala ke dalam nilai objektif dengan koefisien penalti yang harus ditala; dan (3) teknik relaksasi adaptif yang melonggarkan kendala pada fase eksplorasi lalu mengetatkannya secara bertahap <span class="cite">(Acrea, 2024)</span>. CDP populer karena bebas parameter dan menjamin <em>Pareto front</em> akhir hanya berisi solusi <em>feasible</em>, tetapi dapat mempersempit eksplorasi ketika wilayah <em>feasible</em> sangat kecil; fungsi penalti peka terhadap pemilihan koefisien; relaksasi adaptif menambah kompleksitas algoritmik. Teknik penanganan kendala yang diadopsi penelitian ini dijelaskan pada Bab III.</p>
+
+        <!-- Subsection: Metrik Evaluasi Kinerja MOO -->
+        <h3>Metrik Evaluasi Kinerja Optimasi Multi-Objektif</h3>
+
+        <p>Karena luaran MOO berupa himpunan solusi, kualitasnya tidak dapat diukur dengan satu nilai objektif tunggal. Metrik yang paling luas dipakai adalah <em>hypervolume</em> (HV) <span class="cite">(Guerreiro, 2021)</span>, yang didefinisikan sebagai volume (ukuran Lebesgue) daerah ruang objektif yang didominasi oleh himpunan solusi \(S\) dan dibatasi oleh sebuah titik referensi \(\mathbf{r}\):</p>
+
+        <div class="eq">
+            \[\text{HV}(S;\mathbf{r}) = \Lambda\left(\bigcup_{\mathbf{s} \in S} [\mathbf{s}, \mathbf{r}]\right),\]
+        </div>
+
+        <p>dengan \([\mathbf{s},\mathbf{r}]\) adalah kotak berdimensi \(M\) yang dibentuk titik solusi \(\mathbf{s}\) dan titik referensi \(\mathbf{r}\). HV menangkap konvergensi sekaligus keragaman <em>front</em>, dan merupakan indikator uner yang <em>strictly Pareto-compliant</em>: perbaikan HV tidak mungkin terjadi tanpa perbaikan dalam arti dominansi Pareto <span class="cite">(Guerreiro, 2021)</span>.</p>
+
+        <p>Nilai HV bergantung pada spesifikasi titik referensi, sehingga pemilihannya perlu dijustifikasi untuk pembandingan yang adil. Ishibuchi, dkk. menunjukkan bahwa praktik umum berupa titik sedikit lebih buruk dari titik nadir tidak selalu tepat, dan spesifikasi yang baik bergantung pada bentuk <em>Pareto front</em>, jumlah objektif, dan ukuran populasi <span class="cite">(Ishibuchi, 2018)</span>. Metrik pendamping HV dapat berupa jumlah titik <em>Pareto front</em> <em>feasible</em>, tingkat <em>feasibility</em> <em>run</em>, waktu komputasi, dan metrik berbasis jarak seperti <em>Inverted Generational Distance</em> (IGD) bila <em>front</em> referensi yang sah tersedia <span class="cite">(Zitzler, 2003; Ishibuchi, 2017)</span>.</p>
+
+        <p>Pada formulasi dengan dimensi objektif berbeda, HV atau IGD dalam ruang asli masing-masing formulasi tidak dapat dibandingkan langsung. Pembandingan hanya sah setelah seluruh solusi dipetakan ke ruang objektif bersama yang definisinya sama untuk setiap formulasi, dengan normalisasi, titik referensi HV, dan <em>reference front</em> IGD yang dibentuk secara konsisten. Indikator tersebut tetap harus dibaca bersama metrik penerapan karena cakupan yang luas pada ruang proyeksi dapat mencakup solusi yang belum memenuhi kendala misi. Untuk memvisualisasikan <em>front</em> berdimensi lebih dari tiga dapat digunakan <em>Parallel Coordinate Plot</em> (PCP). Protokol khusus penelitian ini dirinci pada Bab III.</p>
+
+        <!-- Subsection: Pemilihan Solusi Akhir dari Pareto Front -->
+        <h3>Pemilihan Solusi Akhir dari <em>Pareto Front</em></h3>
+
+        <p>Luaran MOO berupa himpunan solusi <em>trade-off</em>, sedangkan eksekusi di dunia nyata memerlukan tepat satu solusi. Langkah keputusan a posteriori ini dikenal sebagai pemilihan solusi preferensi (<em>preferred-solution selection</em>) dalam pengambilan keputusan multi-kriteria. Beberapa strategi baku meliputi: (1) skalarisasi sederhana berorientasi misi, seperti meminimalkan jumlah waktu tempuh seluruh agen (efisiensi armada) atau meminimalkan waktu tempuh maksimum antaragen (<em>makespan</em>, untuk misi yang bergantung pada agen terakhir tiba); (2) titik lutut (<em>knee point</em>), yaitu solusi pada tekukan <em>front</em> yang perbaikannya pada satu objektif menyebabkan kemunduran besar pada objektif lain, sehingga menjadi kompromi alami tanpa preferensi eksplisit <span class="cite">(Branke, 2004)</span>; (3) skalarisasi berbasis jarak ke titik ideal seperti <em>augmented Chebyshev</em>; dan (4) pengurutan leksikografis ketika terdapat hierarki prioritas objektif yang tegas <span class="cite">(Miettinen, 1999)</span>. Mekanisme pemilihan yang digunakan penelitian ini, termasuk penyaringan keselamatan sebelum strategi diterapkan, diuraikan pada Bab III.</p>
+
+        <!-- Subsection: Uji Statistik Non-parametrik -->
+        <h3>Uji Statistik Non-Parametrik untuk Pembandingan Algoritma Evolusioner</h3>
+
+        <p>Karena algoritma evolusioner bersifat stokastik, klaim perbedaan kinerja antaralgoritma atau antarkonfigurasi harus didasarkan pada sejumlah <em>run</em> independen dengan <em>seed</em> berbeda, bukan pada satu <em>run</em> tunggal. Derrac, dkk. merekomendasikan uji statistik nonparametrik sebagai metodologi baku pembandingan algoritma evolusioner, karena distribusi metrik kinerja (misalnya <em>hypervolume</em> atau waktu tempuh solusi) umumnya tidak memenuhi asumsi normalitas dan homogenitas variansi yang disyaratkan uji parametrik <span class="cite">(Derrac, 2011)</span>.</p>
+
+        <p>Untuk pembandingan kelompok sampel independen (misalnya membandingkan metrik antarformulasi atau antaralgoritma yang dijalankan pada bibit acak independen), uji-uji berikut diterapkan:</p>
+
+        <ol>
+            <li><strong>Uji Kruskal-Wallis H:</strong> Uji omnibus satu arah berbasis peringkat untuk mengevaluasi apakah \(k \ge 3\) kelompok sampel berasal dari distribusi yang sama. Statistik uji \(H\) Kruskal-Wallis dihitung <span class="cite">(Derrac, 2011)</span> sebagai:
+                <div class="eq">
+                    \[H = \frac{12}{N(N+1)} \sum_{j=1}^{k} \frac{R_j^2}{n_j} - 3(N+1)\]
+                </div>
+                <p>dengan \(k\) adalah jumlah kelompok, \(n_j\) adalah ukuran sampel kelompok \(j\), \(N\) adalah total sampel (\(N = \sum n_j\)), dan \(R_j\) adalah jumlah peringkat (<em>rank sum</em>) kelompok \(j\). Nilai \(H\) diuji terhadap distribusi \(\chi^2\) dengan derajat kebebasan \(df = k-1\).</p>
+            </li>
+            <li><strong>Uji Mann-Whitney U:</strong> Uji <em>post-hoc</em> berpasangan untuk dua sampel independen guna mengidentifikasi perbedaan spesifik jika uji omnibus signifikan. Statistik uji \(U_1\) Mann-Whitney dihitung <span class="cite">(Derrac, 2011)</span> berdasarkan peringkat kelompok 1:
+                <div class="eq">
+                    \[U_1 = R_1 - \frac{n_1(n_1+1)}{2}\]
+                </div>
+                <p>dengan syarat \(U_1 + U_2 = n_1 n_2\). Untuk sampel besar (\(n_1, n_2 \ge 10\)), statistik uji didekati dengan distribusi normal standar \(z = (U - \mu_U)/\sigma_U\), dengan \(\mu_U = n_1 n_2/2\) dan \(\sigma_U = \sqrt{n_1 n_2 (N+1)/12}\).</p>
+            </li>
+            <li><strong>Ukuran Efek (Effect Size) \(r\):</strong> Untuk mengukur kekuatan perbedaan secara praktis, nilai ukuran efek \(r\) dihitung <span class="cite">(Derrac, 2011)</span> dari statistik Mann-Whitney \(U\):
+                <div class="eq">
+                    \[r = 1 - \frac{2U}{n_1 n_2}\]
+                </div>
+                <p>dengan nilai \(|r| \ge 0{,}5\) mengindikasikan efek besar, dan \(|r| \ge 0{,}3\) mengindikasikan efek sedang.</p>
+            </li>
+        </ol>
+
+        <p>Untuk pembandingan data berpasangan (misalnya waktu komputasi beberapa formulasi yang diukur pada <em>seed</em> yang sama sehingga membentuk blok alami), uji-uji berikut diterapkan:</p>
+
+        <ol>
+            <li><strong>Uji Friedman:</strong> Uji omnibus untuk mengevaluasi perbedaan \(k \ge 3\) kelompok berpasangan. Statistik uji \(F_r\) Friedman dihitung <span class="cite">(Derrac, 2011)</span> sebagai:
+                <div class="eq">
+                    \[F_r = \frac{12}{N k (k+1)} \sum_{j=1}^{k} R_j^2 - 3N(k+1)\]
+                </div>
+                <p>dengan \(N\) adalah jumlah blok (pasangan <em>seed</em>), \(k\) adalah jumlah kelompok perlakuan, dan \(R_j\) adalah jumlah peringkat perlakuan \(j\). Statistik \(F_r\) mengikuti distribusi \(\chi^2\) dengan \(df = k-1\).</p>
+            </li>
+            <li><strong>Uji Peringkat Bertanda Wilcoxon (Wilcoxon Signed-Rank):</strong> Uji <em>post-hoc</em> berpasangan untuk mendeteksi perbedaan median selisih berpasangan. Statistik uji \(W\) Wilcoxon dihitung <span class="cite">(Derrac, 2011)</span> sebagai:
+                <div class="eq">
+                    \[W = \sum_{i=1}^{n} \mathbf{1}(d_i > 0) \cdot R_i^+\]
+                </div>
+                <p>dengan \(d_i\) adalah perbedaan berpasangan, \(R_i^+\) adalah peringkat nilai mutlak selisih positif, dan \(n\) adalah jumlah pasangan non-nol. Untuk sampel besar, didekati dengan distribusi normal \(z = (W - \mu_W)/\sigma_W\) dengan \(\mu_W = n(n+1)/4\) dan \(\sigma_W = \sqrt{n(n+1)(2n+1)/24}\).</p>
+            </li>
+        </ol>
+
+        <p>Pada pengujian perbandingan berganda (<em>multiple comparisons</em>) yang dilakukan secara simultan, laju kesalahan tipe I keluarga (<em>family-wise error rate</em> &mdash; FWER) akan meningkat. Koreksi Holm-Bonferroni dapat digunakan untuk mengendalikan FWER tanpa mengorbankan kekuatan uji secara berlebihan. Prosedur Holm mengurutkan nilai-\(p\) berpasangan secara naik (\(p_1 \le p_2 \le \dots \le p_m\)) dan membandingkan setiap \(p_i\) dengan taraf signifikansi yang disesuaikan secara dinamis:</p>
+
+        <div class="eq">
+            \[\alpha_{\text{Holm}, i} = \frac{\alpha}{m - i + 1}\]
+        </div>
+
+        <p>dengan \(m\) adalah jumlah total perbandingan berpasangan, dan \(i\) adalah indeks peringkat nilai-\(p\). Nilai-\(p\) terkoreksi didefinisikan sebagai \(p_{\text{adj}, i} = \min((m - i + 1) \cdot p_i, 1.0)\). Taraf signifikansi, keluarga uji yang dikoreksi, dan pengecualian untuk analisis eksploratif pada penelitian ini dinyatakan pada Bab III.</p>
+
+        <p>Selain landasan pengujian, perlu dicatat implikasi dimensi objektif terhadap perilaku algoritma berbasis dominansi Pareto: sebagaimana diuraikan pada Subbab 2.11.2, tekanan seleksi dominansi menurun tajam ketika jumlah objektif melebihi tiga hingga empat. Hal ini relevan bagi formulasi per-agen pada penelitian ini, yang dimensi objektifnya tumbuh bersama jumlah robot (\(M = R\) untuk formulasi per-agen berkendala dan \(M = R+2\) untuk formulasi per-agen tanpa kendala), sehingga perbandingan formulasi harus menyertakan pertimbangan dimensi ini dalam penafsirannya.</p>
+
+        <p>Ketiga gagasan tersebut menjadi tuntunan dalam menyelesaikan rumusan masalah yang diuraikan pada Bab I sekaligus menjadi dasar perumusan hipotesis pada Subbab 2.14. Perwujudan operasional ketiga gagasan ini dalam bentuk kerangka kerja, formulasi matematis, dan rancangan eksperimen diuraikan pada Bab III.</p>
+
+        <p>Penting untuk ditegaskan bahwa seluruh landasan teori, klasifikasi metode, tinjauan kepustakaan, serta dua belas persamaan yang dipaparkan pada Bab II ini merupakan representasi dari penelitian terdahulu yang dirujuk. Seluruh formulasi optimasi multi-objektif per-agen berkendala usulan, modifikasi fungsional operator genetika domain-spesifik, serta implementasi adaptasi kinematika DDMR yang dikembangkan dalam kerangka kerja terintegrasi penelitian ini dirumuskan dan diuraikan secara mandiri oleh penulis pada Bab III.</p>
+
+        <!-- ============================================================ -->
+        <!-- Section: Hipotesis                                            -->
+        <!-- ============================================================ -->
+        <h2>Hipotesis</h2>
+
+        <p>Berdasarkan tinjauan pustaka dan landasan teori di atas, dirumuskan dua hipotesis penelitian sebagai berikut.</p>
+
+        <p><strong>Hipotesis pertama (H<sub>1</sub>)</strong> menyatakan bahwa formulasi perencanaan jalur multi-robot sebagai masalah optimasi multi-objektif berbasis MOEA, dengan fungsi objektif per-robot dan kendala bebas tabrakan yang diberlakukan secara keras, mampu menghasilkan himpunan solusi Pareto yang valid dan informatif pada lingkungan dinamis.</p>
+
+        <p><strong>Hipotesis kedua (H<sub>2</sub>)</strong> menyatakan bahwa penggunaan operator genetika domain-spesifik mampu meningkatkan kualitas solusi dan efektivitas pencarian dibandingkan penerapan MOEA tanpa operator domain-spesifik, dengan inisialisasi populasi berbasis A* menyediakan jalur awal bebas rintangan bagi setiap robot sebelum optimasi evolusioner.</p>
+
+        <p>Kedua hipotesis ini merupakan jawaban sementara atas rumusan masalah penelitian, yang kebenarannya diuji secara empiris melalui rangkaian eksperimen pada Bab IV dan disimpulkan pada Bab V.</p>
+
+        <!-- ============================================================ -->
+        <!-- End of Content                                               -->
+        <!-- ============================================================ -->
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>
+                <a href="../index.html">Beranda</a> &middot;
+                <a href="ringkasan.html">Ringkasan</a> &middot;
+                <a href="bab1.html">Bab&nbsp;1</a> &middot;
+                <a href="bab2.html">Bab&nbsp;2</a> &middot;
+                <a href="bab3.html">Bab&nbsp;3</a> &middot;
+                <a href="bab4.html">Bab&nbsp;4</a> &middot;
+                <a href="bab5.html">Bab&nbsp;5</a> &middot;
+                <a href="nomenklatur.html">Nomenklatur</a> &middot;
+                <a href="lampiran.html">Lampiran</a>
+            </p>
+            <p>&copy; 2026 Ariadie Chandra Nugraha. Disertasi Program Doktor Teknik Elektro, Universitas Gadjah Mada.</p>
+        </div>
+    </footer>
+</div>
+</body>
+</html>
