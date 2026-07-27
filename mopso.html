@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Penjelasan interaktif MOPSO — Multi-Objective Particle Swarm Optimization, algoritma swarm intelligence untuk optimasi multiobjective." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="MOPSO — Multi-Objective Particle Swarm Optimization" />
+  <meta property="og:description" content="Visualisasi interaktif dan penjelasan lengkap algoritma MOPSO untuk multi-objective optimization berbasis swarm intelligence." />
+  <meta property="og:type" content="website" />
+  <title>MOPSO — Multi-Objective Particle Swarm Optimization</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #0ea5e9;
+      --primary-2: #38bdf8;
+      --accent: #f59e0b;
+      --accent-2: #8b5cf6;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #38bdf8;
+      --primary-2: #7dd3fc;
+      --accent: #fbbf24;
+      --accent-2: #a78bfa;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.14), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(56, 189, 248, 0.12), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn, .icon-btn, .dd-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .icon-btn { width: 42px; height: 42px; padding: 0; font-size: 1rem; }
+
+    .btn:hover, .icon-btn:hover, .dd-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+    .btn-accent {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent-2), #7c3aed);
+      color: #fff;
+    }
+    .btn-danger {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: #fff;
+    }
+
+    .dropdown { position: relative; display: inline-flex; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 20;
+      min-width: 180px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card-solid);
+      box-shadow: var(--shadow-soft);
+      padding: 6px;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown.show .dropdown-menu { display: flex; flex-direction: column; gap: 4px; }
+    .dropdown-menu a {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .dropdown-menu a:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+    .dd-arrow { font-size: 0.65rem; margin-left: 2px; opacity: 0.6; }
+
+    .ham-btn {
+      width: 44px; height: 44px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 750;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .ham-btn:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--primary) 46%, var(--line)); }
+
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; z-index: 210;
+      width: min(300px, 82vw); height: 100%;
+      background: var(--card-solid);
+      border-left: 1px solid var(--line);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; border-bottom: 1px solid var(--line);
+    }
+    .drawer-header strong { font-size: 1rem; letter-spacing: -0.02em; }
+    .drawer-close {
+      width: 36px; height: 36px; border: none; background: transparent;
+      cursor: pointer; font-size: 1.3rem; color: var(--muted);
+      display: grid; place-items: center; border-radius: 50%;
+    }
+    .drawer-close:hover { background: color-mix(in srgb, var(--line) 40%, transparent); }
+
+    .drawer-body { padding: 10px 0; flex: 1; }
+    .drawer-section { padding: 4px 20px 10px; }
+    .drawer-section-label {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted-2); font-weight: 800; margin-bottom: 6px;
+    }
+    .drawer-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      color: var(--text); text-decoration: none;
+      font-size: 0.9rem; font-weight: 700;
+      transition: background .15s ease;
+    }
+    .drawer-link:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+
+    .hero {
+      padding: 50px 0 30px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent-2) 14%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px;
+      margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card, .info-card, .algo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary);
+      margin-bottom: 14px;
+      font-size: 1.22rem;
+    }
+
+    .feature-card h3, .info-card h3, .algo-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p, .info-card p, .algo-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .algo-card.highlight {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+    }
+
+    .code-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      font-size: 0.91rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+
+    .sim-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sim-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 64%, transparent);
+    }
+
+    .traffic { display: flex; gap: 7px; align-items: center; }
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%; display: inline-block;
+      background: var(--line);
+    }
+    .dot:nth-child(1) { background: #ef4444; }
+    .dot:nth-child(2) { background: #f59e0b; }
+    .dot:nth-child(3) { background: #22c55e; }
+
+    .sim-label { color: var(--muted); font-size: 0.88rem; font-weight: 750; }
+    .sim-body { padding: 20px; }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 540px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: color-mix(in srgb, var(--bg-soft) 60%, var(--card-solid));
+    }
+
+    .canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .sim-controls .btn { font-size: 0.82rem; padding: 0.5rem 0.9rem; }
+
+    .sim-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .sim-stat { display: flex; flex-direction: column; }
+    .sim-stat-value {
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: -0.03em;
+      color: var(--primary);
+    }
+    .sim-stat-label { color: var(--muted-2); font-size: 0.78rem; font-weight: 700; }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      width: 38px; height: 38px;
+      border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+    }
+
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    .ref-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+    }
+
+    .ref-authors { font-weight: 700; color: var(--text); }
+    .ref-title { font-style: italic; color: var(--muted); }
+    .ref-source { color: var(--muted-2); font-size: 0.9rem; }
+    .ref-doi a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.83rem; color: var(--muted); }
+    .legend-swatch {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      flex: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--line);
+      color: var(--muted-2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    .highlight-box {
+      padding: 16px;
+      border-left: 4px solid var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 12px 0;
+    }
+    .highlight-box p { margin: 0; color: var(--text); }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .hero { padding-top: 24px; }
+      .nav-actions .btn, .nav-actions .dropdown { display: none; }
+      .ham-btn { display: inline-flex; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .hero-card { padding: 24px; }
+      h1 { letter-spacing: -0.055em; }
+    }
+    @media print {
+      .nav, .sim-card, .footer { display: none !important; }
+      body { background: white; color: black; }
+      .hero, .grid-2, .grid-3, .grid-4 { display: block; }
+      .feature-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 14px; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','annotation','annotation-xml']})"></script>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html" aria-label="Beranda">
+        <div class="brand-mark">ACN</div>
+        <div class="brand-text">
+          <span class="brand-title">MOPSO</span>
+          <span class="brand-subtitle">Multi-Objective Particle Swarm Optimization</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <button class="ham-btn" id="hamBtn" aria-label="Buka menu navigasi">☰</button>
+        <a class="btn" href="#penjelasan">Penjelasan</a>
+        <a class="btn" href="#simulasi">Simulasi</a>
+        <a class="btn" href="#referensi">Referensi</a>
+        <a class="btn" href="./moo.html">MOO</a>
+        <div class="dropdown">
+          <button class="btn dd-btn" type="button">Algoritma <span class="dd-arrow">▼</span></button>
+          <div class="dropdown-menu">
+            <a href="./moea-moga.html">MOEA/MOGA</a>
+            <a href="./nsga2.html">NSGA-II</a>
+            <a href="./nsga3.html">NSGA-III</a>
+            <a href="./spea2.html">SPEA2</a>
+            <a href="./mopso.html" style="color: var(--primary);">MOPSO</a>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigasi halaman">
+    <div class="drawer-header">
+      <strong>Navigasi</strong>
+      <button class="drawer-close" id="drawerClose" aria-label="Tutup menu">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-section">
+        <div class="drawer-section-label">Halaman Ini</div>
+        <a class="drawer-link" href="#penjelasan">📖 Penjelasan</a>
+        <a class="drawer-link" href="#simulasi">🎮 Simulasi</a>
+        <a class="drawer-link" href="#referensi">📎 Referensi</a>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-label">Optimasi &amp; Algoritma</div>
+        <a class="drawer-link" href="./moo.html">🎯 MOO</a>
+        <a class="drawer-link" href="./nsga2.html">🧬 NSGA-II</a>
+        <a class="drawer-link" href="./nsga3.html">🧬 NSGA-III</a>
+        <a class="drawer-link" href="./spea2.html">🧬 SPEA2</a>
+        <a class="drawer-link" href="./moea-moga.html">🧬 MOEA/MOGA</a>
+        <a class="drawer-link" href="./mopso.html" style="color:var(--primary);">🐝 MOPSO</a>
+        <a class="drawer-link" href="./convex-opt.html">📐 Convex Opt</a>
+        <a class="drawer-link" href="./stat-tests.html">📊 Uji Statistik</a>
+        <a class="drawer-link" href="./moo-contoh.html">📈 Contoh Masalah MOO</a>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-label">Materi Ajar</div>
+        <a class="drawer-link" href="./acn101.html">📖 ACN101 (S1/S2/S3)</a>
+      </div>
+      <div class="drawer-section">
+        <a class="drawer-link" href="./index.html" style="color:var(--muted);font-size:0.82rem;">🏠 Beranda</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar MOPSO">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Swarm Intelligence untuk MOO</span>
+          <h1>Multi-Objective Particle Swarm Optimization</h1>
+          <p class="lead">
+            <strong>MOPSO</strong> adalah algoritma <em>swarm intelligence</em> yang memperluas
+            Particle Swarm Optimization (PSO) ke ranah multi-objective. Dengan memelihara
+            <em>external archive</em> solusi nondominated dan mekanisme seleksi <em>leader</em>
+            yang adaptif, MOPSO mampu menemukan dan mempertahankan Pareto front approximation
+            tanpa memerlukan operator evolusioner seperti crossover. Diperkenalkan oleh
+            Coello Coello &amp; Lechuga (2002), MOPSO telah menjadi salah satu algoritma
+            swarm-based MOO yang paling banyak digunakan.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#simulasi">Jalankan Simulasi</a>
+            <a class="btn" href="#penjelasan">Pelajari MOPSO</a>
+            <a class="btn" href="https://doi.org/10.1109/CEC.2002.1004388" target="_blank">Paper Asli MOPSO →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN -->
+    <section class="section" id="ringkasan" aria-label="Ringkasan MOPSO">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">🐝</div>
+          <h3>Particle Swarm</h3>
+          <p>Setiap partikel merepresentasikan solusi kandidat yang "terbang" dalam ruang keputusan. Posisi diperbarui berdasarkan <em>personal best</em> (pbest) dan <em>global leader</em> yang dipilih dari archive.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3>External Archive</h3>
+          <p>MOPSO menyimpan semua solusi nondominated yang ditemukan dalam archive eksternal. Archive dibatasi ukurannya dan dikelola dengan mekanisme <em>crowding distance</em> atau <em>clustering</em> untuk menjaga keragaman.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Leader Selection</h3>
+          <p>Pemimpin global untuk setiap partikel dipilih dari archive — bukan dari satu solusi global. Pendekatan berbasis <em>crowding distance</em> atau <em>roulette wheel</em> memastikan eksplorasi di sepanjang Pareto front.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PENJELASAN -->
+    <section class="section" id="penjelasan" aria-label="Penjelasan MOPSO">
+      <div class="section-head">
+        <div>
+          <h2>Konsep Dasar &amp; Algoritma MOPSO</h2>
+          <p class="section-desc">Dari PSO klasik ke MOPSO: velocity update, archive management, dan mekanisme keragaman.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Inisialisasi Swarm</span>
+                <span class="step-text">Bangkitkan \(N\) partikel secara acak dalam ruang keputusan \(\mathcal{X} \subseteq \mathbb{R}^n\). Setiap partikel memiliki posisi \(x_i\) dan kecepatan \(v_i\) (biasanya diinisialisasi dengan nilai kecil acak). Evaluasi vektor objektif \(f(x_i)\) dan tetapkan \(pbest_i = x_i\). Inisialisasi archive dengan solusi nondominated.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Seleksi Leader</span>
+                <span class="step-text">Untuk setiap partikel, pilih seorang pemimpin \(leader_i\) dari archive. Metode umum: <em>crowding distance-based roulette wheel</em> — partikel di area kurang padat punya peluang lebih besar dipilih, mendorong eksplorasi ke bagian front yang jarang dikunjungi.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Velocity Update</span>
+                <span class="step-text">\[
+                  v_i(t+1) = w \cdot v_i(t) + c_1 r_1 (pbest_i - x_i) + c_2 r_2 (leader_i - x_i)
+                \]</span>
+                <span class="step-text">dengan \(w\) = inertia weight (menurun linear dari \(w_{\max}\) ke \(w_{\min}\)), \(c_1, c_2\) = koefisien kognitif dan sosial, \(r_1, r_2 \sim U(0,1)\). Kecepatan dibatasi \([ -v_{\max}, v_{\max} ]\) untuk stabilitas.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Posisi Update &amp; Boundary</span>
+                <span class="step-text">\[
+                  x_i(t+1) = x_i(t) + v_i(t+1)
+                \]</span>
+                <span class="step-text">Jika partikel keluar dari batas domain, gunakan strategi <em>reflect</em>, <em>absorb</em>, atau <em>random re-initialization</em> untuk menjaga partikel dalam daerah feasible.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Mutasi (Keragaman)</span>
+                <span class="step-text">Terapkan operator mutasi (misalnya mutasi seragam atau polinomial dengan probabilitas kecil) pada posisi partikel untuk mencegah konvergensi prematur. Mutasi sangat penting pada generasi awal untuk eksplorasi; biasanya probabilitasnya menurun seiring iterasi.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Update pbest &amp; Archive</span>
+                <span class="step-text">Perbarui personal best: jika \(f(x_i) \prec f(pbest_i)\), maka \(pbest_i = x_i\) (atau berdasarkan relasi dominasi). Evaluasi nondominasi seluruh swarm, tambahkan solusi nondominated ke archive. Jika archive melebihi kapasitas, pruning berdasarkan <em>crowding distance</em> — buang solusi di area terpadat. Ulangi dari langkah 2 hingga iterasi maksimum.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="algo-card highlight" style="margin-bottom: 16px;">
+            <h3>PSO vs MOPSO</h3>
+            <table>
+              <tr><th>Aspek</th><th>PSO</th><th>MOPSO</th></tr>
+              <tr><td>Jumlah objective</td><td>Tunggal</td><td>Multi (2+)</td></tr>
+              <tr><td>Pemimpin</td><td>Global best (gbest)</td><td>Dipilih dari archive</td></tr>
+              <tr><td>Personal best</td><td>Nilai scalar terbaik</td><td>Berdasar dominasi Pareto</td></tr>
+              <tr><td>Mekanisme diversity</td><td>Inertia weight</td><td>Archive + mutasi + crowding</td></tr>
+              <tr><td>Output</td><td>Solusi tunggal</td><td>Set solusi Pareto</td></tr>
+            </table>
+          </div>
+
+          <div class="algo-card">
+            <h3>Pseudo-code MOPSO</h3>
+            <div class="code-box" style="margin-top: 10px;">
+<pre>Input:  N (swarm size), T (max iter), A_max (archive size)
+Output: A (Pareto front approximation)
+
+1.  S ← init_swarm(N)
+2.  for each particle i in S:
+3.    evaluate(i)
+4.    pbest[i] ← x[i]
+5.  A ← nondominated(S)
+6.  for t = 1 to T:
+7.    for each particle i in S:
+8.      leader ← select_leader(A)
+9.      v[i] ← w·v[i] + c₁r₁(pbest[i]-x[i])
+                               + c₂r₂(leader-x[i])
+10.     x[i] ← x[i] + v[i]
+11.     boundary_handle(x[i])
+12.     mutate(x[i])
+13.     evaluate(i)
+14.     if f(x[i]) ≺ f(pbest[i]): pbest[i] ← x[i]
+15.   A ← update_archive(A ∪ nondominated(S), A_max)
+16. return A</pre>
+            </div>
+          </div>
+
+          <div class="algo-card" style="margin-top: 14px;">
+            <h3>Varian MOPSO Terkenal</h3>
+            <table>
+              <tr><th>Varian</th><th>Fitur Khas</th></tr>
+              <tr><td>MOPSO (Coello &amp; Lechuga)</td><td>Archive + grid-based leader selection</td></tr>
+              <tr><td>MOPSO-CD (Raquel &amp; Naval)</td><td>Crowding distance untuk leader &amp; pruning</td></tr>
+              <tr><td>OMOPSO (Reyes-Sierra &amp; Coello)</td><td>Multiple swarms + mutation</td></tr>
+              <tr><td>SMPSO (Nebro et al.)</td><td>Velocity constraint + polynomial mutation</td></tr>
+              <tr><td>MOPSO with turbulence</td><td>Mutasi turbulensi untuk eksplorasi lebih baik</td></tr>
+            </table>
+            <p style="margin-top: 10px; color: var(--muted); font-size: 0.9rem;">Lihat juga: <a href="./moo.html" style="font-weight: 700; color: var(--primary);">MOO</a> · <a href="./nsga2.html" style="font-weight: 700;">NSGA-II</a> · <a href="./spea2.html" style="font-weight: 700;">SPEA2</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULASI -->
+    <section class="section" id="simulasi" aria-label="Simulasi interaktif">
+      <div class="section-head">
+        <div>
+          <h2>Simulasi Interaktif MOPSO</h2>
+          <p class="section-desc">Swarm partikel berevolusi pada problem ZDT1 (2-objektif minimization). Partikel biru = swarm, titik oranye = external archive (Pareto approximation), garis merah = true Pareto front. Saksikan partikel "terbang" menuju front dan archive menyebar.</p>
+        </div>
+      </div>
+
+      <div class="sim-card">
+        <div class="sim-topbar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div class="sim-label">mopso_simulation.js</div>
+          <div class="sim-label" id="iterDisplay">Iterasi: 0</div>
+        </div>
+
+        <div class="sim-body">
+          <div class="grid-2" style="align-items: start;">
+            <div class="canvas-wrap">
+              <canvas id="simCanvas" width="600" height="600"></canvas>
+            </div>
+
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="legend-swatch" style="background: #94a3b8;"></span> Swarm (partikel)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #0ea5e9; border-color: #0284c7;"></span> Personal best</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #f59e0b; border-color: #d97706;"></span> Archive (Pareto)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #ef4444;"></span> True Pareto</div>
+              </div>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;">
+                <label style="display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.82rem; font-weight: 700;">
+                  Leader selection:
+                  <select id="leaderSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 5px 8px; font-weight: 600; font-size: 0.82rem;">
+                    <option value="crowd">Crowding distance</option>
+                    <option value="random">Random</option>
+                    <option value="grid">Grid-based</option>
+                  </select>
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.82rem; font-weight: 700;">
+                  Mutasi:
+                  <select id="mutSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 5px 8px; font-weight: 600; font-size: 0.82rem;">
+                    <option value="none">Tanpa</option>
+                    <option value="uniform" selected>Uniform (turun)</option>
+                    <option value="turbulence">Turbulensi</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="sim-controls">
+                <button class="btn btn-primary" id="btnStart">▶ Start</button>
+                <button class="btn" id="btnPause" disabled>⏸ Pause</button>
+                <button class="btn btn-accent" id="btnStep">⏭ Step</button>
+                <button class="btn btn-danger" id="btnReset">↻ Reset</button>
+                <label style="display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.82rem; font-weight: 700;">
+                  Speed:
+                  <select id="speedSelect" style="background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 5px 8px; font-weight: 600; font-size: 0.82rem;">
+                    <option value="400">Lambat</option>
+                    <option value="150" selected>Normal</option>
+                    <option value="50">Cepat</option>
+                    <option value="10">Turbo</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="sim-stats">
+                <div class="sim-stat"><span class="sim-stat-value" id="statIter">0</span><span class="sim-stat-label">Iterasi</span></div>
+                <div class="sim-stat"><span class="sim-stat-value" id="statSwarm">30</span><span class="sim-stat-label">Swarm</span></div>
+                <div class="sim-stat"><span class="sim-stat-value" id="statArchive">0</span><span class="sim-stat-label">Archive</span></div>
+                <div class="sim-stat"><span class="sim-stat-value" id="statHV">0.00</span><span class="sim-stat-label">Hypervolume</span></div>
+              </div>
+
+              <div style="margin-top: 10px; color: var(--muted); font-size: 0.85rem; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius-md);">
+                <strong>HV reference point:</strong> (1.1, 1.1). Partikel oranye = archive = solusi nondominated yang dipelihara MOPSO. Archive menyebar sepanjang Pareto front.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi utama">
+      <div class="section-head">
+        <div>
+          <h2>Referensi Utama</h2>
+          <p class="section-desc">Paper dan buku fundamental MOPSO dan PSO.</p>
+        </div>
+      </div>
+
+      <ul class="ref-list">
+        <li>
+          <div class="ref-authors">Coello Coello, C. A., &amp; Lechuga, M. S.</div>
+          <div class="ref-title">MOPSO: A proposal for multiple objective particle swarm optimization</div>
+          <div class="ref-source">Proceedings of the 2002 Congress on Evolutionary Computation (CEC), 2, 1051–1056, 2002.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1109/CEC.2002.1004388" target="_blank">https://doi.org/10.1109/CEC.2002.1004388</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Kennedy, J., &amp; Eberhart, R.</div>
+          <div class="ref-title">Particle swarm optimization</div>
+          <div class="ref-source">Proceedings of IEEE International Conference on Neural Networks (ICNN), 4, 1942–1948, 1995.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1109/ICNN.1995.488968" target="_blank">https://doi.org/10.1109/ICNN.1995.488968</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Raquel, C. R., &amp; Naval, P. C.</div>
+          <div class="ref-title">An effective use of crowding distance in multiobjective particle swarm optimization</div>
+          <div class="ref-source">Proceedings of the 2005 Conference on Genetic and Evolutionary Computation (GECCO), 257–264, 2005.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1145/1068009.1068047" target="_blank">https://doi.org/10.1145/1068009.1068047</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Reyes-Sierra, M., &amp; Coello Coello, C. A.</div>
+          <div class="ref-title">Multi-objective particle swarm optimizers: A survey of the state-of-the-art</div>
+          <div class="ref-source">International Journal of Computational Intelligence Research, 2(3), 287–308, 2006.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.5019/j.ijcir.2006.68" target="_blank">https://doi.org/10.5019/j.ijcir.2006.68</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Nebro, A. J., Durillo, J. J., Garcia-Nieto, J., Coello Coello, C. A., &amp; Alba, E.</div>
+          <div class="ref-title">SMPSO: A new PSO-based metaheuristic for multi-objective optimization</div>
+          <div class="ref-source">IEEE Symposium on Computational Intelligence in Multi-Criterion Decision-Making (MCDM), 66–73, 2009.</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1109/MCDM.2009.4938830" target="_blank">https://doi.org/10.1109/MCDM.2009.4938830</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Coello Coello, C. A., Lamont, G. B., &amp; Van Veldhuizen, D. A.</div>
+          <div class="ref-title">Evolutionary Algorithms for Solving Multi-Objective Problems</div>
+          <div class="ref-source">Springer, 2nd ed., 2007. ISBN: 978-0-387-36797-2</div>
+          <div class="ref-doi"><a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">https://doi.org/10.1007/978-0-387-36797-2</a></div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>MOPSO Interactive Guide</strong> — Berdasarkan Coello Coello &amp; Lechuga (2002), Kennedy &amp; Eberhart (1995)<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // ========== THEME TOGGLE ==========
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-mopso");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-mopso", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // ========== DRAWER ==========
+    const hamBtn = document.getElementById("hamBtn");
+    const drawer = document.getElementById("drawer");
+    const overlay = document.getElementById("drawerOverlay");
+    const drawerClose = document.getElementById("drawerClose");
+    function openDrawer() { drawer.classList.add("open"); overlay.classList.add("open"); document.body.style.overflow = "hidden"; }
+    function closeDrawer() { drawer.classList.remove("open"); overlay.classList.remove("open"); document.body.style.overflow = ""; }
+    if (hamBtn) hamBtn.addEventListener("click", openDrawer);
+    if (drawerClose) drawerClose.addEventListener("click", closeDrawer);
+    if (overlay) overlay.addEventListener("click", closeDrawer);
+
+    // Dropdown toggle (click/tap)
+    document.querySelectorAll(".dropdown").forEach(function(dd) {
+      var btn = dd.querySelector(".dd-btn");
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        dd.classList.toggle("show");
+      });
+    });
+    document.addEventListener("click", function() {
+      document.querySelectorAll(".dropdown.show").forEach(function(dd) {
+        dd.classList.remove("show");
+      });
+    });
+
+    // ========== MOPSO SIMULATION ==========
+    const canvas = document.getElementById("simCanvas");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const pad = 50;
+    const xScale = W - 2 * pad;
+    const yScale = H - 2 * pad;
+    const refPoint = [1.1, 1.1];
+
+    // ZDT1: f1 = x1, f2 = g*(1 - sqrt(x1/g)), g = 1+9*x2
+    function evaluate(x) {
+      const f1 = x[0];
+      const g = 1 + 9 * x[1];
+      const f2 = g * (1 - Math.sqrt(f1 / g));
+      return { f1, f2 };
+    }
+
+    function dominates(a, b) {
+      return a.f1 <= b.f1 && a.f2 <= b.f2 && (a.f1 < b.f1 || a.f2 < b.f2);
+    }
+
+    // --- Parameters ---
+    const SWARM_SIZE = 30;
+    const MAX_ITER = 200;
+    const ARCHIVE_MAX = 50;
+    const W_MAX = 0.9;
+    const W_MIN = 0.4;
+    const C1 = 1.5;
+    const C2 = 1.5;
+    const V_MAX = 0.2;
+
+    let swarm = [];
+    let archive = [];
+    let iteration = 0;
+    let running = false;
+    let timer = null;
+
+    function randomParticle() {
+      const x = [Math.random(), Math.random()];
+      const v = [(Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1];
+      const f = evaluate(x);
+      return {
+        x: x.slice(),
+        v: v.slice(),
+        pbest: x.slice(),
+        pf1: f.f1,
+        pf2: f.f2,
+        f1: f.f1,
+        f2: f.f2
+      };
+    }
+
+    function getNondominated(pop) {
+      const n = pop.length;
+      const dom = new Array(n).fill(false);
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (i === j) continue;
+          if (dominates(pop[i], pop[j])) dom[j] = true;
+        }
+      }
+      return pop.filter((_, i) => !dom[i]);
+    }
+
+    function crowdingDist(solutions) {
+      const m = solutions.length;
+      if (m <= 2) return new Array(m).fill(Infinity);
+      const d = new Array(m).fill(0);
+      const f1 = solutions.map(s => s.f1);
+      const f2 = solutions.map(s => s.f2);
+      const mn1 = Math.min(...f1), mx1 = Math.max(...f1);
+      const mn2 = Math.min(...f2), mx2 = Math.max(...f2);
+      let o = solutions.map((_, i) => i);
+      o.sort((a, b) => f1[a] - f1[b]);
+      d[o[0]] = d[o[m-1]] = Infinity;
+      if (mx1 > mn1) for (let i = 1; i < m-1; i++) d[o[i]] += (f1[o[i+1]] - f1[o[i-1]]) / (mx1 - mn1);
+      o.sort((a, b) => f2[a] - f2[b]);
+      if (mx2 > mn2) for (let i = 1; i < m-1; i++) d[o[i]] += (f2[o[i+1]] - f2[o[i-1]]) / (mx2 - mn2);
+      d[o[0]] = d[o[m-1]] = Infinity;
+      return d;
+    }
+
+    function cloneParticle(p) {
+      return { x: p.x.slice(), f1: p.f1, f2: p.f2 };
+    }
+
+    function updateArchive() {
+      let combined = archive.concat(getNondominated(swarm));
+      // Remove duplicates (by objective values)
+      const unique = [];
+      for (const s of combined) {
+        let dup = false;
+        for (const u of unique) {
+          if (Math.abs(u.f1 - s.f1) < 1e-12 && Math.abs(u.f2 - s.f2) < 1e-12) { dup = true; break; }
+        }
+        if (!dup) unique.push(s.x !== undefined ? cloneParticle(s) : { x: [s.f1, 0], f1: s.f1, f2: s.f2 });
+      }
+      let nondom = getNondominated(unique);
+      if (nondom.length <= ARCHIVE_MAX) {
+        archive = nondom;
+      } else {
+        // Prune by crowding distance
+        while (nondom.length > ARCHIVE_MAX) {
+          const dist = crowdingDist(nondom);
+          let minIdx = 0;
+          for (let i = 1; i < dist.length; i++) {
+            if (dist[i] < dist[minIdx]) minIdx = i;
+          }
+          nondom.splice(minIdx, 1);
+        }
+        archive = nondom;
+      }
+    }
+
+    function selectLeader(method) {
+      if (archive.length === 0) return null;
+      if (method === "random") {
+        return archive[Math.floor(Math.random() * archive.length)];
+      } else if (method === "grid") {
+        // Grid-based: divide space into 10x10 grid, pick from least populated cell
+        const gridSize = 10;
+        const f1Min = Math.min(...archive.map(s => s.f1));
+        const f1Max = Math.max(...archive.map(s => s.f1));
+        const f2Min = Math.min(...archive.map(s => s.f2));
+        const f2Max = Math.max(...archive.map(s => s.f2));
+        const range1 = f1Max - f1Min || 1;
+        const range2 = f2Max - f2Min || 1;
+        const grid = {};
+        for (let i = 0; i < archive.length; i++) {
+          const gi = Math.min(gridSize - 1, Math.floor((archive[i].f1 - f1Min) / range1 * gridSize));
+          const gj = Math.min(gridSize - 1, Math.floor((archive[i].f2 - f2Min) / range2 * gridSize));
+          const key = gi + "," + gj;
+          if (!grid[key]) grid[key] = [];
+          grid[key].push(i);
+        }
+        // Find least populated cell
+        let minPop = Infinity, minCell = null;
+        for (const key in grid) {
+          if (grid[key].length < minPop) {
+            minPop = grid[key].length;
+            minCell = key;
+          }
+        }
+        if (minCell && grid[minCell].length > 0) {
+          const idx = grid[minCell][Math.floor(Math.random() * grid[minCell].length)];
+          return archive[idx];
+        }
+        return archive[Math.floor(Math.random() * archive.length)];
+      } else {
+        // Default: crowding distance roulette wheel
+        const rawDist = crowdingDist(archive);
+        const maxFinite = Math.max(...rawDist.filter(d => Number.isFinite(d))) || 1.0;
+        const dist = rawDist.map(d => Number.isFinite(d) ? d : maxFinite * 2);
+        const totalDist = dist.reduce((s, d) => s + d, 0);
+        if (totalDist <= 0) return archive[Math.floor(Math.random() * archive.length)];
+        let r = Math.random() * totalDist;
+        for (let i = 0; i < dist.length; i++) {
+          r -= dist[i];
+          if (r <= 0) return archive[i];
+        }
+        return archive[archive.length - 1];
+      }
+    }
+
+    function initSwarm() {
+      swarm = [];
+      for (let i = 0; i < SWARM_SIZE; i++) swarm.push(randomParticle());
+      archive = [];
+      updateArchive();
+      iteration = 0;
+    }
+
+    function stepIteration() {
+      if (iteration >= MAX_ITER) { if (running) stopSim(); return; }
+      const leaderMethod = document.getElementById("leaderSelect").value;
+      const mutMethod = document.getElementById("mutSelect").value;
+      const w = W_MAX - (W_MAX - W_MIN) * (iteration / MAX_ITER);
+
+      for (let i = 0; i < swarm.length; i++) {
+        const p = swarm[i];
+        const leader = selectLeader(leaderMethod);
+        if (!leader) continue;
+
+        // Leader position in decision space
+        const leaderX = (leader.x && leader.x.length === 2) ? leader.x : p.pbest;
+        const r1 = Math.random(), r2 = Math.random();
+        for (let d = 0; d < 2; d++) {
+          p.v[d] = w * p.v[d]
+            + C1 * r1 * (p.pbest[d] - p.x[d])
+            + C2 * r2 * (leaderX[d] - p.x[d]);
+          // Clamp velocity
+          if (p.v[d] > V_MAX) p.v[d] = V_MAX;
+          if (p.v[d] < -V_MAX) p.v[d] = -V_MAX;
+          // Position update
+          p.x[d] += p.v[d];
+        }
+
+        // Boundary handling (reflect)
+        for (let d = 0; d < 2; d++) {
+          if (p.x[d] < 0) { p.x[d] = -p.x[d]; p.v[d] = -p.v[d] * 0.5; }
+          if (p.x[d] > 1) { p.x[d] = 2 - p.x[d]; p.v[d] = -p.v[d] * 0.5; }
+        }
+
+        // Mutation
+        if (mutMethod === "uniform") {
+          const mutRate = 0.2 * (1 - iteration / MAX_ITER);
+          for (let d = 0; d < 2; d++) {
+            if (Math.random() < mutRate) {
+              p.x[d] = Math.random();
+              p.v[d] = (Math.random() - 0.5) * 0.1;
+            }
+          }
+        } else if (mutMethod === "turbulence") {
+          const turb = 0.05 * (1 - iteration / MAX_ITER);
+          for (let d = 0; d < 2; d++) {
+            p.x[d] += (Math.random() - 0.5) * turb;
+            if (p.x[d] < 0) p.x[d] = 0;
+            if (p.x[d] > 1) p.x[d] = 1;
+          }
+        }
+
+        // Evaluate
+        const f = evaluate(p.x);
+        p.f1 = f.f1;
+        p.f2 = f.f2;
+
+        // Update personal best (Pareto-based)
+        const pbf = { f1: p.pf1, f2: p.pf2 };
+        const cf = { f1: p.f1, f2: p.f2 };
+        if (dominates(cf, pbf)) {
+          p.pbest = p.x.slice();
+          p.pf1 = p.f1;
+          p.pf2 = p.f2;
+        } else if (!dominates(pbf, cf)) {
+          // Incomparable: randomly pick
+          if (Math.random() < 0.5) {
+            p.pbest = p.x.slice();
+            p.pf1 = p.f1;
+            p.pf2 = p.f2;
+          }
+        }
+      }
+
+      // Update archive
+      updateArchive();
+      iteration++;
+      draw();
+      updateStats();
+    }
+
+    function computeHV() {
+      if (archive.length === 0) return 0;
+      const sols = archive.filter(s => s.f1 < refPoint[0] && s.f2 < refPoint[1]);
+      sols.sort((a, b) => a.f1 - b.f1);
+      let hv = 0;
+      let prevF2 = refPoint[1];
+      for (const s of sols) {
+        if (s.f2 < prevF2) {
+          hv += (refPoint[0] - s.f1) * (prevF2 - s.f2);
+          prevF2 = s.f2;
+        }
+      }
+      return hv;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      function toC(f1, f2) { return [pad + f1 * xScale, H - pad - f2 * yScale]; }
+
+      // Grid
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--line").trim();
+      ctx.lineWidth = 0.5;
+      for (let t = 0; t <= 10; t++) { const f = t/10; const gx = pad + f * xScale; ctx.beginPath(); ctx.moveTo(gx, pad); ctx.lineTo(gx, H - pad); ctx.stroke(); const gy = pad + f * yScale; ctx.beginPath(); ctx.moveTo(pad, gy); ctx.lineTo(W - pad, gy); ctx.stroke(); }
+
+      // True Pareto front
+      ctx.beginPath();
+      for (let i = 0; i <= 100; i++) { const f1 = i/100; const f2 = 1 - Math.sqrt(f1); const [px,py] = toC(f1,f2); if (i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py); }
+      ctx.strokeStyle = "#ef4444"; ctx.lineWidth = 2; ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
+
+      // Axes
+      ctx.strokeStyle = getComputedStyle(root).getPropertyValue("--muted-2").trim();
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad,pad); ctx.lineTo(pad,H-pad); ctx.lineTo(W-pad,H-pad); ctx.stroke();
+
+      // Archive (nondominated solutions)
+      for (const s of archive) {
+        const [px, py] = toC(s.f1, s.f2);
+        ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(245, 158, 11, 0.8)"; ctx.fill();
+        ctx.strokeStyle = "#d97706"; ctx.lineWidth = 2; ctx.stroke();
+        // Outer ring
+        ctx.beginPath(); ctx.arc(px, py, 10, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(245, 158, 11, 0.25)"; ctx.lineWidth = 1.5; ctx.stroke();
+      }
+
+      // Swarm particles
+      for (const p of swarm) {
+        const [px, py] = toC(p.f1, p.f2);
+        // Personal best indicator (faint line)
+        const [pbx, pby] = toC(p.pf1, p.pf2);
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(pbx, pby);
+        ctx.strokeStyle = "rgba(14, 165, 233, 0.15)"; ctx.lineWidth = 1; ctx.stroke();
+
+        // Particle dot
+        ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(148, 163, 184, 0.6)"; ctx.fill();
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.9)"; ctx.lineWidth = 1; ctx.stroke();
+
+        // Personal best dot
+        ctx.beginPath(); ctx.arc(pbx, pby, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(14, 165, 233, 0.5)"; ctx.fill();
+      }
+
+      // HV reference
+      const [rx, ry] = toC(refPoint[0], refPoint[1]);
+      ctx.fillStyle = "rgba(100, 116, 139, 0.3)"; ctx.font = "9px Inter, sans-serif"; ctx.textAlign = "left";
+      ctx.fillText("HV ref", rx - 30, ry - 4);
+      ctx.beginPath(); ctx.arc(rx, ry, 3, 0, Math.PI * 2); ctx.fillStyle = "rgba(100, 116, 139, 0.5)"; ctx.fill();
+
+      // Labels
+      ctx.fillStyle = getComputedStyle(root).getPropertyValue("--muted").trim();
+      ctx.font = "10px Inter, sans-serif"; ctx.textAlign = "center";
+      for (let i = 0; i <= 5; i++) { const v = i/5; const [px,_] = toC(v,0); ctx.fillText(v.toFixed(1), px, H - pad + 18); }
+      ctx.textAlign = "right";
+      for (let i = 0; i <= 5; i++) { const v = i/5; const [_,py] = toC(0,v); ctx.fillText(v.toFixed(1), pad - 10, py + 4); }
+      ctx.font = "12px Inter, sans-serif"; ctx.textAlign = "center"; ctx.fillText("f₁ →", W/2, H - 6);
+      ctx.save(); ctx.translate(12, H/2); ctx.rotate(-Math.PI/2); ctx.fillText("f₂ →", 0, 0); ctx.restore();
+    }
+
+    function updateStats() {
+      document.getElementById("statIter").textContent = iteration;
+      document.getElementById("statSwarm").textContent = swarm.length;
+      document.getElementById("statArchive").textContent = archive.length;
+      document.getElementById("statHV").textContent = computeHV().toFixed(4);
+      document.getElementById("iterDisplay").textContent = "Iterasi: " + iteration;
+    }
+
+    function startSim() {
+      if (iteration >= MAX_ITER) resetSim();
+      running = true;
+      document.getElementById("btnStart").disabled = true;
+      document.getElementById("btnPause").disabled = false;
+      timer = setInterval(() => { stepIteration(); if (iteration >= MAX_ITER) stopSim(); }, parseInt(document.getElementById("speedSelect").value));
+    }
+
+    function stopSim() {
+      running = false; if (timer) { clearInterval(timer); timer = null; }
+      document.getElementById("btnStart").disabled = false; document.getElementById("btnPause").disabled = true;
+    }
+
+    function resetSim() { stopSim(); initSwarm(); draw(); updateStats(); }
+
+    document.getElementById("leaderSelect").addEventListener("change", resetSim);
+    document.getElementById("mutSelect").addEventListener("change", resetSim);
+    document.getElementById("btnStart").addEventListener("click", startSim);
+    document.getElementById("btnPause").addEventListener("click", stopSim);
+    document.getElementById("btnStep").addEventListener("click", () => { if (iteration < MAX_ITER) stepIteration(); });
+    document.getElementById("btnReset").addEventListener("click", resetSim);
+    document.getElementById("speedSelect").addEventListener("change", function() { if (running) { stopSim(); startSim(); } });
+
+    initSwarm();
+    draw();
+    updateStats();
+  </script>
+
+</body>
+</html>

@@ -633,6 +633,7 @@
         <a class="drawer-link" href="./nsga3.html">🧬 NSGA-III</a>
         <a class="drawer-link" href="./spea2.html">🧬 SPEA2</a>
         <a class="drawer-link" href="./moea-moga.html">🧬 MOEA/MOGA</a>
+        <a class="drawer-link" href="./mopso.html">🐝 MOPSO</a>
         <a class="drawer-link" href="./convex-opt.html">📐 Convex Opt</a>
         <a class="drawer-link" href="./stat-tests.html">📊 Uji Statistik</a>
         <a class="drawer-link" href="./moo-contoh.html">📈 Contoh Masalah MOO</a>
@@ -736,17 +737,28 @@
         <div>
           <div class="algo-card highlight">
             <h3>Klasifikasi Metode MOO</h3>
+            <p style="margin: 0 0 10px; font-size: 0.88rem; color: var(--muted);">
+              Dua cara klasifikasi yang saling melengkapi: berdasarkan <strong>peran Decision Maker</strong> (Miettinen 1999 — kanonik dalam MCDM) dan berdasarkan <strong>mekanisme seleksi</strong> algoritma (Emmerich &amp; Deutz 2018; Coello Coello et al. 2007 — lazim di komunitas EMO).
+            </p>
+
+            <h4 style="margin: 14px 0 6px; font-size: 0.92rem; letter-spacing: -0.01em;">📋 Berdasarkan Peran Decision Maker (Miettinen 1999)</h4>
             <table>
-              <tr><th>Kategori</th><th>Metode</th></tr>
-              <tr><td rowspan="4"><strong>Scalarization</strong><br>(prioritas)</td><td>Weighted Sum</td></tr>
-              <tr><td>ε-Constraint</td></tr>
-              <tr><td>Weighted Chebyshev</td></tr>
-              <tr><td>Goal Programming</td></tr>
-              <tr><td rowspan="3"><strong>Population-based</strong><br>(non-prioritas)</td><td>NSGA-II (nondominated sorting)</td></tr>
-              <tr><td>NSGA-III (reference points)</td></tr>
-              <tr><td>SPEA2 (strength + density)</td></tr>
-              <tr><td><strong>Decomposition</strong></td><td>MOEA/D (subproblem)</td></tr>
-              <tr><td><strong>Hybrid</strong></td><td>Memetic MOO, surrogate-assisted</td></tr>
+              <tr><th>Kategori</th><th>Kapan DM Berperan</th><th>Contoh Metode</th></tr>
+              <tr><td><strong>No-preference</strong></td><td>DM tidak dilibatkan</td><td>Global Criterion, Compromise Programming</td></tr>
+              <tr><td><strong>A priori</strong></td><td>Sebelum optimasi</td><td>Goal Programming, Lexicographic Ordering, Value Function</td></tr>
+              <tr><td><strong>A posteriori</strong></td><td>Sesudah optimasi</td><td>Weighted Sum*, ε-Constraint, Weighted Chebyshev, NSGA-II/III, SPEA2, MOPSO, MOEA/D</td></tr>
+              <tr><td><strong>Interaktif</strong></td><td>Selama optimasi (iteratif)</td><td>NIMBUS, STEM, Reference Point, GUESS, PAINT</td></tr>
+            </table>
+            <p style="margin: 6px 0 0; font-size: 0.78rem; color: var(--muted-2);">* Weighted Sum dipakai a posteriori bila dijalankan dengan banyak bobot; bila bobot ditetapkan sekali, ia bersifat a priori.</p>
+
+            <h4 style="margin: 16px 0 6px; font-size: 0.92rem; letter-spacing: -0.01em;">🧬 Berdasarkan Mekanisme Seleksi MOEA (Emmerich &amp; Deutz 2018)</h4>
+            <table>
+              <tr><th>Kategori</th><th>Prinsip Fitness</th><th>Algoritma Contoh</th></tr>
+              <tr><td><strong>Pareto / Dominance-based</strong></td><td>Ranking berdasar dominasi Pareto + density</td><td>NSGA-II, SPEA2, PAES, MOGA</td></tr>
+              <tr><td><strong>Indicator-based</strong></td><td>Kontribusi terhadap quality indicator (HV, IGD, R2, ϵ+)</td><td>SMS-EMOA, IBEA, HypE, R2-IBEA</td></tr>
+              <tr><td><strong>Decomposition-based</strong></td><td>Dekomposisi ke subproblem scalarized</td><td>MOEA/D, MOEA/D-DE, MOEA/D-AWA</td></tr>
+              <tr><td><strong>Reference point-based</strong></td><td>Reference points / vectors + dominansi</td><td>NSGA-III, MOEA/D-AWA, RVEA</td></tr>
+              <tr><td><strong>Hybrid</strong></td><td>Kombinasi dua atau lebih paradigma</td><td>Memetic MOEA, Surrogate-assisted, MOEA/D-NSGA-II</td></tr>
             </table>
           </div>
 
