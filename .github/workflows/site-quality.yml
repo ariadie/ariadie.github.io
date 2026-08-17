@@ -6,6 +6,8 @@ on:
       - master
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
 
 permissions:
   contents: read
@@ -36,6 +38,11 @@ jobs:
           node --check assets/site-shell.js
           node --check tools/maintain-site.mjs
           node --check tools/audit-site.mjs
+          node --check tools/check-external-links.mjs
+          node --check tools/run-lighthouse.mjs
+          node --check tools/serve-site.mjs
+          node --check tests/site-smoke.spec.mjs
+          node --check tests/accessibility.spec.mjs
 
       - name: Audit committed site
         run: node tools/audit-site.mjs
@@ -46,3 +53,139 @@ jobs:
           node tools/audit-site.mjs
           git diff --check
           git diff --exit-code
+
+  html-validation:
+    name: HTML validation (report only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Validate public HTML
+        continue-on-error: true
+        run: |
+          mkdir -p qa-results
+          npm run qa:html -- --formatter stylish | tee qa-results/html-validate.txt
+
+      - name: Upload HTML validation report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: html-validation-report
+          path: qa-results/html-validate.txt
+          if-no-files-found: ignore
+
+  browser-quality:
+    name: Browser and accessibility (report only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser smoke and axe scans
+        continue-on-error: true
+        run: npm run qa:browser
+
+      - name: Upload browser quality reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: browser-quality-reports
+          path: |
+            playwright-report/
+            qa-results/axe/
+          if-no-files-found: ignore
+
+  lighthouse:
+    name: Lighthouse baseline (report only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Collect Lighthouse baseline
+        continue-on-error: true
+        run: npm run qa:lighthouse
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: lighthouse-reports
+          path: lighthouse-report/
+          if-no-files-found: ignore
+
+  external-links:
+    name: External links (weekly report only)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Check external URLs
+        continue-on-error: true
+        run: node tools/check-external-links.mjs
+
+      - name: Upload external link report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: external-link-report
+          path: qa-results/external-links.json
+          if-no-files-found: ignore

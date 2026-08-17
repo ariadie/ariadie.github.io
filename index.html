@@ -58,6 +58,11 @@
       box-sizing: border-box;
     }
 
+    :where(a, button):focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--primary) 78%, white);
+      outline-offset: 3px;
+    }
+
     html {
       scroll-behavior: smooth;
     }
@@ -663,6 +668,21 @@
       }
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      html:focus-within {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
     @media print {
       .nav, .hero-actions, .footer {
         display: none !important;
@@ -702,18 +722,18 @@
         </div>
       </a>
       <div class="nav-actions">
-        <button class="ham-btn" id="hamBtn" aria-label="Buka menu navigasi">☰</button>
-        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+        <button class="ham-btn" id="hamBtn" type="button" aria-label="Buka menu navigasi" aria-controls="drawer" aria-expanded="false">☰</button>
+        <button class="icon-btn" id="themeToggle" type="button" aria-label="Aktifkan tema gelap" aria-pressed="false">🌙</button>
       </div>
     </div>
   </nav>
 
   <!-- Drawer overlay + panel -->
-  <div class="drawer-overlay" id="drawerOverlay"></div>
-  <aside class="drawer" id="drawer" aria-label="Navigasi halaman">
+  <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" aria-hidden="true" tabindex="-1" inert>
     <div class="drawer-header">
-      <strong>Navigasi</strong>
-      <button class="drawer-close" id="drawerClose" aria-label="Tutup menu">✕</button>
+      <strong id="drawerTitle">Navigasi</strong>
+      <button class="drawer-close" id="drawerClose" type="button" aria-label="Tutup menu">✕</button>
     </div>
     <div class="drawer-body">
       <div class="drawer-section">
@@ -761,7 +781,7 @@
             <strong>Uji Statistik Nonparametrik</strong> — dilengkapi simulasi berbasis JavaScript.
           </p>
 
-          <div class="stats" aria-label="Ringkasan konten">
+          <div class="stats" role="group" aria-label="Ringkasan konten">
             <div class="stat">
               <span class="stat-value">Lintas</span>
               <span class="stat-label">Topik</span>
@@ -971,8 +991,12 @@
     const savedTheme = localStorage.getItem("theme-index-site");
 
     function setTheme(theme) {
+      const isDark = theme === "dark";
       root.setAttribute("data-theme", theme);
-      toggle.textContent = theme === "dark" ? "☀️" : "🌙";
+      toggle.textContent = isDark ? "☀️" : "🌙";
+      toggle.setAttribute("aria-pressed", String(isDark));
+      toggle.setAttribute("aria-label", isDark ? "Aktifkan tema terang" : "Aktifkan tema gelap");
+      toggle.title = isDark ? "Aktifkan tema terang" : "Aktifkan tema gelap";
       localStorage.setItem("theme-index-site", theme);
     }
 
@@ -992,13 +1016,73 @@
     const drawer = document.getElementById("drawer");
     const overlay = document.getElementById("drawerOverlay");
     const drawerClose = document.getElementById("drawerClose");
+    const drawerLinks = drawer.querySelectorAll("a[href]");
+    const focusableSelector = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    let previouslyFocusedElement = null;
 
-    function openDrawer() { drawer.classList.add("open"); overlay.classList.add("open"); document.body.style.overflow = "hidden"; }
-    function closeDrawer() { drawer.classList.remove("open"); overlay.classList.remove("open"); document.body.style.overflow = ""; }
+    function drawerFocusableElements() {
+      return Array.from(drawer.querySelectorAll(focusableSelector));
+    }
+
+    function openDrawer() {
+      if (drawer.classList.contains("open")) return;
+      previouslyFocusedElement = document.activeElement;
+      drawer.inert = false;
+      drawer.setAttribute("aria-hidden", "false");
+      drawer.classList.add("open");
+      overlay.classList.add("open");
+      hamBtn.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => drawerClose.focus());
+    }
+
+    function closeDrawer(options = {}) {
+      if (!drawer.classList.contains("open")) return;
+      const { restoreFocus = true } = options;
+      drawer.classList.remove("open");
+      overlay.classList.remove("open");
+      drawer.setAttribute("aria-hidden", "true");
+      drawer.inert = true;
+      hamBtn.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+
+      if (restoreFocus && previouslyFocusedElement instanceof HTMLElement) {
+        previouslyFocusedElement.focus();
+      }
+    }
 
     hamBtn.addEventListener("click", openDrawer);
     drawerClose.addEventListener("click", closeDrawer);
     overlay.addEventListener("click", closeDrawer);
+    drawerLinks.forEach((link) => link.addEventListener("click", () => closeDrawer({ restoreFocus: false })));
+
+    document.addEventListener("keydown", (event) => {
+      if (!drawer.classList.contains("open")) return;
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeDrawer();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+      const focusableElements = drawerFocusableElements();
+      if (!focusableElements.length) {
+        event.preventDefault();
+        drawer.focus();
+        return;
+      }
+
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
   </script>
 </body>
 </html>

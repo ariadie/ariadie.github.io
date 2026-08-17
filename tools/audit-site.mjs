@@ -11,7 +11,7 @@ const errors = [];
 function walkFiles(dir) {
   const results = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if ([".git", "tools"].includes(entry.name)) continue;
+    if ([".git", ".github", ".lighthouseci", "lighthouse-report", "node_modules", "playwright-report", "qa-results", "test-results", "tests", "tools"].includes(entry.name)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) results.push(...walkFiles(full));
     else if (entry.isFile()) results.push(full);

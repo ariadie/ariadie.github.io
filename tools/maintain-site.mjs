@@ -40,7 +40,7 @@ const descriptions = {
 function walkHtml(dir) {
   const results = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if ([".git", "assets", "tools"].includes(entry.name)) continue;
+    if ([".git", ".github", ".lighthouseci", "assets", "lighthouse-report", "node_modules", "playwright-report", "qa-results", "test-results", "tests", "tools"].includes(entry.name)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) results.push(...walkHtml(full));
     else if (entry.isFile() && entry.name.toLowerCase().endsWith(".html")) results.push(full);

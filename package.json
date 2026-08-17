@@ -1,0 +1,21 @@
+{
+  "name": "ariadie-github-io-quality",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.8.0"
+  },
+  "scripts": {
+    "qa:html": "html-validate \"*.html\" \"aima/*.html\" \"control/*.html\" \"conv/*.html\" \"moo-mrpp/*.html\" \"pymoo/*.html\" \"signal/*.html\"",
+    "qa:browser": "playwright test tests/site-smoke.spec.mjs tests/accessibility.spec.mjs",
+    "qa:lighthouse": "node tools/run-lighthouse.mjs",
+    "qa:external": "node tools/check-external-links.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.62.1",
+    "chrome-launcher": "1.2.1",
+    "html-validate": "11.8.0",
+    "lighthouse": "13.4.1"
+  }
+}
