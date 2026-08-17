@@ -1,0 +1,95 @@
+.acn-site-shell,
+.acn-site-shell * {
+  box-sizing: border-box;
+}
+
+.acn-site-shell {
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0 0 12px 12px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+}
+
+.acn-site-shell a {
+  color: #bae6fd !important;
+  text-decoration: none !important;
+  font-weight: 700;
+}
+
+.acn-site-shell a:hover,
+.acn-site-shell a:focus-visible {
+  color: #ffffff !important;
+  text-decoration: underline !important;
+}
+
+.acn-site-shell a:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.acn-site-shell__separator {
+  color: #64748b;
+  user-select: none;
+}
+
+.acn-site-shell__current {
+  min-width: 0;
+  color: #f8fafc;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acn-site-shell__skip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.acn-site-shell__skip:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 4px 8px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+@media (max-width: 640px) {
+  .acn-site-shell {
+    border-radius: 0 0 10px 10px;
+    font-size: 0.8rem;
+  }
+
+  .acn-site-shell__current {
+    flex-basis: 100%;
+    padding-left: 2px;
+  }
+}
+
+@media print {
+  .acn-site-shell {
+    display: none !important;
+  }
+}

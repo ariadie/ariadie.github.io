@@ -9,6 +9,9 @@
   <meta property="og:description" content="Materi pembelajaran bertingkat: S1, S2, dan S3 dalam satu halaman interaktif." />
   <meta property="og:type" content="website" />
   <title>ACN101 — Optimization, MOO &amp; MOEA/MOGA</title>
+  <!-- Managed site metadata -->
+  <link rel="canonical" href="https://ariadie.github.io/acn101.html">
+  <meta property="og:url" content="https://ariadie.github.io/acn101.html">
 
   <style>
     :root {
@@ -540,19 +543,19 @@
               <td><strong>NSGA-II</strong></td>
               <td>Fast non-dominated sorting + crowding distance + elitism</td>
               <td>Seimbang antara konvergensi dan diversitas; sangat populer</td>
-              <td><a href="https://doi.org/10.1109/4235.996017" target="_blank">Deb et al., 2002</a></td>
+              <td><a href="https://doi.org/10.1109/4235.996017" target="_blank" rel="noopener noreferrer">Deb et al., 2002</a></td>
             </tr>
             <tr>
               <td><strong>SPEA2</strong></td>
               <td>Strength assignment + density estimation + external archive</td>
               <td>Seleksi elit stabil; kualitas ranking dominasi baik</td>
-              <td><a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank">Zitzler et al., 2001</a></td>
+              <td><a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank" rel="noopener noreferrer">Zitzler et al., 2001</a></td>
             </tr>
             <tr>
               <td><strong>MOEA/D</strong></td>
               <td>Dekomposisi MOO menjadi subproblem skalar bertetangga</td>
               <td>Efisien pada banyak skenario many-objective</td>
-              <td><a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank">Zhang &amp; Li, 2007</a></td>
+              <td><a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank" rel="noopener noreferrer">Zhang &amp; Li, 2007</a></td>
             </tr>
           </tbody>
         </table>
@@ -565,7 +568,7 @@
           <li><strong>GD / IGD</strong>: mengukur kedekatan dan cakupan terhadap front referensi.</li>
           <li><strong>Spread (\(\Delta\))</strong>: mengukur pemerataan distribusi solusi.</li>
         </ul>
-        <p>Lihat tinjauan evaluasi optimizer multiobjektif: <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank">Zitzler et al., 2003</a>.</p>
+        <p>Lihat tinjauan evaluasi optimizer multiobjektif: <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank" rel="noopener noreferrer">Zitzler et al., 2003</a>.</p>
       </div>
 
       <div class="section">
@@ -580,7 +583,7 @@
           <li><strong>Interpretasi trade-off</strong> bersama konteks domain (teknis &amp; biaya).</li>
         </ol>
         <div class="callout">
-          Untuk implementasi cepat dan reproducible, gunakan framework: <a href="https://pymoo.org/" target="_blank">pymoo</a>.
+          Untuk implementasi cepat dan reproducible, gunakan framework: <a href="https://pymoo.org/" target="_blank" rel="noopener noreferrer">pymoo</a>.
         </div>
       </div>
 
@@ -811,7 +814,7 @@
           <li><strong>Reproducibility package</strong>: kode, parameter, seed, dokumentasi.</li>
         </ol>
         <div class="callout">
-          <strong>Rekomendasi alat:</strong> gunakan framework eksperimen seperti <a href="https://pymoo.org/" target="_blank">pymoo</a> untuk mempercepat replikasi benchmark.
+          <strong>Rekomendasi alat:</strong> gunakan framework eksperimen seperti <a href="https://pymoo.org/" target="_blank" rel="noopener noreferrer">pymoo</a> untuk mempercepat replikasi benchmark.
         </div>
       </div>
 
@@ -1017,21 +1020,21 @@
               <td>Fast non-dominated sorting + crowding distance + elitism</td>
               <td>Baseline kuat dan luas dipakai</td>
               <td>Selektivitas dominance menurun pada many-objective</td>
-              <td><a href="https://doi.org/10.1109/4235.996017" target="_blank">Deb et al., 2002</a></td>
+              <td><a href="https://doi.org/10.1109/4235.996017" target="_blank" rel="noopener noreferrer">Deb et al., 2002</a></td>
             </tr>
             <tr>
               <td>SPEA2</td>
               <td>Strength assignment + archive elit + density estimation</td>
               <td>Ranking stabil pada banyak kasus</td>
               <td>Ketergantungan pada desain archive/parameter density</td>
-              <td><a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank">Zitzler et al., 2001</a></td>
+              <td><a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank" rel="noopener noreferrer">Zitzler et al., 2001</a></td>
             </tr>
             <tr>
               <td>MOEA/D</td>
               <td>Decomposition menjadi subproblem scalar dengan neighborhood</td>
               <td>Efisien pada beberapa benchmark many-objective</td>
               <td>Sensitif terhadap strategi dekomposisi dan vector bobot</td>
-              <td><a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank">Zhang &amp; Li, 2007</a></td>
+              <td><a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank" rel="noopener noreferrer">Zhang &amp; Li, 2007</a></td>
             </tr>
           </tbody>
         </table>
@@ -1178,16 +1181,16 @@
       <div class="hero-card">
         <h2>Referensi Tepercaya</h2>
         <ol class="ref-list">
-          <li>Boyd, S., &amp; Vandenberghe, L. (2004). <em>Convex Optimization</em>. Cambridge University Press. <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank">web.stanford.edu/~boyd/cvxbook/</a></li>
-          <li>Kochenderfer, M. J., &amp; Wheeler, T. A. (2019). <em>Algorithms for Optimization</em>. MIT Press. <a href="https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/" target="_blank">mitpress.mit.edu</a></li>
-          <li>Miettinen, K. (1999). <em>Nonlinear Multiobjective Optimization</em>. Springer. <a href="https://doi.org/10.1007/978-1-4615-5563-6" target="_blank">doi:10.1007/978-1-4615-5563-6</a></li>
-          <li>Deb, K. (2001). <em>Multi-Objective Optimization Using Evolutionary Algorithms</em>. Wiley. <a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank">doi:10.1002/0470010640</a></li>
-          <li>Deb, K., Pratap, A., Agarwal, S., &amp; Meyarivan, T. (2002). NSGA-II. <em>IEEE TEC</em>. <a href="https://doi.org/10.1109/4235.996017" target="_blank">doi:10.1109/4235.996017</a></li>
-          <li>Zitzler, E., Laumanns, M., &amp; Thiele, L. (2001). SPEA2. ETH Zürich TIK-Report 103. <a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank">TIK-Report</a></li>
-          <li>Zhang, Q., &amp; Li, H. (2007). MOEA/D. <em>IEEE TEC</em>. <a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank">doi:10.1109/TEVC.2007.892759</a></li>
-          <li>Zitzler, E., et al. (2003). Performance Assessment of Multiobjective Optimizers. <em>IEEE TEC</em>. <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank">doi:10.1109/TEVC.2003.810758</a></li>
-          <li>Coello Coello, C. A., Lamont, G. B., &amp; Van Veldhuizen, D. A. (2007). <em>Evolutionary Algorithms for Solving Multi-Objective Problems</em> (2nd ed.). Springer. <a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank">doi:10.1007/978-0-387-36797-2</a></li>
-          <li>Dokumentasi pymoo: <a href="https://pymoo.org/" target="_blank">https://pymoo.org/</a></li>
+          <li>Boyd, S., &amp; Vandenberghe, L. (2004). <em>Convex Optimization</em>. Cambridge University Press. <a href="https://web.stanford.edu/~boyd/cvxbook/" target="_blank" rel="noopener noreferrer">web.stanford.edu/~boyd/cvxbook/</a></li>
+          <li>Kochenderfer, M. J., &amp; Wheeler, T. A. (2019). <em>Algorithms for Optimization</em>. MIT Press. <a href="https://mitpress.mit.edu/9780262039420/algorithms-for-optimization/" target="_blank" rel="noopener noreferrer">mitpress.mit.edu</a></li>
+          <li>Miettinen, K. (1999). <em>Nonlinear Multiobjective Optimization</em>. Springer. <a href="https://doi.org/10.1007/978-1-4615-5563-6" target="_blank" rel="noopener noreferrer">doi:10.1007/978-1-4615-5563-6</a></li>
+          <li>Deb, K. (2001). <em>Multi-Objective Optimization Using Evolutionary Algorithms</em>. Wiley. <a href="https://onlinelibrary.wiley.com/doi/book/10.1002/0470010640" target="_blank" rel="noopener noreferrer">doi:10.1002/0470010640</a></li>
+          <li>Deb, K., Pratap, A., Agarwal, S., &amp; Meyarivan, T. (2002). NSGA-II. <em>IEEE TEC</em>. <a href="https://doi.org/10.1109/4235.996017" target="_blank" rel="noopener noreferrer">doi:10.1109/4235.996017</a></li>
+          <li>Zitzler, E., Laumanns, M., &amp; Thiele, L. (2001). SPEA2. ETH Zürich TIK-Report 103. <a href="https://doi.org/10.3929/ethz-a-004284029" target="_blank" rel="noopener noreferrer">TIK-Report</a></li>
+          <li>Zhang, Q., &amp; Li, H. (2007). MOEA/D. <em>IEEE TEC</em>. <a href="https://doi.org/10.1109/TEVC.2007.892759" target="_blank" rel="noopener noreferrer">doi:10.1109/TEVC.2007.892759</a></li>
+          <li>Zitzler, E., et al. (2003). Performance Assessment of Multiobjective Optimizers. <em>IEEE TEC</em>. <a href="https://doi.org/10.1109/TEVC.2003.810758" target="_blank" rel="noopener noreferrer">doi:10.1109/TEVC.2003.810758</a></li>
+          <li>Coello Coello, C. A., Lamont, G. B., &amp; Van Veldhuizen, D. A. (2007). <em>Evolutionary Algorithms for Solving Multi-Objective Problems</em> (2nd ed.). Springer. <a href="https://doi.org/10.1007/978-0-387-36797-2" target="_blank" rel="noopener noreferrer">doi:10.1007/978-0-387-36797-2</a></li>
+          <li>Dokumentasi pymoo: <a href="https://pymoo.org/" target="_blank" rel="noopener noreferrer">https://pymoo.org/</a></li>
         </ol>
         <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);">Kembali ke <a href="./index.html" style="font-weight:700;">Beranda</a></p>
       </div>

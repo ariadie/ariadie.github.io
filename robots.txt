@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ariadie.github.io/sitemap.xml
