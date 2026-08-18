@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const toolDir = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(toolDir, "..");
 const baseUrl = "https://ariadie.github.io/";
-const microsites = new Set(["aima", "control", "conv", "moo-mrpp", "pymoo", "signal"]);
+const microsites = new Set(["ai", "control", "conv", "moo-mrpp", "pymoo", "signal"]);
 const errors = [];
 
 function walkFiles(dir) {

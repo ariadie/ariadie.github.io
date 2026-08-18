@@ -5,7 +5,7 @@ Situs statis pembelajaran dan dokumentasi publik Ariadie Chandra Nugraha. Situs 
 ## Struktur
 
 - Halaman root: materi optimasi, algoritma, statistika, dan ACN101.
-- `aima/`: panduan interaktif Artificial Intelligence.
+- `ai/`: panduan interaktif Kecerdasan Artifisial.
 - `signal/`: materi Signals & Systems.
 - `control/`: materi sistem kendali.
 - `conv/`: catatan Convex Optimization.

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const pages = [
   { path: "/", shell: false },
-  { path: "/aima/chapter1.html", shell: true },
+  { path: "/ai/chapter1.html", shell: true },
   { path: "/signal/intro.html", shell: true },
   { path: "/control/pid.html", shell: true },
   { path: "/conv/conv02.html", shell: true },

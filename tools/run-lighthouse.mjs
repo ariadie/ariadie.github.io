@@ -10,7 +10,7 @@ const siteRoot = path.resolve(toolDir, "..");
 const outputDir = path.join(siteRoot, "lighthouse-report");
 const pages = [
   { slug: "home", url: "http://127.0.0.1:4173/" },
-  { slug: "aima-chapter1", url: "http://127.0.0.1:4173/aima/chapter1.html" },
+  { slug: "ai-chapter1", url: "http://127.0.0.1:4173/ai/chapter1.html" },
   { slug: "conv-conv02", url: "http://127.0.0.1:4173/conv/conv02.html" }
 ];
 

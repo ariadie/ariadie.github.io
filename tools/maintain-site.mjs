@@ -5,22 +5,22 @@ import { fileURLToPath } from "node:url";
 const toolDir = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(toolDir, "..");
 const baseUrl = "https://ariadie.github.io/";
-const microsites = new Set(["aima", "control", "conv", "moo-mrpp", "pymoo", "signal"]);
+const microsites = new Set(["ai", "control", "conv", "moo-mrpp", "pymoo", "signal"]);
 
 const descriptions = {
-  "aima/index.html": "Panduan interaktif Artificial Intelligence berdasarkan AIMA, mencakup agen, pencarian, permainan, constraint satisfaction, dan logika.",
-  "aima/chapter1.html": "Pengantar Artificial Intelligence berdasarkan AIMA: definisi AI, fondasi bidang, sejarah, kemampuan, risiko, dan perkembangan agen cerdas.",
-  "aima/chapter2a.html": "Materi AIMA tentang intelligent agents, rationality, PEAS, serta karakteristik lingkungan tugas untuk perancangan agen cerdas.",
-  "aima/chapter2b.html": "Materi AIMA tentang struktur agen: simple reflex, model-based, goal-based, utility-based, learning agents, dan representasi internal.",
-  "aima/chapter3a.html": "Formulasi masalah dan uninformed search berdasarkan AIMA, termasuk BFS, uniform-cost, depth-first, iterative deepening, dan evaluasinya.",
-  "aima/chapter3b.html": "Informed search berdasarkan AIMA: greedy best-first, A*, heuristic functions, admissibility, consistency, dan pencarian berbasis memori.",
-  "aima/chapter4a.html": "Pencarian pada lingkungan nondeterministik dan contingency problems berdasarkan AIMA, termasuk AND-OR search dan strategi conditional.",
-  "aima/chapter4b.html": "Materi AIMA tentang partially observable environments, belief states, sensorless problems, online search, dan exploration agents.",
-  "aima/chapter5.html": "Adversarial search dan permainan berdasarkan AIMA: minimax, alpha-beta pruning, evaluation functions, stochastic games, dan Monte Carlo tree search.",
-  "aima/chapter6.html": "Constraint Satisfaction Problems berdasarkan AIMA: constraint propagation, backtracking, heuristik variabel, local search, dan struktur masalah.",
-  "aima/chapter7.html": "Logical agents dan propositional logic berdasarkan AIMA: knowledge bases, entailment, inference, theorem proving, dan model checking.",
-  "aima/chapter8.html": "First-Order Logic berdasarkan AIMA: objek, relasi, fungsi, quantifier, syntax, semantics, dan knowledge engineering.",
-  "aima/chapter9.html": "Inferensi dalam First-Order Logic berdasarkan AIMA: unification, forward chaining, backward chaining, resolution, dan pembuktian.",
+  "ai/index.html": "Panduan interaktif Kecerdasan Artifisial tentang agen, pencarian, permainan, constraint satisfaction, logika, dan topik AI lainnya dari beragam referensi.",
+  "ai/chapter1.html": "Pengantar Kecerdasan Artifisial: definisi AI, fondasi bidang, sejarah, kemampuan, risiko, dan perkembangan agen cerdas.",
+  "ai/chapter2a.html": "Intelligent agents, rationality, PEAS, serta karakteristik lingkungan tugas untuk perancangan agen cerdas.",
+  "ai/chapter2b.html": "Struktur agen cerdas: simple reflex, model-based, goal-based, utility-based, learning agents, dan representasi internal.",
+  "ai/chapter3a.html": "Formulasi masalah dan uninformed search, termasuk BFS, uniform-cost, depth-first, iterative deepening, dan evaluasinya.",
+  "ai/chapter3b.html": "Informed search: greedy best-first, A*, heuristic functions, admissibility, consistency, dan pencarian berbasis memori.",
+  "ai/chapter4a.html": "Pencarian pada lingkungan nondeterministik dan contingency problems, termasuk AND-OR search dan strategi conditional.",
+  "ai/chapter4b.html": "Partially observable environments, belief states, sensorless problems, online search, dan exploration agents.",
+  "ai/chapter5.html": "Adversarial search dan permainan: minimax, alpha-beta pruning, evaluation functions, stochastic games, dan Monte Carlo tree search.",
+  "ai/chapter6.html": "Constraint Satisfaction Problems: constraint propagation, backtracking, heuristik variabel, local search, dan struktur masalah.",
+  "ai/chapter7.html": "Logical agents dan propositional logic: knowledge bases, entailment, inference, theorem proving, dan model checking.",
+  "ai/chapter8.html": "First-Order Logic: objek, relasi, fungsi, quantifier, syntax, semantics, dan knowledge engineering.",
+  "ai/chapter9.html": "Inferensi dalam First-Order Logic: unification, forward chaining, backward chaining, resolution, dan pembuktian.",
   "conv/index.html": "Catatan interaktif Convex Optimization berdasarkan Boyd dan Vandenberghe, mencakup pengantar, convex sets, dan jalur materi lanjutan.",
   "conv/conv01.html": "Pengantar Convex Optimization: masalah optimasi, least squares, linear programming, convexity, duality, serta contoh aplikasi.",
   "conv/conv02.html": "Materi Convex Sets: affine dan convex sets, operasi, generalized inequalities, separation, dual cones, serta Pareto optimality.",

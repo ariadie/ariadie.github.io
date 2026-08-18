@@ -2,7 +2,7 @@
   "use strict";
 
   const sections = {
-    aima: "Artificial Intelligence (AIMA)",
+    ai: "Kecerdasan Artifisial",
     control: "Sistem Kendali",
     conv: "Convex Optimization",
     "moo-mrpp": "MOO-MRPP",
