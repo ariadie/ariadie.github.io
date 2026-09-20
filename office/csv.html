@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Panduan CSV (Comma-Separated Values) dalam bahasa Indonesia — pengertian, jenis pemisah, membuat CSV di Notepad, serta impor dan ekspor CSV di Microsoft Excel." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Panduan CSV — Comma-Separated Values" />
+  <meta property="og:description" content="Apa itu CSV, perbedaan pemisah koma dan titik-koma, cara membuat CSV di Notepad, serta cara mengimpor dan mengekspor CSV di Excel." />
+  <meta property="og:type" content="website" />
+  <title>Panduan CSV — Comma-Separated Values</title>
+  <!-- Managed site metadata -->
+  <link rel="canonical" href="https://ariadie.github.io/office/csv.html">
+  <meta property="og:url" content="https://ariadie.github.io/office/csv.html">
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #0d9488;
+      --primary-2: #14b8a6;
+      --accent: #f59e0b;
+      --accent-2: #8b5cf6;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #2dd4bf;
+      --primary-2: #5eead4;
+      --accent: #fbbf24;
+      --accent-2: #a78bfa;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(13, 148, 136, 0.14), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(20, 184, 166, 0.12), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    /* ─── Hamburger drawer ─── */
+    .ham-btn {
+      width: 44px; height: 44px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 750;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .ham-btn:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--primary) 46%, var(--line)); }
+
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; z-index: 210;
+      width: min(300px, 82vw); height: 100%;
+      background: var(--card-solid);
+      border-left: 1px solid var(--line);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; border-bottom: 1px solid var(--line);
+    }
+    .drawer-header strong { font-size: 1rem; letter-spacing: -0.02em; }
+    .drawer-close {
+      width: 36px; height: 36px; border: none; background: transparent;
+      cursor: pointer; font-size: 1.3rem; color: var(--muted);
+      display: grid; place-items: center; border-radius: 50%;
+    }
+    .drawer-close:hover { background: color-mix(in srgb, var(--line) 40%, transparent); }
+
+    .drawer-body { padding: 10px 0; flex: 1; }
+    .drawer-section { padding: 4px 20px 10px; }
+    .drawer-section-label {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted-2); font-weight: 800; margin-bottom: 6px;
+    }
+    .drawer-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      color: var(--text); text-decoration: none;
+      font-size: 0.9rem; font-weight: 700;
+      transition: background .15s ease;
+    }
+    .drawer-link:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero {
+      padding: 50px 0 30px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent-2) 14%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 800px;
+      margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 760px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card, .info-card, .algo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary);
+      margin-bottom: 14px;
+      font-size: 1.22rem;
+    }
+
+    .feature-card h3, .info-card h3, .algo-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p, .info-card p, .algo-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .algo-card.highlight {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+    }
+
+    .code-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .code-box h4 {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      letter-spacing: -0.01em;
+      color: var(--muted-2);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      font-size: 0.91rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      width: 38px; height: 38px;
+      border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+    }
+
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--line);
+      color: var(--muted-2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      vertical-align: top;
+    }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    .highlight-box {
+      padding: 16px;
+      border-left: 4px solid var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 12px 0;
+    }
+    .highlight-box p { margin: 0; color: var(--text); }
+
+    .warn-box {
+      padding: 16px;
+      border-left: 4px solid var(--accent);
+      background: color-mix(in srgb, var(--accent) 8%, var(--card));
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 12px 0;
+    }
+    .warn-box p { margin: 0; color: var(--text); }
+
+    .ref-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+    }
+
+    .ref-authors { font-weight: 700; color: var(--text); }
+    .ref-title { font-style: italic; color: var(--muted); }
+    .ref-source { color: var(--muted-2); font-size: 0.9rem; }
+    .ref-doi a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .figure {
+      margin: 12px 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      box-shadow: var(--shadow-soft);
+    }
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .figure figcaption {
+      padding: 10px 14px;
+      color: var(--muted-2);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .figure-half {
+      width: 50%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    ul.info-list { margin: 0; padding-left: 20px; color: var(--muted); font-size: 0.95rem; }
+    ul.info-list li { margin-bottom: 6px; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .hero { padding-top: 24px; }
+      .figure-half { width: 100%; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .hero-card { padding: 24px; }
+      h1 { letter-spacing: -0.055em; }
+    }
+    @media print {
+      .nav, .footer { display: none !important; }
+      body { background: white; color: black; }
+      .hero, .grid-2, .grid-3, .grid-4 { display: block; }
+      .feature-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="../index.html" aria-label="Beranda">
+        <div class="brand-mark">CSV</div>
+        <div class="brand-text">
+          <span class="brand-title">Panduan CSV</span>
+          <span class="brand-subtitle">Comma-Separated Values &bull; Notepad &amp; Excel</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <button class="ham-btn" id="hamBtn" aria-label="Buka menu navigasi">☰</button>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Drawer -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigasi halaman">
+    <div class="drawer-header">
+      <strong>Navigasi</strong>
+      <button class="drawer-close" id="drawerClose" aria-label="Tutup menu">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-section">
+        <div class="drawer-section-label">Halaman Ini</div>
+        <a class="drawer-link" href="#pengertian">📄 Apa itu CSV?</a>
+        <a class="drawer-link" href="#jenis">🧩 Jenis Pemisah</a>
+        <a class="drawer-link" href="#notepad">📝 Membuat CSV di Notepad</a>
+        <a class="drawer-link" href="#impor">📥 Impor CSV di Excel</a>
+        <a class="drawer-link" href="#ekspor">📤 Ekspor CSV di Excel</a>
+        <a class="drawer-link" href="#tips">💡 Tips &amp; Masalah Umum</a>
+        <a class="drawer-link" href="#bom">🔤 Apa itu BOM?</a>
+        <a class="drawer-link" href="#referensi">📎 Referensi</a>
+      </div>
+      <div class="drawer-section">
+        <a class="drawer-link" href="../index.html" style="color:var(--muted);font-size:0.82rem;">🏠 Beranda</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar CSV">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Format Data Tabel Paling Sederhana</span>
+          <h1>Panduan CSV</h1>
+          <p class="lead">
+            <strong>CSV (Comma-Separated Values)</strong> adalah format file teks murni yang
+            menyimpan data berbentuk tabel (baris dan kolom) dengan tanda pemisah tertentu,
+            umumnya koma (<code>,</code>) atau titik-koma (<code>;</code>). Karena isinya
+            teks biasa, CSV dapat dibuka dan diedit di aplikasi apa pun — dari
+            <strong>Notepad</strong> hingga <strong>Microsoft Excel</strong> — dan menjadi
+            jembatan paling umum untuk memindahkan data antar program dan sistem.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#pengertian">Apa itu CSV?</a>
+            <a class="btn" href="#notepad">Membuat CSV di Notepad</a>
+            <a class="btn" href="#impor">Impor &amp; Ekspor di Excel</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN -->
+    <section class="section" id="ringkasan" aria-label="Ringkasan">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">📄</div>
+          <h3>Teks Murni</h3>
+          <p>CSV tidak menyimpan format, rumus, warna, atau gambar — hanya teks dengan pemisah. Karena itu ukurannya kecil dan mudah diproses program.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🔗</div>
+          <h3>Universal</h3>
+          <p>Dibaca oleh Excel, Google Sheets, Python (pandas), R, basis data (SQL), hingga aplikasi ERP — menjadikannya format pertukaran data de facto.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🧱</div>
+          <h3>Struktur Sederhana</h3>
+          <p>Baris pertama biasanya berisi judul kolom (header), baris berikutnya berisi data. Tiap baris = satu record, tiap pemisah = batas kolom.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PENGERTIAN -->
+    <section class="section" id="pengertian" aria-label="Apa itu CSV">
+      <div class="section-head">
+        <div>
+          <h2>Apa itu CSV?</h2>
+          <p class="section-desc">Struktur dasar file CSV beserta aturan penulisannya.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="code-box">
+            <h4>Contoh isi file data_mahasiswa.csv</h4>
+            <pre>Nama;NIM;Kota;IPK
+Ahmad Fauzi;2201001;Yogyakarta;3,75
+Siti Rahma;2201002;Surabaya;3,92
+Budi Santoso;2201003;Bandung;3,58</pre>
+          </div>
+          <div class="highlight-box">
+            <p>📌 Baris pertama adalah <strong>header</strong> (judul kolom), tiga baris berikutnya adalah <strong>record data</strong>. Pada contoh ini pemisahnya titik-koma karena bilangan desimal memakai koma.</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="algo-card">
+            <h3>Aturan Dasar Penulisan CSV</h3>
+            <ul class="info-list" style="margin-top: 8px;">
+              <li><strong>Satu baris = satu record.</strong> Baris dipisahkan oleh karakter baris baru.</li>
+              <li><strong>Pemisah antar kolom</strong> harus konsisten di seluruh file (koma <em>atau</em> titik-koma, jangan dicampur).</li>
+              <li><strong>Kutipan ganda (<code>"</code>)</strong> digunakan bila nilai mengandung pemisah, tanda kutip, atau baris baru: <code>"Nama, Gelar";2026</code>.</li>
+              <li><strong>Baris kosong</strong> sebaiknya dihindari; beberapa program menganggapnya record kosong.</li>
+              <li><strong>Spasi di sekitar pemisah</strong> menjadi bagian dari data, mis. <code>Nama ;IPK</code> menghasilkan kolom berisi <code>Nama&nbsp;</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- JENIS -->
+    <section class="section" id="jenis" aria-label="Jenis pemisah CSV">
+      <div class="section-head">
+        <div>
+          <h2>Jenis Pemisah: Koma atau Titik-Koma</h2>
+          <p class="section-desc">Pemisah kolom CSV ditentukan oleh konvensi regional (setting bahasa), bukan oleh isi datanya.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="algo-card">
+          <h3>Mengapa Bisa Berbeda?</h3>
+          <p style="margin-top: 8px;">
+            Di negara-negara berbahasa Inggris (dan Indonesia dengan setting regional
+            <em>English (United States)</em>), pemisah desimal adalah titik (<code>3.75</code>),
+            sehingga koma bebas dipakai sebagai pemisah kolom. Namun di Indonesia dan banyak
+            negara Eropa, pemisah desimal adalah <strong>koma</strong> (<code>3,75</code>).
+            Karena koma sudah dipakai untuk desimal, pemisah kolom dipindah ke
+            <strong>titik-koma</strong> (<code>;</code>) agar tidak bentrok.
+          </p>
+          <p style="margin-top: 10px;">
+            <strong>Aturan praktis:</strong> pemisah desimal dan pemisah kolom tidak boleh
+            sama. Jika desimal memakai koma → pemisah CSV adalah titik-koma. Jika desimal
+            memakai titik → pemisah CSV adalah koma.
+          </p>
+        </div>
+
+        <div class="algo-card highlight">
+          <h3>Pemisah yang Umum Dipakai</h3>
+          <table>
+            <tr><th>Pemisah</th><th>Nama</th><th>Kapan Dipakai</th></tr>
+            <tr><td><code>,</code></td><td><strong>Comma</strong></td><td>Setting regional Inggris (desimal titik); standar RFC 4180.</td></tr>
+            <tr><td><code>;</code></td><td><strong>Semicolon</strong></td><td>Setting regional Indonesia/Eropa (desimal koma); default Excel versi lokal.</td></tr>
+            <tr><td><code>&#9;</code> (TAB)</td><td><strong>Tab-delimited</strong></td><td>Varian bernama <em>TSV</em>; umum di data bioinformatika &amp; copy-paste dari Excel.</td></tr>
+            <tr><td><code>|</code></td><td><strong>Pipe</strong></td><td>Data dengan banyak tanda baca; jarang, dipakai di industri tertentu.</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="warn-box" style="margin-top: 14px;">
+        <p>⚠️ <strong>Penting:</strong> Excel menyimpan dan membaca CSV mengikuti pengaturan
+          <em>Regional Format</em> di Windows (Control Panel → Region → Additional settings →
+          <em>List separator</em>). Pada Windows berbahasa Indonesia, <em>list separator</em>
+          default adalah titik-koma, sehingga Excel "versi Indonesia" membuat CSV dengan pemisah
+          titik-koma — bukan koma, meskipun ekstensinya <code>.csv</code>. Inilah sumber
+          kebingungan paling umum saat bertukar file CSV.</p>
+      </div>
+    </section>
+
+    <!-- NOTEPAD -->
+    <section class="section" id="notepad" aria-label="Membuat CSV di Notepad">
+      <div class="section-head">
+        <div>
+          <h2>Membuat CSV di Notepad</h2>
+          <p class="section-desc">Langkah membuat file CSV dari nol hanya dengan Notepad (Windows).</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Buka Notepad</span>
+                <span class="step-text">Tekan <code>Win + R</code>, ketik <code>notepad</code>, lalu Enter. Atau klik kanan di folder tujuan → <em>New → Text Document</em>.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Tulis header &amp; data</span>
+                <span class="step-text">Ketik judul kolom di baris pertama, lalu data di baris berikutnya. Pisahkan kolom dengan titik-koma (setting Indonesia) atau koma (setting Inggris). Setiap record di baris baru.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Simpan dengan Save As</span>
+                <span class="step-text">Menu <em>File → Save As</em>. Ubah <strong>Save as type</strong> menjadi <strong>All Files (*.*)</strong>, lalu beri nama <code>data_mahasiswa.csv</code> (jangan <code>data_mahasiswa.csv.txt</code>).</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Pilih encoding UTF-8</span>
+                <span class="step-text">Di kotak dialog Save As, pilih <strong>Encoding: UTF-8</strong> (bila tersedia pilih <em>UTF-8 with BOM</em> agar Excel mendeteksi karakter non-ASCII dengan benar).</span>
+              </div>
+            </li>
+          </ol>
+          <div class="highlight-box">
+            <p>✅ File siap. Buka dengan Excel atau editor teks lain untuk memeriksa hasilnya. Notepad menampilkan CSV apa adanya — sangat berguna untuk memastikan pemisah dan encoding benar.</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="code-box">
+            <h4>Contoh yang diketik di Notepad</h4>
+            <pre>Nama;NIM;Kota;IPK
+Ahmad Fauzi;2201001;Yogyakarta;3,75
+Siti Rahma;2201002;Surabaya;3,92
+Budi Santoso;2201003;Bandung;3,58</pre>
+          </div>
+          <figure class="figure">
+            <img src="./notepad_data_mahasiswa.png" alt="Tampilan Notepad berisi file data_mahasiswa.csv dengan header Nama, NIM, Kota, IPK dan tiga baris data yang dipisahkan titik-koma; status bar menunjukkan Windows (CRLF) dan UTF-8." loading="lazy">
+            <figcaption>Tampilan file <code>data_mahasiswa.csv</code> di Notepad — data murni teks dengan pemisah titik-koma.</figcaption>
+          </figure>
+          <div class="warn-box">
+            <p>⚠️ Notepad modern menyimpan UTF-8 tanpa BOM. Jika karakter seperti <code>é</code>, <code>ü</code>, atau simbol rupiah tampak berantakan saat dibuka di Excel, simpan ulang dengan Notepad sebagai <strong>UTF-8 with BOM</strong>, atau impor manual melalui Excel sambil memilih encoding UTF-8 (lihat bagian Impor).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IMPOR -->
+    <section class="section" id="impor" aria-label="Impor CSV di Excel">
+      <div class="section-head">
+        <div>
+          <h2>Mengimpor CSV di Excel</h2>
+          <p class="section-desc">Dua cara: buka langsung, atau impor terkontrol melalui Power Query.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="algo-card">
+            <h3>Cara 1 — Buka Langsung (Cepat)</h3>
+            <ol class="steps" style="margin-top: 10px;">
+              <li>
+                <div>
+                  <span class="step-title">Klik dua kali file CSV</span>
+                  <span class="step-text">Atau di Excel: <em>File → Open</em>, pilih file <code>.csv</code>.</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Periksa hasilnya</span>
+                  <span class="step-text">Excel membuka CSV langsung ke kolom-kolom. Jika semua data menumpuk di satu kolom, berarti pemisah file tidak cocok dengan list separator regional Excel — pakai Cara 2.</span>
+                </div>
+              </li>
+            </ol>
+            <div class="warn-box">
+              <p>⚠️ Membuka langsung berisiko: angka <code>001</code> menjadi <code>1</code>, tanggal <code>12/03/2026</code> ditafsir ulang, dan angka panjang berubah menjadi notasi ilmiah. Jika presisi data penting, gunakan Cara 2.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="algo-card highlight">
+            <h3>Cara 2 — Impor Terkontrol (Power Query)</h3>
+            <ol class="steps" style="margin-top: 10px;">
+              <li>
+                <div>
+                  <span class="step-title">Mulai impor</span>
+                  <span class="step-text">Tab <em>Data → From Text/CSV</em>, pilih file. Muncul pratinjau data.</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Atur delimiter &amp; encoding</span>
+                  <span class="step-text">Pilih <strong>Delimiter</strong> (Comma / Semicolon / Tab) dan <strong>File Origin</strong> (mis. <code>65001: Unicode (UTF-8)</code>).</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Tentukan tipe kolom</span>
+                  <span class="step-text">Klik kanan kolom → <em>Change Type → Text</em> untuk kolom kode (NIM, kode pos) agar angka nol di depan tidak hilang.</span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <span class="step-title">Muat ke sheet</span>
+                  <span class="step-text">Klik <strong>Load</strong>. Data masuk sebagai tabel Excel. Hasil impor dapat di-<em>refresh</em> jika file sumber berubah.</span>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <p>💡 Untuk kolom yang berisi <strong>pemisah desimal asing</strong> (mis. CSV dengan titik: <code>3.75</code>), impor dulu sebagai teks, lalu ganti <code>.</code> menjadi <code>,</code> dengan <em>Find &amp; Replace</em>, baru ubah tipenya menjadi number.</p>
+      </div>
+
+      <figure class="figure figure-half">
+        <img src="./excel_impor_csv.png" alt="Tabel di Excel hasil impor data_mahasiswa.csv dengan kolom Nama, NIM, Kota, IPK serta panel Queries & Connections yang menampilkan query data_mahasiswa sebanyak 3 baris." loading="lazy">
+        <figcaption>Hasil impor <code>data_mahasiswa.csv</code> di Excel — data menjadi tabel bernama <code>data_mahasiswa</code> (tab <em>Table Design</em>) dan tercatat sebagai query di panel <em>Queries &amp; Connections</em> (<em>3 rows loaded</em>).</figcaption>
+      </figure>
+    </section>
+
+    <!-- EKSPOR -->
+    <section class="section" id="ekspor" aria-label="Ekspor CSV di Excel">
+      <div class="section-head">
+        <div>
+          <h2>Mengekspor CSV di Excel</h2>
+          <p class="section-desc">Simpan lembar kerja sebagai CSV beserta peringatan yang perlu diketahui.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <ol class="steps">
+            <li>
+              <div>
+                <span class="step-title">Buka File → Save As</span>
+                <span class="step-text">Pilih lokasi, lalu ubah <strong>Save as type</strong> ke salah satu format CSV.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Pilih format CSV</span>
+                <span class="step-text"><strong>CSV UTF-8 (Comma delimited) (*.csv)</strong> — disarankan, mendukung semua karakter. Pilihan <strong>CSV (Comma delimited)</strong> memakai encoding lokal Windows (ANSI) dan <em>list separator</em> regional.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Konfirmasi peringatan</span>
+                <span class="step-text">Excel memperingatkan bahwa CSV hanya menyimpan <strong>satu sheet aktif</strong> dan menghapus rumus (hanya nilainya tersimpan), format, dan gambar. Klik <strong>Yes/OK</strong>.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Tutup tanpa menyimpan ulang (opsional)</span>
+                <span class="step-text">Saat menutup file, Excel bertanya apakah menyimpan perubahan ke format <code>.xlsx</code>. Jika ingin mempertahankan file Excel asli beserta formatnya, klik <strong>Don't Save</strong>.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="algo-card">
+            <h3>Perbandingan Format CSV di Excel</h3>
+            <table>
+              <tr><th>Format</th><th>Encoding</th><th>Pemisah</th><th>Catatan</th></tr>
+              <tr>
+                <td><strong>CSV UTF-8</strong></td>
+                <td>UTF-8 (dengan BOM)</td>
+                <td>Mengikuti list separator regional (koma atau titik-koma)</td>
+                <td>✅ Pilihan paling aman untuk teks berbahasa Indonesia dan lintas sistem.</td>
+              </tr>
+              <tr>
+                <td><strong>CSV (Comma delimited)</strong></td>
+                <td>ANSI/Windows lokal (mis. cp1252)</td>
+                <td>Mengikuti list separator regional</td>
+                <td>⚠️ Karakter di luar code page lokal (mis. simbol tertentu) bisa rusak.</td>
+              </tr>
+              <tr>
+                <td><strong>CSV (Macintosh) / (MS-DOS)</strong></td>
+                <td>Varian lama</td>
+                <td>Mengikuti list separator regional</td>
+                <td>❌ Hanya untuk kompatibilitas sistem lama.</td>
+              </tr>
+            </table>
+            <div class="highlight-box">
+              <p>📌 Meski namanya <em>"Comma delimited"</em>, pada Excel ber-setting Indonesia pemisah aktualnya adalah <strong>titik-koma</strong>. Periksa file hasil ekspor dengan Notepad untuk memastikan.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIPS -->
+    <section class="section" id="tips" aria-label="Tips dan masalah umum">
+      <div class="section-head">
+        <div>
+          <h2>Tips &amp; Masalah Umum</h2>
+          <p class="section-desc">Hal-hal yang sering ditemui saat bekerja dengan CSV di Excel dan Notepad.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="algo-card">
+          <h3>🔤 Encoding &amp; Karakter</h3>
+          <ul class="info-list">
+            <li><strong>Karakter rusak (� / Ã©):</strong> file UTF-8 dibaca sebagai ANSI. Impor manual dengan File Origin UTF-8, atau simpan dengan BOM.</li>
+            <li><strong>UTF-8 with BOM</strong> menandai file sebagai UTF-8 secara eksplisit — disarankan untuk data Indonesia.</li>
+            <li>Hindari karakter pemisah di dalam data; jika terpaksa, bungkus nilai dengan tanda kutip ganda.</li>
+          </ul>
+        </div>
+
+        <div class="algo-card">
+          <h3>🔢 Angka &amp; Tanggal</h3>
+          <ul class="info-list">
+            <li><strong>Nol di depan hilang</strong> (<code>001 → 1</code>): impor kolom sebagai <em>Text</em>, jangan <em>General</em>.</li>
+            <li><strong>Koma vs titik desimal:</strong> CSV dengan titik desimal dibaca sebagai teks oleh Excel Indonesia. Konversi manual atau ganti list separator.</li>
+            <li><strong>Tanggal berubah</strong> (<code>03/04</code> bisa dibaca 3 April atau 4 Maret): format tanggal CSV tidak menyimpan informasi ambiguitas; tetapkan tipe kolom saat impor.</li>
+            <li><strong>Notasi ilmiah</strong> (<code>2.2E+15</code> pada nomor panjang seperti NIK): atur kolom sebagai teks <em>sebelum</em> data dibaca.</li>
+          </ul>
+        </div>
+
+        <div class="algo-card">
+          <h3>🗂️ Struktur File</h3>
+          <ul class="info-list">
+            <li>Header sebaiknya satu baris, tanpa titik, tanpa spasi berlebih, dan unik antar kolom.</li>
+            <li>Hindari baris kosong di tengah file dan kolom kosong yang tidak disengaja.</li>
+            <li>Baris terakhir sebaiknya diakhiri baris baru (beberapa parser mensyaratkannya).</li>
+            <li>Ukuran besar (&gt; 1 juta baris) melebihi batas sheet Excel; gunakan alat lain seperti Python/pandas.</li>
+          </ul>
+        </div>
+
+        <div class="algo-card">
+          <h3>🔍 Verifikasi Cepat</h3>
+          <ul class="info-list">
+            <li>Buka CSV di Notepad: terlihat teks murni dengan pemisah — jika terlihat karakter kotak-kotak, cek encoding.</li>
+            <li>Di Excel, gunakan <em>Data → Text to Columns</em> sebagai perbaikan cepat bila kolom menumpuk jadi satu.</li>
+            <li>Hitung kolom baris pertama vs baris lain; jumlah field harus sama di setiap baris.</li>
+            <li>Simpan salinan master di <code>.xlsx</code>, dan hasilkan CSV hanya sebagai format tukar.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOM -->
+    <section class="section" id="bom" aria-label="Apa itu BOM">
+      <div class="section-head">
+        <div>
+          <h2>Apa itu BOM?</h2>
+          <p class="section-desc">Byte Order Mark — penanda kecil di awal file yang sering menjadi penyebab masalah encoding CSV.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="algo-card highlight">
+            <h3>Definisi Singkat</h3>
+            <p style="margin-top: 8px;">
+              <strong>BOM (Byte Order Mark)</strong> adalah penanda opsional berupa
+              urutan byte khusus di <em>awal</em> sebuah file teks yang memberi tahu
+              program pembaca bahwa file tersebut memakai encoding <strong>Unicode</strong>
+              tertentu. Untuk <strong>UTF-8</strong>, BOM berupa tiga byte:
+              <code>EF BB BF</code> (satu karakter <code>U+FEFF</code>). BOM bukan
+              bagian dari data — ia "meta-informasi" yang menempel di depan data.
+            </p>
+            <p style="margin-top: 10px;">
+              Nama "Byte Order Mark" berasal dari perannya pada UTF-16/UTF-32: urutan
+              byte menandai <em>endianness</em> (big-endian atau little-endian). Pada
+              UTF-8 endianness tidak relevan, tetapi BOM tetap dapat ditulis dan
+              dibaca sebagai penanda identitas encoding.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div class="algo-card">
+            <h3>Kenapa Penting untuk CSV?</h3>
+            <ul class="info-list" style="margin-top: 8px;">
+              <li><strong>Excel di Windows</strong> dapat mendeteksi file CSV ber-encoding UTF-8 dengan benar jika ada BOM; tanpa BOM, Excel sering menganggapnya ANSI dan karakter non-ASCII (mis. <code>é</code>, <code>ü</code>, huruf Arab, atau simbol) tampil rusak.</li>
+              <li><strong>CSV UTF-8</strong> dari Excel ditulis <em>dengan</em> BOM; sedangkan <strong>Notepad</strong> modern menyimpan UTF-8 <em>tanpa</em> BOM secara default (tersedia opsi "UTF-8 with BOM").</li>
+              <li><strong>Program lain</strong> (Python, pandas, database, sistem web) umumnya membaca UTF-8 tanpa masalah, baik ber-BOM maupun tidak — tetapi sebagian parser menganggap BOM sebagai bagian dari nama kolom pertama (mis. <code>\ufeffNama</code>), sehingga perlu penanganan khusus.</li>
+            </ul>
+            <div class="warn-box" style="margin-top: 10px;">
+              <p>⚠️ Karena BOM tidak kasat mata, masalahnya sering baru muncul ketika file dibuka di aplikasi lain — jangan heran jika file "tampak normal" di Notepad tetapi rusak di Excel, atau sebaliknya.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 18px;">
+        <div class="algo-card">
+          <h3>✅ Kapan Sebaiknya Pakai BOM</h3>
+          <table>
+            <tr><th>Situasi</th><th>Rekomendasi</th></tr>
+            <tr><td>CSV akan dibuka dengan Excel Windows oleh orang lain</td><td>Gunakan <strong>UTF-8 with BOM</strong> — paling aman.</td></tr>
+            <tr><td>CSV untuk diproses program (Python, database, API)</td><td>UTF-8 <strong>tanpa BOM</strong> lebih umum dan bersih.</td></tr>
+            <tr><td>Berkas ASCII murni (hanya huruf/angka dasar)</td><td>Tidak berpengaruh — BOM tidak diperlukan.</td></tr>
+            <tr><td>Data berisi karakter khusus (é, ü, emoji, aksara non-Latin)</td><td>Wajib konsisten; pilih UTF-8 (opsional ber-BOM sesuai target pembaca).</td></tr>
+          </table>
+        </div>
+
+        <div>
+          <div class="code-box">
+            <h4>Cara memeriksa BOM</h4>
+            <pre># Lihat tiga byte pertama file (PowerShell)
+Format-Hex data_mahasiswa.csv | Select-Object -First 1
+
+# Ber-BOM    : EF BB BF 4E 61 6D 61 ...
+# Tanpa BOM  : 4E 61 6D 61 3B ...
+
+# Python: deteksi BOM
+open('data_mahasiswa.csv', 'rb').read(3) == b'\xef\xbb\xbf'</pre>
+          </div>
+          <div class="highlight-box">
+            <p>🔤 Di Notepad: <em>File → Save As</em> → pilih <strong>Encoding: UTF-8 with BOM</strong>. Di VS Code: status bar encoding → <em>Save with Encoding → UTF-8 with BOM</em>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi utama">
+      <div class="section-head">
+        <div>
+          <h2>Referensi</h2>
+          <p class="section-desc">Sumber yang mendasari panduan ini: standar resmi CSV dan dokumentasi resmi Microsoft.</p>
+        </div>
+      </div>
+
+      <ul class="ref-list">
+        <li>
+          <div class="ref-authors">Shafranovich, Y.</div>
+          <div class="ref-title">Common Format and MIME Type for Comma-Separated Values (CSV) Files</div>
+          <div class="ref-source">RFC 4180, Internet Engineering Task Force (IETF), Oktober 2005.</div>
+          <div class="ref-doi"><a href="https://www.rfc-editor.org/rfc/rfc4180" target="_blank" rel="noopener noreferrer">https://www.rfc-editor.org/rfc/rfc4180</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Hausenblas, M., Wilde, E., &amp; Tennison, J.</div>
+          <div class="ref-title">URI Fragment Identifiers for the text/csv Media Type</div>
+          <div class="ref-source">RFC 7111, Internet Engineering Task Force (IETF), Januari 2014 — pembaruan RFC 4180.</div>
+          <div class="ref-doi"><a href="https://www.rfc-editor.org/rfc/rfc7111" target="_blank" rel="noopener noreferrer">https://www.rfc-editor.org/rfc/rfc7111</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Microsoft Support</div>
+          <div class="ref-title">Import or export text (.txt or .csv) files</div>
+          <div class="ref-source">Dokumentasi resmi Excel — impor/ekspor, Text Import Wizard, Power Query, dan pengaturan delimiter/list separator.</div>
+          <div class="ref-doi"><a href="https://support.microsoft.com/en-us/office/import-or-export-text-txt-or-csv-files-5250ac4c-663c-47ce-937b-339e391393ba" target="_blank" rel="noopener noreferrer">https://support.microsoft.com/en-us/office/import-or-export-text-txt-or-csv-files-5250ac4c-663c-47ce-937b-339e391393ba</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Microsoft Support</div>
+          <div class="ref-title">Save a workbook to text format (.txt or .csv)</div>
+          <div class="ref-source">Dokumentasi resmi Excel — format file teks yang tersedia saat Save As, termasuk CSV (Comma delimited).</div>
+          <div class="ref-doi"><a href="https://support.microsoft.com/en-us/office/save-a-workbook-to-text-format-txt-or-csv-3e9a9d6c-70da-4255-aa28-fcacf1f081e6" target="_blank" rel="noopener noreferrer">https://support.microsoft.com/en-us/office/save-a-workbook-to-text-format-txt-or-csv-3e9a9d6c-70da-4255-aa28-fcacf1f081e6</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Python Software Foundation</div>
+          <div class="ref-title">csv — CSV File Reading and Writing</div>
+          <div class="ref-source">Dokumentasi standar pustaka Python — referensi praktis membaca/menulis CSV secara programatik (dialek, Sniffer, parameter format).</div>
+          <div class="ref-doi"><a href="https://docs.python.org/3/library/csv.html" target="_blank" rel="noopener noreferrer">https://docs.python.org/3/library/csv.html</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">IETF</div>
+          <div class="ref-title">text/csv (media type registration)</div>
+          <div class="ref-source">Registrasi IANA untuk MIME type <code>text/csv</code> — parameter charset dan header yang dapat digunakan aplikasi.</div>
+          <div class="ref-doi"><a href="https://www.iana.org/assignments/media-types/text/csv" target="_blank" rel="noopener noreferrer">https://www.iana.org/assignments/media-types/text/csv</a></div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>Panduan CSV — Comma-Separated Values</strong><br>
+      Dibuat oleh <strong>Ariadie Chandra Nugraha</strong> &bull;
+      Dibantu AI <strong>opencode</strong> (model <code>deepseek-v4.1-flash</code>)<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-csv");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-csv", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Hamburger drawer
+    const hamBtn = document.getElementById("hamBtn");
+    const drawer = document.getElementById("drawer");
+    const overlay = document.getElementById("drawerOverlay");
+    const drawerClose = document.getElementById("drawerClose");
+
+    function openDrawer() { drawer.classList.add("open"); overlay.classList.add("open"); document.body.style.overflow = "hidden"; }
+    function closeDrawer() { drawer.classList.remove("open"); overlay.classList.remove("open"); document.body.style.overflow = ""; }
+
+    hamBtn.addEventListener("click", openDrawer);
+    drawerClose.addEventListener("click", closeDrawer);
+    overlay.addEventListener("click", closeDrawer);
+  </script>
+</body>
+</html>
