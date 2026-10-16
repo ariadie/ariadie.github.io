@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<!-- Statistika S3 W01 Pendahuluan — modul lengkap v02 | 02-10-2026 : struktur signal2, palet taguchi-borda -->
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minggu 1 — Pendahuluan &amp; Penyusunan Tugas Kelompok | Statistika S3</title>
+<meta name="description" content="Minggu 1 Statistika S3 Ilmu Teknik (4 Sept 2026): mengapa statistika lanjut, peta 16 pertemuan, kontrak, pembentukan 6 kelompok, kuis, dan glosarium.">
+<meta name="author" content="Ariadie Chandra Nugraha">
+<meta property="og:title" content="Minggu 1 — Pendahuluan &amp; Penyusunan Tugas Kelompok">
+<meta property="og:description" content="Kontrak kuliah, peta 16 minggu Statistika S3, lab variabilitas sampling, contoh, kuis, dan glosarium.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://ariadie.github.io/statistika/W01-pendahuluan_v02.html">
+<meta property="og:url" content="https://ariadie.github.io/statistika/W01-pendahuluan_v02.html">
+<script>
+  (function(){
+    var inIframe;
+    try { inIframe = window.self !== window.top; } catch(e) { inIframe = true; }
+    if(inIframe){ document.documentElement.classList.add('embedded'); }
+  })();
+</script>
+<script>
+  (function(){
+    try {
+      var saved = localStorage.getItem('theme-statistika');
+      if(saved === 'dark' || saved === 'light'){
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+    } catch(e) {}
+  })();
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','pre','code']})"></script>
+<style>
+  /* ================================================================
+     KONFIG TEMA — cukup ubah 3 nilai PRIMER di :root (mode terang)
+     dan 3 nilai di blok html[data-theme="dark"] untuk mengganti
+     nuansa seluruh halaman. Format: primary, primary-2, accent.
+     Preset siap pakai (terang | gelap):
+     A Samudra : #0284c7 #0891b2 #10b981  |  #38bdf8 #22d3ee #34d399
+     B Toska   : #0f766e #0d9488 #22c55e  |  #2dd4bf #5eead4 #4ade80
+     C Nila    : #1d4ed8 #0891b2 #10b981  |  #93c5fd #22d3ee #34d399  <- aktif
+     ================================================================ */
+  :root{
+    color-scheme:light;
+    --bg:#f7fafc; --bg-soft:#edf3fd;
+    --card:rgba(255,255,255,0.86); --card-solid:#ffffff;
+    --text:#0f172a; --muted:#475569; --muted-2:#64748b;
+    --line:rgba(148,163,184,0.32);
+    --primary:#1d4ed8; --primary-2:#0891b2;
+    --accent:#10b981; --danger:#ef4444; --warning:#f59e0b;
+    --shadow:0 24px 80px rgba(15,23,42,0.12);
+    --shadow-soft:0 10px 30px rgba(15,23,42,0.08);
+    --radius-xl:28px; --radius-lg:20px; --radius-md:14px; --radius-sm:10px;
+    --max:1080px;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#0a142e; --bg-soft:#101f3d;
+    --card:rgba(15,23,42,0.80); --card-solid:#111827;
+    --text:#f8fafc; --muted:#cbd5e1; --muted-2:#94a3b8;
+    --line:rgba(148,163,184,0.22);
+    --primary:#93c5fd; --primary-2:#22d3ee;
+    --accent:#34d399; --danger:#f87171; --warning:#fbbf24;
+    --shadow:0 24px 80px rgba(0,0,0,0.42);
+    --shadow-soft:0 10px 30px rgba(0,0,0,0.24);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; min-height:100vh; font-family:var(--sans); line-height:1.65; color:var(--text);
+    font-size:clamp(1rem,1.3vw,1.12rem);
+    background:
+      radial-gradient(circle at top left, rgba(29,78,216,0.20), transparent 32rem),
+      radial-gradient(circle at 85% 10%, rgba(6,182,212,0.14), transparent 28rem),
+      radial-gradient(circle at 70% 80%, rgba(16,185,129,0.10), transparent 32rem),
+      var(--bg);
+  }
+  a{color:inherit}
+  section a{color:var(--primary); font-weight:700}
+  h1,h2,h3,h4{line-height:1.2; letter-spacing:-0.03em}
+  h1.cover-title{font-size:clamp(2rem,4.5vw,3.2rem); font-weight:850; margin:.4rem 0}
+  h2{font-size:clamp(1.4rem,2.6vw,1.9rem); font-weight:800; margin:0 0 .6rem}
+  .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  code{font-family:var(--mono); font-size:.86em; background:color-mix(in srgb, var(--primary) 8%, transparent); border-radius:6px; padding:.1em .4em}
+  .katex{color:inherit}
+  .embed-popout{display:none; margin:.8rem 5vw 0; font-size:.85rem; font-weight:700; border:1px solid var(--line); background:var(--card); border-radius:999px; padding:.6rem 1rem; text-decoration:none}
+  html.embedded .embed-popout{display:inline-block}
+  .topbar-tools{display:flex; align-items:center; justify-content:flex-end; gap:.45rem; flex:none}
+  .header-control{display:inline-flex; align-items:center; justify-content:center; gap:.4em; min-height:2rem; background:var(--card-solid); color:var(--text); border:1px solid var(--line); font-family:var(--sans); font-size:.85rem; font-weight:700; padding:.38em .72em; border-radius:100px; cursor:pointer; white-space:nowrap}
+  .header-control:hover{border-color:var(--primary); color:var(--primary)}
+  .header-control:focus-visible,.weeknav-link:focus-visible,.opt:focus-visible,.navbar button:focus-visible,.section-nav-item:focus-visible{outline:2px solid var(--primary); outline-offset:2px}
+  html.embedded .topbar{position:static; background:none; border-bottom:none; justify-content:flex-end}
+  html.embedded .topbar .crumb{display:none}
+  html.embedded .weeknav{display:none}
+  .weeknav{margin-top:2rem; padding-top:1.2rem; border-top:1px dashed var(--line); display:flex; gap:.8rem; flex-wrap:wrap; align-items:center; justify-content:space-between}
+  .weeknav-link{display:inline-flex; align-items:center; gap:.5em; border:1px solid var(--line); background:var(--card); color:var(--primary); font-size:.9rem; font-weight:750; text-decoration:none; padding:.55em 1.1em; border-radius:12px}
+  .weeknav-link:hover{border-color:transparent; background:linear-gradient(135deg, var(--primary), var(--primary-2)); color:#fff}
+  .weeknav-top{width:100%; margin:0 0 1.5rem; padding:0 0 1rem; border-top:0; border-bottom:1px dashed var(--line)}
+  .reading-list{margin:1rem 0 0; padding-left:1.3rem; color:var(--text)}
+  .reading-list li{margin:.6rem 0; line-height:1.55}
+  @media(max-width:640px){.topbar .crumb{flex:1 1 100%} .section-nav-fab{bottom:9rem}}
+  .topbar{position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; padding:.65rem max(16px, calc((100% - var(--max))/2)); font-size:.88rem; backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border-bottom:1px solid var(--line); background:color-mix(in srgb, var(--bg) 82%, transparent)}
+  html.embedded .topbar{position:static}
+  .crumb a{color:var(--primary); font-weight:800; text-decoration:none}
+  .crumb b{font-weight:800}
+  .sk-badge{font-size:.72rem; font-weight:800; white-space:nowrap; border:1px solid var(--line); border-radius:999px; padding:.3rem .75rem; background:var(--card); color:var(--primary)}
+  section{width:min(var(--max), calc(100% - 32px)); margin:0 auto; padding:2.4rem 0}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; padding:7px 12px; border-radius:999px; border:1px solid var(--line); background:color-mix(in srgb, var(--card-solid) 78%, transparent); color:var(--primary); font-size:.8rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em}
+  .cover-num{font-family:var(--mono); font-size:.85rem; color:var(--muted-2)}
+  .cover-sub,.lede{color:var(--muted); font-size:clamp(1rem,1.4vw,1.15rem); max-width:800px}
+  .divider{width:100%; height:52px; margin:1rem 0 .4rem}
+  .cpmk-strip{display:flex; flex-wrap:wrap; gap:.55rem; margin-top:1rem}
+  .chip{border:1px solid var(--line); background:var(--card); border-radius:999px; padding:.45rem .95rem; font-size:.88rem; font-weight:700; box-shadow:var(--shadow-soft)}
+  .chip b{color:var(--primary)}
+  .hook-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:1.2rem; align-items:start; margin-top:1rem}
+  .hook-q{font-size:clamp(1.15rem,2vw,1.4rem); font-weight:600; line-height:1.4}
+  .voice-card{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1rem; box-shadow:var(--shadow-soft)}
+  .voice-card .label{font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-2); margin-bottom:.5rem}
+  canvas.plot{width:100%; height:220px; display:block; border-radius:var(--radius-sm); background:var(--card-solid); border:1px solid var(--line)}
+  canvas.mini{width:100%; height:130px; display:block; border-radius:var(--radius-sm); background:var(--card-solid); border:1px solid var(--line)}
+  .plot-note{font-size:.88rem; color:var(--muted); margin-top:.5rem}
+  .concept-cols{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1.2rem}
+  .concept-card{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.2rem; box-shadow:var(--shadow-soft)}
+  .concept-card h4{margin:.7rem 0 .3rem; font-size:1.05rem}
+  .concept-card p{margin:0; color:var(--muted); font-size:.94rem}
+  .tag{display:inline-block; font-family:var(--mono); font-size:.7rem; font-weight:700; color:var(--primary); background:color-mix(in srgb, var(--primary) 10%, transparent); border-radius:999px; padding:.15rem .6rem; margin-bottom:.4rem}
+  .sim-wrap{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.4rem; box-shadow:var(--shadow-soft); margin-top:1.2rem}
+  .sim-controls{display:flex; flex-wrap:wrap; gap:1rem 2rem; margin-bottom:1rem}
+  .ctrl{display:flex; flex-direction:column; gap:.3rem; min-width:220px; flex:1}
+  .ctrl label{font-size:.85rem; font-weight:700; color:var(--muted)}
+  .ctrl input[type=range]{width:100%; accent-color:var(--primary)}
+  .sim-formula{background:color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid)); border:1px solid var(--line); border-radius:var(--radius-sm); padding:.8rem 1rem; margin:.8rem 0; overflow-x:auto}
+  .sim-read{display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.6rem}
+  .sim-read .m{border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--card-solid); padding:.45rem .8rem; font-size:.88rem}
+  .sim-read .m b{color:var(--primary)}
+  .data-table{width:100%; border-collapse:collapse; margin:1rem 0 .4rem; font-size:.9rem}
+  .data-table th,.data-table td{padding:.55em .8em; border:1px solid var(--line); text-align:left; vertical-align:top}
+  .data-table th{background:color-mix(in srgb, var(--primary) 8%, transparent); font-size:.76rem; text-transform:uppercase; letter-spacing:.05em; font-weight:800}
+  .data-table td{background:color-mix(in srgb, var(--card-solid) 70%, transparent)}
+  .phase-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1rem; margin-top:1.2rem}
+  .phase{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.1rem 1.2rem; box-shadow:var(--shadow-soft)}
+  .phase h4{margin:.3rem 0 .3rem}
+  .phase p{margin:.2rem 0; color:var(--muted); font-size:.9rem}
+  .soal-card{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.2rem 1.3rem; box-shadow:var(--shadow-soft); margin-top:1.2rem}
+  .soal-num{display:inline-block; font-family:var(--mono); font-size:.75rem; font-weight:700; color:#fff; background:linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius:999px; padding:.25rem .8rem; margin-bottom:.6rem}
+  details.solusi{margin-top:.6rem; border-top:1px dashed var(--line); padding-top:.6rem}
+  details.solusi summary{cursor:pointer; font-weight:800; color:var(--primary)}
+  details.solusi .body{color:var(--muted); margin-top:.5rem}
+  details.solusi .body b{color:var(--text)}
+  #quizRoot{display:grid; gap:1rem; margin-top:1.2rem}
+  .quiz-item{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.1rem 1.2rem; box-shadow:var(--shadow-soft)}
+  .quiz-q{font-weight:700; margin-bottom:.6rem}
+  .quiz-opts{display:grid; gap:.45rem}
+  .opt{border:1px solid var(--line); background:var(--card-solid); color:var(--text); border-radius:var(--radius-sm); padding:.55em .9em; text-align:left; cursor:pointer; font-family:var(--sans); font-size:.95rem}
+  .opt:hover{border-color:var(--primary)}
+  .opt.correct{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent)}
+  .opt.wrong{border-color:var(--danger); background:color-mix(in srgb, var(--danger) 10%, transparent)}
+  .quiz-fb{margin-top:.6rem; font-size:.92rem; color:var(--muted); display:none}
+  .quiz-fb.show{display:block}
+  .colab-grid{display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-top:1.2rem; align-items:start}
+  .colab-steps{margin:0; padding-left:1.2rem; display:grid; gap:.7rem; color:var(--muted)}
+  .colab-steps b{color:var(--text)}
+  .tool-card{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.1rem 1.2rem; box-shadow:var(--shadow-soft)}
+  .tool-card h4{margin:0 0 .3rem}
+  .tool-card p{margin:.2rem 0; color:var(--muted); font-size:.92rem}
+  .gloss-table{width:100%; border-collapse:collapse; margin-top:1rem; font-size:.92rem}
+  .gloss-table th,.gloss-table td{padding:.5em .8em; border:1px solid var(--line); text-align:left; vertical-align:top}
+  .gloss-table th{background:color-mix(in srgb, var(--primary) 8%, transparent); font-size:.78rem; text-transform:uppercase; letter-spacing:.04em}
+  .cta-wrap{border:1px solid var(--line); border-radius:var(--radius-xl); background:var(--card); box-shadow:var(--shadow); padding:clamp(1.4rem,3vw,2.2rem); margin-top:1rem}
+  .cta-wrap h3{margin:0 0 .5rem; font-size:clamp(1.2rem,2vw,1.6rem)}
+  .cta-btn{display:inline-block; margin-top:.8rem; text-decoration:none; border-radius:999px; padding:.7rem 1.1rem; font-weight:800; background:linear-gradient(135deg, var(--primary), var(--primary-2)); color:#fff !important; box-shadow:0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent)}
+  .cta-meta{display:flex; flex-wrap:wrap; gap:.6rem; margin-top:1rem}
+  .cta-meta .m{border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--card-solid); padding:.45rem .8rem; font-size:.85rem; color:var(--muted)}
+  .cta-meta .m b{display:block; color:var(--primary); font-size:1rem}
+  .recap{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:.7rem; margin-top:1.2rem}
+  .recap .r{border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--card-solid); padding:.6rem .9rem; font-size:.88rem; color:var(--muted)}
+  .recap .r b{display:block; color:var(--text)}
+  .version-tag{font-family:var(--mono); font-size:.75rem; color:var(--muted-2); margin-top:1.4rem}
+  .navbar{position:sticky; bottom:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:.7rem max(16px, calc((100% - var(--max))/2)); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border-top:1px solid var(--line); background:color-mix(in srgb, var(--bg) 82%, transparent)}
+  html.embedded .navbar{display:none}
+  .navbar button{border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:.55rem 1rem; cursor:pointer; font-weight:750; font-family:var(--sans); font-size:.9rem}
+  .navbar button:disabled{opacity:.4; cursor:default}
+  .navbar button:last-child{border-color:transparent; background:linear-gradient(135deg, var(--primary), var(--primary-2)); color:#fff}
+  .dots{display:flex; gap:6px; flex-wrap:wrap; justify-content:center}
+  .dot{width:11px; height:11px; border-radius:50%; border:1px solid var(--line); background:transparent; padding:0; cursor:pointer}
+  .dot.active{background:var(--primary); border-color:var(--primary)}
+  .count{font-family:var(--mono); font-size:.8rem; color:var(--muted-2); white-space:nowrap}
+  .section-nav-fab{position:fixed; right:1.5rem; bottom:5.4rem; z-index:30; width:44px; height:44px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:1.1rem; cursor:pointer; box-shadow:var(--shadow-soft)}
+  html.embedded .section-nav-fab{bottom:1.5rem}
+  .section-nav-overlay{position:fixed; inset:0; z-index:40; background:rgba(2,6,23,.5); display:flex; align-items:center; justify-content:center; padding:1rem}
+  .section-nav-overlay[hidden]{display:none}
+  .section-nav-dialog{background:var(--card-solid); border:1px solid var(--line); border-radius:var(--radius-lg); max-width:520px; width:100%; max-height:80vh; display:flex; flex-direction:column; box-shadow:var(--shadow)}
+  .section-nav-head{display:flex; align-items:center; justify-content:space-between; padding:.9rem 1.1rem; border-bottom:1px solid var(--line)}
+  .section-nav-head h3{margin:0; font-size:1.05rem}
+  .section-nav-close{border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; width:34px; height:34px; cursor:pointer}
+  .section-nav-list{overflow:auto; padding:.7rem; display:grid; gap:.35rem}
+  .section-nav-item{border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:var(--radius-sm); padding:.6em .9em; text-align:left; cursor:pointer; font-family:var(--sans); font-size:.92rem}
+  .section-nav-item.active{border-color:var(--primary); color:var(--primary); font-weight:700}
+  .todo{font-family:var(--mono); font-size:.78rem; color:var(--warning); font-weight:700}
+  @media(max-width:900px){ .hook-grid,.colab-grid{grid-template-columns:1fr} .concept-cols{grid-template-columns:1fr} }
+  @media(max-width:640px){ .dots{display:none} .sk-badge{display:none} }
+  @media print{ .topbar,.navbar,.weeknav,.section-nav-fab,.embed-popout{display:none !important} body{background:#fff; color:#000} }
+</style>
+</head>
+<body>
+
+<a class="embed-popout" id="popoutLink" target="_blank" rel="noopener noreferrer">⤢ Buka mode presentasi penuh</a>
+<div class="topbar">
+  <div class="crumb">Statistika S3 <b>·</b> Minggu 01 / 16 <b>·</b> <a href="index.html">Indeks</a></div>
+  <div class="topbar-tools">
+    <button type="button" id="themeToggle" class="header-control" aria-pressed="false">☾ Gelap</button>
+    <div class="sk-badge">4 Sept 2026 · Mandiri</div>
+  </div>
+</div>
+
+<!-- ================= SECTION 0 — COVER ================= -->
+<section id="s0">
+  <nav class="weeknav weeknav-top" aria-label="Navigasi antarminggu — awal halaman">
+    <a class="weeknav-link" href="index.html">◂ Indeks</a>
+    <a class="weeknav-link" href="index.html">Daftar Isi</a>
+    <a class="weeknav-link" href="W02-konsep-dasar_v02.html">W02 · Konsep Dasar ▸</a>
+  </nav>
+  <div class="cover-num">01 / 16</div>
+  <div class="eyebrow">Pendahuluan · Kerja/Tugas Mandiri</div>
+  <h1 class="cover-title">Pendahuluan &amp; Penyusunan Tugas Kelompok</h1>
+  <p class="cover-sub">Minggu pertama: mengapa mahasiswa S3 Teknik membutuhkan statistika <em>lanjut</em> (bukan sekadar statistika dasar), peta 16 pertemuan, kontrak kuliah, dan pembentukan enam kelompok presentasi.</p>
+  <svg class="divider" viewBox="0 0 800 52" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,26 Q20,4 40,26 T80,26 T120,26 T160,26 T200,26 T240,26 T280,26 T320,26 T360,26 T400,26 T440,26 T480,26 T520,26 T560,26 T600,26 T640,26 T680,26 T720,26 T760,26 T800,26" fill="none" stroke="#67e8f9" stroke-width="1.5"/>
+  </svg>
+  <div class="cpmk-strip">
+    <div class="chip">Tanggal: <b>Jum'at, 4 Sept 2026</b></div>
+    <div class="chip">Kegiatan: <b>kerja/tugas mandiri</b></div>
+    <div class="chip">Luaran: <b>6 kelompok terbentuk</b></div>
+  </div>
+</section>
+
+<!-- ================= SECTION 1 — HOOK ================= -->
+<section id="s1">
+  <div class="eyebrow">01 — Pemantik</div>
+  <div class="hook-grid">
+    <div>
+      <h2>Data sama, kesimpulan bisa beda?</h2>
+      <p class="hook-q">"Dua tim meneliti algoritma yang sama dengan data yang sama — tim A mengklaim 'terbukti lebih cepat', tim B berkata 'belum tentu'. Kok bisa?"</p>
+      <p>Jawabannya ada pada gambar di samping: ketika <b>perbedaan efeknya kecil</b> dibanding <b>sebaran datanya</b>, sampel yang berbeda akan memberi cerita yang berbeda. Kurva ungu adalah distribusi di bawah tidak-ada-perbedaan ($H_0$); kurva hijau adalah distribusi ketika perbedaan memang ada ($H_1$). Daerah yang diarsir oranye adalah wilayah penolakan dengan taraf $\alpha = 5\%$.</p>
+      <p>Statistika lanjut memberi bahasa yang jujur untuk situasi ini: hipotesis yang eksplisit, uji yang sesuai desain, asumsi yang diperiksa, dan ukuran efek — bukan sekadar nilai-$p$. Itulah isi 16 minggu ke depan.</p>
+    </div>
+    <div class="voice-card">
+      <div class="label">Ilustrasi · tumpang tindih $H_0$ vs $H_1$</div>
+      <canvas id="overlapCanvas" class="plot" role="img" aria-label="Dua kurva normal yang bertumpang tindih: kurva ungu berpusat di nol, kurva hijau bergeser ke kanan, dengan ekor kanan kurva ungu yang diarsir oranye sebagai daerah penolakan 5 persen."></canvas>
+      <div class="plot-note"><b>Ungu</b> = $H_0$ (tidak ada perbedaan). <b>Hijau</b> = $H_1$ (ada perbedaan sebesar $d$). <b>Oranye</b> = daerah penolakan $\alpha = 5\%$. Makin besar tumpang tindih, makin sulit membedakan keduanya dari satu sampel.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 2 — TIGA PERTANYAAN ================= -->
+<section id="s2">
+  <div class="eyebrow">02 — Peta Konsep Semester</div>
+  <h2>Tiga pertanyaan yang dijawab statistika lanjut</h2>
+  <p class="lede">Setiap teknik pada W02–W13 pada dasarnya menjawab salah satu dari tiga pertanyaan ini.</p>
+  <div class="concept-cols">
+    <div class="concept-card">
+      <span class="tag">W02 · W04–W08</span>
+      <canvas class="mini" id="miniH0" role="img" aria-label="Kurva normal dengan ekor kanan diarsir sebagai daerah kritis uji hipotesis."></canvas>
+      <h4>Apakah perbedaannya nyata?</h4>
+      <p><b>Pengujian hipotesis.</b> Merumuskan $H_0$ lawan $H_1$, memilih statistik uji, dan memutuskan berbasis bukti — dari uji satu populasi hingga ANOVA dua arah.</p>
+    </div>
+    <div class="concept-card">
+      <span class="tag">W02 · W04–W06</span>
+      <canvas class="mini" id="miniPair" role="img" aria-label="Diagram garis berpasangan sebelum dan sesudah perlakuan pada subjek yang sama."></canvas>
+      <h4>Satu atau dua kelompok?</h4>
+      <p><b>Desain perbandingan.</b> Satu populasi, dua sampel <em>dependen</em> (berpasangan, garis sebelum–sesudah), atau dua sampel <em>independen</em> — uji yang dipakai berbeda.</p>
+    </div>
+    <div class="concept-card">
+      <span class="tag">W02 · W10–W13</span>
+      <canvas class="mini" id="miniMulti" role="img" aria-label="Diagram pencar dua variabel respons dengan elips yang menunjukkan korelasi antar respons."></canvas>
+      <h4>Satu atau banyak respons?</h4>
+      <p><b>Univariat vs multivariat.</b> Satu respons → uji-$t$, ANOVA, regresi. Banyak respons berkorelasi → vektor rata-rata, MANOVA, analisis faktor.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 3 — LAB SAMPLING ================= -->
+<section id="s3">
+  <div class="eyebrow">03 — Laboratorium Mini</div>
+  <h2>Variabilitas sampling: mengapa $n$ penting?</h2>
+  <p class="lede">Geser ukuran sampel $n$ dan amati distribusi rata-rata sampel ($\bar{x}$) menyempit. Inilah alasan semua uji pada semester ini menuntut $n$ yang cukup.</p>
+  <div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl">
+        <label for="nSlider">Ukuran sampel $n$ = <span id="nVal">25</span></label>
+        <input type="range" id="nSlider" min="5" max="200" step="5" value="25">
+      </div>
+      <div class="ctrl">
+        <label for="sigSlider">Simpangan baku populasi $\sigma$ = <span id="sigVal">10</span></label>
+        <input type="range" id="sigSlider" min="2" max="20" step="1" value="10">
+      </div>
+    </div>
+    <canvas id="labCanvas" class="plot" role="img" aria-label="Distribusi rata-rata sampel yang menyempit ketika ukuran sampel diperbesar; rincian angka ada pada ringkasan teks di bawah grafik."></canvas>
+    <div class="sim-formula" id="labFormula">$\text{SE}(\bar{x}) = \dfrac{\sigma}{\sqrt{n}} \qquad\text{CI}_{95\%} \approx \bar{x} \pm 1{,}96\cdot\text{SE}$</div>
+    <div class="sim-read">
+      <div class="m"><b>SE</b> <span id="seVal">2,00</span></div>
+      <div class="m"><b>Lebar CI 95%</b> <span id="ciVal">±3,92</span></div>
+      <div class="m"><b>Interpretasi</b> <span id="labMsg">n=25: estimasi masih goyang ±3,92</span></div>
+    </div>
+    <p id="labSummary" class="sr-only" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- ================= SECTION 4 — PETA 16 MINGGU ================= -->
+<section id="s4">
+  <div class="eyebrow">04 — Alur Semester</div>
+  <h2>Peta 16 pertemuan dalam 5 fase</h2>
+  <p class="lede">Urutan dirancang berjenjang: fondasi → perbandingan → struktur bersama → model → proyek.</p>
+  <div class="phase-grid">
+    <div class="phase"><span class="tag">Fase A · W01–W03</span><h4>Fondasi</h4><p>Pendahuluan, hipotesis, univariat vs multivariat, contoh kasus. Kelompok 1 tampil W02.</p></div>
+    <div class="phase"><span class="tag">Fase B · W04–W06</span><h4>Uji beda rata-rata</h4><p>Satu populasi, dua dependen, dua independen — univariat dan vektor rata-rata. Kelompok 2–4.</p></div>
+    <div class="phase"><span class="tag">Fase C · W07–W09</span><h4>ANOVA &amp; UTS</h4><p>ANOVA satu arah + uji lanjut, ANOVA dua arah + interaksi, lalu UTS 30 Okt. Kelompok 5–6.</p></div>
+    <div class="phase"><span class="tag">Fase D · W10–W13</span><h4>Multivariat lanjut</h4><p>MANOVA, two-way MANOVA, regresi berganda, analisis faktor. Kelompok 1–6 paruh kedua.</p></div>
+    <div class="phase"><span class="tag">Fase E · W14–W16</span><h4>Proyek individu</h4><p>Rancangan, penyusunan + presentasi, dan UAS pengumpulan proyek.</p></div>
+  </div>
+  <p style="margin-top:1rem">Jadwal tanggal per minggu ada di <a href="index.html">indeks 16 pertemuan</a>. Rincian topik per minggu mengikuti <i>Schedule Perkuliahan Statistika S3B 2026/2027</i> (paper/site-design).</p>
+</section>
+
+<!-- ================= SECTION 5 — KONTRAK ================= -->
+<section id="s5">
+  <div class="eyebrow">05 — Aturan Main</div>
+  <h2>Kontrak kuliah &amp; penilaian</h2>
+  <p class="lede">Komponen di bawah mengikuti pola umum kuliah S3; <span class="todo">bobot resmi menunggu RPS/pengampu — jangan jadikan acuan final.</span></p>
+  <table class="data-table">
+    <thead><tr><th>Komponen</th><th>Bentuk</th><th>Status bobot</th></tr></thead>
+    <tbody>
+      <tr><td>Partisipasi &amp; diskusi</td><td>Hadir + aktif pada presentasi kelompok</td><td class="todo">Menunggu RPS</td></tr>
+      <tr><td>Tugas kelompok</td><td>Presentasi + review 1 artikel pemakai teknik</td><td class="todo">Menunggu RPS</td></tr>
+      <tr><td>UTS (W09, 30 Okt 2026)</td><td>Cakupan W01–W08</td><td class="todo">Menunggu RPS</td></tr>
+      <tr><td>Proyek individu (W14–W16)</td><td>Laporan + kode reproduksibel + data</td><td class="todo">Menunggu RPS</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= SECTION 6 — KELOMPOK ================= -->
+<section id="s6">
+  <div class="eyebrow">06 — Tugas Kelompok</div>
+  <h2>Pembentukan 6 kelompok &amp; slot tampil</h2>
+  <p class="lede">Tugas mandiri minggu ini: bentuk kelompok, pilih slot, dan sepakati artikel yang akan di-review.</p>
+  <table class="data-table">
+    <thead><tr><th>Slot</th><th>Minggu / tanggal</th><th>Topik</th></tr></thead>
+    <tbody>
+      <tr><td>Kelompok 1</td><td>W02 · 11 Sept 2026</td><td>Konsep dasar statistika lanjut</td></tr>
+      <tr><td>Kelompok 2</td><td>W04 · 25 Sept 2026</td><td>Uji satu populasi + satu vektor rata-rata</td></tr>
+      <tr><td>Kelompok 3</td><td>W05 · 2 Okt 2026</td><td>Dua populasi dependen</td></tr>
+      <tr><td>Kelompok 4</td><td>W06 · 9 Okt 2026</td><td>Dua populasi independen</td></tr>
+      <tr><td>Kelompok 5</td><td>W07 · 16 Okt 2026</td><td>ANOVA + uji lanjut</td></tr>
+      <tr><td>Kelompok 6</td><td>W08 · 23 Okt 2026</td><td>Two-way ANOVA (materi tersedia)</td></tr>
+      <tr><td>Kelompok 1 &amp; 2</td><td>W11 · 13 Nov 2026</td><td>Two-way MANOVA</td></tr>
+      <tr><td>Kelompok 3 &amp; 4</td><td>W12 · 20 Nov 2026</td><td>Regresi linear</td></tr>
+      <tr><td>Kelompok 5 &amp; 6</td><td>W13 · 27 Nov 2026</td><td>Analisis faktor</td></tr>
+    </tbody>
+  </table>
+  <p>Aturan review artikel (berlaku semua kelompok): artikel <b>nyata dan terverifikasi</b> (judul, jurnal, DOI), terbit 2019–2026, benar-benar memakai teknik yang ditugaskan; struktur 7 butir — identitas, latar, desain, cara uji dipakai, hasil utama, evaluasi kritis, kaitan materi. Contoh lengkap: lihat halaman <a href="W08-two-way-anova_v01.html">W08 Two-way ANOVA</a>.</p>
+</section>
+
+<!-- ================= SECTION 7 — CONTOH ================= -->
+<section id="s7">
+  <div class="eyebrow">07 — Contoh Terselesaikan</div>
+  <h2>Dari pertanyaan teknik ke pilihan uji</h2>
+  <div class="soal-card">
+    <span class="soal-num">Contoh 1</span>
+    <p>Seorang mahasiswa S3 ingin menjawab: <i>"Apakah waktu komputasi tiga algoritma perencana jalur (A*, Dijkstra, RRT*) berbeda pada dua ukuran peta (50×50 dan 100×100)?"</i> Setiap kombinasi diulang $n = 3$ kali. Teknik apa yang tepat, dan mengapa bukan sekadar beberapa uji-$t$?</p>
+    <details class="solusi">
+      <summary>▸ Lihat langkah penyelesaian</summary>
+      <div class="body">
+        <p><b>1. Kenali desainnya.</b> Ada <b>dua faktor</b> (algoritma: 3 level; ukuran peta: 2 level) dan <b>satu respons</b> (waktu komputasi) → desain faktorial $3 \times 2$. Tekniknya: <b>ANOVA dua arah</b> (W08).</p>
+        <p><b>2. Mengapa bukan uji-$t$ berulang?</b> Enam sel berarti banyak pasangan; tiap uji menambah peluang galat tipe I (inflasi <i>family-wise error</i>). ANOVA menguji semuanya dalam satu kerangka dengan satu galat gabungan ($\text{MS}_E$).</p>
+        <p><b>3. Bonus yang hanya dimiliki faktorial: interaksi.</b> Urutan kecepatan bisa <b>berbalik</b> antar ukuran peta (pada data W08: Dijkstra vs RRT* bertukar posisi → interaksi disordinal, $F_{AB} = 69{,}00$; $p = 2{,}62\times10^{-7}$). Fakta ini <b>tidak akan terlihat</b> dari uji satu-faktor berulang.</p>
+        <p><b>Maka:</b> rumuskan tiga pasang hipotesis (efek algoritma, efek ukuran peta, interaksi), uji dengan tabel ANOVA dua arah, dan baca plot interaksinya sebelum menafsirkan efek utama.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= SECTION 8 — KUIS ================= -->
+<section id="s8">
+  <div class="eyebrow">08 — Kuis Pemahaman</div>
+  <h2>Cek cepat sebelum minggu depan</h2>
+  <p class="lede">Formatif — tidak dinilai. Kalau ragu di sini, ulangi Bagian 02–03 dulu.</p>
+  <div id="quizRoot"></div>
+</section>
+
+<!-- ================= SECTION 9 — PERANGKAT ================= -->
+<section id="s9">
+  <div class="eyebrow">09 — Perangkat Semester</div>
+  <h2>Python &amp; R untuk statistika</h2>
+  <p class="lede">Seluruh komputasi semester ini memakai perangkat terbuka. Tiga hal yang perlu disiapkan sejak minggu ini.</p>
+  <div class="colab-grid">
+    <div>
+      <div class="tool-card"><h4>Python — komputasi utama</h4><p><code>scipy</code> (uji dasar), <code>statsmodels</code> (ANOVA, regresi), <code>pingouin</code> (efek &amp; kuasa). Verifikasi silang ≥2 implementasi sebelum mempercayai angka — seperti contoh W08 yang dihitung manual + statsmodels + pingouin.</p></div>
+      <br>
+      <div class="tool-card"><h4>R — pembanding</h4><p><code>aov</code>, <code>car</code>, <code>TukeyHSD</code> untuk cek silang hasil Python pada tugas kelompok.</p></div>
+    </div>
+    <ol class="colab-steps">
+      <li><b>Pasang sekali, pakai semusim</b><span>Google Colab (tanpa instal) atau Jupyter lokal. <span class="todo">Tautan notebook pendamping menyusul.</span></span></li>
+      <li><b>Jalankan sel berurutan dari atas</b><span>Melompati sel adalah penyebab paling umum kode "error padahal benar".</span></li>
+      <li><b>Simpan dengan nama baku</b><span>Unduh <code>.ipynb</code> sebagai <code>W01_NIM_Nama.ipynb</code> bila ada penugasan via BeSmart.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= SECTION 10 — GLOSARIUM ================= -->
+<section id="s10">
+  <div class="eyebrow">10A — Glosarium</div>
+  <h2>Daftar istilah Inggris–Indonesia</h2>
+  <p class="lede">Istilah Inggris dipertahankan miring karena lazim di buku teks dan pencarian.</p>
+  <table class="gloss-table">
+    <thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead>
+    <tbody>
+      <tr><td><em>balanced design</em></td><td>desain seimbang</td><td>Setiap sel punya n sama — dipakai di semua contoh semester ini</td></tr>
+      <tr><td><em>cell</em></td><td>sel</td><td>Kombinasi satu level tiap faktor dalam desain faktorial</td></tr>
+      <tr><td><em>effect size</em></td><td>ukuran efek</td><td>Besar efek praktis: d Cohen, η², η² parsial — dilaporkan berdampingan dengan p</td></tr>
+      <tr><td><em>factor; level</em></td><td>faktor; taraf (level)</td><td>Variabel perlakuan dan nilai-nilainya; mis. algoritma (3 level)</td></tr>
+      <tr><td><em>multivariate</em></td><td>multivariat</td><td>Respons ganda yang dianalisis bersama (MANOVA, vektor rata-rata)</td></tr>
+      <tr><td><em>null/alternative hypothesis</em></td><td>hipotesis nol/alternatif ($H_0$/$H_1$)</td><td>$H_0$ = tidak ada efek/perbedaan; diuji, bukan dibuktikan</td></tr>
+      <tr><td><em>p-value</em></td><td>nilai-p</td><td>Kecocokan data dengan $H_0$ — bukan peluang $H_0$ benar</td></tr>
+      <tr><td><em>power</em></td><td>kuasa (daya) uji ($1-\beta$)</td><td>Peluang mendeteksi efek yang memang ada; target umum 0,80</td></tr>
+      <tr><td><em>replication</em></td><td>replikasi (ulangan)</td><td>Pengulangan tiap sel; menentukan df galat</td></tr>
+      <tr><td><em>significance level</em></td><td>taraf signifikansi ($\alpha$)</td><td>Batas galat tipe I yang ditoleransi; umum 0,05</td></tr>
+      <tr><td><em>Type I/II error</em></td><td>galat tipe I/II</td><td>Menolak $H_0$ yang benar / gagal menolak $H_0$ yang salah</td></tr>
+      <tr><td><em>univariate</em></td><td>univariat</td><td>Satu variabel respons (uji-t, ANOVA, regresi)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= SECTION 11 — SIMBOL ================= -->
+<section id="s11">
+  <div class="eyebrow">10B — Daftar Simbol</div>
+  <h2>Simbol yang dipakai semester ini</h2>
+  <p class="lede">Diurut mengikuti kemunculan, bukan abjad.</p>
+  <table class="gloss-table">
+    <thead><tr><th scope="col">Simbol</th><th scope="col">Nama</th><th scope="col">Artinya</th></tr></thead>
+    <tbody>
+      <tr><td>$H_0$, $H_1$</td><td>H nol, H satu</td><td>Hipotesis nol dan alternatif</td></tr>
+      <tr><td>$\alpha$</td><td>alfa</td><td>Taraf signifikansi (umum 0,05)</td></tr>
+      <tr><td>$p$</td><td>nilai-p</td><td>Kecocokan data terhadap $H_0$</td></tr>
+      <tr><td>$1-\beta$</td><td>kuasa uji</td><td>Peluang deteksi efek yang benar ada</td></tr>
+      <tr><td>$n$</td><td>ukuran sampel</td><td>Banyak pengamatan per kelompok/sel</td></tr>
+      <tr><td>$\bar{x}$</td><td>x bar</td><td>Rata-rata sampel</td></tr>
+      <tr><td>$\mu$, $\sigma$</td><td>mu, sigma</td><td>Rata-rata dan simpangan baku populasi</td></tr>
+      <tr><td>SE</td><td>galat baku</td><td>$\text{SE} = \sigma/\sqrt{n}$ untuk rata-rata</td></tr>
+      <tr><td>$t$, $F$</td><td>statistik t, F</td><td>Statistik uji perbandingan dan variansi</td></tr>
+      <tr><td>$T^2$</td><td>T-kuadrat Hotelling</td><td>Padanan multivariat uji-$t$ untuk vektor rata-rata</td></tr>
+      <tr><td>df</td><td>derajat bebas</td><td>Informasi bebas untuk galat/efek</td></tr>
+      <tr><td>CI</td><td>selang kepercayaan</td><td>Rentang nilai parameter yang plausibel</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= SECTION 11R — BACAAN PENDAMPING ================= -->
+<section id="s11r">
+  <div class="eyebrow">10C — Bacaan Pendamping</div>
+  <h2>Rujukan untuk minggu ini</h2>
+  <p class="lede">Bacaan pengantar desain dan kerangka pengujian hipotesis; nomor bab mengacu pada edisi yang disebutkan.</p>
+  <ul class="reading-list">
+    <li><b>Montgomery, D. C. (2020). <em>Design and Analysis of Experiments</em>, ed. 10.</b> Wiley. Bab 1 — peran eksperimen dan panduan merancang eksperimen (Bagian 04–06: peta semester, kontrak, dan pembagian kelompok).</li>
+    <li><b>Maxwell, S. E., Delaney, H. D., &amp; Kelley, K. (2018). <em>Designing Experiments and Analyzing Data: A Model Comparison Perspective</em>, ed. 3.</b> Routledge. Bab 1 — perspektif perbandingan model sebagai benang merah univariat vs multivariat (Bagian 02).</li>
+    <li><b>Walpole, R. E., Myers, R. H., Myers, S. L., &amp; Ye, K. (2012). <em>Probability and Statistics for Engineers and Scientists</em>, ed. 9.</b> Pearson. Bab 1 (pengantar) dan Bab 10 (uji satu dan dua sampel) sebagai pratinjau W04–W06 (Bagian 02–03).</li>
+    <li><b>Cohen, J. (1988). <em>Statistical Power Analysis for the Behavioral Sciences</em>, ed. 2.</b> Lawrence Erlbaum Associates. Konvensi ukuran efek dan kuasa uji — bahasa yang dipakai Bagian 03 (SE, CI, dan $1-\beta$).</li>
+    <li><b><a href="https://www.itl.nist.gov/div898/handbook/" target="_blank" rel="noopener noreferrer">NIST/SEMATECH e-Handbook of Statistical Methods</a>.</b> Referensi daring terbuka untuk alur eksplorasi data dan pilihan uji awal (Bagian 02, 06).</li>
+  </ul>
+</section>
+
+<!-- ================= SECTION 12 — CTA ================= -->
+<section id="s12">
+  <div class="eyebrow">11 — Tugas Pekan Ini</div>
+  <div class="cta-wrap">
+    <h3>Bentuk kelompokmu sebelum W02</h3>
+    <p>Tiga aksi mandiri: (1) catat slot topik kelompokmu pada Bagian 06; (2) sepakati 1 artikel kandidat untuk review; (3) siapkan Python/R untuk komputasi semester ini. Presentasi pertama (Kelompok 1) tampil 11 September.</p>
+    <a class="cta-btn" href="W02-konsep-dasar_v02.html">▸ Lanjut ke W02 — Konsep Dasar</a>
+    <div class="cta-meta">
+      <div class="m"><b>W01</b>pendahuluan</div>
+      <div class="m"><b>Mandiri</b>kegiatan</div>
+      <div class="m"><b>6 slot</b>kelompok</div>
+      <div class="m"><b>W02</b>berikutnya: hipotesis</div>
+    </div>
+  </div>
+  <div class="recap">
+    <div class="r"><b>Tumpang tindih $H_0$/$H_1$</b>efek kecil vs sebaran lebar → sulit dibedakan</div>
+    <div class="r"><b>SE menyusut $\propto 1/\sqrt{n}$</b>sampel besar → estimasi stabil</div>
+    <div class="r"><b>Tiga pertanyaan</b>nyata? desain apa? berapa respons?</div>
+    <div class="r"><b>Minggu depan</b><a href="W02-konsep-dasar_v02.html">W02 — hipotesis &amp; univariat/multivariat ▸</a></div>
+  </div>
+  <p class="version-tag">Versi v02 (modul lengkap) · 02-10-2026 · Sumber jadwal: paper/site-design/Schedule Perkuliahan Statistika S3B Ilmu Teknik 2026 2027.pdf</p>
+</section>
+
+<nav class="weeknav" aria-label="Navigasi antarminggu — akhir halaman">
+  <a class="weeknav-link" href="index.html">◂ Indeks</a>
+  <a class="weeknav-link" href="index.html">Daftar Isi</a>
+  <a class="weeknav-link" href="W02-konsep-dasar_v02.html">W02 · Konsep Dasar ▸</a>
+</nav>
+
+<div class="navbar">
+  <button id="prevBtn">◂ Sebelumnya</button>
+  <div class="dots" id="dots"></div>
+  <span class="count" id="count">1 / 13</span>
+  <button id="nextBtn">Berikutnya ▸</button>
+</div>
+
+<button type="button" id="sectionNavBtn" class="section-nav-fab" aria-haspopup="dialog" aria-controls="sectionNavDialog" aria-label="Lompat ke bagian" title="Lompat ke bagian">☰</button>
+<div class="section-nav-overlay" id="sectionNavOverlay" hidden>
+  <div class="section-nav-dialog" role="dialog" aria-modal="true" aria-labelledby="sectionNavTitle" id="sectionNavDialog">
+    <div class="section-nav-head">
+      <h3 id="sectionNavTitle">Lompat ke bagian</h3>
+      <button type="button" class="section-nav-close" id="sectionNavClose" aria-label="Tutup daftar bagian">✕</button>
+    </div>
+    <div class="section-nav-list" id="sectionNavList"></div>
+  </div>
+</div>
+
+<script>
+/* ============ mode embed ============ */
+const isEmbedded = document.documentElement.classList.contains('embedded');
+const popoutLink = document.getElementById('popoutLink');
+if(popoutLink){ try{ popoutLink.href = window.location.href; }catch(e){} }
+
+/* ============ tema ============ */
+(function(){
+  const btn = document.getElementById('themeToggle');
+  if(!btn) return;
+  const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function effectiveTheme(){
+    const explicit = document.documentElement.getAttribute('data-theme');
+    if(explicit === 'dark' || explicit === 'light') return explicit;
+    return (mql && mql.matches) ? 'dark' : 'light';
+  }
+  function updateToggleUI(){
+    const dark = effectiveTheme() === 'dark';
+    btn.textContent = dark ? '☀ Terang' : '☾ Gelap';
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.setAttribute('aria-label', dark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap');
+  }
+  updateToggleUI();
+  btn.addEventListener('click', ()=>{
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try{ localStorage.setItem('theme-statistika', next); }catch(e){}
+    updateToggleUI(); drawAll();
+  });
+  if(mql && mql.addEventListener){
+    mql.addEventListener('change', ()=>{
+      if(!document.documentElement.getAttribute('data-theme')) updateToggleUI();
+    });
+  }
+})();
+
+/* ============ navigasi presentasi (nonaktif dalam embed) ============ */
+const sections = Array.from(document.querySelectorAll('section'));
+if(!isEmbedded){
+  const dotsWrap = document.getElementById('dots');
+  const countEl = document.getElementById('count');
+  sections.forEach((s)=>{
+    const d = document.createElement('button');
+    d.type='button'; d.className='dot';
+    const eyebrowEl = s.querySelector('.eyebrow');
+    const label = eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+    d.title = label; d.setAttribute('aria-label','Ke bagian: '+label);
+    d.addEventListener('click',()=>s.scrollIntoView({behavior:'smooth',block:'start'}));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+  const currentIndex = ()=>{
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx=0;
+    sections.forEach((s,i)=>{ if(s.offsetTop <= y) idx=i; });
+    return idx;
+  };
+  const updateNav = ()=>{
+    const idx = currentIndex();
+    dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+    countEl.textContent = (idx+1)+' / '+sections.length;
+    document.getElementById('prevBtn').disabled = idx===0;
+    document.getElementById('nextBtn').disabled = idx===sections.length-1;
+  };
+  window.addEventListener('scroll', ()=>requestAnimationFrame(updateNav), {passive:true});
+  updateNav();
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    sections[Math.min(currentIndex()+1, sections.length-1)].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  document.getElementById('prevBtn').addEventListener('click',()=>{
+    sections[Math.max(currentIndex()-1,0)].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  window.addEventListener('keydown',(e)=>{
+    const ov = document.getElementById('sectionNavOverlay');
+    if(ov && !ov.hidden) return;
+    const t = e.target, tag = (t && t.tagName || '').toLowerCase();
+    if(tag==='input'||tag==='select'||tag==='textarea'||(t&&t.isContentEditable)) return;
+    if(['ArrowRight','ArrowDown','PageDown'].includes(e.key)){ e.preventDefault(); document.getElementById('nextBtn').click(); }
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); document.getElementById('prevBtn').click(); }
+  });
+}
+
+/* ============ popup lompat bagian ============ */
+(function(){
+  const fab = document.getElementById('sectionNavBtn');
+  const overlay = document.getElementById('sectionNavOverlay');
+  const closeBtn = document.getElementById('sectionNavClose');
+  const listEl = document.getElementById('sectionNavList');
+  if(!fab || !overlay || !closeBtn || !listEl) return;
+  sections.forEach((s,i)=>{
+    const eyebrowEl = s.querySelector('.eyebrow');
+    const label = eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+    const item = document.createElement('button');
+    item.type='button'; item.className='section-nav-item';
+    item.textContent = (i+1)+'. '+label;
+    item.addEventListener('click',()=>{ s.scrollIntoView({behavior:'smooth',block:'start'}); closeDialog(); });
+    listEl.appendChild(item);
+  });
+  const items = Array.from(listEl.children);
+  let lastFocused = null;
+  function openDialog(){
+    lastFocused = document.activeElement;
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx = 0;
+    sections.forEach((s,i)=>{ if(s.getBoundingClientRect().top + window.scrollY <= y) idx = i; });
+    items.forEach((it,i)=>it.classList.toggle('active', i===idx));
+    overlay.hidden = false; document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+    document.addEventListener('keydown', onDialogKeydown);
+  }
+  function closeDialog(){
+    overlay.hidden = true; document.body.style.overflow = '';
+    document.removeEventListener('keydown', onDialogKeydown);
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+  function onDialogKeydown(e){
+    if(e.key === 'Escape'){ e.preventDefault(); closeDialog(); }
+    else if(e.key === 'Tab'){
+      const f = [closeBtn, ...items], first = f[0], last = f[f.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    }
+  }
+  fab.addEventListener('click', openDialog);
+  closeBtn.addEventListener('click', closeDialog);
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) closeDialog(); });
+})();
+
+/* ============ kanvas: utilitas ============ */
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function setupCanvas(cv){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = cv.getBoundingClientRect();
+  const W = Math.max(rect.width, 50), H = Math.max(rect.height, 50);
+  cv.width = W*dpr; cv.height = H*dpr;
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx, w:W, h:H};
+}
+function normalPdf(z){ return Math.exp(-0.5*z*z)/Math.sqrt(2*Math.PI); }
+function drawFrame(ctx,w,h,pad){
+  ctx.strokeStyle = cssVar('--muted-2') || '#64748b';
+  ctx.globalAlpha = 0.55; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, h/2); ctx.lineTo(w-8, h/2);
+  ctx.moveTo(pad, 8); ctx.lineTo(pad, h-8);
+  ctx.stroke(); ctx.globalAlpha = 1;
+}
+
+/* ---- hook: H0 vs H1 bertumpang tindih ---- */
+function drawOverlap(){
+  const cv = document.getElementById('overlapCanvas');
+  if(!cv) return;
+  const {ctx,w,h} = setupCanvas(cv);
+  const pad = 30, mu0 = 0, mu1 = 1.4, sd = 1;
+  const xmin = -3.2, xmax = 4.6;
+  const X = v => pad + (v-xmin)/(xmax-xmin)*(w-pad-10);
+  const Y = d => h-14 - d/0.42*(h-40);
+  const zcrit = 1.645, crit = mu0 + zcrit*sd; // alpha 5% satu arah
+  ctx.clearRect(0,0,w,h);
+  drawFrame(ctx,w,h,pad);
+  // arsir daerah penolakan (ekor H0)
+  ctx.beginPath();
+  ctx.moveTo(X(crit), Y(0));
+  for(let v=crit; v<=xmax; v+=0.05) ctx.lineTo(X(v), Y(normalPdf((v-mu0)/sd)/sd));
+  ctx.lineTo(X(xmax), Y(0)); ctx.closePath();
+  ctx.fillStyle = cssVar('--warning'); ctx.globalAlpha = 0.45; ctx.fill(); ctx.globalAlpha = 1;
+  // kurva H0
+  ctx.beginPath();
+  for(let v=xmin; v<=xmax; v+=0.03){
+    const x=X(v), y=Y(normalPdf((v-mu0)/sd)/sd);
+    v===xmin ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle = cssVar('--primary'); ctx.lineWidth = 2.4; ctx.stroke();
+  // kurva H1
+  ctx.beginPath(); ctx.setLineDash([6,4]);
+  for(let v=xmin; v<=xmax; v+=0.03){
+    const x=X(v), y=Y(normalPdf((v-mu1)/sd)/sd);
+    v===xmin ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle = cssVar('--accent'); ctx.lineWidth = 2.4; ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = '11px '+getComputedStyle(document.body).fontFamily;
+  ctx.fillStyle = cssVar('--muted');
+  ctx.fillText('H0', X(mu0)-8, Y(normalPdf(0)/sd)-8);
+  ctx.fillText('H1', X(mu1)-8, Y(normalPdf(0)/sd)-8);
+  ctx.fillText('α=5%', X(crit)-4, h-4);
+}
+
+/* ---- mini: daerah kritis ---- */
+function drawMiniH0(){
+  const cv = document.getElementById('miniH0');
+  if(!cv) return;
+  const {ctx,w,h} = setupCanvas(cv);
+  const pad = 14, xmin = -3.4, xmax = 3.4;
+  const X = v => pad + (v-xmin)/(xmax-xmin)*(w-pad-8);
+  const Y = d => h-8 - d/0.42*(h-26);
+  const crit = 1.645;
+  ctx.clearRect(0,0,w,h);
+  ctx.beginPath(); ctx.moveTo(X(crit), Y(0));
+  for(let v=crit; v<=xmax; v+=0.05) ctx.lineTo(X(v), Y(normalPdf(v)));
+  ctx.lineTo(X(xmax), Y(0)); ctx.closePath();
+  ctx.fillStyle = cssVar('--warning'); ctx.globalAlpha = 0.5; ctx.fill(); ctx.globalAlpha = 1;
+  ctx.beginPath();
+  for(let v=xmin; v<=xmax; v+=0.03){ const x=X(v), y=Y(normalPdf(v)); v===xmin?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+  ctx.strokeStyle = cssVar('--primary'); ctx.lineWidth = 2; ctx.stroke();
+}
+
+/* ---- mini: desain berpasangan ---- */
+function drawMiniPair(){
+  const cv = document.getElementById('miniPair');
+  if(!cv) return;
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const x0 = 30, x1 = w-30, y = i => 20 + i*((h-40)/5);
+  ctx.font = '10px '+getComputedStyle(document.body).fontFamily;
+  ctx.fillStyle = cssVar('--muted');
+  ctx.fillText('pre', 8, 16); ctx.fillText('post', w-46, 16);
+  const vals = [[0.2,0.9],[0.5,0.7],[0.1,0.4],[0.8,1.0],[0.4,0.5],[0.6,0.95]];
+  vals.forEach(([a,b],i)=>{
+    const yy0 = y(0)+(y(5)-y(0))*a, yy1 = y(0)+(y(5)-y(0))*b;
+    ctx.strokeStyle = cssVar('--primary'); ctx.globalAlpha = 0.75; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x0,yy0); ctx.lineTo(x1,yy1); ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillStyle = cssVar('--primary');
+    ctx.beginPath(); ctx.arc(x0,yy0,3,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(x1,yy1,3,0,7); ctx.fill();
+  });
+}
+
+/* ---- mini: multivariat (pencar + elips) ---- */
+function drawMiniMulti(){
+  const cv = document.getElementById('miniMulti');
+  if(!cv) return;
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad = 24;
+  drawFrame(ctx,w,h,pad);
+  let seed = 42;
+  const rnd = ()=>{ seed = (seed*1103515245+12345)%2147483648; return seed/2147483648; };
+  ctx.fillStyle = cssVar('--accent');
+  for(let i=0;i<40;i++){
+    const a = rnd()*2*Math.PI, r = Math.sqrt(rnd());
+    const px = r*Math.cos(a), py = 0.7*r*Math.cos(a)+0.7*r*Math.sin(a)*0.6;
+    const x = pad + (px+1.4)/2.8*(w-pad-14);
+    const yy = h/2 - py/1.4*(h/2-14);
+    ctx.beginPath(); ctx.arc(x,yy,2.6,0,7); ctx.fill();
+  }
+  ctx.strokeStyle = cssVar('--primary'); ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(pad+(w-pad-14)/2, h/2, (w-pad-14)*0.42, (h/2-14)*0.62, -0.5, 0, 2*Math.PI);
+  ctx.stroke();
+  ctx.font = '10px '+getComputedStyle(document.body).fontFamily;
+  ctx.fillStyle = cssVar('--muted');
+  ctx.fillText('y1', w-20, h/2+12); ctx.fillText('y2', pad+2, 16);
+}
+
+/* ---- lab: SE vs n ---- */
+function drawLab(){
+  const cv = document.getElementById('labCanvas');
+  if(!cv) return;
+  const n = parseFloat(document.getElementById('nSlider').value);
+  const sig = parseFloat(document.getElementById('sigSlider').value);
+  const se = sig/Math.sqrt(n), hw = 1.96*se;
+  document.getElementById('nVal').textContent = n;
+  document.getElementById('sigVal').textContent = sig;
+  document.getElementById('seVal').textContent = se.toFixed(2).replace('.', ',');
+  document.getElementById('ciVal').textContent = '±' + hw.toFixed(2).replace('.', ',');
+  const msg = 'n=' + n + ': estimasi masih goyang ±' + hw.toFixed(2).replace('.', ',');
+  document.getElementById('labMsg').textContent = msg;
+  document.getElementById('labSummary').textContent = 'Ukuran sampel '+n+', simpangan baku '+sig+'. Galat baku '+se.toFixed(2)+', lebar selang kepercayaan 95 persen plus-minus '+hw.toFixed(2)+'.';
+  const {ctx,w,h} = setupCanvas(cv);
+  const pad = 30, mu = 50, span = Math.max(4*se, 6);
+  const X = v => pad + (v-(mu-span))/(2*span)*(w-pad-10);
+  const Y = d => h-14 - d/(1/(se*2.5))*(h-44);
+  ctx.clearRect(0,0,w,h);
+  drawFrame(ctx,w,h,pad);
+  // pita CI 95%
+  ctx.fillStyle = cssVar('--accent'); ctx.globalAlpha = 0.18;
+  ctx.fillRect(X(mu-hw), 10, X(mu+hw)-X(mu-hw), h-24);
+  ctx.globalAlpha = 1;
+  // kurva distribusi x-bar
+  ctx.beginPath();
+  for(let v=mu-span; v<=mu+span; v+=span/200){
+    const d = Math.exp(-0.5*((v-mu)/se)*((v-mu)/se))/(se*2.5066);
+    const x=X(v), y=Y(d);
+    v===(mu-span) ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle = cssVar('--primary'); ctx.lineWidth = 2.4; ctx.stroke();
+  // garis tengah
+  ctx.strokeStyle = cssVar('--danger'); ctx.lineWidth = 1.6; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(X(mu), 10); ctx.lineTo(X(mu), h-14); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font = '11px '+getComputedStyle(document.body).fontFamily;
+  ctx.fillStyle = cssVar('--muted');
+  ctx.fillText('CI 95%', X(mu-hw)+4, 22);
+}
+document.getElementById('nSlider').addEventListener('input', drawLab);
+document.getElementById('sigSlider').addEventListener('input', drawLab);
+
+/* ============ kuis ============ */
+const QUIZ = [
+  { q: 'Uji satu populasi menguji $H_0: \\mu = 100$ dan menghasilkan $p = 0{,}03$ pada $\\alpha = 0{,}05$. Kesimpulan yang tepat …',
+    opts: ['$H_0$ ditolak; data tidak konsisten dengan $\\mu = 100$ pada taraf 5%.',
+           '$H_0$ terbukti salah dengan peluang 97%.',
+           '$H_1$ terbukti benar dengan peluang 95%.',
+           'Tidak ada kesimpulan karena $n$ tidak dilaporkan.'],
+    answer: 0,
+    fb: 'Tolak $H_0$ karena $p < \\alpha$. Ingat: nilai-$p$ bukan peluang hipotesis benar/salah — ia mengukur kecocokan data dengan $H_0$.' },
+  { q: 'Peneliti mengukur tekanan darah, kolesterol, dan gula darah pada kelompok yang sama, dan ketiganya saling berkorelasi. Analisis yang menjaga korelasi antar respons …',
+    opts: ['Tiga uji-$t$ terpisah dengan $\\alpha$ yang sama.',
+           'Satu analisis multivariat (mis. vektor rata-rata / MANOVA).',
+           'ANOVA dua arah tanpa modifikasi.',
+           'Regresi linear sederhana tiga kali.'],
+    answer: 1,
+    fb: 'Respons berkorelasi dianalisis bersama (multivariat). Uji terpisah mengabaikan korelasi dan menggelembungkan galat tipe I.' },
+  { q: 'Tekanan darah diukur pada 20 pasien yang sama sebelum dan sesudah terapi. Desain ini …',
+    opts: ['Sampel independen — pakai uji-$t$ dua sampel bebas.',
+           'Sampel dependen (berpasangan) — analisis selisih tiap subjek.',
+           'Satu populasi — cukup satu pengukuran saja.',
+           'Faktorial — perlu ANOVA dua arah.'],
+    answer: 1,
+    fb: 'Subjek sama diukur dua kali = dependen. Analisis dilakukan pada selisih (post − pre) tiap subjek, yang mengendalikan variasi antar-individu.' },
+  { q: 'Pada faktorial 2 faktor, interaksi A×B signifikan. Artinya …',
+    opts: ['Kedua efek utama pasti signifikan juga.',
+           'Pengaruh faktor A bergantung pada level faktor B (atau sebaliknya).',
+           'Data melanggar asumsi normalitas.',
+           'Perlu menambah replikasi hingga interaksi hilang.'],
+    answer: 1,
+    fb: 'Interaksi = efek satu faktor tidak sama di semua level faktor lain. Karena itu efek utama bisa menyesatkan bila dibaca tanpa plot interaksi (lihat W08).' }
+];
+(function(){
+  const root = document.getElementById('quizRoot');
+  if(!root) return;
+  QUIZ.forEach((item, qi)=>{
+    const box = document.createElement('div');
+    box.className = 'quiz-item';
+    const q = document.createElement('div');
+    q.className = 'quiz-q';
+    q.textContent = (qi+1) + '. ' + item.q;
+    const opts = document.createElement('div');
+    opts.className = 'quiz-opts';
+    const fb = document.createElement('div');
+    fb.className = 'quiz-fb';
+    fb.textContent = item.fb;
+    item.opts.forEach((text, oi)=>{
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'opt'; b.textContent = text;
+      b.addEventListener('click', ()=>{
+        const btns = Array.from(opts.children);
+        btns.forEach(x=>{ x.disabled = true; x.classList.remove('correct','wrong'); });
+        if(oi === item.answer){ b.classList.add('correct'); }
+        else { b.classList.add('wrong'); btns[item.answer].classList.add('correct'); }
+        fb.classList.add('show');
+      });
+      opts.appendChild(b);
+    });
+    box.appendChild(q); box.appendChild(opts); box.appendChild(fb);
+    root.appendChild(box);
+  });
+  if(window.renderMathInElement){
+    try{ renderMathInElement(root,{delimiters:[{left:'$',right:'$',display:false}],ignoredTags:['script','noscript','style','textarea','pre','code']}); }catch(e){}
+  }
+})();
+
+/* ============ gambar ulang ============ */
+function drawAll(){ drawOverlap(); drawMiniH0(); drawMiniPair(); drawMiniMulti(); drawLab(); }
+let resizeT = null;
+window.addEventListener('resize', ()=>{ clearTimeout(resizeT); resizeT = setTimeout(drawAll, 150); });
+window.addEventListener('load', drawAll);
+drawAll();
+</script>
+</body>
+</html>

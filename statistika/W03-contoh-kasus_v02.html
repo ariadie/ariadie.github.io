@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<!-- Statistika S3 W03 Contoh Kasus — modul lengkap v02 | 02-10-2026 : struktur signal2, palet C Nila -->
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minggu 3 — Contoh Kasus | Statistika S3</title>
+<meta name="description" content="Minggu 3 Statistika S3 Ilmu Teknik (18 Sept 2026): membedah contoh kasus teknik menjadi pilihan uji yang tepat, lab galat family-wise, contoh numerik terverifikasi, kuis, dan glosarium.">
+<meta name="author" content="Ariadie Chandra Nugraha">
+<meta property="og:title" content="Minggu 3 — Contoh Kasus">
+<meta property="og:description" content="Dari pertanyaan rekayasa ke uji yang tepat: anatomi kasus, skala variabel, peta keputusan, dan contoh uji-t dua sampel.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://ariadie.github.io/statistika/W03-contoh-kasus_v02.html">
+<meta property="og:url" content="https://ariadie.github.io/statistika/W03-contoh-kasus_v02.html">
+<script>
+  (function(){
+    var inIframe;
+    try { inIframe = window.self !== window.top; } catch(e) { inIframe = true; }
+    if(inIframe){ document.documentElement.classList.add('embedded'); }
+  })();
+</script>
+<script>
+  (function(){
+    try {
+      var saved = localStorage.getItem('theme-statistika');
+      if(saved === 'dark' || saved === 'light'){
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+    } catch(e) {}
+  })();
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],ignoredTags:['script','noscript','style','textarea','pre','code']})"></script>
+<style>
+  /* ================================================================
+     KONFIG TEMA — cukup ubah 3 nilai PRIMER di :root (mode terang)
+     dan 3 nilai di blok html[data-theme="dark"] untuk mengganti
+     nuansa seluruh halaman. Format: primary, primary-2, accent.
+     Preset siap pakai (terang | gelap):
+     A Samudra : #0284c7 #0891b2 #10b981  |  #38bdf8 #22d3ee #34d399
+     B Toska   : #0f766e #0d9488 #22c55e  |  #2dd4bf #5eead4 #4ade80
+     C Nila    : #1d4ed8 #0891b2 #10b981  |  #93c5fd #22d3ee #34d399  <- aktif
+     ================================================================ */
+  :root{
+    color-scheme:light;
+    --bg:#f7fafc; --bg-soft:#edf3fd;
+    --card:rgba(255,255,255,0.86); --card-solid:#ffffff;
+    --text:#0f172a; --muted:#475569; --muted-2:#64748b;
+    --line:rgba(148,163,184,0.32);
+    --primary:#1d4ed8; --primary-2:#0891b2;
+    --accent:#10b981; --danger:#ef4444; --warning:#f59e0b;
+    --shadow:0 24px 80px rgba(15,23,42,0.12);
+    --shadow-soft:0 10px 30px rgba(15,23,42,0.08);
+    --radius-xl:28px; --radius-lg:20px; --radius-md:14px; --radius-sm:10px;
+    --max:1080px;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#0a142e; --bg-soft:#101f3d;
+    --card:rgba(15,23,42,0.80); --card-solid:#111827;
+    --text:#f8fafc; --muted:#cbd5e1; --muted-2:#94a3b8;
+    --line:rgba(148,163,184,0.22);
+    --primary:#93c5fd; --primary-2:#22d3ee;
+    --accent:#34d399; --danger:#f87171; --warning:#fbbf24;
+    --shadow:0 24px 80px rgba(0,0,0,0.42);
+    --shadow-soft:0 10px 30px rgba(0,0,0,0.24);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; min-height:100vh; font-family:var(--sans); line-height:1.65; color:var(--text);
+    font-size:clamp(1rem,1.3vw,1.12rem);
+    background:
+      radial-gradient(circle at top left, rgba(29,78,216,0.20), transparent 32rem),
+      radial-gradient(circle at 85% 10%, rgba(6,182,212,0.14), transparent 28rem),
+      radial-gradient(circle at 70% 80%, rgba(16,185,129,0.10), transparent 32rem),
+      var(--bg);
+  }
+  a{color:inherit}
+  section a{color:var(--primary); font-weight:700}
+  h1,h2,h3,h4{line-height:1.2; letter-spacing:-0.03em}
+  h1.cover-title{font-size:clamp(2rem,4.5vw,3.2rem); font-weight:850; margin:.4rem 0}
+  h2{font-size:clamp(1.4rem,2.8vw,1.9rem); font-weight:800; margin:0 0 .6rem}
+  .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  code{font-family:var(--mono); font-size:.86em; background:color-mix(in srgb, var(--primary) 8%, transparent); border-radius:6px; padding:.1em .4em}
+  pre.code{background:var(--card-solid); border:1px solid var(--line); border-radius:var(--radius-sm); padding:.9rem 1.1rem; overflow-x:auto; font-family:var(--mono); font-size:.83rem; line-height:1.55}
+  .katex{color:inherit}
+  .embed-popout{display:none; margin:.8rem 5vw 0; font-size:.85rem; font-weight:700; border:1px solid var(--line); background:var(--card); border-radius:999px; padding:.6rem 1rem; text-decoration:none}
+  html.embedded .embed-popout{display:inline-block}
+  .topbar-tools{display:flex; align-items:center; justify-content:flex-end; gap:.45rem; flex:none}
+  .header-control{display:inline-flex; align-items:center; justify-content:center; gap:.4em; min-height:2rem; background:var(--card-solid); color:var(--text); border:1px solid var(--line); font-family:var(--sans); font-size:.85rem; font-weight:700; padding:.38em .72em; border-radius:100px; cursor:pointer; white-space:nowrap}
+  .header-control:hover{border-color:var(--primary); color:var(--primary)}
+  .header-control:focus-visible,.weeknav-link:focus-visible,.opt:focus-visible,.navbar button:focus-visible,.section-nav-item:focus-visible{outline:2px solid var(--primary); outline-offset:2px}
+  html.embedded .topbar{position:static; background:none; border-bottom:none; justify-content:flex-end}
+  html.embedded .topbar .crumb{display:none}
+  html.embedded .weeknav{display:none}
+  .weeknav{margin-top:2rem; padding-top:1.2rem; border-top:1px dashed var(--line); display:flex; gap:.8rem; flex-wrap:wrap; align-items:center; justify-content:space-between}
+  .weeknav-link{display:inline-flex; align-items:center; gap:.5em; border:1px solid var(--line); background:var(--card); color:var(--primary); font-size:.9rem; font-weight:750; text-decoration:none; padding:.55em 1.1em; border-radius:12px}
+  .weeknav-link:hover{border-color:transparent; background:linear-gradient(135deg, var(--primary), var(--primary-2)); color:#fff}
+  .weeknav-top{width:100%; margin:0 0 1.5rem; padding:0 0 1rem; border-top:0; border-bottom:1px dashed var(--line)}
+  .topbar{position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; padding:.65rem max(16px, calc((100% - var(--max))/2)); font-size:.88rem; backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border-bottom:1px solid var(--line); background:color-mix(in srgb, var(--bg) 82%, transparent)}
+  .crumb a{color:var(--primary); font-weight:800; text-decoration:none}
+  .crumb b{font-weight:800}
+  .sk-badge{font-size:.72rem; font-weight:800; white-space:nowrap; border:1px solid var(--line); border-radius:999px; padding:.3rem .75rem; background:var(--card); color:var(--primary)}
+  section{width:min(var(--max), calc(100% - 32px)); margin:0 auto; padding:2.4rem 0}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; padding:7px 12px; border-radius:999px; border:1px solid var(--line); background:color-mix(in srgb, var(--card-solid) 78%, transparent); color:var(--primary); font-size:.8rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em}
+  .cover-num{font-family:var(--mono); font-size:.85rem; color:var(--muted-2)}
+  .cover-sub,.lede{color:var(--muted); font-size:clamp(1rem,1.4vw,1.15rem); max-width:800px}
+  .divider{width:100%; height:52px; margin:1rem 0 .4rem}
+  .cpmk-strip{display:flex; flex-wrap:wrap; gap:.55rem; margin-top:1rem}
+  .chip{border:1px solid var(--line); background:var(--card); border-radius:999px; padding:.45rem .95rem; font-size:.88rem; font-weight:700; box-shadow:var(--shadow-soft)}
+  .chip b{color:var(--primary)}
+  .hook-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:1.2rem; align-items:start; margin-top:1rem}
+  .hook-q{font-size:clamp(1.15rem,2vw,1.4rem); font-weight:600; line-height:1.4}
+  .voice-card{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1rem; box-shadow:var(--shadow-soft)}
+  .voice-card .label{font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-2); margin-bottom:.5rem}
+  canvas.plot{width:100%; height:220px; display:block; border-radius:var(--radius-sm); background:var(--card-solid); border:1px solid var(--line)}
+  canvas.mini{width:100%; height:130px; display:block; border-radius:var(--radius-sm); background:var(--card-solid); border:1px solid var(--line)}
+  .plot-note{font-size:.88rem; color:var(--muted); margin-top:.5rem}
+  .concept-cols{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1.2rem}
+  .concept-card{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.2rem; box-shadow:var(--shadow-soft)}
+  .concept-card h4{margin:.7rem 0 .3rem; font-size:1.05rem}
+  .concept-card p{margin:0; color:var(--muted); font-size:.94rem}
+  .tag{display:inline-block; font-family:var(--mono); font-size:.7rem; font-weight:700; color:var(--primary); background:color-mix(in srgb, var(--primary) 10%, transparent); border-radius:999px; padding:.15rem .6rem; margin-bottom:.4rem}
+  .sim-wrap{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.4rem; box-shadow:var(--shadow-soft); margin-top:1.2rem}
+  .sim-controls{display:flex; flex-wrap:wrap; gap:1rem 2rem; margin-bottom:1rem}
+  .ctrl{display:flex; flex-direction:column; gap:.3rem; min-width:220px; flex:1}
+  .ctrl label{font-size:.85rem; font-weight:700; color:var(--muted)}
+  .ctrl input[type=range]{width:100%; accent-color:var(--primary)}
+  .sim-formula{background:color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid)); border:1px solid var(--line); border-radius:var(--radius-sm); padding:.8rem 1rem; margin:.8rem 0; overflow-x:auto}
+  .sim-read{display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.6rem}
+  .sim-read .m{border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--card-solid); padding:.45rem .8rem; font-size:.88rem}
+  .sim-read .m b{color:var(--primary)}
+  .data-table{width:100%; border-collapse:collapse; margin:1rem 0 .4rem; font-size:.9rem}
+  .data-table th,.data-table td{padding:.55em .8em; border:1px solid var(--line); text-align:left; vertical-align:top}
+  .data-table th{background:color-mix(in srgb, var(--primary) 8%, transparent); font-size:.76rem; text-transform:uppercase; letter-spacing:.05em; font-weight:800}
+  .data-table td{background:color-mix(in srgb, var(--card-solid) 70%, transparent)}
+  .soal-card{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.2rem 1.3rem; box-shadow:var(--shadow-soft); margin-top:1.2rem}
+  .soal-num{display:inline-block; font-family:var(--mono); font-size:.75rem; font-weight:700; color:#fff; background:linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius:999px; padding:.25rem .8rem; margin-bottom:.6rem}
+  details.solusi{margin-top:.6rem; border-top:1px dashed var(--line); padding-top:.6rem}
+  details.solusi summary{cursor:pointer; font-weight:800; color:var(--primary)}
+  details.solusi .body{color:var(--muted); margin-top:.5rem}
+  details.solusi .body b{color:var(--text)}
+  #quizRoot{display:grid; gap:1rem; margin-top:1.2rem}
+  .quiz-item{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.1rem 1.2rem; box-shadow:var(--shadow-soft)}
+  .quiz-q{font-weight:700; margin-bottom:.6rem}
+  .quiz-opts{display:grid; gap:.45rem}
+  .opt{border:1px solid var(--line); background:var(--card-solid); color:var(--text); border-radius:var(--radius-sm); padding:.55em .9em; text-align:left; cursor:pointer; font-family:var(--sans); font-size:.95rem}
+  .opt:hover{border-color:var(--primary)}
+  .opt.correct{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent)}
+  .opt.wrong{border-color:var(--danger); background:color-mix(in srgb, var(--danger) 10%, transparent)}
+  .quiz-fb{margin-top:.6rem; font-size:.92rem; color:var(--muted); display:none}
+  .quiz-fb.show{display:block}
+  .colab-grid{display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-top:1.2rem; align-items:start}
+  .colab-steps{margin:0; padding-left:1.2rem; display:grid; gap:.7rem; color:var(--muted)}
+  .colab-steps b{color:var(--text)}
+  .tool-card{border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--card); padding:1.1rem 1.2rem; box-shadow:var(--shadow-soft)}
+  .tool-card h4{margin:0 0 .3rem}
+  .tool-card p{margin:.2rem 0; color:var(--muted); font-size:.92rem}
+  .gloss-table{width:100%; border-collapse:collapse; margin-top:1rem; font-size:.92rem}
+  .gloss-table th,.gloss-table td{padding:.5em .8em; border:1px solid var(--line); text-align:left; vertical-align:top}
+  .gloss-table th{background:color-mix(in srgb, var(--primary) 8%, transparent); font-size:.78rem; text-transform:uppercase; letter-spacing:.04em}
+  .cta-wrap{border:1px solid var(--line); border-radius:var(--radius-xl); background:var(--card); box-shadow:var(--shadow); padding:clamp(1.4rem,3vw,2.2rem); margin-top:1rem}
+  .cta-wrap h3{margin:0 0 .5rem; font-size:clamp(1.2rem,2vw,1.6rem)}
+  .cta-btn{display:inline-block; margin-top:.8rem; text-decoration:none; border-radius:999px; padding:.7rem 1.1rem; font-weight:800; background:linear-gradient(135deg, var(--primary), var(--primary-2)); color:#fff !important; box-shadow:0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent)}
+  .cta-meta{display:flex; flex-wrap:wrap; gap:.6rem; margin-top:1rem}
+  .cta-meta .m{border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--card-solid); padding:.45rem .8rem; font-size:.85rem; color:var(--muted)}
+  .cta-meta .m b{display:block; color:var(--primary); font-size:1rem}
+  .recap{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:.7rem; margin-top:1.2rem}
+  .recap .r{border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--card-solid); padding:.6rem .9rem; font-size:.88rem; color:var(--muted)}
+  .recap .r b{display:block; color:var(--text)}
+  .version-tag{font-family:var(--mono); font-size:.75rem; color:var(--muted-2); margin-top:1.4rem}
+  .navbar{position:sticky; bottom:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:.7rem max(16px, calc((100% - var(--max))/2)); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border-top:1px solid var(--line); background:color-mix(in srgb, var(--bg) 82%, transparent)}
+  html.embedded .navbar{display:none}
+  .navbar button{border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:.55rem 1rem; cursor:pointer; font-weight:750; font-family:var(--sans); font-size:.9rem}
+  .navbar button:disabled{opacity:.4; cursor:default}
+  .navbar button:last-child{border-color:transparent; background:linear-gradient(135deg, var(--primary), var(--primary-2)); color:#fff}
+  .dots{display:flex; gap:6px; flex-wrap:wrap; justify-content:center}
+  .dot{width:11px; height:11px; border-radius:50%; border:1px solid var(--line); background:transparent; padding:0; cursor:pointer}
+  .dot.active{background:var(--primary); border-color:var(--primary)}
+  .count{font-family:var(--mono); font-size:.8rem; color:var(--muted-2); white-space:nowrap}
+  .section-nav-fab{position:fixed; right:1.5rem; bottom:5.4rem; z-index:30; width:44px; height:44px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:1.1rem; cursor:pointer; box-shadow:var(--shadow-soft)}
+  html.embedded .section-nav-fab{bottom:1.5rem}
+  .section-nav-overlay{position:fixed; inset:0; z-index:40; background:rgba(2,6,23,.5); display:flex; align-items:center; justify-content:center; padding:1rem}
+  .section-nav-overlay[hidden]{display:none}
+  .section-nav-dialog{background:var(--card-solid); border:1px solid var(--line); border-radius:var(--radius-lg); max-width:520px; width:100%; max-height:80vh; display:flex; flex-direction:column; box-shadow:var(--shadow)}
+  .section-nav-head{display:flex; align-items:center; justify-content:space-between; padding:.9rem 1.1rem; border-bottom:1px solid var(--line)}
+  .section-nav-head h3{margin:0; font-size:1.05rem}
+  .section-nav-close{border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; width:34px; height:34px; cursor:pointer}
+  .section-nav-list{overflow:auto; padding:.7rem; display:grid; gap:.35rem}
+  .section-nav-item{border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:var(--radius-sm); padding:.6em .9em; text-align:left; cursor:pointer; font-family:var(--sans); font-size:.92rem}
+  .section-nav-item.active{border-color:var(--primary); color:var(--primary); font-weight:700}
+  @media(max-width:900px){ .hook-grid,.colab-grid{grid-template-columns:1fr} .concept-cols{grid-template-columns:1fr} }
+  .reading-list{margin:1rem 0 0; padding-left:1.3rem; color:var(--text)}
+  .reading-list li{margin:.6rem 0; line-height:1.55}
+  @media(max-width:640px){ .dots{display:none} .sk-badge{display:none} .topbar .crumb{flex:1 1 100%} .section-nav-fab{bottom:9rem} }
+  @media print{ .topbar,.navbar,.weeknav,.section-nav-fab,.embed-popout{display:none !important} body{background:#fff; color:#000} }
+</style>
+</head>
+<body>
+
+<a class="embed-popout" id="popoutLink" target="_blank" rel="noopener noreferrer">⤢ Buka mode presentasi penuh</a>
+
+<div class="topbar">
+  <div class="crumb">Statistika S3 <b>·</b> Minggu 03 / 16 <b>·</b> <a href="index.html">Indeks</a></div>
+  <div class="topbar-tools">
+    <button type="button" id="themeToggle" class="header-control" aria-pressed="false">☾ Gelap</button>
+    <div class="sk-badge">18 Sept 2026 · Studi Kasus</div>
+  </div>
+</div>
+
+<!-- ================= SECTION 0 — COVER ================= -->
+<section id="s0">
+  <nav class="weeknav weeknav-top" aria-label="Navigasi antarminggu — awal halaman">
+    <a class="weeknav-link" href="W02-konsep-dasar_v02.html">◂ W02 · Konsep Dasar</a>
+    <a class="weeknav-link" href="index.html">Daftar Isi</a>
+    <a class="weeknav-link" href="W04-satu-populasi_v02.html">W04 · Satu Populasi ▸</a>
+  </nav>
+  <div class="cover-num">03 / 16</div>
+  <div class="eyebrow">Contoh Kasus · Jembatan W02 → W04</div>
+  <h1 class="cover-title">Dari Pertanyaan Teknik ke Uji yang Tepat</h1>
+  <p class="cover-sub">Minggu ketiga: membedah contoh kasus nyata — mengenali variabel dan desainnya, lalu memetakan ke teknik W04–W13. Keterampilan inti S3: memilih analisis <em>sebelum</em> mengumpulkan data, bukan sesudahnya.</p>
+  <svg class="divider" viewBox="0 0 800 52" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,26 Q20,4 40,26 T80,26 T120,26 T160,26 T200,26 T240,26 T280,26 T320,26 T360,26 T400,26 T440,26 T480,26 T520,26 T560,26 T600,26 T640,26 T680,26 T720,26 T760,26 T800,26" fill="none" stroke="#67e8f9" stroke-width="1.5"/>
+  </svg>
+  <div class="cpmk-strip">
+    <div class="chip">Tanggal: <b>Jum'at, 18 Sept 2026</b></div>
+    <div class="chip">Fokus: <b>anatomi kasus + peta keputusan</b></div>
+    <div class="chip">Contoh: <b>uji-$t$ dua sampel terverifikasi</b></div>
+  </div>
+</section>
+
+<!-- ================= SECTION 1 — HOOK ================= -->
+<section id="s1">
+  <div class="eyebrow">01 — Pemantik</div>
+  <div class="hook-grid">
+    <div>
+      <h2>Enam uji-$t$ sekaligus: apa risikonya?</h2>
+      <p class="hook-q">"Biar teliti, tiap pasangan kelompok saya uji satu per satu saja dengan uji-$t$."</p>
+      <p>Kedengarannya rajin — tetapi tiap pengujian membawa peluang galat tipe I sebesar $\alpha = 5\%$. Dengan $m$ pengujian independen, peluang <b>minimal satu</b> kesimpulan salah (galat <i>family-wise</i>) adalah $1-(1-\alpha)^m$. Lihat gambar: pada $m = 6$ pasang, risikonya sudah <b>26,5%</b> — satu dari empat "temuan signifikan" boleh jadi palsu.</p>
+      <p>Pelajaran minggu ini: kasus yang tampak butuh "banyak uji kecil" hampir selalu lebih tepat dijawab <b>satu kerangka besar</b> — ANOVA (W07), MANOVA (W10), atau regresi (W12).</p>
+    </div>
+    <div class="voice-card">
+      <div class="label">Ilustrasi · galat family-wise vs $m$</div>
+      <canvas id="hookCanvas" class="plot" role="img" aria-label="Kurva menaik: peluang minimal satu galat tipe I naik dari 5 persen pada satu pengujian menjadi lebih dari 26 persen pada enam pengujian."></canvas>
+      <div class="plot-note">Garis <b>biru</b> = $1-(1-0{,}05)^m$. Garis <b>oranye putus-putus</b> = ambang $\alpha = 5\%$ yang dijaga tiap uji tunggal.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 2 — ANATOMI ================= -->
+<section id="s2">
+  <div class="eyebrow">02 — Anatomi Kasus</div>
+  <h2>Tiga hal yang dibaca dari setiap kasus</h2>
+  <p class="lede">Sebelum menyentuh rumus apa pun, bedah kasus lewat tiga lensa ini — jawabannya langsung menunjuk ke tekniknya.</p>
+  <div class="concept-cols">
+    <div class="concept-card">
+      <span class="tag">Lensa 1 · Variabel</span>
+      <canvas class="mini" id="miniScale" role="img" aria-label="Empat strip skala ukur: nominal dan ordinal sebagai kategori, interval dan rasio sebagai numerik."></canvas>
+      <h4>Apa yang diukur? (skala)</h4>
+      <p><b>Nominal/ordinal</b> (kategori: algoritma, tingkat kepuasan) vs <b>interval/rasio</b> (numerik: waktu, suhu). Skala menentukan keluarga uji — seluruh W04–W13 memakai respons numerik.</p>
+    </div>
+    <div class="concept-card">
+      <span class="tag">Lensa 2 · Desain</span>
+      <canvas class="mini" id="miniDesign" role="img" aria-label="Dua pola desain: garis berpasangan untuk sampel dependen dan dua kolom terpisah untuk sampel independen."></canvas>
+      <h4>Bagaimana datanya berpasangan?</h4>
+      <p><b>Dependen</b> (subjek sama diukur dua kali → W05) vs <b>independen</b> (kelompok berbeda → W06). Salah membaca ini = uji yang salah total.</p>
+    </div>
+    <div class="concept-card">
+      <span class="tag">Lensa 3 · Struktur</span>
+      <canvas class="mini" id="miniFactor" role="img" aria-label="Diagram dua garis rerata sel yang tidak sejajar, menandakan interaksi dua faktor."></canvas>
+      <h4>Berapa faktor &amp; respons?</h4>
+      <p><b>Satu faktor</b> → uji beda/ANOVA satu arah. <b>Dua faktor</b> → waspadai <em>interaksi</em> (W08). <b>Respons ganda</b> → wilayah multivariat (W10–W13).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 3 — LAB FWER ================= -->
+<section id="s3">
+  <div class="eyebrow">03 — Laboratorium Mini</div>
+  <h2>Geser $m$, lihat risikonya</h2>
+  <p class="lede">Atur banyaknya pengujian $m$ dan bandingkan galat <i>family-wise</i> tanpa koreksi vs dengan koreksi Bonferroni ($\alpha/m$ per uji).</p>
+  <div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl">
+        <label for="mSlider">Banyak pengujian $m$ = <span id="mVal">6</span></label>
+        <input type="range" id="mSlider" min="1" max="10" step="1" value="6">
+      </div>
+    </div>
+    <canvas id="labCanvas" class="plot" role="img" aria-label="Diagram batang galat family-wise untuk tiap banyak pengujian; batang terpilih disorot dan nilainya dibacakan pada ringkasan teks."></canvas>
+    <div class="sim-formula" id="labFormula">$\text{FWER} = 1-(1-\alpha)^m \qquad \alpha_{\text{Bonf}} = \dfrac{\alpha}{m} \qquad (\alpha = 0{,}05)$</div>
+    <div class="sim-read">
+      <div class="m"><b>FWER tanpa koreksi</b> <span id="fwerVal">26,49%</span></div>
+      <div class="m"><b>α per uji (Bonferroni)</b> <span id="bonfVal">0,0083</span></div>
+      <div class="m"><b>FWER terkendali</b> <span id="fwerBVal">≤ 5%</span></div>
+    </div>
+    <p id="labSummary" class="sr-only" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- ================= SECTION 4 — GALERI KASUS ================= -->
+<section id="s4">
+  <div class="eyebrow">04 — Galeri Kasus</div>
+  <h2>Empat kasus, empat teknik</h2>
+  <p class="lede">Kasus-kasus mini bertema teknik — masing-masing dibedah pada minggunya.</p>
+  <div class="concept-cols">
+    <div class="concept-card">
+      <span class="tag">W04 · Satu populasi</span>
+      <h4>Apakah daya tahan baterai memenuhi klaim 120 menit?</h4>
+      <p>Satu kelompok, satu respons, dibandingkan ke <b>nilai acuan</b> → uji satu populasi. Varian multivariatnya: vektor spesifikasi diuji sekaligus.</p>
+    </div>
+    <div class="concept-card">
+      <span class="tag">W05 · Dependen</span>
+      <h4>Apakah firmware baru menghemat memori pada perangkat yang sama?</h4>
+      <p>Diukur <b>sebelum–sesudah pada unit yang sama</b> → analisis selisih berpasangan. Mengendalikan variasi antar-unit.</p>
+    </div>
+    <div class="concept-card">
+      <span class="tag">W06 · Independen</span>
+      <h4>Manakah lebih cepat: A* atau Dijkstra?</h4>
+      <p><b>Dua kelompok berbeda</b>, satu respons waktu → uji dua sampel independen. Contoh hitung lengkapnya ada di Bagian 06 bawah.</p>
+    </div>
+  </div>
+  <div class="concept-cols" style="grid-template-columns:1fr">
+    <div class="concept-card">
+      <span class="tag">W08 · Pratinjau faktorial</span>
+      <h4>Apakah keunggulan A* bertahan di semua ukuran peta?</h4>
+      <p><b>Dua faktor</b> (algoritma × ukuran peta) → ANOVA dua arah + plot interaksi. Inilah jebakan "banyak uji-$t$": enam sel berarti 15 pasang (FWER ≈ 54%) — lihat Bagian 03.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 5 — PETA KEPUTUSAN ================= -->
+<section id="s5">
+  <div class="eyebrow">05 — Peta Keputusan</div>
+  <h2>Dari ciri kasus ke teknik &amp; minggu</h2>
+  <table class="data-table">
+    <thead><tr><th>Ciri kasus</th><th>Teknik</th><th>Minggu</th></tr></thead>
+    <tbody>
+      <tr><td>Satu kelompok vs nilai acuan</td><td>Uji satu populasi / satu vektor rata-rata</td><td><a href="W04-satu-populasi_v02.html">W04</a></td></tr>
+      <tr><td>Dua pengukuran berpasangan</td><td>Uji berpasangan / $T^2$ berpasangan</td><td><a href="W05-dua-populasi-dependen_v01.html">W05</a></td></tr>
+      <tr><td>Dua kelompok bebas</td><td>Uji dua sampel / $T^2$ dua sampel</td><td><a href="W06-dua-populasi-independen_v01.html">W06</a></td></tr>
+      <tr><td>Lebih dari dua kelompok, satu faktor</td><td>ANOVA satu arah + uji lanjut</td><td><a href="W07-anova_v01.html">W07</a></td></tr>
+      <tr><td>Dua faktor (+ kemungkinan interaksi)</td><td>ANOVA dua arah</td><td><a href="W08-two-way-anova_v01.html">W08</a></td></tr>
+      <tr><td>Respons ganda berkorelasi</td><td>MANOVA / two-way MANOVA</td><td><a href="W10-manova_v01.html">W10</a>–<a href="W11-two-way-manova_v01.html">W11</a></td></tr>
+      <tr><td>Memodelkan hubungan prediktor–respons</td><td>Regresi linear</td><td><a href="W12-regresi_v01.html">W12</a></td></tr>
+      <tr><td>Menyederhanakan banyak indikator</td><td>Analisis faktor</td><td><a href="W13-faktor_v01.html">W13</a></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= SECTION 6 — CONTOH ================= -->
+<section id="s6">
+  <div class="eyebrow">06 — Contoh Terselesaikan</div>
+  <h2>A* vs Dijkstra: uji dua sampel independen</h2>
+  <div class="soal-card">
+    <span class="soal-num">Contoh 1 · Data ilustratif (hipotetis)</span>
+    <p>Waktu komputasi (ms) pada peta 50×50, masing-masing $n = 6$ run independen.<br>
+    A*: 12, 14, 13, 15, 11, 13 ($\bar{x}_A = 13$).<br>
+    Dijkstra: 18, 20, 19, 22, 17, 20 ($\bar{x}_B = 19{,}33$).<br>
+    Ujilah $H_0: \mu_A = \mu_B$ pada $\alpha = 5\%$ (dua arah).</p>
+    <details class="solusi">
+      <summary>▸ Lihat langkah penyelesaian</summary>
+      <div class="body">
+        <p><b>1. Kenali desainnya (tiga lensa).</b> Respons numerik (waktu) → keluarga uji beda. <b>Dua kelompok bebas</b> (run berbeda) → independen, bukan berpasangan. Satu respons → univariat. Teknik: <b>uji-$t$ dua sampel</b> (W06).</p>
+        <p><b>2. Hitung jumlah kuadrat.</b> $\text{SS}_A = 10$; $\text{SS}_B = 15{,}33$. Varians gabungan $s_p^2 = (10 + 15{,}33)/10 = 2{,}53$.</p>
+        <p><b>3. Statistik uji.</b> $\text{SE} = \sqrt{2{,}53\,(1/6 + 1/6)} = 0{,}92$; $t = (19{,}33 - 13)/0{,}92 = 6{,}89$; df $= 10$.</p>
+        <p><b>4. Keputusan.</b> $t_{\text{kritis}} = 2{,}23$ pada $\alpha = 5\%$ dua arah. Karena $6{,}89 > 2{,}23$: <b>tolak $H_0$</b> — A* terbukti lebih cepat pada peta ini ($p &lt; 0{,}001$).</p>
+        <p><b>5. Ukuran efek.</b> $d = (19{,}33-13)/\sqrt{2{,}53} = 3{,}98$ — efek sangat besar; perbedaan ini bukan sekadar signifikan statistik, melainkan substantif.</p>
+        <p><b>Catatan jujur:</b> ini baru <b>satu ukuran peta</b>. Klaim umum "A* lebih cepat" menuntut desain faktorial (algoritma × ukuran peta) — persis jebakan Bagian 01 dan materi <a href="W08-two-way-anova_v01.html">W08</a>.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= SECTION 7 — KUIS ================= -->
+<section id="s7">
+  <div class="eyebrow">07 — Kuis Pemahaman</div>
+  <h2>Uji apa untuk kasus ini?</h2>
+  <p class="lede">Formatif — tidak dinilai. Pilih teknik yang tepat untuk tiap skenario.</p>
+  <div id="quizRoot"></div>
+</section>
+
+<!-- ================= SECTION 8 — KODE ================= -->
+<section id="s8">
+  <div class="eyebrow">08 — Reproduksibel Sejak Dini</div>
+  <h2>Kode contoh Bagian 06</h2>
+  <p class="lede">Contoh di atas dihitung manual lalu pola kodenya seperti ini (keluaran yang diharapkan: $t \approx 6{,}89$, df $= 10$, $p &lt; 0{,}001$).</p>
+  <div class="colab-grid">
+    <div>
+      <div class="tool-card"><h4>Python (scipy)</h4><pre class="code">from scipy import stats
+A = [12,14,13,15,11,13]
+B = [18,20,19,22,17,20]
+t, p = stats.ttest_ind(B, A, equal_var=True)
+print(f"t = {t:.2f}, p = {p:.2e}")</pre></div>
+      <br>
+      <div class="tool-card"><h4>R</h4><pre class="code">A &lt;- c(12,14,13,15,11,13)
+B &lt;- c(18,20,19,22,17,20)
+t.test(B, A, var.equal = TRUE)</pre></div>
+    </div>
+    <ol class="colab-steps">
+      <li><b>Hitung manual dulu, kode kemudian</b><span>Angka Bagian 06 dihitung dari definisi jumlah kuadrat — kode hanya memverifikasi, bukan menggantikan pemahaman.</span></li>
+      <li><b>Simpan data sebagai CSV</b><span>Satu baris per run: kolom <code>algoritma,waktu_ms</code>. Data kecil di atas sengaja dibuat nyaris bulat agar mudah ditelusuri.</span></li>
+      <li><b>Verifikasi silang</b><span>Hasil Python dan R harus sama hingga pembulatan — bila beda, periksa argumen varians (`equal_var` / `var.equal`).</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= SECTION 9 — GLOSARIUM ================= -->
+<section id="s9">
+  <div class="eyebrow">09A — Glosarium</div>
+  <h2>Daftar istilah Inggris–Indonesia</h2>
+  <p class="lede">Fokus minggu ini: kosakata membedah kasus.</p>
+  <table class="gloss-table">
+    <thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead>
+    <tbody>
+      <tr><td><em>Bonferroni correction</em></td><td>koreksi Bonferroni</td><td>Uji tiap pasang pada $\alpha/m$ agar FWER ≤ $\alpha$</td></tr>
+      <tr><td><em>case / unit of observation</em></td><td>kasus / unit amatan</td><td>Satu baris data: satu run, satu subjek, satu spesimen</td></tr>
+      <tr><td><em>dependent / independent samples</em></td><td>sampel dependen / independen</td><td>Berpasangan (subjek sama) vs kelompok bebas</td></tr>
+      <tr><td><em>experimental / observational</em></td><td>eksperimental / observasional</td><td>Apakah peneliti mengendalikan perlakuan?</td></tr>
+      <tr><td><em>family-wise error rate</em></td><td>galat <i>family-wise</i> (FWER)</td><td>$1-(1-\alpha)^m$; peluang ≥1 galat tipe I dalam $m$ uji</td></tr>
+      <tr><td><em>interaction</em></td><td>interaksi</td><td>Efek satu faktor bergantung level faktor lain (W08)</td></tr>
+      <tr><td><em>interval / ratio scale</em></td><td>skala interval / rasio</td><td>Numerik; rasio punya nol mutlak (waktu, Kelvin)</td></tr>
+      <tr><td><em>nominal / ordinal scale</em></td><td>skala nominal / ordinal</td><td>Kategori tanpa / dengan urutan</td></tr>
+      <tr><td><em>reproducibility</em></td><td>reproduksibilitas</td><td>Hasil sama dari data + kode yang sama</td></tr>
+      <tr><td><em>response / predictor</em></td><td>respons / prediktor</td><td>Yang dijelaskan vs yang menjelaskan (faktor)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= SECTION 10 — SIMBOL ================= -->
+<section id="s10">
+  <div class="eyebrow">09B — Daftar Simbol</div>
+  <h2>Simbol baru minggu ini</h2>
+  <table class="gloss-table">
+    <thead><tr><th scope="col">Simbol</th><th scope="col">Nama</th><th scope="col">Artinya</th></tr></thead>
+    <tbody>
+      <tr><td>$m$</td><td>banyak pengujian</td><td>Jumlah uji dalam satu keluarga perbandingan</td></tr>
+      <tr><td>$\alpha_{\text{FW}}$</td><td>galat family-wise</td><td>$1-(1-\alpha)^m$</td></tr>
+      <tr><td>$y$, $x$</td><td>respons, prediktor</td><td>Variabel terikat dan bebas/faktor</td></tr>
+      <tr><td>$s_p^2$</td><td>varians gabungan</td><td>Rata-rata tertimbang varians dua kelompok</td></tr>
+      <tr><td>$d$</td><td>d Cohen</td><td>Selisih rerata dalam satuan simpangan baku</td></tr>
+      <tr><td>df</td><td>derajat bebas</td><td>$n_1+n_2-2$ untuk uji dua sampel</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= SECTION 10R — BACAAN PENDAMPING ================= -->
+<section id="s10r">
+  <div class="eyebrow">09C — Bacaan Pendamping</div>
+  <h2>Rujukan untuk minggu ini</h2>
+  <p class="lede">Sumber perbandingan dua perlakuan, galat <i>family-wise</i>, ukuran efek, dan perangkat komputasi; nomor bab mengacu pada edisi yang disebutkan.</p>
+  <ul class="reading-list">
+    <li><b>Montgomery, D. C. (2020). <em>Design and Analysis of Experiments</em>, ed. 10.</b> Wiley. Bab 2 — eksperimen perbandingan sederhana: uji dua sampel dan berpasangan (Bagian 05–06).</li>
+    <li><b>Miller, R. G. (1981). <em>Simultaneous Statistical Inference</em>, ed. 2.</b> Springer. Bab 1 — inferensi simultan: galat <i>family-wise</i> dan koreksi Bonferroni (Bagian 01, 03).</li>
+    <li><b>Lakens, D. (2013). Calculating and reporting effect sizes to facilitate cumulative science: A practical primer for t-tests and ANOVAs. <em>Frontiers in Psychology, 4</em>, 863.</b> <a href="https://doi.org/10.3389/fpsyg.2013.00863" target="_blank" rel="noopener noreferrer">doi:10.3389/fpsyg.2013.00863</a> — pelaporan $d$ dan $\eta^2$ berdampingan dengan nilai-$p$ (Bagian 06).</li>
+    <li><b>Seabold, S., &amp; Perktold, J. (2010). Statsmodels: Econometric and statistical modeling with Python. In <em>Proceedings of the 9th Python in Science Conference</em> (hlm. 92–96).</b> <a href="https://doi.org/10.25080/Majora-92bf1922-011" target="_blank" rel="noopener noreferrer">doi:10.25080/Majora-92bf1922-011</a> — komputasi contoh Bagian 06 dan 08.</li>
+  </ul>
+</section>
+
+<!-- ================= SECTION 11 — CTA ================= -->
+<section id="s11">
+  <div class="eyebrow">10 — Siap ke Uji Beda</div>
+  <div class="cta-wrap">
+    <h3>Bawa tiga lensa ke setiap kasus</h3>
+    <p>Mulai W04, tiap teknik baru cukup ditanya: skala apa, desain apa, struktur apa. Pola bedahnya selalu sama seperti minggu ini — yang berganti hanya rumusnya.</p>
+    <a class="cta-btn" href="W04-satu-populasi_v02.html">▸ Lanjut ke W04 — Satu Populasi</a>
+    <div class="cta-meta">
+      <div class="m"><b>W03</b>contoh kasus</div>
+      <div class="m"><b>3 lensa</b>variabel·desain·struktur</div>
+      <div class="m"><b>$t=6{,}89$</b>contoh terverifikasi</div>
+      <div class="m"><b>W04</b>berikutnya: satu populasi</div>
+    </div>
+  </div>
+  <div class="recap">
+    <div class="r"><b>$m$ uji → FWER naik</b>$m=6$ berarti risiko 26,5%</div>
+    <div class="r"><b>Bonferroni $\alpha/m$</b>kendalikan FWER ≤ 5%</div>
+    <div class="r"><b>Tiga lensa</b>skala, desain, struktur</div>
+    <div class="r"><b>Minggu depan</b><a href="W04-satu-populasi_v02.html">W04 — uji satu populasi ▸</a></div>
+  </div>
+  <p class="version-tag">Versi v02 (modul lengkap) · 02-10-2026 · Angka contoh dihitung manual dan diverifikasi Node.js</p>
+</section>
+
+<div class="navbar">
+  <button id="prevBtn">◂ Sebelumnya</button>
+  <div class="dots" id="dots"></div>
+  <span class="count" id="count">1 / 12</span>
+  <button id="nextBtn">Berikutnya ▸</button>
+</div>
+
+<nav class="weeknav" aria-label="Navigasi antarminggu — akhir halaman">
+  <a class="weeknav-link" href="W02-konsep-dasar_v02.html">◂ W02 · Konsep Dasar</a>
+  <a class="weeknav-link" href="index.html">Daftar Isi</a>
+  <a class="weeknav-link" href="W04-satu-populasi_v02.html">W04 · Satu Populasi ▸</a>
+</nav>
+
+<button type="button" id="sectionNavBtn" class="section-nav-fab" aria-haspopup="dialog" aria-controls="sectionNavDialog" aria-label="Lompat ke bagian" title="Lompat ke bagian">☰</button>
+<div class="section-nav-overlay" id="sectionNavOverlay" hidden>
+  <div class="section-nav-dialog" role="dialog" aria-modal="true" aria-labelledby="sectionNavTitle" id="sectionNavDialog">
+    <div class="section-nav-head">
+      <h3 id="sectionNavTitle">Lompat ke bagian</h3>
+      <button type="button" class="section-nav-close" id="sectionNavClose" aria-label="Tutup daftar bagian">✕</button>
+    </div>
+    <div class="section-nav-list" id="sectionNavList"></div>
+  </div>
+</div>
+
+<script>
+/* ============ mode embed ============ */
+const isEmbedded = document.documentElement.classList.contains('embedded');
+const popoutLink = document.getElementById('popoutLink');
+if(popoutLink){ try{ popoutLink.href = window.location.href; }catch(e){} }
+
+/* ============ tema ============ */
+(function(){
+  const btn = document.getElementById('themeToggle');
+  if(!btn) return;
+  const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function effectiveTheme(){
+    const explicit = document.documentElement.getAttribute('data-theme');
+    if(explicit === 'dark' || explicit === 'light') return explicit;
+    return (mql && mql.matches) ? 'dark' : 'light';
+  }
+  function updateToggleUI(){
+    const dark = effectiveTheme() === 'dark';
+    btn.textContent = dark ? '☀ Terang' : '☾ Gelap';
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.setAttribute('aria-label', dark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap');
+  }
+  updateToggleUI();
+  btn.addEventListener('click', ()=>{
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try{ localStorage.setItem('theme-statistika', next); }catch(e){}
+    updateToggleUI(); drawAll();
+  });
+  if(mql && mql.addEventListener){
+    mql.addEventListener('change', ()=>{
+      if(!document.documentElement.getAttribute('data-theme')) updateToggleUI();
+    });
+  }
+})();
+
+/* ============ navigasi presentasi (nonaktif dalam embed) ============ */
+const sections = Array.from(document.querySelectorAll('section'));
+if(!isEmbedded){
+  const dotsWrap = document.getElementById('dots');
+  const countEl = document.getElementById('count');
+  sections.forEach((s)=>{
+    const d = document.createElement('button');
+    d.type='button'; d.className='dot';
+    const eyebrowEl = s.querySelector('.eyebrow');
+    const label = eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+    d.title = label; d.setAttribute('aria-label','Ke bagian: '+label);
+    d.addEventListener('click',()=>s.scrollIntoView({behavior:'smooth',block:'start'}));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+  const currentIndex = ()=>{
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx=0;
+    sections.forEach((s,i)=>{ if(s.offsetTop <= y) idx=i; });
+    return idx;
+  };
+  const updateNav = ()=>{
+    const idx = currentIndex();
+    dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+    countEl.textContent = (idx+1)+' / '+sections.length;
+    document.getElementById('prevBtn').disabled = idx===0;
+    document.getElementById('nextBtn').disabled = idx===sections.length-1;
+  };
+  window.addEventListener('scroll', ()=>requestAnimationFrame(updateNav), {passive:true});
+  updateNav();
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    sections[Math.min(currentIndex()+1, sections.length-1)].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  document.getElementById('prevBtn').addEventListener('click',()=>{
+    sections[Math.max(currentIndex()-1,0)].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  window.addEventListener('keydown',(e)=>{
+    const ov = document.getElementById('sectionNavOverlay');
+    if(ov && !ov.hidden) return;
+    const t = e.target, tag = (t && t.tagName || '').toLowerCase();
+    if(tag==='input'||tag==='select'||tag==='textarea'||(t&&t.isContentEditable)) return;
+    if(['ArrowRight','ArrowDown','PageDown'].includes(e.key)){ e.preventDefault(); document.getElementById('nextBtn').click(); }
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); document.getElementById('prevBtn').click(); }
+  });
+}
+
+/* ============ popup lompat bagian ============ */
+(function(){
+  const fab = document.getElementById('sectionNavBtn');
+  const overlay = document.getElementById('sectionNavOverlay');
+  const closeBtn = document.getElementById('sectionNavClose');
+  const listEl = document.getElementById('sectionNavList');
+  if(!fab || !overlay || !closeBtn || !listEl) return;
+  sections.forEach((s,i)=>{
+    const eyebrowEl = s.querySelector('.eyebrow');
+    const label = eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+    const item = document.createElement('button');
+    item.type='button'; item.className='section-nav-item';
+    item.textContent = (i+1)+'. '+label;
+    item.addEventListener('click',()=>{ s.scrollIntoView({behavior:'smooth',block:'start'}); closeDialog(); });
+    listEl.appendChild(item);
+  });
+  const items = Array.from(listEl.children);
+  let lastFocused = null;
+  function openDialog(){
+    lastFocused = document.activeElement;
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx = 0;
+    sections.forEach((s,i)=>{ if(s.getBoundingClientRect().top + window.scrollY <= y) idx = i; });
+    items.forEach((it,i)=>it.classList.toggle('active', i===idx));
+    overlay.hidden = false; document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+    document.addEventListener('keydown', onDialogKeydown);
+  }
+  function closeDialog(){
+    overlay.hidden = true; document.body.style.overflow = '';
+    document.removeEventListener('keydown', onDialogKeydown);
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+  function onDialogKeydown(e){
+    if(e.key === 'Escape'){ e.preventDefault(); closeDialog(); }
+    else if(e.key === 'Tab'){
+      const f = [closeBtn, ...items], first = f[0], last = f[f.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    }
+  }
+  fab.addEventListener('click', openDialog);
+  closeBtn.addEventListener('click', closeDialog);
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) closeDialog(); });
+})();
+
+/* ============ kanvas: utilitas ============ */
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function setupCanvas(cv){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = cv.getBoundingClientRect();
+  const W = Math.max(rect.width, 50), H = Math.max(rect.height, 50);
+  cv.width = W*dpr; cv.height = H*dpr;
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx, w:W, h:H};
+}
+function cssFont(px){
+  return px + 'px ' + getComputedStyle(document.body).fontFamily;
+}
+
+/* ---- hook: kurva FWER vs m ---- */
+function drawHook(){
+  const cv = document.getElementById('hookCanvas');
+  if(!cv) return;
+  const {ctx,w,h} = setupCanvas(cv);
+  const pad = 34, mMax = 10;
+  const X = m => pad + (m-1)/(mMax-1)*(w-pad-12);
+  const Y = v => h-16 - v/0.45*(h-40);
+  const fwer = m => 1-Math.pow(0.95,m);
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle = cssVar('--muted-2'); ctx.globalAlpha = .55; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, h-16); ctx.lineTo(w-6, h-16);
+  ctx.moveTo(pad, 8); ctx.lineTo(pad, h-16); ctx.stroke(); ctx.globalAlpha = 1;
+  // ambang alpha
+  ctx.strokeStyle = cssVar('--warning'); ctx.setLineDash([6,4]); ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.moveTo(pad, Y(0.05)); ctx.lineTo(w-6, Y(0.05)); ctx.stroke(); ctx.setLineDash([]);
+  // kurva FWER
+  ctx.beginPath();
+  for(let m=1; m<=mMax; m+=0.1){
+    const x=X(m), y=Y(fwer(m));
+    m===1 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle = cssVar('--primary'); ctx.lineWidth = 2.6; ctx.stroke();
+  // titik m=6
+  ctx.fillStyle = cssVar('--primary');
+  ctx.beginPath(); ctx.arc(X(6), Y(fwer(6)), 4, 0, 7); ctx.fill();
+  ctx.font = cssFont(11); ctx.fillStyle = cssVar('--muted');
+  ctx.fillText('m=6 → 26,5%', X(6)-72, Y(fwer(6))-10);
+  ctx.fillText('m', w-14, h-4);
+  ctx.fillText('α=5%', X(mMax)-34, Y(0.05)-6);
+}
+
+/* ---- mini: skala ukur ---- */
+function drawMiniScale(){
+  const cv = document.getElementById('miniScale');
+  if(!cv) return;
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const rows = [
+    {label:'nominal', cat:true, color:'--primary'},
+    {label:'ordinal', cat:true, color:'--primary-2'},
+    {label:'interval', cat:false, color:'--accent'},
+    {label:'rasio', cat:false, color:'--accent'}
+  ];
+  const rh = (h-16)/rows.length;
+  ctx.font = cssFont(10);
+  rows.forEach((r,i)=>{
+    const y = 8 + i*rh;
+    ctx.fillStyle = cssVar('--muted');
+    ctx.fillText(r.label, 6, y+rh/2+3);
+    const x0 = 62;
+    ctx.fillStyle = cssVar(r.color);
+    if(r.cat){
+      for(let k=0;k<4;k++){ ctx.globalAlpha = .45+.15*k; ctx.fillRect(x0+k*((w-x0-8)/4)+1, y+4, (w-x0-8)/4-2, rh-8); }
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.fillRect(x0, y+rh/2-2, w-x0-8, 4);
+      for(let k=0;k<=8;k++){
+        const x = x0+k*(w-x0-8)/8;
+        ctx.beginPath(); ctx.arc(x, y+rh/2, 2.4, 0, 7); ctx.fill();
+      }
+    }
+  });
+}
+
+/* ---- mini: dependen vs independen ---- */
+function drawMiniDesign(){
+  const cv = document.getElementById('miniDesign');
+  if(!cv) return;
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const mid = w/2;
+  ctx.font = cssFont(10); ctx.fillStyle = cssVar('--muted');
+  ctx.fillText('dependen', 8, 14); ctx.fillText('independen', mid+8, 14);
+  const pairs = [[.15,.75],[.4,.6],[.3,.9],[.55,.7],[.7,.95]];
+  pairs.forEach(([a,b])=>{
+    const y0 = 24+a*(h-34), y1 = 24+b*(h-34);
+    ctx.strokeStyle = cssVar('--primary'); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(24,y0); ctx.lineTo(mid-24,y1); ctx.stroke();
+    ctx.fillStyle = cssVar('--primary');
+    ctx.beginPath(); ctx.arc(24,y0,3,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(mid-24,y1,3,0,7); ctx.fill();
+  });
+  const cols = [[.2,.5,.8],[.35,.6,.9]];
+  cols.forEach((vals,ci)=>{
+    const x = mid+24+ci*((w-mid-48));
+    ctx.fillStyle = cssVar('--accent');
+    vals.forEach(v=>{
+      const y = 24+v*(h-34);
+      ctx.beginPath(); ctx.arc(x,y,3,0,7); ctx.fill();
+    });
+  });
+}
+
+/* ---- mini: faktorial 2x2 ---- */
+function drawMiniFactor(){
+  const cv = document.getElementById('miniFactor');
+  if(!cv) return;
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad = 30;
+  const X = v => pad + v*(w-pad-12);
+  const Y = v => h-14 - (v-10)/28*(h-40);
+  ctx.strokeStyle = cssVar('--muted-2'); ctx.globalAlpha = .55; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, h-14); ctx.lineTo(w-6, h-14);
+  ctx.moveTo(pad, 8); ctx.lineTo(pad, h-14); ctx.stroke(); ctx.globalAlpha = 1;
+  // A* : 13 -> 31 ; Dijkstra : 20 -> 61 (tidak sejajar = interaksi)
+  ctx.lineWidth = 2.4;
+  ctx.strokeStyle = cssVar('--primary');
+  ctx.beginPath(); ctx.moveTo(X(0), Y(13)); ctx.lineTo(X(1), Y(31)); ctx.stroke();
+  ctx.strokeStyle = cssVar('--accent'); ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(X(0), Y(20)); ctx.lineTo(X(1), Y(61)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = cssFont(10); ctx.fillStyle = cssVar('--muted');
+  ctx.fillText('A*', X(1)+4, Y(31)+3);
+  ctx.fillText('Dijkstra', X(1)+4, Y(61)+3);
+  ctx.fillText('kecil', X(0)-6, h-3); ctx.fillText('besar', X(1)-8, h-3);
+}
+
+/* ---- lab: batang FWER + Bonferroni ---- */
+function drawLab(){
+  const cv = document.getElementById('labCanvas');
+  if(!cv) return;
+  const mSel = parseInt(document.getElementById('mSlider').value, 10);
+  const alpha = 0.05;
+  const fwer = m => 1-Math.pow(1-alpha, m);
+  document.getElementById('mVal').textContent = mSel;
+  const pct = v => (v*100).toFixed(2).replace('.', ',') + '%';
+  document.getElementById('fwerVal').textContent = pct(fwer(mSel));
+  document.getElementById('bonfVal').textContent = (alpha/mSel).toFixed(4).replace('.', ',');
+  document.getElementById('labSummary').textContent =
+    'Dengan ' + mSel + ' pengujian tanpa koreksi, peluang minimal satu galat tipe I adalah ' +
+    pct(fwer(mSel)) + '. Koreksi Bonferroni memakai alpha per uji ' +
+    (alpha/mSel).toFixed(4).replace('.', ',') + ' sehingga galat family-wise terkendali pada 5 persen.';
+  const {ctx,w,h} = setupCanvas(cv);
+  const mMax = 10, pad = 34;
+  const bw = (w-pad-12)/mMax;
+  const Y = v => h-16 - v/0.45*(h-40);
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle = cssVar('--muted-2'); ctx.globalAlpha = .55; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, h-16); ctx.lineTo(w-6, h-16);
+  ctx.moveTo(pad, 8); ctx.lineTo(pad, h-16); ctx.stroke(); ctx.globalAlpha = 1;
+  ctx.strokeStyle = cssVar('--warning'); ctx.setLineDash([6,4]); ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(pad, Y(alpha)); ctx.lineTo(w-6, Y(alpha)); ctx.stroke(); ctx.setLineDash([]);
+  for(let m=1; m<=mMax; m++){
+    const x = pad+(m-1)*bw+2, y = Y(fwer(m));
+    ctx.fillStyle = m===mSel ? cssVar('--primary') : cssVar('--muted-2');
+    ctx.globalAlpha = m===mSel ? 1 : .45;
+    ctx.fillRect(x, y, bw-4, h-16-y);
+    ctx.globalAlpha = 1;
+  }
+  ctx.font = cssFont(10); ctx.fillStyle = cssVar('--muted');
+  ctx.fillText('m=' + mSel + ' → ' + pct(fwer(mSel)), pad+4, 20);
+}
+document.getElementById('mSlider').addEventListener('input', drawLab);
+
+/* ============ kuis ============ */
+const QUIZ = [
+  { q: 'Daya tahan 15 baterai drone dibandingkan terhadap klaim pabrik 120 menit. Teknik yang tepat …',
+    opts: ['Uji satu populasi (satu sampel vs nilai acuan).',
+           'Uji dua sampel independen.',
+           'ANOVA dua arah.',
+           'Analisis faktor.'],
+    answer: 0,
+    fb: 'Satu kelompok vs nilai acuan = uji satu populasi (W04). Belum ada kelompok pembanding, jadi teknik dua-kelompok tidak berlaku.' },
+  { q: 'Konsumsi memori diukur pada 10 perangkat yang sama sebelum dan sesudah update firmware. Teknik yang tepat …',
+    opts: ['Uji dua sampel independen — perangkatnya 10 lawan 10.',
+           'Uji berpasangan: analisis selisih tiap perangkat.',
+           'ANOVA satu arah dengan 10 kelompok.',
+           'Regresi linear berganda.'],
+    answer: 1,
+    fb: 'Unit yang sama diukur dua kali = dependen (W05). Analisis selisih mengendalikan variasi antar-perangkat.' },
+  { q: 'Enam algoritma dibandingkan berpasangan satu per satu (15 uji-t, α = 5% tiap uji). Masalah utama …',
+    opts: ['Tidak ada — semakin banyak uji semakin teliti.',
+           'Galat family-wise membengkak hingga ≈ 54%.',
+           'Derajat bebas menjadi negatif.',
+           'Ukuran efek tidak dapat dihitung.'],
+    answer: 1,
+    fb: '$1-(1-0{,}05)^{15} \\approx 0{,}54$. Solusinya satu kerangka ANOVA + uji lanjut (W07), bukan 15 uji lepas.' },
+  { q: 'Waktu komputasi dipengaruhi algoritma (3 level) DAN ukuran peta (2 level), dan penelitinya curiga keunggulan algoritma berubah antar ukuran peta. Teknik yang tepat …',
+    opts: ['Tiga uji satu populasi terpisah.',
+           'Uji berpasangan algoritma vs peta.',
+           'ANOVA dua arah + plot interaksi.',
+           'Analisis faktor eksploratori.'],
+    answer: 2,
+    fb: 'Dua faktor + dugaan interaksi = ANOVA dua arah (W08). Hanya desain faktorial yang dapat menguji apakah efek algoritma bergantung pada ukuran peta.' }
+];
+(function(){
+  const root = document.getElementById('quizRoot');
+  if(!root) return;
+  QUIZ.forEach((item, qi)=>{
+    const box = document.createElement('div');
+    box.className = 'quiz-item';
+    const q = document.createElement('div');
+    q.className = 'quiz-q';
+    q.textContent = (qi+1) + '. ' + item.q;
+    const opts = document.createElement('div');
+    opts.className = 'quiz-opts';
+    const fb = document.createElement('div');
+    fb.className = 'quiz-fb';
+    fb.textContent = item.fb;
+    item.opts.forEach((text, oi)=>{
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'opt'; b.textContent = text;
+      b.addEventListener('click', ()=>{
+        const btns = Array.from(opts.children);
+        btns.forEach(x=>{ x.disabled = true; x.classList.remove('correct','wrong'); });
+        if(oi === item.answer){ b.classList.add('correct'); }
+        else { b.classList.add('wrong'); btns[item.answer].classList.add('correct'); }
+        fb.classList.add('show');
+      });
+      opts.appendChild(b);
+    });
+    box.appendChild(q); box.appendChild(opts); box.appendChild(fb);
+    root.appendChild(box);
+  });
+  if(window.renderMathInElement){
+    try{ renderMathInElement(root,{delimiters:[{left:'$',right:'$',display:false}],ignoredTags:['script','noscript','style','textarea','pre','code']}); }catch(e){}
+  }
+})();
+
+/* ============ gambar ulang ============ */
+function drawAll(){ drawHook(); drawMiniScale(); drawMiniDesign(); drawMiniFactor(); drawLab(); }
+let resizeT = null;
+window.addEventListener('resize', ()=>{ clearTimeout(resizeT); resizeT = setTimeout(drawAll, 150); });
+window.addEventListener('load', drawAll);
+drawAll();
+</script>
+</body>
+</html>

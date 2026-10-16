@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<!-- Versi: v03 | Diperbarui: 16-09-2026 21:50 WIB -->
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minggu 1 — Sinyal-Sinyal Dasar | Isyarat dan Sistem</title>
+<script>
+  /* Deteksi apakah halaman ini dijalankan di dalam iframe (mis. embed di BeSmart/Moodle).
+     Dijalankan sesinkron & sedini mungkin (sebelum CSS di-parse penuh) supaya tidak ada
+     "kedipan" tampilan mode-presentasi sebelum berpindah ke mode dokumen biasa. */
+  (function(){
+    var inIframe;
+    try { inIframe = window.self !== window.top; } catch(e) { inIframe = true; }
+    if(inIframe){ document.documentElement.classList.add('embedded'); }
+  })();
+</script>
+<script>
+  /* Terapkan preferensi tema gelap/terang tersimpan (kalau pengguna pernah
+     memilih lewat tombol #themeToggle) sedini mungkin, sebelum CSS dirender —
+     supaya tidak ada "kedipan" dari tema default ke tema pilihan pengguna
+     saat halaman dimuat. Kalau belum pernah memilih (localStorage kosong atau
+     tidak tersedia), halaman mengikuti preferensi sistem (prefers-color-scheme)
+     lewat CSS saja, tanpa atribut data-theme di sini. */
+  (function(){
+    try {
+      var saved = localStorage.getItem('w01-theme');
+      if(saved === 'dark' || saved === 'light'){
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+    } catch(e) { /* localStorage tak tersedia (mis. mode privat ketat) — abaikan, pakai default sistem */ }
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+<style>
+  :root{
+    color-scheme:light;
+    --bg:#f7f5ef;
+    --bg-raise:#ffffff;
+    --panel:#ffffff;
+    --panel-2:#efe9d8;
+    --line:#d9d2bb;
+    --line-soft:#ece6d5;
+    --phosphor:#0f6b52;
+    /* --phosphor-solid: khusus tombol/chip berlatar hijau dengan teks putih di atasnya
+       (mis. .cta-btn, .section-nav-fab, .navbar button:hover) — sengaja dipisah dari
+       --phosphor karena di mode gelap --phosphor perlu dicerahkan supaya terbaca sebagai
+       teks/ikon di atas latar gelap, sedangkan latar tombol berteks putih justru perlu
+       tetap gelap supaya teks putihnya tetap kontras. Nilai sama dengan --phosphor di
+       mode terang (tidak ada perubahan tampilan), beda di mode gelap — lihat blok tema
+       gelap di bawah. */
+    --phosphor-solid:#0f6b52;
+    --phosphor-dim:#357a60;
+    --amber:#b45309;
+    --amber-solid:#b45309;
+    --cyan:#0f6fa3;
+    --red:#d52222;
+    --paper:#1c211d;
+    --paper-dim:#4b544e;
+    --text:#262b26;
+    --text-dim:#66716a;
+    --sans:'Atkinson Hyperlegible Next', Arial, sans-serif;
+    --mono:'JetBrains Mono', 'Courier New', monospace;
+
+  --cover-title-size: clamp(2.5rem, 4.5vw, 3.25rem);
+  --section-title-size: clamp(2rem, 3.5vw, 2.625rem);
+  --subheading-size: clamp(1.375rem, 2.4vw, 1.75rem);
+  --hook-question-size: clamp(1.5rem, 3vw, 2rem);
+  --card-title-size: clamp(1.125rem, 1.6vw, 1.375rem);
+  --body-size: clamp(1.125rem, 1.4vw, 1.25rem);
+  --lede-size: clamp(1.1875rem, 1.5vw, 1.3125rem);
+  --card-body-size: clamp(1rem, 1.25vw, 1.125rem);
+  --table-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
+  --ui-size: 0.9375rem;
+  --small-size: 0.875rem;
+  --meta-size: 0.75rem;
+  --body-weight: 300;
+  --heading-weight: 500;
+  --hook-weight: 400;
+  --ui-weight: 400;
+  --mono-weight: 300;
+  --strong-weight: 500;
+
+    /* ================================================================
+       UKURAN GRAFIK (KANVAS) — semua lebar/tinggi kanvas di halaman ini
+       diatur lewat variabel di bawah, dikelompokkan per jenis grafik.
+       Ubah nilainya di sini untuk mengubah ukuran SEMUA kanvas sejenis
+       sekaligus; tidak perlu mencari tiap aturan CSS satu per satu.
+       ================================================================ */
+    /* --gcanvas-*: kanvas kartu Galeri Sinyal Dasar (section 03A–03C) —
+       10 kanvas, 5 sinyal dasar × pasangan x(t)/x[n] (undak, impuls,
+       sinusoidal, eksponensial, ramp). */
+    --gcanvas-w:100%;
+    --gcanvas-h:120px;
+    /* --gcanvas-pair-h: tinggi KHUSUS untuk kanvas galeri di atas ketika
+       tampil BERPASANGAN x(t)/x[n] dalam satu kartu (.gcard-plots) — kedua
+       kanvas ditumpuk VERTIKAL (1 kolom, lebar penuh kartu), sehingga
+       tingginya dibuat lebih pendek dari --gcanvas-h agar sepasang kanvas
+       tetap muat tanpa membuat kartu terlalu tinggi. Berlaku untuk
+       kesepuluh kanvas galeri yang sama seperti --gcanvas-h, bukan
+       kelompok kanvas yang berbeda. */
+    --gcanvas-pair-h:88px;
+    /* --gcanvas-pair-h-projector: tinggi pasangan kanvas galeri yang sama
+       khusus layar presentasi pendek (lebar >900px, tinggi ≤850px). Nilai
+       lebih ringkas menjaga 03A–03C tepat satu viewport 1366×768. */
+    --gcanvas-pair-h-projector:72px;
+    /* --clipcanvas-*: kanvas ilustrasi pemotongan puncak (clipping) pada
+       bagian hook pembuka (section 01) — 1 kanvas, id="clipCanvas". */
+    --clipcanvas-w:100%;
+    --clipcanvas-h:140px;
+    /* --miniplot-*: kanvas kecil kelas .mini-plot — dipakai di DUA tempat
+       berbeda yang kebetulan berbagi gaya sama: (a) tiga kanvas pengantar
+       CT/waktu-diskrit/digital pada section 02 (data-kind="ct-smooth",
+       "dt-stem", "digital"), dan (b) tiga kanvas kasus Eksponensial
+       Kompleks pada section 05B/05C (id="ceCanvasA/B/C"). Total 6 kanvas
+       berbagi ukuran yang sama. */
+    --miniplot-w:100%;
+    --miniplot-h:105px;
+    /* --simcanvas-*: kanvas Simulator Interaktif (section 04) — 2 kanvas,
+       id="ctPlot" (waktu-kontinu) dan id="dtPlot" (waktu-diskrit). */
+    --simcanvas-w:100%;
+    --simcanvas-h:230px;
+    /* --simcanvas-h-compact: tinggi kanvas simulator di atas KHUSUS pada
+       layar ≤900px (lihat @media(max-width:900px) di bawah) — kanvas
+       yang sama seperti --simcanvas-h, hanya diperpendek di layar sempit. */
+    --simcanvas-h-compact:175px;
+    /* --solusicanvas-*: kanvas pada bagian Penyelesaian Contoh 1 dan
+       Contoh 2 (section 03) — 6 kanvas: Contoh 1 (3u(t), −2u(t−2), dan
+       gabungan) serta Contoh 2 (δ[n], δ[n−3], dan gabungan). */
+    --solusicanvas-w:100%;
+    --solusicanvas-h:110px;
+  }
+
+  /* ---------- mode gelap (dark mode) ----------
+     Default mengikuti preferensi sistem (prefers-color-scheme); tombol mengambang
+     (#themeToggle) bisa menimpanya secara eksplisit lewat atribut data-theme
+     pada <html> dan pilihan disimpan di localStorage (lihat script inisialisasi
+     tema di <head>, dijalankan sebelum CSS lain untuk mencegah "kedipan" tema
+     salah sesaat sebelum berganti).
+     Latar kanvas grafik (--bg canvas #fbf9f2, dipakai langsung di banyak
+     selector .gcanvas/.mini-plot/.plot-box/dst, TIDAK diubah di sini) SENGAJA
+     dibiarkan tetap krem terang di kedua mode — seperti "kertas grafik" yang
+     disisipkan di atas panel gelap. Warna garis sinyal (hijau/biru/oranye)
+     sudah dikalibrasi untuk latar terang itu; kalau latar kanvas ikut digelapkan,
+     kontras warna garis perlu dihitung ulang dan digambar ulang lewat JavaScript
+     (fungsi drawAxes dkk.). */
+  @media(prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --bg:#14181a;
+      --bg-raise:#1b211d;
+      --panel:#1c221e;
+      --panel-2:#242c27;
+      --line:#3a453e;
+      --line-soft:#2a332c;
+      --phosphor:#3ecf98;
+      --phosphor-solid:#0d795b;
+      --phosphor-dim:#519c7d;
+      --amber:#f59e0b;
+      --amber-solid:#b45309;
+      --cyan:#4fb8e8;
+      --red:#f87171;
+      --paper:#f2efe4;
+      --paper-dim:#b7bdb3;
+      --text:#d7dbd2;
+      --text-dim:#8b948c;
+    }
+    :root:not([data-theme="light"]) body::after{
+      background:repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px);
+    }
+    /* .topbar/.navbar memudar ke transparan di atas latar halaman lewat gradasi
+       rgba yang nilainya ditulis manual senada --bg (bukan var(), karena
+       fungsi CSS color-mix() belum tentu didukung semua peramban target) —
+       jadi perlu disalin ulang di sini dengan rgb gelap supaya tidak muncul
+       jalur krem terang melintang di halaman gelap. */
+    :root:not([data-theme="light"]) .topbar{
+      background:linear-gradient(180deg, rgba(20,24,26,0.96), rgba(20,24,26,0.75) 70%, transparent);
+    }
+    :root:not([data-theme="light"]) .navbar{
+      background:linear-gradient(0deg, rgba(20,24,26,0.97), rgba(20,24,26,0.7) 75%, transparent);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#14181a;
+    --bg-raise:#1b211d;
+    --panel:#1c221e;
+    --panel-2:#242c27;
+    --line:#3a453e;
+    --line-soft:#2a332c;
+    --phosphor:#3ecf98;
+    --phosphor-solid:#0d795b;
+    --phosphor-dim:#519c7d;
+    --amber:#f59e0b;
+    --amber-solid:#b45309;
+    --cyan:#4fb8e8;
+    --red:#f87171;
+    --paper:#f2efe4;
+    --paper-dim:#b7bdb3;
+    --text:#d7dbd2;
+    --text-dim:#8b948c;
+  }
+  :root[data-theme="light"]{color-scheme:light;}
+  :root[data-theme="dark"] body::after{
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px);
+  }
+  :root[data-theme="dark"] .topbar{
+    background:linear-gradient(180deg, rgba(20,24,26,0.96), rgba(20,24,26,0.75) 70%, transparent);
+  }
+  :root[data-theme="dark"] .navbar{
+    background:linear-gradient(0deg, rgba(20,24,26,0.97), rgba(20,24,26,0.7) 75%, transparent);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:var(--body-size);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  /* ambient texture */
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 42px 42px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+  }
+  body::after{
+    content:'';
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 3px);
+    opacity:0.5;
+    pointer-events:none;
+    z-index:1;
+    mix-blend-mode:multiply;
+  }
+
+  section{
+    position:relative;
+    z-index:2;
+    min-height:100vh;
+    padding:6.5rem 8vw 5rem;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    scroll-snap-align:start;
+    border-bottom:1px solid var(--line-soft);
+  }
+
+  h1,h2,h3{font-family:var(--sans); font-weight:500; margin:0; color:var(--paper);}
+  h2{font-size:var(--section-title-size); letter-spacing:-0.01em;}
+  h3{font-size:var(--subheading-size); color:var(--phosphor); font-weight:500;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:var(--small-size);
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:0.9rem;
+    display:flex;
+    align-items:center;
+    gap:0.6em;
+  }
+  .eyebrow::before{content:'▍'; color:var(--phosphor);}
+
+  p{color:var(--text); max-width:62ch;}
+  .lede{color:var(--paper-dim); font-size:var(--lede-size); max-width:66ch;}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.9rem 8vw 0.9rem max(8vw, 8rem);
+    background:linear-gradient(180deg, rgba(247,245,239,0.96), rgba(247,245,239,0.75) 70%, transparent);
+    backdrop-filter:blur(6px);
+    font-size:var(--small-size);
+    letter-spacing:0.05em;
+  }
+  .topbar .crumb{color:var(--text-dim);}
+  .topbar .crumb b{color:var(--phosphor); font-weight:500;}
+  .topbar .sk-badge{
+    border:1px solid var(--phosphor-dim);
+    color:var(--phosphor);
+    padding:0.3em 0.8em;
+    border-radius:100px;
+    font-size:var(--meta-size);
+    letter-spacing:0.08em;
+  }
+
+  /* ---------- tombol ganti tema (terang/gelap) ----------
+     Sengaja diletakkan di luar .topbar (elemen tersendiri, mengambang tetap),
+     bukan di dalamnya — pola yang sama dengan .section-nav-fab (lihat komentar
+     di situ): .topbar disembunyikan lewat "html.embedded .topbar{display:none}"
+     pada mode embed/iframe LMS, jadi tombol yang perlu tetap dapat diakses di
+     kedua mode (presentasi maupun embed) harus jadi elemen tersendiri di luar
+     .topbar/.navbar, bukan anak dari salah satunya. */
+  .theme-toggle{
+    position:fixed; top:0.8rem; left:1.5rem; z-index:120;
+    display:flex; align-items:center; gap:0.4em;
+    background:var(--panel-2); border:1px solid var(--line);
+    color:var(--phosphor); font-family:var(--mono); font-size:var(--small-size);
+    letter-spacing:0.03em; padding:0.42em 0.8em; border-radius:100px;
+    cursor:pointer; transition:all .15s ease;
+  }
+  .theme-toggle:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  .theme-toggle:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+
+  /* ---------- navigasi tingkat mata kuliah (beda dari navigasi antar-bagian) ---------- */
+  .course-nav{
+    display:flex; align-items:center; gap:1rem;
+    font-size:var(--ui-size); letter-spacing:0.03em;
+  }
+  .course-nav a, .course-nav .is-disabled{
+    color:var(--phosphor); text-decoration:none;
+  }
+  .course-nav a:hover{text-decoration:underline;}
+  .course-nav .is-disabled{color:var(--text-dim); cursor:not-allowed;}
+  @media(max-width:900px){
+    .topbar{justify-content:flex-end; padding-left:8vw;}
+    .topbar .crumb{display:none;}
+    .course-nav{display:flex; margin-right:auto; font-size:var(--ui-size);}
+    .course-nav .is-disabled{display:none;}
+  }
+
+  /* ---------- teks hanya untuk pembaca layar (tetap terbaca, tersembunyi visual) ---------- */
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  /* ---------- progress / nav ---------- */
+  .navbar{
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; gap:1rem;
+    padding:0.85rem 8vw;
+    background:linear-gradient(0deg, rgba(247,245,239,0.97), rgba(247,245,239,0.7) 75%, transparent);
+    backdrop-filter:blur(6px);
+  }
+  .navbar button{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--phosphor);
+    font-family:var(--mono);
+    font-size:var(--ui-size);
+    padding:0.5em 0.9em;
+    border-radius:6px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .navbar button:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  .navbar button:disabled{opacity:0.3; cursor:default;}
+  .navbar button:disabled:hover{background:var(--panel-2); color:var(--phosphor);}
+  .dots{display:flex; gap:0.4rem; flex:1; justify-content:center; flex-wrap:wrap;}
+  /* Selector diawali ".navbar" supaya spesifisitasnya mengalahkan ".navbar button"
+     di atas — tanpa ini, padding/border-radius tombol Sebelumnya/Berikutnya
+     "bocor" ke tombol dot dan mengubahnya dari lingkaran kecil jadi pil besar
+     (ditemukan lewat tangkapan layar tampilan smartphone, lihat week1_review_sol_v2.md). */
+  .navbar .dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--line);
+    border:1px solid var(--line);
+    cursor:pointer;
+    transition:all .2s ease;
+    padding:0; appearance:none; -webkit-appearance:none;
+  }
+  .dot.active{background:var(--phosphor); border-color:var(--phosphor); box-shadow:0 0 8px var(--phosphor);}
+  .dot:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  /* Di layar lebar (desktop/proyektor, dot memang tampil — lihat @media max-width:640px
+     yang menyembunyikannya di HP), dot dibuat lebih lebar berbentuk pil, dot aktif
+     melebar lagi supaya posisi saat ini lebih menonjol dari kejauhan (mis. dari
+     belakang ruang kelas via proyektor). */
+  @media(min-width:641px){
+    .navbar .dot{width:20px; height:8px; border-radius:4px;}
+    .navbar .dot.active{width:32px;}
+  }
+  .count{color:var(--text-dim); font-size:var(--small-size); min-width:3.5em; text-align:right;}
+
+  /* ---------- navigasi popup bagian (beda dari "Daftar Isi" lintas-minggu di topbar;
+     ini lompat cepat ANTAR-BAGIAN dalam satu halaman ini. Sengaja tetap aktif baik
+     pada mode presentasi maupun mode embed/iframe — lihat komentar di blok
+     "mode embed" di bawah, karena mode embed justru mematikan dot/Sebelumnya/Berikutnya,
+     jadi popup ini satu-satunya cara lompat cepat saat itu terjadi). ---------- */
+  .section-nav-fab{
+    position:fixed; right:1.5rem; bottom:5.4rem; z-index:120;
+    width:3rem; height:3rem; border-radius:50%;
+    background:var(--phosphor-solid); color:#f7f5ef; border:none;
+    font-size:1.3rem; line-height:1; cursor:pointer;
+    box-shadow:0 10px 24px -8px rgba(15,107,82,0.55);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .section-nav-fab:hover{transform:translateY(-2px); box-shadow:0 14px 30px -8px rgba(15,107,82,0.6);}
+  .section-nav-fab:focus-visible{outline:2px solid var(--paper); outline-offset:3px;}
+  html.embedded .section-nav-fab{bottom:1.5rem;}
+
+  .section-nav-overlay{
+    position:fixed; inset:0; z-index:130;
+    background:rgba(28,33,29,0.45);
+    display:flex; align-items:center; justify-content:center;
+    padding:1.5rem;
+  }
+  .section-nav-overlay[hidden]{display:none;}
+  .section-nav-dialog{
+    width:100%; max-width:26rem; max-height:80vh;
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.4);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .section-nav-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.1rem 1.3rem; border-bottom:1px solid var(--line-soft);
+  }
+  .section-nav-head h3{font-size:var(--card-title-size);}
+  .section-nav-close{
+    background:none; border:1px solid var(--line); border-radius:8px;
+    width:2rem; height:2rem; color:var(--text-dim); cursor:pointer; font-size:0.9rem;
+  }
+  .section-nav-close:hover{border-color:var(--red); color:var(--red);}
+  .section-nav-list{overflow-y:auto; padding:0.6rem;}
+  .section-nav-item{
+    display:block; width:100%; text-align:left;
+    background:none; border:1px solid transparent; border-radius:8px;
+    padding:0.6em 0.8em; margin-bottom:0.15rem;
+    font-family:var(--mono); font-size:var(--ui-size); color:var(--text-dim); cursor:pointer;
+  }
+  .section-nav-item:hover{border-color:var(--phosphor-dim); color:var(--text);}
+  .section-nav-item:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  .section-nav-item.active{border-color:var(--phosphor); background:rgba(15,107,82,0.08); color:var(--phosphor);}
+  @media(max-width:640px){
+    .section-nav-overlay{padding:0;}
+    .section-nav-dialog{max-width:100%; max-height:100%; height:100%; border-radius:0;}
+  }
+
+  /* ---------- mode embed (di dalam iframe, mis. BeSmart/Moodle) ---------- */
+  /* Mode presentasi (topbar+navbar tetap, tiap section = 1 layar penuh) dirancang untuk
+     tab browser penuh di proyektor kelas. Di dalam iframe LMS, tinggi yang tersedia
+     ditentukan Moodle, bukan browser — jadi begitu terdeteksi berjalan di iframe, halaman
+     berpindah ke "mode dokumen": scroll natural satu kolom, tanpa bar mengambang, tanpa
+     memaksa tiap bagian setinggi layar. Lihat script deteksi di <head>. */
+  html.embedded .topbar,
+  html.embedded .navbar{ display:none; }
+  html.embedded section{
+    min-height:0;
+    padding:2.6rem 6vw;
+    scroll-snap-align:none;
+  }
+  html.embedded #s0{ padding-top:3rem; }
+  html.embedded .cover-num{ font-size:clamp(3.5rem,10vw,6rem); opacity:0.6; }
+  html.embedded body{ font-size:var(--body-size); }
+  .embed-popout{
+    display:none;
+    position:sticky; top:0.7rem; z-index:60;
+    margin:0 0 -1.6rem auto;
+    width:max-content;
+    align-items:center; gap:0.5em;
+    background:var(--panel-2); border:1px solid var(--phosphor-dim);
+    color:var(--phosphor); font-family:var(--mono); font-size:0.72rem;
+    letter-spacing:0.04em; text-decoration:none;
+    padding:0.5em 0.9em; border-radius:100px;
+  }
+  .embed-popout:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  html.embedded .embed-popout{ display:inline-flex; }
+
+  /* ---------- section 0 : cover ---------- */
+  #s0{align-items:flex-start;}
+  .cover-num{
+    font-family:var(--sans);
+    font-size:clamp(5rem,16vw,11rem);
+    font-weight:300;
+    color:var(--panel-2);
+    -webkit-text-stroke:1.5px var(--phosphor-dim);
+    line-height:0.8;
+    position:absolute;
+    right:6vw; top:18%;
+    z-index:0;
+    user-select:none;
+  }
+  .cover-title{font-size:var(--cover-title-size); max-width:14ch; margin-top:0.4rem;}
+  .cover-sub{color:var(--text-dim); margin-top:1.2rem; font-size:var(--body-size); max-width:50ch;}
+  .waveform-divider{width:100%; height:52px; margin:2rem 0 0.5rem;}
+
+  .cpmk-strip{
+    display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:2.4rem;
+  }
+  .chip{
+    border:1px solid var(--line);
+    background:var(--panel);
+    padding:0.45em 0.9em;
+    border-radius:100px;
+    font-size:var(--small-size);
+    color:var(--text-dim);
+    letter-spacing:0.03em;
+  }
+  .chip b{color:var(--amber); font-weight:500;}
+
+  /* ---------- hook ---------- */
+  .hook-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:3.5rem; align-items:center;}
+  @media(max-width:860px){.hook-grid{grid-template-columns:1fr;}}
+  .hook-q{
+    font-family:var(--sans); font-style:normal; font-weight:var(--hook-weight);
+    font-size:var(--hook-question-size);
+    color:var(--paper);
+    line-height:1.3;
+    border-left:3px solid var(--amber);
+    padding-left:1.1rem;
+    margin:1.2rem 0 1.6rem;
+  }
+  .voice-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:1.6rem;
+  }
+  .voice-card .label{font-size:var(--small-size); color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.8rem;}
+  canvas#clipCanvas{width:var(--clipcanvas-w); height:var(--clipcanvas-h); display:block; border-radius:8px; background:#fbf9f2;}
+  .clip-note{font-size:var(--small-size); color:var(--text-dim); margin-top:0.8rem;}
+  .clip-note b{color:var(--red);}
+
+  /* ---------- concept blocks ---------- */
+  .concept-cols{display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem; margin-top:2rem;}
+  .concept-cols.two{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .concept-cols.single{grid-template-columns:1fr; max-width:48rem;}
+  @media(max-width:860px){.concept-cols{grid-template-columns:1fr;}}
+  .concept-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:1.5rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .concept-card::before{
+    content:attr(data-tag);
+    position:absolute; top:0.9rem; right:1rem;
+    font-size:var(--meta-size); letter-spacing:0.12em; color:var(--phosphor-dim);
+  }
+  .concept-card h4{font-family:var(--sans); color:var(--cyan); margin:0 0 0.6rem; font-size:var(--card-title-size); font-weight:500;}
+  .concept-card p{font-size:var(--card-body-size); color:var(--text-dim); margin:0;}
+  .mini-plot{width:var(--miniplot-w); height:var(--miniplot-h); margin-bottom:0.9rem; display:block; background:#fbf9f2; border-radius:6px;}
+
+  /* ---------- simulator ---------- */
+  .sim-wrap{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:2rem;
+    margin-top:1.6rem;
+  }
+  .sim-controls{
+    display:flex; flex-wrap:wrap; gap:1.6rem 2.2rem;
+    margin-bottom:1.4rem;
+    align-items:flex-end;
+  }
+  .ctrl{display:flex; flex-direction:column; gap:0.4rem; min-width:180px;}
+  .ctrl label{font-size:var(--small-size); letter-spacing:0.07em; text-transform:uppercase; color:var(--text-dim); display:flex; justify-content:space-between;}
+  .ctrl label span{color:var(--phosphor); font-weight:500;}
+  select, input[type=range]{
+    accent-color: var(--phosphor);
+  }
+  select{
+    background:var(--bg-raise); color:var(--text); border:1px solid var(--line);
+    border-radius:6px; padding:0.5em 0.7em; font-family:var(--mono); font-size:0.85rem;
+  }
+  .plot-cols{display:grid; grid-template-columns:1fr 1fr; gap:1.4rem;}
+  @media(max-width:760px){.plot-cols{grid-template-columns:1fr;}}
+  .plot-box{background:#fbf9f2; border:1px solid var(--line-soft); border-radius:10px; padding:0.9rem;}
+  .plot-box .ptitle{font-size:var(--small-size); letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:0.5rem; display:flex; justify-content:space-between;}
+  .plot-box .ptitle b{color:var(--amber); font-weight:500; text-transform:none;}
+  canvas.simcanvas{width:var(--simcanvas-w); height:var(--simcanvas-h); display:block;}
+  .sim-formula{margin-top:1.2rem; font-size:var(--card-body-size); color:var(--paper-dim); text-align:center;}
+
+  /* ---------- gallery (5 sinyal dasar) ---------- */
+  .gallery{display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; margin-top:1.8rem;}
+  .gallery.gallery-two{grid-template-columns:repeat(2,minmax(0,1fr));}
+  /* .gallery-one: section 03C (kartu Ramp) — hanya 1 kartu, dibuat satu kolom
+     dengan lebar dibatasi dan dipusatkan supaya tidak melebar penuh secara janggal. */
+  .gallery.gallery-one{grid-template-columns:minmax(0,480px); justify-content:center;}
+  @media(max-width:940px){.gallery{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.gallery,.gallery.gallery-two,.gallery.gallery-one{grid-template-columns:1fr;}}
+  .gcard{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:1.2rem;}
+  .gcard h4{font-size:var(--card-title-size); color:var(--paper); margin:0.7rem 0 0.3rem; font-family:var(--sans); font-weight:500;}
+  .gcard .formula{font-size:var(--card-body-size); color:var(--phosphor); margin-bottom:0.6rem; line-height:1.9; overflow-x:auto;}
+  #f-cexp{font-size:var(--card-body-size); color:var(--phosphor); margin:0.9rem 0;}
+  .gcard p{font-size:var(--card-body-size); color:var(--text-dim); margin:0;}
+  canvas.gcanvas{width:var(--gcanvas-w); height:var(--gcanvas-h); display:block; background:#fbf9f2; border-radius:6px;}
+  /* Setiap kartu galeri menampilkan x(t) DAN x[n], bukan cuma x(t) — supaya kelima
+     sinyal dasar eksplisit dikenalkan di kedua domain sejak awal. Ditumpuk vertikal
+     (1 kolom), bukan berdampingan, supaya tiap plot memakai lebar penuh kartu —
+     lebih terbaca daripada berbagi lebar dengan plot pasangannya. */
+  .gcard-plots{display:grid; grid-template-columns:1fr; gap:0.6rem; margin-bottom:0.8rem;}
+  .gcard-plots canvas.gcanvas{height:var(--gcanvas-pair-h);}
+  .gcard-plot-cap{font-size:var(--card-body-size); color:var(--text-dim); text-align:center; margin-top:0.35rem;}
+
+  /* ---------- contoh soal ---------- */
+  .soal-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:1.8rem 2rem; margin-top:1.6rem;
+  }
+  .soal-num{
+    display:inline-block; font-family:var(--sans); font-weight:500; color:var(--bg);
+    background:var(--phosphor-solid); border-radius:6px; padding:0.15em 0.6em; font-size:0.85rem; margin-bottom:0.9rem;
+  }
+  .soal-body{color:var(--text);}
+  details.solusi{margin-top:1rem; border-top:1px dashed var(--line); padding-top:0.9rem;}
+  details.solusi summary{cursor:pointer; color:var(--amber); font-size:var(--ui-size); letter-spacing:0.03em;}
+  details.solusi summary:hover{color:var(--phosphor);}
+  .solusi .body{margin-top:0.8rem; font-size:var(--card-body-size); color:var(--paper-dim);}
+  /* canvas.soalcanvas: kelas lama, tidak lagi dipakai elemen manapun sejak grafik
+     Contoh 1/Contoh 2 dipindah ke penyelesaian dan dipecah jadi canvas.solusicanvas
+     (lihat week1_review_sol_v2.md Bagian 22/24). Aturan dihapus supaya tidak ada
+     variabel ukuran "hantu" yang terlihat aktif padahal tidak menyasar kanvas apa pun. */
+
+  .solusi-plot-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin:0.9rem 0;}
+  @media(max-width:760px){.solusi-plot-grid{grid-template-columns:1fr;}}
+  .solusi-plot{background:var(--bg-raise); border:1px solid var(--line); border-radius:10px; padding:0.8rem;}
+  canvas.solusicanvas{width:var(--solusicanvas-w); height:var(--solusicanvas-h); display:block; background:#fbf9f2; border-radius:6px;}
+  .solusi-plot-cap{font-size:var(--small-size); color:var(--text-dim); text-align:center; margin-top:0.5rem;}
+
+  /* ---------- quiz ---------- */
+  #quizRoot{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin-top:1.2rem;}
+  .quiz-item{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:1.25rem 1.35rem; margin:0;
+  }
+  .quiz-q{font-size:var(--body-size); color:var(--paper); margin-bottom:0.9rem; font-weight:500;}
+  .quiz-opts{display:flex; flex-direction:column; gap:0.55rem;}
+  .opt{
+    display:flex; align-items:center; gap:0.7em; width:100%;
+    padding:0.6em 0.9em; border:1px solid var(--line); border-radius:8px;
+    cursor:pointer; font-size:var(--card-body-size); color:var(--text-dim);
+    transition:all .15s ease;
+    background:none; font-family:inherit; text-align:left;
+  }
+  .opt:hover{border-color:var(--phosphor-dim); color:var(--text);}
+  .opt:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  .opt.correct{border-color:var(--phosphor); background:rgba(15,107,82,0.08); color:var(--phosphor);}
+  .opt.wrong{border-color:var(--red); background:rgba(220,38,38,0.08); color:var(--red);}
+  .opt .k{font-family:var(--mono); font-weight:600; color:var(--cyan); min-width:1.4em;}
+  .quiz-fb{margin-top:0.7rem; font-size:var(--card-body-size); color:var(--text-dim); min-height:1.2em;}
+  @media(max-width:900px){#quizRoot{grid-template-columns:1fr;}}
+
+  /* ---------- CTA / labsheet ---------- */
+  .cta-wrap{
+    background:linear-gradient(135deg, var(--panel-2), var(--panel));
+    border:1px solid var(--phosphor-dim);
+    border-radius:18px;
+    padding:2.6rem 2.8rem;
+    margin-top:1.6rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-wrap::after{
+    content:'⏵'; position:absolute; right:-1.2rem; bottom:-2rem;
+    font-size:11rem; color:var(--phosphor-dim); opacity:0.12;
+  }
+  .cta-wrap h3{color:var(--paper); font-size:var(--subheading-size);}
+  .cta-wrap p{color:var(--text-dim); max-width:56ch; margin:0.7rem 0 1.6rem;}
+  .cta-btn{
+    display:inline-flex; align-items:center; gap:0.6em;
+    background:var(--phosphor-solid); color:#f7f5ef; font-family:var(--mono); font-weight:600;
+    font-size:var(--ui-size); padding:0.85em 1.5em; border-radius:8px; text-decoration:none;
+    letter-spacing:0.02em;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .cta-btn:hover{transform:translateY(-2px); box-shadow:0 8px 26px rgba(15,107,82,0.25);}
+  .cta-meta{display:flex; gap:1.6rem; margin-top:1.6rem; flex-wrap:wrap;}
+  .cta-meta .m{font-size:var(--small-size); color:var(--text-dim);}
+  .cta-meta .m b{display:block; color:var(--paper); font-size:var(--small-size); font-family:var(--sans);}
+
+  .recap{margin-top:2.4rem; display:grid; grid-template-columns:repeat(4,1fr); gap:0.9rem;}
+  @media(max-width:760px){.recap{grid-template-columns:repeat(2,1fr);}}
+  .recap .r{border:1px solid var(--line); border-radius:10px; padding:0.9rem; font-size:var(--small-size); color:var(--text-dim);}
+  .recap .r b{display:block; color:var(--phosphor); font-family:var(--sans); font-size:var(--small-size); margin-bottom:0.2rem;}
+  .version-tag{margin-top:1.2rem; font-size:var(--meta-size); color:var(--text-dim); letter-spacing:0.03em; opacity:0.75;}
+
+  /* ---------- pengantar Google Colab ---------- */
+  .colab-grid{display:grid; grid-template-columns:0.95fr 1.05fr; gap:2.4rem; margin-top:2rem; align-items:start;}
+  @media(max-width:900px){.colab-grid{grid-template-columns:1fr;}}
+
+  .colab-mock{
+    border-radius:14px; overflow:hidden;
+    border:1px solid var(--line); background:var(--panel);
+    box-shadow:0 16px 34px -18px rgba(28,33,29,0.28);
+  }
+  .colab-mock .chrome{
+    display:flex; align-items:center; gap:0.6rem;
+    padding:0.7rem 0.9rem; background:var(--panel-2); border-bottom:1px solid var(--line);
+  }
+  .colab-mock .chrome .badge{
+    width:20px; height:20px; border-radius:5px; flex-shrink:0;
+    background:var(--amber-solid);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--sans); font-weight:600; font-size:0.7rem; color:#f7f5ef;
+  }
+  .colab-mock .chrome .url{
+    font-size:0.7rem; font-family:var(--mono); color:var(--text-dim);
+    background:var(--bg); border:1px solid var(--line-soft); border-radius:6px;
+    padding:0.32em 0.7em; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .colab-mock .cellbar{
+    display:flex; align-items:center; gap:0.7rem;
+    padding:0.8rem 0.9rem; border-bottom:1px solid var(--line-soft);
+  }
+  .colab-mock .runbtn{
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    background:var(--phosphor-solid); color:#f7f5ef;
+    display:flex; align-items:center; justify-content:center; font-size:0.68rem;
+  }
+  .colab-mock .codeline{
+    font-family:var(--mono); font-size:0.8rem; color:var(--text);
+    background:var(--bg); border-radius:6px; padding:0.55em 0.8em;
+    flex:1; overflow-x:auto; white-space:nowrap;
+  }
+  .colab-mock .codeline .c1{color:var(--cyan);}
+  .colab-mock .codeline .c2{color:var(--amber);}
+  .colab-mock .outputbar{
+    padding:0.7rem 0.9rem 0.2rem; font-size:0.66rem; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--text-dim);
+  }
+  .colab-mock .outputplot{padding:0.3rem 0.9rem 1.1rem;}
+  .colab-mock .outputplot svg{width:100%; height:auto; display:block;}
+
+  .colab-steps{list-style:none; margin:0; padding:0; counter-reset:step;}
+  .colab-steps.continue{counter-reset:step 3;}
+  .colab-steps li{position:relative; padding-left:2.7rem; margin-bottom:1.35rem; counter-increment:step;}
+  .colab-steps li::before{
+    content:counter(step);
+    position:absolute; left:0; top:-0.15rem;
+    width:1.95rem; height:1.95rem; border-radius:50%;
+    background:var(--bg); border:1.5px solid var(--phosphor); color:var(--phosphor);
+    font-family:var(--sans); font-weight:500; font-size:0.95rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .colab-steps li b{color:var(--paper); font-family:var(--sans); font-weight:500;}
+  .colab-steps li span{display:block; color:var(--text-dim); font-size:var(--card-body-size); margin-top:0.15rem;}
+  .colab-steps li code{
+    background:var(--panel-2); border:1px solid var(--line-soft); border-radius:4px;
+    padding:0.05em 0.4em; font-size:0.85em; color:var(--amber);
+  }
+
+  .colab-tip{
+    margin-top:1.8rem; border-left:3px solid var(--amber);
+    background:var(--panel); border:1px solid var(--line); border-radius:0 12px 12px 0;
+    padding:1.1rem 1.4rem; font-size:var(--card-body-size); color:var(--text-dim);
+  }
+  .colab-tip b{color:var(--amber); display:block; margin-bottom:0.35rem; font-family:var(--sans); font-size:var(--card-body-size);}
+  .colab-followup{display:grid; grid-template-columns:0.8fr 1.2fr; gap:2rem; margin-top:1.6rem; align-items:start;}
+  .tips-grid{display:grid; grid-template-columns:1fr; gap:1rem;}
+  .tips-grid .colab-tip{margin-top:0;}
+  @media(max-width:900px){.colab-followup{grid-template-columns:1fr;}}
+
+  .nyquist-warn{
+    margin-top:0.5rem; border-left:3px solid var(--amber);
+    background:var(--panel); border:1px solid var(--line); border-radius:0 8px 8px 0;
+    padding:0.55rem 0.8rem; font-size:0.78rem; color:var(--text-dim); display:none;
+  }
+  .nyquist-warn.show{display:block;}
+
+  /* ---------- daftar istilah ---------- */
+  .gloss-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-top:1.4rem; align-items:start;}
+  .gloss-grid.single{grid-template-columns:1fr; max-width:72rem;}
+  .gloss-table{width:100%; border-collapse:collapse; margin:0; font-size:var(--table-size);}
+  .gloss-table th,.gloss-table td{border:1px solid var(--line); padding:0.55em 0.8em; text-align:left; vertical-align:top;}
+  .gloss-table th{background:var(--panel-2); color:var(--paper); font-family:var(--sans);}
+  .gloss-table td{color:var(--text-dim);}
+  .gloss-table td:first-child{color:var(--phosphor); white-space:normal;}
+  @media(max-width:900px){.gloss-grid{grid-template-columns:1fr;}.gloss-table{font-size:var(--table-size);}}
+
+  /* ---------- layar presentasi pendek (mis. proyektor 1366x768) ---------- */
+  @media(min-width:901px) and (max-height:850px){
+    section{padding:4.5rem 8vw 3.8rem;}
+    .waveform-divider{margin-top:1.2rem;}
+    .cpmk-strip{margin-top:1.4rem;}
+    #s0 .cover-title{font-size:var(--cover-title-size);}
+    #s0 .cover-sub{margin-top:0.7rem;}
+    .hook-grid{gap:2.2rem;}
+    .hook-q{margin:0.8rem 0 1rem;}
+    .voice-card{padding:1.15rem;}
+    .concept-cols{margin-top:1.1rem; gap:1rem;}
+    .concept-card{padding:1rem;}
+    .sim-wrap{padding:1.15rem; margin-top:1rem;}
+    .sim-controls{margin-bottom:0.8rem; gap:0.8rem 1.5rem;}
+    canvas.simcanvas{height:var(--simcanvas-h-compact);}
+    .gallery{margin-top:0.6rem;}
+    /* Galeri 03A–03C memakai dua plot CT/DT bertumpuk per kartu. Pada layar
+       proyektor pendek, rapatkan ruang vertikal tanpa mengubah struktur kartu
+       atau ukuran pada desktop/HP biasa, agar setiap bagian tetap satu viewport. */
+    #s4,#s5,#s4b{padding-top:3.7rem; padding-bottom:2.7rem;}
+    #s4 .gcard,#s5 .gcard,#s4b .gcard{padding:0.9rem;}
+    #s4 .gcard-plots,#s5 .gcard-plots,#s4b .gcard-plots{gap:0.35rem; margin-bottom:0.5rem;}
+    #s4 .gcard h4,#s5 .gcard h4,#s4b .gcard h4{margin:0.4rem 0 0.2rem;}
+    #s4 canvas.gcanvas,#s5 canvas.gcanvas,#s4b canvas.gcanvas{height:var(--gcanvas-pair-h-projector);}
+    .soal-card{padding:1.2rem 1.5rem; margin-top:1rem;}
+    /* canvas.soalcanvas dihapus: kelas ini sudah tidak dipakai HTML manapun (lihat
+       catatan di aturan dasarnya, dekat .solusi-plot-grid). */
+    .colab-grid{margin-top:1rem;}
+    .colab-grid{gap:1.4rem;}
+    .colab-steps li{margin-bottom:0.8rem;}
+    .colab-steps li span{font-size:var(--card-body-size);}
+    #s14{padding-top:4.35rem; padding-bottom:3.65rem;}
+    #s10{padding-top:4.35rem; padding-bottom:3.55rem;}
+    #s13d{padding-top:4.1rem; padding-bottom:3.3rem;}
+    .cta-wrap{padding:1.8rem 2rem; margin-top:1rem;}
+    .recap{margin-top:1.3rem;}
+    html.no-katex #s0 .cover-title{font-size:var(--cover-title-size);}
+    html.no-katex #s0 .cpmk-strip{margin-top:0.9rem;}
+    html.no-katex #s6 p{font-size:0.9rem; margin:0.55rem 0;}
+    html.no-katex #s6 .concept-cols{margin-top:0.9rem;}
+    html.no-katex #s6 details.solusi{margin-top:0.55rem; padding-top:0.55rem;}
+    html.no-katex #s14{padding-top:4.25rem; padding-bottom:3.45rem;}
+  }
+
+  ::selection{background:var(--phosphor-solid); color:#f7f5ef;}
+  .katex{color:inherit;}
+  .math-fallback{font-family:var(--sans); font-style:italic; color:inherit; white-space:normal;}
+  @media(max-width:640px){
+    section{padding:6rem 6vw 4.5rem;}
+    .cover-num{display:none;}
+    /* Strip dot (satu lingkaran per bagian, 20 total) tidak efektif di lebar HP:
+       judul tiap dot hanya ada di atribut title (tak berfungsi disentuh di layar
+       sentuh) dan 20 dot tidak muat sebaris di layar sempit. Disembunyikan khusus
+       di lebar ini; navigasi Sebelumnya/Berikutnya/hitungan halaman tetap ada,
+       dan tombol popup ☰ (.section-nav-fab) tetap menyediakan lompat-ke-bagian
+       dengan label lengkap. Di layar lebar (desktop/proyektor) dot tetap tampil. */
+    .dots{display:none;}
+    .navbar{justify-content:space-between;}
+  }
+
+  /* Standar font aktif v04: aturan peran berlaku juga pada HP/embed/fallback. */
+  body,html.embedded body{font-family:var(--sans);font-size:var(--body-size);font-weight:var(--body-weight);line-height:1.5;}
+  h1,h2,h3,h4{font-family:var(--sans);font-weight:var(--heading-weight);line-height:1.2;}
+  h1.cover-title,#s0 .cover-title{font-size:var(--cover-title-size);}
+  h2{font-size:var(--section-title-size);}
+  h3{font-size:var(--subheading-size);}
+  .concept-card h4,.prop-card h4,.gcard h4{font-size:var(--card-title-size);font-weight:var(--heading-weight);line-height:1.25;}
+  .hook-q{font-family:var(--sans);font-size:var(--hook-question-size);font-weight:var(--hook-weight);font-style:normal;line-height:1.35;}
+  .lede{font-size:var(--lede-size);font-weight:var(--body-weight);}
+  .cover-sub{font-size:var(--body-size);font-weight:var(--body-weight);}
+  .concept-card p,.prop-card p,.gcard p,.solusi .body,.solusi .body p,.opt,.quiz-fb{font-weight:var(--body-weight);}
+  .quiz-q{font-weight:var(--body-weight);}
+  .navbar button,.section-nav-item,.cta-btn,.ctrl label,select,input,button{font-family:var(--sans);font-weight:var(--ui-weight);}
+  .section-nav-item.active{font-weight:500;}
+  .eyebrow,.version-tag,code,pre{font-family:var(--mono);font-weight:var(--mono-weight);}
+  .gloss-table,.gloss-table td{font-family:var(--sans);font-size:var(--table-size);font-weight:var(--body-weight);}
+  .gloss-table th{font-family:var(--sans);font-size:var(--table-size);font-weight:var(--heading-weight);}
+  b,strong{font-weight:var(--strong-weight);}
+  .math-fallback{font-family:Georgia,serif;}
+  .gcard-plot-cap,.solusi-plot-cap{font-size:var(--small-size);}
+  .ctrl select,.ctrl input[type=number]{font-size:var(--ui-size);}
+  /* Ruang proyektor diselaraskan dengan token font v04, tanpa mengecilkan teks. */
+  @media(min-width:901px) and (max-height:850px){
+    #s4{padding-top:4rem;padding-bottom:4.5rem;}
+    #s4 .eyebrow{margin-bottom:0.3rem;}
+    #s4>.lede{margin:0.2rem 0;}
+    #s4>.lede,#s10>.lede{width:100%;max-width:none;}
+    #s4 .gcard{padding:0.4rem;}
+    #s4 .gcard h4{margin-top:0.2rem;}
+    #s4 .gcard-plots{gap:0.25rem;margin-bottom:0.3rem;}
+    #s4 .gallery{margin-top:0.2rem;}
+    #s4 .gcard .formula{margin-bottom:0.4rem;line-height:1.5;}
+    #s12,#s13c,#s13d{padding-top:3.8rem;padding-bottom:4.5rem;}
+    .gloss-table th,.gloss-table td{padding:0.28em 0.7em;}
+    .gloss-grid{margin-top:0.8rem;}
+    #s9 .quiz-q{margin-bottom:0.65rem;}
+    #s9 .quiz-opts{gap:0.3rem;}
+    #s9 .quiz-item{padding:1rem;}
+    #s9 .opt{padding:0.45em 0.8em;}
+    #s10{padding-top:3.6rem;padding-bottom:4.5rem;}
+    #s10 .colab-steps li{margin-bottom:0.55rem;}
+  }
+</style>
+</head>
+<body>
+
+<a class="embed-popout" id="popoutLink" target="_blank" rel="noopener">⤢ Buka mode presentasi penuh</a>
+
+<button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false">☾ Gelap</button>
+
+<div class="topbar">
+  <div class="crumb">Isyarat dan Sistem <b>·</b> Minggu 01 / 16 <b>·</b> Labsheet-01</div>
+  <!-- Dihilangkan sementara atas permintaan pengampu (dapat dikembalikan kapan saja):
+  <nav class="course-nav" aria-label="Navigasi mata kuliah">
+    <span class="is-disabled" aria-disabled="true" title="Minggu 1 adalah pertemuan pertama, belum ada minggu sebelumnya">◂ Minggu Sebelumnya</span>
+    <span class="is-disabled" aria-disabled="true" title="Halaman daftar isi mata kuliah belum dipublikasikan">Daftar Isi</span>
+    <a href="W02-sifat-transformasi_v03.html">Minggu Berikutnya ▸</a>
+  </nav>
+  -->
+  <div class="sk-badge">SK1 — CPMK1 — 4%</div>
+</div>
+
+<!-- ================= SECTION 0 — COVER ================= -->
+<section id="s0">
+  <div class="cover-num">01</div>
+  <div class="eyebrow">Gaya 1 — Pengantar · Sub-CPMK 1.1</div>
+  <h1 class="cover-title">Sinyal-Sinyal Dasar &amp; Pengantar Python/Jupyter</h1>
+  <p class="cover-sub">Minggu pertama: mengenal cara merepresentasikan sinyal waktu-kontinu (<em>continuous-time</em>, CT) dan waktu-diskrit (<em>discrete-time</em>, DT) — sekaligus alat kerja utama semester ini, Python di Google Colab.</p>
+  <svg class="waveform-divider" viewBox="0 0 800 52" preserveAspectRatio="none">
+    <path d="M0,26 Q20,4 40,26 T80,26 T120,26 T160,26 T200,26 T240,26 T280,26 T320,26 T360,26 T400,26 T440,26 T480,26 T520,26 T560,26 T600,26 T640,26 T680,26 T720,26 T760,26 T800,26" fill="none" stroke="#8fbfa9" stroke-width="1.5"/>
+  </svg>
+  <div class="cpmk-strip">
+    <div class="chip">Tujuan: <b>gunakan Python/Jupyter</b> untuk representasi sinyal</div>
+    <div class="chip">Identifikasi: <b>undak satuan · impuls satuan · sinusoidal · eksponensial · ramp satuan</b></div>
+    <div class="chip">CT <b>vs</b> DT</div>
+  </div>
+</section>
+
+<!-- ================= SECTION 1 — HOOK ================= -->
+<section id="s1">
+  <div class="eyebrow">01 — Pemantik</div>
+  <div class="hook-grid">
+    <div>
+      <h2>Kenapa suara di rekaman WhatsApp kadang pecah?</h2>
+      <p class="hook-q">"Saya cuma ngomong biasa, tapi hasil rekamannya kok kresek-kresek pas suaranya keras?"</p>
+      <p>Jawabannya ada di bentuk sinyalnya. Mikrofon mengubah suara menjadi sinyal listrik waktu-kontinu — sebuah fungsi <span style="color:var(--phosphor)">x(t)</span> yang nilainya berubah mulus terhadap waktu. Tapi setiap alat perekam punya batas amplitudo maksimum yang bisa direkam. Begitu sinyal aslinya melewati batas itu, puncaknya <b style="color:var(--red)">"dipotong rata"</b> — inilah yang disebut pemotongan puncak (<em>clipping</em>).</p>
+      <p style="margin-top:0.9rem;">Sepanjang semester ini, kita akan belajar bahasa matematis untuk menggambarkan, mengubah, dan menganalisis sinyal seperti ini — dimulai dari bentuk paling dasarnya hari ini.</p>
+    </div>
+    <div class="voice-card">
+      <div class="label">Ilustrasi &middot; sinyal suara sebelum &amp; sesudah pemotongan puncak</div>
+      <canvas id="clipCanvas" role="img" aria-label="Grafik garis oranye menunjukkan sinyal suara asli yang mulus; bagian yang melewati garis batas merah dipotong rata menjadi garis hijau, menghasilkan pemotongan puncak."></canvas>
+      <div class="clip-note">Garis <b>oranye</b> = sinyal asli (mulus, waktu-kontinu). Bagian yang menyentuh <b>batas merah</b> terpotong rata → itulah bunyi "pecah" yang kita dengar.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 2 — KONSEP DASAR ================= -->
+<section id="s2">
+  <div class="eyebrow">02 — CT, DT, dan Digital</div>
+  <h2>Tiga cara sinyal "hidup" dalam waktu</h2>
+  <p class="lede">Sebelum menggambar sinyal apa pun, kita perlu sepakat: sinyal itu didefinisikan di sumbu waktu yang seperti apa?</p>
+  <div class="concept-cols">
+    <div class="concept-card" data-tag="CT">
+      <canvas class="mini-plot" data-kind="ct-smooth" role="img" aria-label="Grafik sinus mulus terhadap waktu, mencontohkan sinyal waktu-kontinu."></canvas>
+      <h4>Waktu-Kontinu</h4>
+      <p><b style="color:var(--paper)">x(t)</b> — terdefinisi di <i>setiap</i> nilai <b>t</b> pada garis bilangan real. Contoh: tegangan mikrofon, suhu ruangan.</p>
+    </div>
+    <div class="concept-card" data-tag="DT">
+      <canvas class="mini-plot" data-kind="dt-stem" role="img" aria-label="Grafik batang pada titik-titik waktu bilangan bulat, mencontohkan sinyal waktu-diskrit."></canvas>
+      <h4>Waktu-Diskrit</h4>
+      <p><b style="color:var(--paper)">x[n]</b> — hanya terdefinisi pada bilangan bulat <b>n</b>, misalnya hasil pencuplikan (<em>sampling</em>) sinyal CT, atau memang didefinisikan langsung sebagai barisan. Contoh: audio digital 44.1 kHz, data sensor per detik.</p>
+    </div>
+    <div class="concept-card" data-tag="DIGITAL">
+      <canvas class="mini-plot" data-kind="digital" role="img" aria-label="Grafik batang dengan nilai dibulatkan ke level-level tertentu, mencontohkan sinyal digital yang terkuantisasi."></canvas>
+      <h4>Digital</h4>
+      <p>Waktu-diskrit <i>dan</i> amplitudonya dikuantisasi ke sejumlah level terbatas — inilah yang benar-benar disimpan komputer/HP Anda.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 3A — GALERI SINYAL DASAR (1/3) ================= -->
+<section id="s4">
+  <div class="eyebrow">03A — Undak &amp; Impuls</div>
+  <h2>Lima sinyal dasar yang wajib dikenali (1/3)</h2>
+  <p class="lede">Dua bentuk ini menjadi "kosakata" dasar untuk konvolusi: undak menyalakan sinyal, impuls memberi bobot pada satu titik waktu.</p>
+  <div class="gallery gallery-two">
+    <div class="gcard">
+      <div class="gcard-plots">
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="step-ct" role="img" aria-label="Grafik undak satuan waktu-kontinu x(t): bernilai nol sebelum t=0, lalu melompat ke nilai tetap satu dan bertahan."></canvas>
+          <div class="gcard-plot-cap">$x(t)$</div>
+        </div>
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="step-dt" role="img" aria-label="Grafik undak satuan waktu-diskrit x[n]: batang bernilai nol sebelum n=0, lalu bernilai satu dan bertahan, hasil pencuplikan x(t)."></canvas>
+          <div class="gcard-plot-cap">$x[n]$</div>
+        </div>
+      </div>
+      <h4>Undak Satuan <em>(Unit Step)</em></h4>
+      <div class="formula" id="f-step"></div>
+      <p>Bernilai 0 sebelum t=0 (atau n=0), lalu "menyala" ke 1 dan tetap di situ. Model sinyal yang dinyalakan mendadak. x[n]=u[n] adalah hasil pencuplikan sah dari x(t)=u(t) — pasangan CT/DT yang identik bentuknya.</p>
+    </div>
+    <div class="gcard">
+      <div class="gcard-plots">
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="impulse-ct" role="img" aria-label="Grafik impuls kontinu x(t): satu panah di t=0 melambangkan luas/bobot satu satuan."></canvas>
+          <div class="gcard-plot-cap">$x(t)$</div>
+        </div>
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="impulse-dt" role="img" aria-label="Grafik impuls diskrit x[n]: satu batang setinggi satu di n=0, nol di titik lainnya."></canvas>
+          <div class="gcard-plot-cap">$x[n]$</div>
+        </div>
+      </div>
+      <h4>Impuls Satuan <em>(Unit Impulse)</em></h4>
+      <div class="formula" id="f-impulse"></div>
+      <p>Dua jenis impuls berbeda, satu per domain — <b>bukan pasangan hasil pencuplikan</b>. δ(t) bukan fungsi biasa — ia objek ideal yang <b>didefinisikan lewat integral</b>, ∫δ(t)dt = 1 (luas/bobot = 1), bukan lewat nilai di t=0. δ[n] jauh lebih sederhana: sekadar barisan bernilai 1 di n=0.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 3B — GALERI SINYAL DASAR (2/3) ================= -->
+<section id="s5">
+  <div class="eyebrow">03B — Sinusoidal &amp; Eksponensial</div>
+  <h2>Lima sinyal dasar yang wajib dikenali (2/3)</h2>
+  <p class="lede">Sinusoidal dan eksponensial berdampingan di sini karena keduanya sebenarnya satu keluarga sinyal yang sama, dilihat dari dua sudut berbeda — lihat Bagian 05.</p>
+  <div class="gallery gallery-two">
+    <div class="gcard">
+      <div class="gcard-plots">
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="sinus-ct" role="img" aria-label="Grafik gelombang sinus waktu-kontinu x(t), periodik terhadap waktu."></canvas>
+          <div class="gcard-plot-cap">$x(t)$</div>
+        </div>
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="sinus-dt" role="img" aria-label="Grafik sinus waktu-diskrit x[n], hasil pencuplikan x(t) pada laju fs=8/detik."></canvas>
+          <div class="gcard-plot-cap">$x[n]$</div>
+        </div>
+      </div>
+      <h4>Sinusoidal</h4>
+      <div class="formula" id="f-sinus"></div>
+      <p>Sinyal periodik paling fundamental — fondasi seluruh analisis Fourier di CPMK2. x[n] adalah x(t) yang dicuplik pada t=nT<sub>s</sub>.</p>
+    </div>
+    <div class="gcard">
+      <div class="gcard-plots">
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="expo-ct" role="img" aria-label="Grafik eksponensial waktu-kontinu x(t), meluruh terhadap waktu."></canvas>
+          <div class="gcard-plot-cap">$x(t)$</div>
+        </div>
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="expo-dt" role="img" aria-label="Grafik eksponensial waktu-diskrit x[n], hasil pencuplikan x(t)."></canvas>
+          <div class="gcard-plot-cap">$x[n]$</div>
+        </div>
+      </div>
+      <h4>Eksponensial</h4>
+      <div class="formula" id="f-expo"></div>
+      <p>Naik (a&gt;0) — model pertumbuhan (populasi, bunga majemuk) pada rentang pendek sebelum ada faktor pembatas. Meluruh (a&lt;0) — model peluruhan alami: pengosongan kapasitor, peluruhan radioaktif, respons sistem stabil. x[n] adalah x(t) yang dicuplik pada t=nT<sub>s</sub>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 3C — GALERI SINYAL DASAR (3/3) ================= -->
+<section id="s4b">
+  <div class="eyebrow">03C — Ramp</div>
+  <h2>Lima sinyal dasar yang wajib dikenali (3/3)</h2>
+  <p class="lede">Ramp satuan memodelkan perubahan linear yang mulai pada suatu waktu — sinyal terakhir dari lima sinyal dasar wajib.</p>
+  <div class="gallery gallery-one">
+    <div class="gcard">
+      <div class="gcard-plots">
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="ramp-ct" role="img" aria-label="Grafik ramp waktu-kontinu x(t): bernilai nol sebelum t=0, lalu naik linear."></canvas>
+          <div class="gcard-plot-cap">$x(t)$</div>
+        </div>
+        <div class="gcard-plot">
+          <canvas class="gcanvas" data-kind="ramp-dt" role="img" aria-label="Grafik ramp waktu-diskrit x[n], hasil pencuplikan x(t): batang naik makin tinggi setelah n=0."></canvas>
+          <div class="gcard-plot-cap">$x[n]$</div>
+        </div>
+      </div>
+      <h4>Sinyal Ramp <em>(Unit Ramp)</em></h4>
+      <div class="formula" id="f-ramp"></div>
+      <p>Nol sebelum t=0, lalu naik linear. Grafik x[n] di atas adalah <b>hasil pencuplikan</b> ramp CT ini, r(nT<sub>s</sub>)=nT<sub>s</sub>·u[n] — beda dari ramp unit diskrit "asli" r[n]=n·u[n] yang skalanya tidak dikalikan T<sub>s</sub>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 4 — SIMULATOR ================= -->
+<section id="s3">
+  <div class="eyebrow">04 — Simulasi Interaktif</div>
+  <h2>Laboratorium sinyal dasar</h2>
+  <p class="lede">Pilih jenis sinyal, geser parameternya, dan amati bagaimana bentuk CT (garis, disampel rapat) dan DT (stem/batang) merepresentasikan sinyal yang sama.</p>
+
+  <div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl">
+        <label for="sigType">Jenis sinyal</label>
+        <select id="sigType">
+          <option value="sin">Sinusoidal — A sin(2πft)</option>
+          <option value="exp">Eksponensial — A e^(at)</option>
+          <option value="step">Undak Satuan — A·u(t−t₀)</option>
+          <option value="impulse">Impuls Satuan — A·δ(t−t₀)</option>
+          <option value="ramp">Sinyal Ramp — A·t·u(t)</option>
+        </select>
+      </div>
+      <div class="ctrl" id="ctrlAmp">
+        <label for="amp">Amplitudo A <span id="ampVal">1.0</span></label>
+        <input type="range" id="amp" min="0.2" max="2" step="0.1" value="1">
+      </div>
+      <div class="ctrl" id="ctrlFreq">
+        <label for="freq">Frekuensi f (Hz) <span id="freqVal">1.0</span></label>
+        <input type="range" id="freq" min="0.5" max="4" step="0.1" value="1">
+        <div class="nyquist-warn" id="nyquistWarn">⚠️ f mendekati/mencapai frekuensi Nyquist (f<sub>s</sub>/2 = 4 Hz, dengan T<sub>s</sub>=1/8 s). Sampel x[n] bisa tampak (hampir) nol atau berpola aneh — ini gejala <em>aliasing</em> (penyamaran atau pelipatan frekuensi): sinyal frekuensi tinggi tampak seperti frekuensi rendah karena laju pencuplikan tidak cukup, bukan bug.</div>
+      </div>
+      <div class="ctrl" id="ctrlDecay" style="display:none;">
+        <label for="decay">Laju a <span id="decayVal">0.5</span></label>
+        <input type="range" id="decay" min="-1.5" max="1.5" step="0.1" value="0.5">
+      </div>
+      <div class="ctrl" id="ctrlShift" style="display:none;">
+        <label for="shift">Pergeseran t₀ <span id="shiftVal">0.0</span></label>
+        <input type="range" id="shift" min="-2" max="2" step="0.5" value="0">
+      </div>
+    </div>
+
+    <div class="plot-cols">
+      <div class="plot-box">
+        <div class="ptitle">Waktu-Kontinu <b>x(t)</b></div>
+        <canvas class="simcanvas" id="ctPlot" role="img" aria-label="Grafik sinyal pada domain waktu-kontinu x(t); rincian nilai saat ini ada pada ringkasan teks di bawah grafik."></canvas>
+      </div>
+      <div class="plot-box">
+        <div class="ptitle">Waktu-Diskrit <b>x[n]</b> &middot; <b>f<sub>s</sub> = 8/detik</b></div>
+        <canvas class="simcanvas" id="dtPlot" role="img" aria-label="Grafik sinyal pada domain waktu-diskrit x[n]; rincian nilai saat ini ada pada ringkasan teks di bawah grafik."></canvas>
+      </div>
+    </div>
+    <div class="sim-formula" id="simFormula"></div>
+    <p id="simSummary" class="sr-only" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- ================= SECTION 5 — EKSPONENSIAL KOMPLEKS ================= -->
+<section id="s6">
+  <div class="eyebrow">05A — Konsep Penyatu</div>
+  <h2>Eksponensial kompleks: formula dan dua kasus khusus</h2>
+  <p class="lede">Bagian 03B menampilkan kartu Sinusoidal dan kartu Eksponensial berdampingan, karena kedua sinyal tersebut sebenarnya satu keluarga sinyal yang sama, dilihat dari dua sudut berbeda.</p>
+  <p>Bentuk umumnya adalah eksponensial kompleks (<em>complex exponential</em>) $x(t) = Ce^{st}$, dengan $s=\sigma+j\omega$ bilangan kompleks — teknik elektro memakai notasi $j=\sqrt{-1}$, bukan $i$, supaya tidak tertukar dengan lambang arus.</p>
+  <div class="formula" id="f-cexp"></div>
+  <p>Kuncinya formula Euler di atas. Dua kasus khusus pertama memperlihatkan osilasi murni dan eksponensial real sebagai bagian dari keluarga yang sama; keduanya ditampilkan pada bagian berikutnya.</p>
+</section>
+
+<!-- ================= SECTION 5B — EKSPONENSIAL KOMPLEKS, DUA KASUS KHUSUS ================= -->
+<section id="s6b">
+  <div class="eyebrow">05B — Eksponensial Kompleks</div>
+  <h2>Dua kasus khusus: osilasi dan eksponensial real</h2>
+  <p class="lede">Nilai nol pada salah satu komponen $s=\sigma+j\omega$ menghasilkan dua bentuk yang sudah dikenal.</p>
+  <div class="concept-cols two">
+    <div class="concept-card" data-tag="σ=0">
+      <canvas class="mini-plot" id="ceCanvasA" role="img" aria-label="Grafik dua kurva periodik dengan frekuensi sudut sama: garis hijau adalah cos(omega t) sebagai bagian real, garis biru putus-putus adalah sin(omega t) sebagai bagian imajiner, keduanya berbeda fase seperempat periode."></canvas>
+      <h4>σ = 0 — murni berosilasi</h4>
+      <p>$e^{j\omega t}$ berputar mengelilingi lingkaran satuan di bidang kompleks. Garis <b style="color:var(--phosphor)">hijau</b> = $\mathrm{Re}\{e^{j\omega t}\} = \cos(\omega t)$; garis <b style="color:var(--cyan)">biru putus-putus</b> = $\mathrm{Im}\{e^{j\omega t}\} = \sin(\omega t)$ — persis sinyal sinusoidal di Bagian 03B.</p>
+    </div>
+    <div class="concept-card" data-tag="ω=0">
+      <canvas class="mini-plot" id="ceCanvasB" role="img" aria-label="Grafik dua kurva eksponensial: garis hijau meluruh menuju nol, garis oranye tumbuh menjauhi nol."></canvas>
+      <h4>ω = 0, C riil — murni eksponensial</h4>
+      <p>$Ce^{st}$ mereduksi menjadi eksponensial real biasa. Garis <b style="color:var(--phosphor)">hijau</b> meluruh (σ&lt;0); garis <b style="color:var(--amber)">oranye</b> tumbuh (σ&gt;0) — sudah dikenal dari Bagian 03B.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 5B — EKSPONENSIAL KOMPLEKS, KASUS UMUM ================= -->
+<section id="s6c">
+  <div class="eyebrow">05C — Eksponensial Kompleks</div>
+  <h2>Kasus umum: berosilasi sekaligus tumbuh atau meluruh</h2>
+  <p class="lede">Ketika $\sigma$ dan $\omega$ sama-sama tidak nol, bagian real $Ce^{st}$ menggabungkan amplop eksponensial dengan osilasi sinusoidal.</p>
+  <div class="concept-cols single">
+    <div class="concept-card" data-tag="σ≠0, ω≠0">
+      <canvas class="mini-plot" id="ceCanvasC" role="img" aria-label="Grafik kurva berosilasi yang amplitudonya meluruh mengikuti dua kurva amplop eksponensial putus-putus di atas dan di bawahnya."></canvas>
+      <h4>σ ≠ 0 dan ω ≠ 0 — kasus umum</h4>
+      <p>Bagian real (<b style="color:var(--phosphor)">hijau</b>) berosilasi sekaligus meluruh, terjebak di dalam "amplop" eksponensial ±$Ce^{\sigma t}$ (<b style="color:var(--amber)">oranye putus-putus</b>) — bentuk respons alami rangkaian RLC teredam.</p>
+    </div>
+  </div>
+  <details class="solusi">
+    <summary>▸ Lihat hubungan dengan materi berikutnya dan Labsheet-01</summary>
+    <div class="body">Pratinjau konsep ini belum masuk lima sinyal wajib Bagian 03A–03C atau Tugas 1–5 Labsheet-01. Eksplorasinya tersedia sebagai Tugas 6 opsional/bonus. Bentuk $Ce^{st}$ dipakai penuh mulai Deret Fourier (Minggu 5), lalu Transformasi Laplace (Minggu 10) dan Transformasi Z (Minggu 12), karena sinyal ini adalah fungsi eigen (<em>eigenfunction</em>) sistem LTI.</div>
+  </details>
+</section>
+
+<!-- ================= SECTION 6 — CONTOH SOAL ================= -->
+<section id="s7">
+  <div class="eyebrow">06A — Contoh Soal</div>
+  <h2>Contoh terselesaikan: undak satuan</h2>
+
+  <div class="soal-card">
+    <span class="soal-num">Contoh 1</span>
+    <div class="soal-body">
+      <p>Diberikan sinyal waktu-kontinu $x(t) = 3u(t) - 2u(t-2)$. Tentukan nilai $x(t)$ pada $t=1$ dan $t=3$, lalu sketsakan bentuknya.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p>Pecah menjadi dua undak satuan yang bergeser, gambar masing-masing, lalu jumlahkan:</p>
+          <div class="solusi-plot-grid">
+            <div class="solusi-plot">
+              <canvas class="solusicanvas" id="soal1canvasA" role="img" aria-label="Grafik undak satuan: bernilai 3 untuk t lebih besar sama dengan 0, dan 0 untuk t negatif."></canvas>
+              <div class="solusi-plot-cap">$3u(t)$ — naik ke 3 di $t=0$</div>
+            </div>
+            <div class="solusi-plot">
+              <canvas class="solusicanvas" id="soal1canvasB" role="img" aria-label="Grafik undak satuan: bernilai 2 untuk t lebih besar sama dengan 2, dan 0 sebelumnya."></canvas>
+              <div class="solusi-plot-cap">$2u(t-2)$ — naik ke 2 di $t=2$</div>
+            </div>
+            <div class="solusi-plot">
+              <canvas class="solusicanvas" id="soal1canvas" role="img" aria-label="Grafik sinyal tangga hasil penjumlahan: bernilai 3 pada rentang 0 sampai kurang dari 2, lalu turun ke 1 untuk t lebih besar sama dengan 2."></canvas>
+              <div class="solusi-plot-cap">$x(t) = 3u(t) - 2u(t-2)$ — gabungan</div>
+            </div>
+          </div>
+          <p>Untuk $0 \le t < 2$: hanya $3u(t)$ aktif → $x(t) = 3$.<br>
+          Untuk $t \ge 2$: kedua undak aktif → $x(t) = 3 - 2 = 1$.</p>
+          <p><b>Maka:</b> $x(1) = 3$ dan $x(3) = 1$. Bentuknya adalah sinyal "tangga": naik ke 3 di $t=0$, lalu turun ke 1 di $t=2$ — persis jumlah dua grafik komponen di sebelah kiri.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================= SECTION 6B — CONTOH SOAL ================= -->
+<section id="s8">
+  <div class="eyebrow">06B — Contoh Soal</div>
+  <h2>Contoh terselesaikan: impuls diskrit</h2>
+  <div class="soal-card">
+    <span class="soal-num">Contoh 2</span>
+    <div class="soal-body">
+      <p>Diberikan sinyal waktu-diskrit $x[n] = \delta[n] - \delta[n-3]$. Gambarkan representasi grafisnya untuk $-2 \le n \le 5$.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p>Pecah menjadi dua impuls bergeser, gambar masing-masing, lalu jumlahkan:</p>
+          <div class="solusi-plot-grid">
+            <div class="solusi-plot">
+              <canvas class="solusicanvas" id="soal2canvasA" role="img" aria-label="Grafik impuls diskrit: nilai 1 di n=0, nol di titik lainnya."></canvas>
+              <div class="solusi-plot-cap">$\delta[n]$ — batang di $n=0$</div>
+            </div>
+            <div class="solusi-plot">
+              <canvas class="solusicanvas" id="soal2canvasB" role="img" aria-label="Grafik impuls diskrit: nilai 1 di n=3, nol di titik lainnya."></canvas>
+              <div class="solusi-plot-cap">$\delta[n-3]$ — batang di $n=3$</div>
+            </div>
+            <div class="solusi-plot">
+              <canvas class="solusicanvas" id="soal2canvas" role="img" aria-label="Grafik dua impuls diskrit: nilai 1 di n=0 dan nilai -1 di n=3, nol di titik lainnya."></canvas>
+              <div class="solusi-plot-cap">$x[n] = \delta[n] - \delta[n-3]$ — gabungan</div>
+            </div>
+          </div>
+          <p>$\delta[n]$ bernilai 1 hanya di $n=0$; $\delta[n-3]$ bernilai 1 hanya di $n=3$. Karena tanda minus, komponen kedua bernilai $-1$ di $n=3$ pada hasil gabungan.</p>
+          <p><b>Maka:</b> $x[0]=1$, $x[3]=-1$, dan $x[n]=0$ untuk $n$ lainnya di rentang tersebut — dua "batang" terpisah, satu naik di $n=0$, satu turun di $n=3$, persis jumlah dua grafik komponen di sebelah kiri.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 7 — KUIS ================= -->
+<section id="s9">
+  <div class="eyebrow">07 — Kuis Pemahaman</div>
+  <h2>Cek cepat sebelum lanjut ke labsheet</h2>
+  <p class="lede">Formatif — tidak dinilai (bobot 0%), tapi kalau ragu-ragu di sini, ulangi Bagian 02–04 dulu. Di kelas, soal ini bisa didiskusikan bersama dulu sebelum memilih jawaban; kalau membaca mandiri, langsung pilih salah satu opsi untuk mendapat umpan balik instan.</p>
+
+  <div id="quizRoot"></div>
+</section>
+
+<!-- ================= SECTION 8 — MENGENAL GOOGLE COLAB ================= -->
+<section id="s10">
+  <div class="eyebrow">08A — Membuka &amp; Menjalankan Colab</div>
+  <h2>Mengenal Google Colab</h2>
+  <p class="lede">Seluruh labsheet semester ini dikerjakan di <b style="color:var(--paper)">Google Colab</b> — notebook Python yang jalan langsung di browser, gratis, tanpa instalasi apa pun. Ini lima hal yang perlu Anda tahu sebelum membuka Labsheet-01.</p>
+
+  <div class="colab-grid">
+    <div class="colab-mock">
+      <div class="chrome">
+        <div class="badge">▸</div>
+        <div class="url">colab.research.google.com/drive/… — Labsheet-01_Pengantar_…ipynb</div>
+      </div>
+      <div class="cellbar">
+        <div class="runbtn">▶</div>
+        <div class="codeline"><span class="c1">plt</span>.stem(n, x_dt<span class="c2">)</span>  <span style="color:var(--text-dim)"># Tugas 3 — sinusoidal DT</span></div>
+      </div>
+      <div class="outputbar">Output</div>
+      <div class="outputplot">
+        <svg viewBox="0 0 300 90" preserveAspectRatio="xMidYMid meet">
+          <line x1="10" y1="45" x2="290" y2="45" stroke="#d9d2bb" stroke-width="1"/>
+          <g stroke="var(--cyan)" stroke-width="2.4">
+            <line x1="30" y1="45" x2="30" y2="20"/>
+            <line x1="60" y1="45" x2="60" y2="30"/>
+            <line x1="90" y1="45" x2="90" y2="60"/>
+            <line x1="120" y1="45" x2="120" y2="70"/>
+            <line x1="150" y1="45" x2="150" y2="60"/>
+            <line x1="180" y1="45" x2="180" y2="30"/>
+            <line x1="210" y1="45" x2="210" y2="20"/>
+            <line x1="240" y1="45" x2="240" y2="30"/>
+            <line x1="270" y1="45" x2="270" y2="60"/>
+          </g>
+          <g fill="var(--cyan)">
+            <circle cx="30" cy="20" r="3.2"/><circle cx="60" cy="30" r="3.2"/><circle cx="90" cy="60" r="3.2"/>
+            <circle cx="120" cy="70" r="3.2"/><circle cx="150" cy="60" r="3.2"/><circle cx="180" cy="30" r="3.2"/>
+            <circle cx="210" cy="20" r="3.2"/><circle cx="240" cy="30" r="3.2"/><circle cx="270" cy="60" r="3.2"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <ol class="colab-steps">
+      <li><b>Buka tautan Labsheet</b><span>Pakai akun Google (bisa akun kampus atau pribadi, sama seperti untuk Gmail). Colab terbuka otomatis di tab browser — tidak perlu instal apa pun.</span></li>
+      <li><b>Simpan salinan pribadi dulu</b><span>File → <code>Save a copy in Drive</code>. Ini penting apa pun jenis akses yang dibagikan: kalau tautan bertipe "Viewer", Anda belum bisa mengedit sama sekali sebelum menyalin; kalau bertipe "Editor", semua yang membuka tautan yang sama berbagi satu dokumen tanpa disalin — perubahan Anda bisa tertimpa mahasiswa lain. Mesin eksekusi kode (runtime) sendiri selalu privat per akun Google Anda; yang dibagikan hanya dokumennya.</span></li>
+      <li><b>Jalankan sel berurutan dari atas</b><span>Klik ▶ di kiri tiap sel, atau tekan <code>Shift+Enter</code>. Melompati sel adalah penyebab paling umum kode "error padahal benar".</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= SECTION 8B — MENYELESAIKAN LABSHEET DI COLAB ================= -->
+<section id="s11">
+  <div class="eyebrow">08B — Submit &amp; Kendala Umum</div>
+  <h2>Selesaikan, simpan, dan atasi kendala</h2>
+  <p class="lede">Dua langkah terakhir memastikan pekerjaan dapat dinilai. Catatan di samping membantu saat runtime atau koneksi bermasalah.</p>
+  <div class="colab-followup">
+    <ol class="colab-steps continue">
+      <li><b>Lengkapi bagian <code># TODO</code></b><span>Baris berkomentar <code># TODO</code> adalah bagian yang perlu Anda isi sendiri; kode di sekitarnya sudah disiapkan sebagai contoh berjalan.</span></li>
+      <li><b>Unduh &amp; kumpulkan</b><span>Setelah semua sel dijalankan &amp; refleksi diisi: File → Download → <code>Download .ipynb</code>. Ganti nama file menjadi <code>L01_NIM_Nama.ipynb</code>, lalu unggah ke assignment Labsheet-01 di BeSmart — tenggat tercantum di halaman assignment tersebut. Aturan lengkap ada di Bagian 6 Labsheet-01.</span></li>
+    </ol>
+    <div class="tips-grid">
+      <div class="colab-tip">
+        <b>Muncul "NameError: name … is not defined"?</b>
+        Biasanya ada sel di atas yang belum dijalankan. Pilih <code>Runtime → Run all</code> untuk menjalankan ulang notebook dari sel pertama secara berurutan.
+      </div>
+      <div class="colab-tip">
+        <b>Tidak punya akun Google, atau internet tidak stabil?</b>
+        Unduh berkas <code>.ipynb</code> dan jalankan secara lokal dengan Jupyter Notebook/JupyterLab, atau gunakan laboratorium komputer kampus. Labsheet ini hanya memakai NumPy dan Matplotlib.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 9 — DAFTAR ISTILAH ================= -->
+<section id="s12">
+  <div class="eyebrow">09A — Glosarium A–N</div>
+  <h2>Daftar istilah (<em>glossary</em>) Inggris–Indonesia</h2>
+  <p class="lede">Dalam paparan dipakai istilah Indonesia yang relatif dikenal; istilah Inggris dicetak miring dan dipertahankan karena lazim dipakai di buku teks dan pencarian. Singkatan CT/DT dan simbol matematika tidak dicetak miring.</p>
+  <div class="gloss-grid single">
+    <table class="gloss-table">
+      <caption class="sr-only">Daftar istilah A sampai N</caption>
+      <thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead>
+      <tbody>
+        <tr><td><em>aliasing</em></td><td><em>aliasing</em> (penyamaran frekuensi)</td><td>Frekuensi tinggi tampak lebih rendah karena fs tidak cukup</td></tr>
+        <tr><td><em>clipping</em></td><td>pemotongan puncak</td><td>Distorsi saat sinyal melewati batas amplitudo alat</td></tr>
+        <tr><td><em>complex exponential</em></td><td>eksponensial kompleks</td><td>Bentuk umum Ce^st, s=σ+jω — lihat Bagian 05</td></tr>
+        <tr><td><em>continuous-time</em> (CT); <em>discrete-time</em> (DT)</td><td>waktu-kontinu (CT); waktu-diskrit (DT)</td><td>Notasi: x(t) vs x[n]</td></tr>
+        <tr><td><em>digital signal</em></td><td>sinyal digital</td><td>Waktu-diskrit dan amplitudonya terkuantisasi</td></tr>
+        <tr><td><em>eigenfunction</em></td><td>fungsi eigen</td><td>Alasan e^st sentral untuk sistem LTI</td></tr>
+        <tr><td><em>exponential signal</em></td><td>sinyal eksponensial</td><td>Naik (a&gt;0) atau meluruh (a&lt;0)</td></tr>
+        <tr><td><em>Nyquist frequency</em></td><td>frekuensi Nyquist</td><td>Batas fs/2 agar tidak terjadi <em>aliasing</em></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= SECTION 9B — DAFTAR ISTILAH (LANJUTAN) ================= -->
+<section id="s13">
+  <div class="eyebrow">09B — Glosarium Q–U</div>
+  <h2>Daftar istilah: Q–U</h2>
+  <p class="lede">Lanjutan daftar istilah Inggris–Indonesia, tetap dalam urutan abjad berdasarkan istilah Inggris.</p>
+  <div class="gloss-grid single">
+    <table class="gloss-table">
+      <caption class="sr-only">Daftar istilah Q sampai U</caption>
+      <thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead>
+      <tbody>
+        <tr><td><em>quantization</em></td><td>kuantisasi</td><td>Pembulatan amplitudo ke level terbatas</td></tr>
+        <tr><td><em>sampling</em></td><td>pencuplikan</td><td>Proses CT → DT; laju: fs</td></tr>
+        <tr><td><em>sampling rate/sample rate</em></td><td>laju pencuplikan</td><td>Notasi: fs, satuan sampel/detik</td></tr>
+        <tr><td><em>sinusoidal</em></td><td>sinusoidal</td><td>Dipertahankan — istilah umum lintas bahasa</td></tr>
+        <tr><td><em>unit impulse</em></td><td>impuls satuan</td><td>Notasi: δ(t), δ[n] — beda definisi CT vs DT</td></tr>
+        <tr><td><em>unit ramp</em></td><td>sinyal ramp (ramp satuan)</td><td>Notasi: r(t)=t·u(t), r[n]=n·u[n]</td></tr>
+        <tr><td><em>unit step</em></td><td>undak satuan</td><td>Notasi: u(t), u[n]</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= SECTION 9C — DAFTAR SIMBOL (1/2) ================= -->
+<section id="s13c">
+  <div class="eyebrow">09C — Daftar Simbol (1/2)</div>
+  <h2>Daftar simbol matematika: sinyal dasar</h2>
+  <p class="lede">Simbol dan notasi yang dipakai berulang di seluruh materi minggu ini, dikelompokkan mengikuti urutan kemunculannya — bukan urutan abjad.</p>
+  <div class="gloss-grid single">
+    <table class="gloss-table">
+      <caption class="sr-only">Daftar simbol matematika beserta nama dan artinya</caption>
+      <thead><tr><th scope="col">Simbol</th><th scope="col">Nama simbol</th><th scope="col">Artinya</th></tr></thead>
+      <tbody>
+        <tr><td>t</td><td>t (waktu kontinu)</td><td>Variabel waktu kontinu pada sinyal x(t)</td></tr>
+        <tr><td>n</td><td>n (indeks diskrit)</td><td>Variabel indeks bilangan bulat pada sinyal x[n]</td></tr>
+        <tr><td>x(t), x[n]</td><td>x dari t, x dari n</td><td>Notasi umum sinyal waktu-kontinu (CT) dan waktu-diskrit (DT)</td></tr>
+        <tr><td>u(t), u[n]</td><td>undak satuan <em>(unit step)</em></td><td>Bernilai 0 sebelum titik acuan, lalu "menyala" ke 1</td></tr>
+        <tr><td>δ(t), δ[n]</td><td>delta (impuls satuan)</td><td>δ(t) didefinisikan lewat integral (luas/bobot=1); δ[n] barisan bernilai 1 di n=0</td></tr>
+        <tr><td>r(t), r[n]</td><td>r (ramp)</td><td>Sinyal ramp/undak landai: r(t)=t·u(t)</td></tr>
+        <tr><td>A</td><td>A (amplitudo)</td><td>Skala/tinggi puncak sinyal</td></tr>
+        <tr><td>a</td><td>a (laju eksponensial)</td><td>Laju pertumbuhan (a&gt;0) atau peluruhan (a&lt;0) pada eksponensial real</td></tr>
+        <tr><td>f</td><td>f (frekuensi)</td><td>Frekuensi sinyal sinusoidal, satuan Hz</td></tr>
+        <tr><td>φ</td><td>phi (fase)</td><td>Sudut fase awal sinyal sinusoidal</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= SECTION 9D — DAFTAR SIMBOL (2/2) ================= -->
+<section id="s13d">
+  <div class="eyebrow">09D — Daftar Simbol (2/2)</div>
+  <h2>Daftar simbol matematika: pencuplikan dan bilangan kompleks</h2>
+  <p class="lede">Lanjutan daftar simbol berdasarkan urutan kemunculan dalam materi.</p>
+  <div class="gloss-grid single">
+    <table class="gloss-table">
+      <caption class="sr-only">Lanjutan daftar simbol matematika beserta nama dan artinya</caption>
+      <thead><tr><th scope="col">Simbol</th><th scope="col">Nama simbol</th><th scope="col">Artinya</th></tr></thead>
+      <tbody>
+        <tr><td>T<sub>s</sub></td><td>T subskrip s (periode pencuplikan)</td><td>Selang waktu antar sampel; T<sub>s</sub> = 1/f<sub>s</sub></td></tr>
+        <tr><td>f<sub>s</sub></td><td>f subskrip s (laju pencuplikan)</td><td>Jumlah sampel per detik; f<sub>s</sub> = 1/T<sub>s</sub></td></tr>
+        <tr><td>t0, n0</td><td>t nol, n nol (titik pergeseran)</td><td>Titik waktu tempat sinyal digeser atau mulai "menyala"</td></tr>
+        <tr><td>C</td><td>C (konstanta kompleks)</td><td>Konstanta pengali (boleh bilangan kompleks) pada Ce^st</td></tr>
+        <tr><td>s</td><td>s (variabel kompleks)</td><td>s=σ+jω, eksponen pada eksponensial kompleks — lihat Bagian 05</td></tr>
+        <tr><td>σ</td><td>sigma (bagian real dari s)</td><td>Menentukan laju tumbuh (σ&gt;0) atau meluruh (σ&lt;0)</td></tr>
+        <tr><td>ω</td><td>omega (frekuensi sudut)</td><td>ω=2πf; menentukan kecepatan osilasi</td></tr>
+        <tr><td>j</td><td>j (satuan imajiner)</td><td>j=√−1; notasi teknik elektro, bukan i, supaya tak tertukar dengan lambang arus</td></tr>
+        <tr><td>π</td><td>pi</td><td>Konstanta ≈3,14159, muncul dalam 2πf</td></tr>
+        <tr><td>Re{·}, Im{·}</td><td>bagian real, bagian imajiner</td><td>Komponen real dan imajiner dari bilangan/sinyal kompleks</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= SECTION 10 — CTA LABSHEET ================= -->
+<section id="s14">
+  <div class="eyebrow">10 — Praktik</div>
+  <div class="cta-wrap">
+    <h3>Lanjutkan di Labsheet-01</h3>
+    <p>Konsep di atas dipraktikkan langsung di notebook ini: membuat &amp; memplot 5 sinyal dasar (undak satuan, impuls satuan, sinusoidal, eksponensial, dan ramp satuan) di CT dan DT memakai Python/Colab, lalu merefleksikan kapan memakai <code>plot</code> vs <code>stem</code>. Tugas 1–5 wajib; Tugas 6–7 opsional/bonus.</p>
+    <a class="cta-btn" href="https://drive.google.com/file/d/1SnW4ac3nh6K4UVgIJ2_MIlXHa2qcM04O" target="_blank" rel="noopener">▸ Buka Labsheet-01 (Colab / Jupyter)</a>
+    <div class="cta-meta">
+      <div class="m"><b>SK1</b>penilaian partisipatif</div>
+      <div class="m"><b>4%</b>bobot nilai akhir</div>
+      <div class="m"><b>5 wajib + 2 opsional</b>tugas</div>
+      <div class="m"><b>Sub-1.1</b>Sub-CPMK</div>
+    </div>
+  </div>
+
+  <div class="recap">
+    <div class="r"><b>CT vs DT</b>x(t) kontinu, x[n] diskrit</div>
+    <div class="r"><b>5 sinyal dasar</b>undak, impuls, sinusoidal, eksponensial, ramp</div>
+    <div class="r"><b>Python/Colab</b>plot() vs stem()</div>
+    <div class="r"><b>Minggu depan</b><a href="W02-sifat-transformasi_v03.html" style="color:var(--phosphor);">Labsheet-02 — sifat &amp; transformasi dasar sinyal ▸</a></div>
+  </div>
+  <p class="version-tag">Versi v03 · Diperbarui 16-09-2026 21:50 WIB</p>
+</section>
+
+<div class="navbar">
+  <button id="prevBtn">◂ Sebelumnya</button>
+  <div class="dots" id="dots"></div>
+  <span class="count" id="count">1 / 20</span>
+  <button id="nextBtn">Berikutnya ▸</button>
+</div>
+
+<!-- Navigasi popup bagian: lompat cepat antar-bagian, terpisah dari "Daftar Isi" lintas-minggu
+     di topbar. Sengaja diletakkan di luar .navbar/.topbar dan tidak memakai kelas itu supaya
+     tidak ikut disembunyikan pada mode embed (lihat aturan html.embedded di CSS). -->
+<button type="button" id="sectionNavBtn" class="section-nav-fab" aria-haspopup="dialog" aria-controls="sectionNavDialog" aria-label="Lompat ke bagian" title="Lompat ke bagian">☰</button>
+
+<div class="section-nav-overlay" id="sectionNavOverlay" hidden>
+  <div class="section-nav-dialog" role="dialog" aria-modal="true" aria-labelledby="sectionNavTitle" id="sectionNavDialog">
+    <div class="section-nav-head">
+      <h3 id="sectionNavTitle">Lompat ke bagian</h3>
+      <button type="button" class="section-nav-close" id="sectionNavClose" aria-label="Tutup daftar bagian">✕</button>
+    </div>
+    <div class="section-nav-list" id="sectionNavList"></div>
+  </div>
+</div>
+
+<script>
+/* ============ mode embed: popout link + matikan navigasi presentasi ============ */
+const isEmbedded = document.documentElement.classList.contains('embedded');
+const popoutLink = document.getElementById('popoutLink');
+if(popoutLink) popoutLink.href = window.location.href;
+
+if(isEmbedded){
+  /* Beri tahu halaman induk (kalau memakai plugin auto-height ala iframe-resizer)
+     agar iframe bisa menyesuaikan tinggi ke tinggi konten sesungguhnya. Aman dikirim
+     meski tidak ada yang mendengarkan — tidak memengaruhi apa pun. */
+  function postHeight(){
+    try{ window.parent.postMessage({type:'iframeResize', height: document.documentElement.scrollHeight}, '*'); }catch(e){}
+  }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
+  setTimeout(postHeight, 400);
+}
+
+/* ============ tombol ganti tema terang/gelap (aktif di mode presentasi maupun embed) ============ */
+(function(){
+  const btn = document.getElementById('themeToggle');
+  if(!btn) return;
+  const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function effectiveTheme(){
+    const explicit = document.documentElement.getAttribute('data-theme');
+    if(explicit === 'dark' || explicit === 'light') return explicit;
+    return (mql && mql.matches) ? 'dark' : 'light';
+  }
+  function updateToggleUI(){
+    const dark = effectiveTheme() === 'dark';
+    btn.textContent = dark ? '☀ Terang' : '☾ Gelap';
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.setAttribute('aria-label', dark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap');
+  }
+  updateToggleUI();
+  btn.addEventListener('click', ()=>{
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try{ localStorage.setItem('w01-theme', next); }catch(e){ /* localStorage tak tersedia — pilihan tidak tersimpan lintas kunjungan, tapi tombol tetap berfungsi untuk sesi ini */ }
+    updateToggleUI();
+  });
+  // Kalau pengguna belum pernah memilih manual (tidak ada data-theme eksplisit)
+  // dan sistem operasinya berpindah tema saat halaman masih terbuka, ikuti otomatis.
+  if(mql && mql.addEventListener){
+    mql.addEventListener('change', ()=>{
+      if(!document.documentElement.getAttribute('data-theme')) updateToggleUI();
+    });
+  }
+})();
+
+/* ============ presentation-mode navigation (nonaktif dalam mode embed) ============ */
+const sections = Array.from(document.querySelectorAll('section'));
+
+if(!isEmbedded){
+  const dotsWrap = document.getElementById('dots');
+  const countEl = document.getElementById('count');
+  sections.forEach((s,i)=>{
+    const d = document.createElement('button');
+    d.type='button';
+    d.className='dot';
+    const eyebrowEl = s.querySelector('.eyebrow');
+    const sectionLabel = eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+    d.title = sectionLabel;
+    d.setAttribute('aria-label','Ke bagian: '+sectionLabel);
+    d.addEventListener('click',()=>s.scrollIntoView({behavior:'smooth',block:'start'}));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  const currentIndex = ()=>{
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx=0;
+    sections.forEach((s,i)=>{ if(s.offsetTop <= y) idx=i; });
+    return idx;
+  };
+  const updateNav = ()=>{
+    const idx = currentIndex();
+    dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+    countEl.textContent = (idx+1)+' / '+sections.length;
+    document.getElementById('prevBtn').disabled = idx===0;
+    document.getElementById('nextBtn').disabled = idx===sections.length-1;
+  };
+  window.addEventListener('scroll', ()=>requestAnimationFrame(updateNav), {passive:true});
+  updateNav();
+
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    const idx = Math.min(currentIndex()+1, sections.length-1);
+    sections[idx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  document.getElementById('prevBtn').addEventListener('click',()=>{
+    const idx = Math.max(currentIndex()-1,0);
+    sections[idx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  window.addEventListener('keydown',(e)=>{
+    const navOverlay = document.getElementById('sectionNavOverlay');
+    if(navOverlay && !navOverlay.hidden) return; // popup bagian sedang terbuka, jangan pindah slide di belakangnya
+    const t = e.target;
+    const tag = (t && t.tagName || '').toLowerCase();
+    if(tag==='input' || tag==='select' || tag==='textarea' || (t && t.isContentEditable)) return;
+    if(['ArrowRight','ArrowDown','PageDown'].includes(e.key)){
+      e.preventDefault();
+      document.getElementById('nextBtn').click();
+    } else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){
+      e.preventDefault();
+      document.getElementById('prevBtn').click();
+    }
+  });
+}
+
+/* ============ popup navigasi bagian: aktif di mode presentasi MAUPUN embed ============
+   Sengaja di luar blok if(!isEmbedded) di atas — mode embed mematikan dot/Sebelumnya/
+   Berikutnya sepenuhnya, jadi popup ini satu-satunya cara lompat cepat saat itu terjadi. */
+(function(){
+  const fab = document.getElementById('sectionNavBtn');
+  const overlay = document.getElementById('sectionNavOverlay');
+  const closeBtn = document.getElementById('sectionNavClose');
+  const listEl = document.getElementById('sectionNavList');
+  if(!fab || !overlay || !closeBtn || !listEl) return;
+
+  sections.forEach((s,i)=>{
+    const eyebrowEl = s.querySelector('.eyebrow');
+    const label = eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'section-nav-item';
+    item.textContent = (i+1)+'. '+label;
+    item.addEventListener('click',()=>{
+      s.scrollIntoView({behavior:'smooth', block:'start'});
+      closeDialog();
+    });
+    listEl.appendChild(item);
+  });
+  const items = Array.from(listEl.children);
+
+  function activeIndex(){
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx = 0;
+    sections.forEach((s,i)=>{ if(s.getBoundingClientRect().top + window.scrollY <= y) idx = i; });
+    return idx;
+  }
+
+  let lastFocused = null;
+  function openDialog(){
+    lastFocused = document.activeElement;
+    items.forEach((it,i)=> it.classList.toggle('active', i===activeIndex()));
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+    document.addEventListener('keydown', onDialogKeydown);
+  }
+  function closeDialog(){
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onDialogKeydown);
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+  function onDialogKeydown(e){
+    if(e.key === 'Escape'){
+      e.preventDefault();
+      closeDialog();
+    } else if(e.key === 'Tab'){
+      const focusable = [closeBtn, ...items];
+      const first = focusable[0], last = focusable[focusable.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    }
+  }
+
+  fab.addEventListener('click', openDialog);
+  closeBtn.addEventListener('click', closeDialog);
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) closeDialog(); });
+})();
+
+/* ============ canvas plotting helpers ============ */
+function setupCanvas(cv){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = cv.getBoundingClientRect();
+  cv.width = rect.width*dpr; cv.height = rect.height*dpr;
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx, w:rect.width, h:rect.height};
+}
+function drawAxes(ctx,w,h,pad,tmin,tmax,vmax){
+  ctx.strokeStyle = '#c8c0a4';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, h/2); ctx.lineTo(w-8, h/2); // t axis
+  ctx.moveTo(pad, 8); ctx.lineTo(pad, h-8); // amplitude axis
+  ctx.stroke();
+
+  // Label ujung rentang & amplitudo, plus penanda titik asal (t=0), supaya
+  // grafik bisa dibaca kuantitatif (bukan cuma bentuknya) — lihat mapXY di bawah.
+  if(tmin===undefined || tmax===undefined || vmax===undefined) return;
+  ctx.font = '9px JetBrains Mono';
+  ctx.fillStyle = '#8a8370';
+  ctx.textAlign = 'left';
+  ctx.fillText(tmin.toFixed(1), pad, h-2);
+  ctx.textAlign = 'right';
+  ctx.fillText(tmax.toFixed(1), w-4, h-2);
+  ctx.textAlign = 'left';
+  ctx.fillText('+'+vmax.toFixed(1), pad+4, 13);
+  ctx.fillText('−'+vmax.toFixed(1), pad+4, h-14);
+
+  if(tmin<=0 && 0<=tmax){
+    const [x0,y0] = mapXY(0,0,tmin,tmax,-vmax,vmax,w,h,pad);
+    ctx.beginPath(); ctx.arc(x0,y0,2.4,0,2*Math.PI);
+    ctx.fillStyle='#6b756e'; ctx.fill();
+    ctx.textAlign='center';
+    ctx.fillText('0', x0, Math.min(h-2,h/2+13));
+  }
+}
+function mapXY(t,val,tmin,tmax,vmin,vmax,w,h,pad){
+  const x = pad + (t-tmin)/(tmax-tmin)*(w-pad-10);
+  const y = h/2 - (val)/(vmax-vmin)*(h-24);
+  return [x,y];
+}
+
+/* generic function evaluators */
+const FN = {
+  sin:(t,A,f)=>A*Math.sin(2*Math.PI*f*t),
+  exp:(t,A,a)=>A*Math.exp(a*t),
+  step:(t,A,t0)=>(t>=t0? A:0),
+};
+
+function drawCT(cv, fn, tmin, tmax, vmax, opts){
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad=26;
+  drawAxes(ctx,w,h,pad,tmin,tmax,vmax);
+  ctx.strokeStyle = opts.color || '#0f6b52';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  let started=false;
+  const N=400;
+  for(let i=0;i<=N;i++){
+    const t = tmin + (tmax-tmin)*i/N;
+    const val = fn(t);
+    const [x,y] = mapXY(t,val,tmin,tmax,-vmax,vmax,w,h,pad);
+    if(!started){ctx.moveTo(x,y); started=true;} else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  return {ctx,w,h,pad};
+}
+
+function drawImpulseCT(cv, A, t0, tmin, tmax, vmax){
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad=26;
+  drawAxes(ctx,w,h,pad,tmin,tmax,vmax);
+  const [x0,y0] = mapXY(t0,0,tmin,tmax,-vmax,vmax,w,h,pad);
+  const [,yTop] = mapXY(t0,A,tmin,tmax,-vmax,vmax,w,h,pad);
+  ctx.strokeStyle = '#b45309';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x0,y0); ctx.lineTo(x0,yTop);
+  ctx.stroke();
+  // arrow head
+  ctx.beginPath();
+  ctx.moveTo(x0,yTop);
+  ctx.lineTo(x0-5,yTop+9);
+  ctx.lineTo(x0+5,yTop+9);
+  ctx.closePath();
+  ctx.fillStyle='#b45309';
+  ctx.fill();
+  ctx.fillStyle='#6b756e'; ctx.font='10px JetBrains Mono';
+  ctx.fillText('A='+A.toFixed(1), x0+8, yTop+4);
+}
+
+function drawDT(cv, fn, nmin, nmax, vmax, opts){
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad=26;
+  drawAxes(ctx,w,h,pad,nmin,nmax,vmax);
+  ctx.strokeStyle = opts.color || '#0f6fa3';
+  ctx.fillStyle = opts.color || '#0f6fa3';
+  for(let n=nmin;n<=nmax;n++){
+    const val = fn(n);
+    const [x,y0] = mapXY(n,0,nmin,nmax,-vmax,vmax,w,h,pad);
+    const [,y1] = mapXY(n,val,nmin,nmax,-vmax,vmax,w,h,pad);
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x,y1,3.2,0,7); ctx.fill();
+  }
+}
+
+/* ============ hook clip illustration ============ */
+function drawClip(){
+  const cv = document.getElementById('clipCanvas');
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const mid=h/2, amp=h*0.42, clipLevel=h*0.30;
+  ctx.strokeStyle='#d9d2bb'; ctx.setLineDash([3,4]);
+  ctx.beginPath(); ctx.moveTo(0,mid-clipLevel); ctx.lineTo(w,mid-clipLevel);
+  ctx.moveTo(0,mid+clipLevel); ctx.lineTo(w,mid+clipLevel); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle='#dc2626'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,mid-clipLevel); ctx.lineTo(w,mid-clipLevel);
+  ctx.moveTo(0,mid+clipLevel); ctx.lineTo(w,mid+clipLevel); ctx.stroke();
+
+  ctx.strokeStyle='#b45309'; ctx.lineWidth=1.4; ctx.beginPath();
+  for(let x=0;x<=w;x++){
+    const t=x/w*10;
+    let y = mid - Math.sin(t*2.4)*amp*(0.4+0.6*Math.abs(Math.sin(t*0.5)));
+    if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle='#0f6b52'; ctx.lineWidth=2; ctx.beginPath();
+  for(let x=0;x<=w;x++){
+    const t=x/w*10;
+    let y = mid - Math.sin(t*2.4)*amp*(0.4+0.6*Math.abs(Math.sin(t*0.5)));
+    y = Math.max(mid-clipLevel, Math.min(mid+clipLevel, y));
+    if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+}
+drawClip();
+
+/* ============ ilustrasi eksponensial kompleks (Re/Im dari e^{jωt}) ============ */
+/* Gambar beberapa kurva CT sekaligus pada satu kanvas (dipakai untuk membandingkan
+   beberapa kasus σ/ω pada eksponensial kompleks Bagian 05). curves: array {fn, color,
+   dash?, width?}. */
+function drawMultiCT(cv, curves, tmin, tmax, vmax){
+  if(!cv) return;
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad=26;
+  drawAxes(ctx,w,h,pad,tmin,tmax,vmax);
+  const N=400;
+  curves.forEach(c=>{
+    ctx.strokeStyle = c.color;
+    ctx.lineWidth = c.width || 2;
+    ctx.setLineDash(c.dash || []);
+    ctx.beginPath();
+    let started=false;
+    for(let i=0;i<=N;i++){
+      const t = tmin + (tmax-tmin)*i/N;
+      const [x,y] = mapXY(t, c.fn(t), tmin,tmax,-vmax,vmax,w,h,pad);
+      if(!started){ctx.moveTo(x,y); started=true;} else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);
+}
+
+function drawComplexExp(){
+  const omega = 2*Math.PI*0.6; // frekuensi sudut contoh, konsisten dengan mini-plot CT Bagian 02
+
+  // Kasus 1: sigma=0 -- murni berosilasi. Re{e^(j omega t)}=cos, Im{e^(j omega t)}=sin.
+  drawMultiCT(document.getElementById('ceCanvasA'), [
+    {fn:t=>Math.cos(omega*t), color:'#0f6b52'},
+    {fn:t=>Math.sin(omega*t), color:'#0f6fa3', dash:[5,4]},
+  ], -1, 3, 1.3);
+
+  // Kasus 2: omega=0, C riil -- murni eksponensial. Satu meluruh (sigma<0), satu tumbuh (sigma>0).
+  drawMultiCT(document.getElementById('ceCanvasB'), [
+    {fn:t=>Math.exp(-1*t), color:'#0f6b52'},
+    {fn:t=>0.3*Math.exp(0.7*t), color:'#b45309'},
+  ], 0, 3, 3);
+
+  // Kasus 3: sigma != 0 dan omega != 0 -- bagian real berosilasi di dalam amplop eksponensial.
+  const sigma3 = -0.5;
+  drawMultiCT(document.getElementById('ceCanvasC'), [
+    {fn:t=>Math.exp(sigma3*t)*Math.cos(omega*t), color:'#0f6b52'},
+    {fn:t=>Math.exp(sigma3*t), color:'#b45309', dash:[5,4]},
+    {fn:t=>-Math.exp(sigma3*t), color:'#b45309', dash:[5,4]},
+  ], 0, 4, 1.3);
+}
+drawComplexExp();
+
+window.addEventListener('resize',()=>{drawClip(); renderMiniPlots(); renderGallery(); updateSim(); drawSoalCanvases(); drawComplexExp();});
+
+/* ============ mini concept plots ============ */
+function renderMiniPlots(){
+  document.querySelectorAll('.mini-plot').forEach(cv=>{
+    const kind = cv.dataset.kind;
+    if(kind==='ct-smooth'){
+      drawCT(cv, t=>Math.sin(2*Math.PI*0.6*t), -2, 5, 1.3, {color:'#0f6b52'});
+    } else if(kind==='dt-stem'){
+      drawDT(cv, n=>Math.sin(2*Math.PI*0.18*n), -2, 10, 1.3, {color:'#0f6fa3'});
+    } else if(kind==='digital'){
+      const {ctx,w,h} = setupCanvas(cv);
+      ctx.clearRect(0,0,w,h);
+      const pad=26; drawAxes(ctx,w,h,pad,-2,10,1.3);
+      const levels=5;
+      ctx.fillStyle='#b45309';
+      for(let n=-2;n<=10;n++){
+        const raw = Math.sin(2*Math.PI*0.18*n);
+        const q = Math.round(raw*levels)/levels;
+        const [x,y0]=mapXY(n,0,-2,10,-1.3,1.3,w,h,pad);
+        const [,y1]=mapXY(n,q,-2,10,-1.3,1.3,w,h,pad);
+        ctx.strokeStyle='#b45309'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
+        ctx.beginPath(); ctx.rect(x-2.5,y1-2.5,5,5); ctx.fill();
+      }
+    }
+  });
+}
+
+/* ============ gallery of 5 basic signals — x(t) DAN x[n] eksplisit tiap kartu ============ */
+// Laju cuplik acuan galeri, sama dengan yang dipakai simulator (fs=8/detik, lihat updateSim).
+// Rentang n dipilih lebih sempit (jendela waktu -1..2 s) daripada rentang t panel CT-nya
+// supaya batang DT tidak terlalu rapat pada kanvas kecil ini — tiap panel tetap berlabel
+// rentangnya sendiri lewat drawAxes, jadi tidak menyesatkan meski jendelanya berbeda.
+const GALLERY_TS = 1/8;
+const GALLERY_NMIN = -8, GALLERY_NMAX = 16; // -> t = n*GALLERY_TS terentang -1..2 s
+function renderGallery(){
+  document.querySelectorAll('.gcanvas').forEach(cv=>{
+    const kind = cv.dataset.kind;
+    const Ts = GALLERY_TS, nmin = GALLERY_NMIN, nmax = GALLERY_NMAX;
+    if(kind==='step-ct') drawCT(cv, t=>FN.step(t,1,0), -3,5,1.4,{color:'#0f6b52'});
+    if(kind==='step-dt') drawDT(cv, n=>FN.step(n*Ts,1,0), nmin,nmax,1.4,{color:'#0f6fa3'});
+    if(kind==='impulse-ct') drawImpulseCT(cv, 1, 0, -3, 5, 1.4);
+    if(kind==='impulse-dt') drawDT(cv, n=>(n===0?1:0), nmin,nmax,1.4,{color:'#0f6fa3'});
+    if(kind==='sinus-ct') drawCT(cv, t=>Math.sin(2*Math.PI*0.8*t), -2,4,1.3,{color:'#0f6b52'});
+    if(kind==='sinus-dt') drawDT(cv, n=>Math.sin(2*Math.PI*0.8*n*Ts), nmin,nmax,1.3,{color:'#0f6fa3'});
+    if(kind==='expo-ct') drawCT(cv, t=>Math.exp(-0.6*t), -1,4,3,{color:'#0f6b52'});
+    if(kind==='expo-dt') drawDT(cv, n=>Math.exp(-0.6*n*Ts), nmin,nmax,3,{color:'#0f6fa3'});
+    if(kind==='ramp-ct') drawCT(cv, t=>Math.max(t,0), -2,4,4.8,{color:'#0f6b52'});
+    if(kind==='ramp-dt') drawDT(cv, n=>Math.max(n*Ts,0), nmin,nmax,2.4,{color:'#0f6fa3'});
+  });
+}
+
+/* ============ interactive simulator ============ */
+const sigType = document.getElementById('sigType');
+const ampSlider = document.getElementById('amp');
+const freqSlider = document.getElementById('freq');
+const decaySlider = document.getElementById('decay');
+const shiftSlider = document.getElementById('shift');
+const ctrlAmp = document.getElementById('ctrlAmp');
+const ctrlFreq = document.getElementById('ctrlFreq');
+const ctrlDecay = document.getElementById('ctrlDecay');
+const ctrlShift = document.getElementById('ctrlShift');
+
+function updateSim(){
+  const type = sigType.value;
+  const A = parseFloat(ampSlider.value);
+  const f = parseFloat(freqSlider.value);
+  const a = parseFloat(decaySlider.value);
+  const t0 = parseFloat(shiftSlider.value);
+
+  document.getElementById('ampVal').textContent = A.toFixed(1);
+  document.getElementById('freqVal').textContent = f.toFixed(1);
+  document.getElementById('decayVal').textContent = a.toFixed(1);
+  document.getElementById('shiftVal').textContent = t0.toFixed(1);
+
+  ctrlFreq.style.display = (type==='sin') ? 'flex' : 'none';
+  ctrlDecay.style.display = (type==='exp') ? 'flex' : 'none';
+  ctrlShift.style.display = (type==='step'||type==='impulse') ? 'flex' : 'none';
+
+  const ctCanvas = document.getElementById('ctPlot');
+  const dtCanvas = document.getElementById('dtPlot');
+  const formulaEl = document.getElementById('simFormula');
+  const summaryEl = document.getElementById('simSummary');
+  const Ts = 1/8;
+
+  const nyquistWarnEl = document.getElementById('nyquistWarn');
+  if(nyquistWarnEl) nyquistWarnEl.classList.toggle('show', type==='sin' && f >= 3.5);
+
+  let summaryText = '';
+
+  if(type==='sin'){
+    drawCT(ctCanvas, t=>FN.sin(t,A,f), -2,4, Math.max(A*1.2,1.4), {color:'#0f6b52'});
+    drawDT(dtCanvas, n=>FN.sin(n*Ts,A,f), -16,32, Math.max(A*1.2,1.4), {color:'#0f6fa3'});
+    formulaEl.innerHTML = renderTex('x(t) = '+A.toFixed(1)+'\\sin(2\\pi \\cdot '+f.toFixed(1)+' t) \\quad\\Longrightarrow\\quad x[n] = '+A.toFixed(1)+'\\sin(2\\pi \\cdot '+f.toFixed(1)+' \\cdot nT_s),\\ T_s=1/8\\,\\text{s}');
+    summaryText = 'Sinyal sinusoidal, amplitudo '+A.toFixed(1)+', frekuensi '+f.toFixed(1)+' Hz. Grafik kiri: x(t) waktu-kontinu. Grafik kanan: x[n] hasil pencuplikan pada fs=8/detik.';
+  } else if(type==='exp'){
+    // vmax dihitung dari nilai riil di kedua ujung rentang t (bukan faktor tetap),
+    // supaya kurva tidak terpotong (clip) saat |a| besar. exp(t) monoton, jadi
+    // nilai ekstrem selalu ada di salah satu ujung rentang t=[-1,4].
+    const vmaxExp = Math.max(A*Math.exp(-1*a), A*Math.exp(4*a), 2);
+    drawCT(ctCanvas, t=>FN.exp(t,A,a), -1,4, vmaxExp, {color:'#0f6b52'});
+    drawDT(dtCanvas, n=>FN.exp(n*Ts,A,a), -1/Ts,4/Ts, vmaxExp, {color:'#0f6fa3'});
+    formulaEl.innerHTML = renderTex('x(t) = '+A.toFixed(1)+'\\,e^{'+a.toFixed(1)+'t} \\quad\\Longrightarrow\\quad x[n] = '+A.toFixed(1)+'\\,e^{'+a.toFixed(1)+'\\, nT_s}');
+    summaryText = 'Sinyal eksponensial, amplitudo '+A.toFixed(1)+', laju a='+a.toFixed(1)+' ('+(a>=0?'naik':'meluruh')+'). Grafik kiri: x(t) waktu-kontinu. Grafik kanan: x[n] hasil pencuplikan.';
+  } else if(type==='ramp'){
+    // Pasangan CT dan hasil pencuplikannya; ramp unit diskrit r[n]=n*u[n].
+    const vmax = Math.max(A*5*1.2,1.4);
+    drawCT(ctCanvas, t=>A*Math.max(t,0), -3,5,vmax, {color:'#0f6b52'});
+    drawDT(dtCanvas, n=>A*Math.max(n*Ts,0), -24,40,vmax, {color:'#0f6fa3'});
+    formulaEl.innerHTML = renderTex('x(t) = '+A.toFixed(1)+'\\,t\\,u(t) \\quad\\Longrightarrow\\quad x[n] = '+A.toFixed(1)+'\\,nT_s\\,u[n],\\ T_s=1/8\\,\\text{s}')
+      + '<br><small>A mengatur kemiringan ramp CT. Panel DT menunjukkan hasil pencuplikan ramp CT; ramp unit diskrit r[n]=n·u[n] berbeda skala.</small>';
+    summaryText = 'Sinyal ramp, kemiringan A='+A.toFixed(1)+'. Grafik kiri: ramp waktu-kontinu. Grafik kanan: hasil pencuplikan ramp tersebut, berbeda skala dari ramp unit diskrit n·u[n].';
+  } else if(type==='step'){
+    const n0 = Math.round(t0/Ts);
+    drawCT(ctCanvas, t=>FN.step(t,A,t0), -3,5, Math.max(A*1.3,1.4), {color:'#0f6b52'});
+    drawDT(dtCanvas, n=>FN.step(n*Ts,A,t0), -3/Ts,5/Ts, Math.max(A*1.3,1.4), {color:'#0f6fa3'});
+    formulaEl.innerHTML = renderTex('x(t) = '+A.toFixed(1)+'\\,u(t - ('+t0.toFixed(1)+')) \\quad\\Longrightarrow\\quad x[n] = '+A.toFixed(1)+'\\,u[n - ('+n0+')],\\ T_s=1/8\\,\\text{s}');
+    summaryText = 'Undak satuan, amplitudo '+A.toFixed(1)+', pergeseran t0='+t0.toFixed(1)+'. Bernilai nol sebelum t0, lalu tetap di nilai amplitudo sesudahnya. Grafik kanan: x[n] hasil pencuplikan pada fs=8/detik.';
+  } else if(type==='impulse'){
+    const n0 = Math.round(t0/Ts);
+    drawImpulseCT(ctCanvas, A, t0, -3,5, Math.max(A*1.3,1.4));
+    drawDT(dtCanvas, n=> (n===n0 ? A : 0), -3/Ts,5/Ts, Math.max(A*1.3,1.4), {color:'#0f6fa3'});
+    formulaEl.innerHTML = renderTex('x(t) = '+A.toFixed(1)+'\\,\\delta(t - ('+t0.toFixed(1)+')) \\quad\\text{—}\\quad x[n] = '+A.toFixed(1)+'\\,\\delta[n - ('+n0+')]')
+      + '<br><small>Dua objek berbeda per domain, bukan pasangan hasil pencuplikan: δ(t) adalah distribusi (didefinisikan lewat ∫δ(t)dt=1), sedangkan δ[n] adalah barisan biasa. Panjang panah CT = bobot/luas A; tinggi batang DT = nilai A sesungguhnya di n='+n0+'.</small>';
+    summaryText = 'Impuls satuan, bobot/luas '+A.toFixed(1)+' pada t0='+t0.toFixed(1)+' (n0='+n0+'). Grafik kiri: panah melambangkan bobot/luas, bukan nilai hingga. Grafik kanan: batang setinggi '+A.toFixed(1)+' di n='+n0+'.';
+  }
+
+  if(summaryEl) summaryEl.textContent = summaryText;
+}
+function renderTex(str){
+  try{ return katex.renderToString(str, {throwOnError:false}); }
+  catch(e){ return '<span class="math-fallback">'+escapeHTML(plainMath(str))+'</span>'; }
+}
+function escapeHTML(str){
+  return String(str).replace(/[&<>"']/g, ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+}
+function plainMath(str){
+  const symbols={
+    '\\sigma':'σ','\\omega':'ω','\\delta':'δ','\\pi':'π','\\varphi':'φ',
+    '\\infty':'∞','\\ge':'≥','\\le':'≤','\\Longrightarrow':'⇒',
+    '\\sin':'sin','\\cos':'cos','\\int':'∫'
+  };
+  let out=String(str)
+    .replace(/\\begin\{cases\}/g,'{ ')
+    .replace(/\\end\{cases\}/g,' }')
+    .replace(/\\\\/g,'; ')
+    .replace(/&/g,' ')
+    .replace(/\\text\{([^{}]*)\}/g,'$1')
+    .replace(/\\mathrm\{([^{}]*)\}/g,'$1')
+    .replace(/\\sqrt\{([^{}]*)\}/g,'√($1)');
+  Object.entries(symbols).forEach(([tex,symbol])=>{ out=out.split(tex).join(symbol); });
+  return out
+    .replace(/\^\{([^{}]*)\}/g,'^($1)')
+    .replace(/_\{([^{}]*)\}/g,'_($1)')
+    .replace(/\\[,;!]/g,' ')
+    .replace(/\\quad/g,'  ')
+    .replace(/[{}]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function renderPlainMathFallback(root){
+  const skip=new Set(['SCRIPT','STYLE','CODE','PRE','TEXTAREA']);
+  const walker=document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes=[];
+  while(walker.nextNode()){
+    const node=walker.currentNode;
+    if(!skip.has(node.parentElement?.tagName) && /\$[^$]+\$/.test(node.nodeValue)) nodes.push(node);
+  }
+  nodes.forEach(node=>{
+    const parts=node.nodeValue.split(/(\$[^$]+\$)/g);
+    const fragment=document.createDocumentFragment();
+    parts.forEach(part=>{
+      if(part.startsWith('$') && part.endsWith('$')){
+        const span=document.createElement('span');
+        span.className='math-fallback';
+        span.textContent=plainMath(part.slice(1,-1));
+        fragment.appendChild(span);
+      }else fragment.appendChild(document.createTextNode(part));
+    });
+    node.replaceWith(fragment);
+  });
+}
+[sigType,ampSlider,freqSlider,decaySlider,shiftSlider].forEach(el=>el.addEventListener('input',updateSim));
+
+/* ============ soal canvases ============ */
+function drawSoalCanvases(){
+  const c1a = document.getElementById('soal1canvasA');
+  if(c1a) drawCT(c1a, t=> (t>=0?3:0), -1,5,4,{color:'#0f6b52'});
+  const c1b = document.getElementById('soal1canvasB');
+  if(c1b) drawCT(c1b, t=> (t>=2?2:0), -1,5,4,{color:'#b45309'});
+  const c1 = document.getElementById('soal1canvas');
+  if(c1) drawCT(c1, t=> (t<0?0: (t<2?3:1)), -1,5,4,{color:'#0f6b52'});
+  const c2a = document.getElementById('soal2canvasA');
+  if(c2a) drawDT(c2a, n=> (n===0?1:0), -2,5,1.4,{color:'#0f6b52'});
+  const c2b = document.getElementById('soal2canvasB');
+  if(c2b) drawDT(c2b, n=> (n===3?1:0), -2,5,1.4,{color:'#b45309'});
+  const c2 = document.getElementById('soal2canvas');
+  if(c2) drawDT(c2, n=> (n===0?1:(n===3?-1:0)), -2,5,1.4,{color:'#0f6fa3'});
+}
+
+/* Kanvas Contoh 1 kini berada di dalam <details class="solusi">, yang tersembunyi
+   (lebar/tinggi 0) sampai dibuka -- gambar ulang begitu detailnya dibuka supaya
+   ketiga grafik tidak kosong. */
+document.querySelectorAll('details.solusi').forEach(d=>{
+  d.addEventListener('toggle', ()=>{ if(d.open) drawSoalCanvases(); });
+});
+
+/* ============ quiz ============ */
+const QUIZ = [
+  {
+    q:'Sinyal yang nilainya hanya terdefinisi pada titik-titik waktu bilangan bulat (hasil pencuplikan) disebut sinyal…',
+    opts:['Waktu-kontinu','Waktu-diskrit','Analog murni','Periodik'],
+    correct:1,
+    fb:'Benar — dilambangkan x[n], n bilangan bulat. Sinyal waktu-kontinu x(t) terdefinisi di setiap t real.'
+  },
+  {
+    q:'Undak satuan u(t) bernilai berapa untuk t ≥ 0?',
+    opts:['0','1','Tak hingga','−1'],
+    correct:1,
+    fb:'Benar — u(t) = 0 untuk t<0, dan u(t) = 1 untuk t≥0 (definisi "menyala" pada t=0).'
+  },
+  {
+    q:'Versi diskrit dari impuls, δ[n], bernilai 1 pada…',
+    opts:['n = 0 saja','Semua n ≥ 0','n = 1 saja','Tidak pernah bernilai 1'],
+    correct:0,
+    fb:'Benar — δ[n] jauh lebih sederhana dari δ(t): cukup 1 di n=0 dan 0 di n lainnya, tanpa perlu konsep "luas area".'
+  }
+];
+function renderQuiz(){
+  const root = document.getElementById('quizRoot');
+  QUIZ.forEach((item,qi)=>{
+    const box = document.createElement('div');
+    box.className='quiz-item';
+    const q = document.createElement('div');
+    q.className='quiz-q';
+    q.textContent = (qi+1)+'. '+item.q;
+    box.appendChild(q);
+    const opts = document.createElement('div');
+    opts.className='quiz-opts';
+    const fb = document.createElement('div');
+    fb.className='quiz-fb';
+    item.opts.forEach((optText,oi)=>{
+      const o = document.createElement('button');
+      o.type='button';
+      o.className='opt';
+      o.innerHTML = '<span class="k">'+String.fromCharCode(65+oi)+'</span><span>'+optText+'</span>';
+      o.addEventListener('click',()=>{
+        if(box.dataset.answered) return;
+        box.dataset.answered='1';
+        Array.from(opts.children).forEach((el,ei)=>{
+          if(ei===item.correct) el.classList.add('correct');
+          else if(ei===oi) el.classList.add('wrong');
+        });
+        fb.textContent = (oi===item.correct? '✓ Tepat. ' : '✗ Belum tepat. ') + item.fb;
+      });
+      opts.appendChild(o);
+    });
+    box.appendChild(opts);
+    box.appendChild(fb);
+    root.appendChild(box);
+  });
+}
+
+/* Font variable dapat selesai setelah gambar pertama: gambar ulang setelah siap. */
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(function(){window.dispatchEvent(new Event('resize'));});
+}
+
+/* ============ init ============ */
+renderMiniPlots();
+renderGallery();
+updateSim();
+drawSoalCanvases();
+renderQuiz();
+
+window.addEventListener('load',()=>{
+  if(window.renderMathInElement){
+    renderMathInElement(document.body, {
+      delimiters:[
+        {left:'$$', right:'$$', display:true},
+        {left:'$', right:'$', display:false}
+      ]
+    });
+  }else{
+    document.documentElement.classList.add('no-katex');
+    renderPlainMathFallback(document.body);
+  }
+  // Tiap formula galeri dirender sebagai DUA baris KaTeX bertumpuk (bukan satu baris
+  // inline panjang) supaya tidak meluber di kartu sempit: baris 1 = x(t), baris 2 =
+  // x[n] dengan simbol penghubung yang sesuai makna (⟹ untuk pasangan pencuplikan sah,
+  // "—" untuk impuls yang BUKAN pasangan pencuplikan — konsisten dengan konvensi di
+  // panel simulator, lihat updateSim()).
+  document.getElementById('f-step').innerHTML =
+    renderTex('x(t)=u(t)=\\begin{cases}0,& t<0\\\\1,& t\\ge0\\end{cases}') + '<br>' +
+    renderTex('\\Longrightarrow\\ x[n]=u[n]=\\begin{cases}0,& n<0\\\\1,& n\\ge0\\end{cases}');
+  document.getElementById('f-impulse').innerHTML =
+    renderTex('x(t)=\\delta(t),\\ \\int_{-\\infty}^{\\infty}\\delta(t)\\,dt=1') + '<br>' +
+    renderTex('\\text{—}\\ x[n]=\\delta[n]=\\begin{cases}1,& n=0\\\\0,& n\\ne0\\end{cases}');
+  document.getElementById('f-sinus').innerHTML =
+    renderTex('x(t)=A\\sin(2\\pi f t+\\varphi)') + '<br>' +
+    renderTex('\\Longrightarrow\\ x[n]=A\\sin(2\\pi f\\,nT_s+\\varphi),\\ T_s=1/8\\,\\text{s}');
+  document.getElementById('f-expo').innerHTML =
+    renderTex('x(t)=Ae^{at}') + '<br>' +
+    renderTex('\\Longrightarrow\\ x[n]=Ae^{a\\,nT_s},\\ T_s=1/8\\,\\text{s}');
+  document.getElementById('f-ramp').innerHTML =
+    renderTex('x(t)=r(t)=t\\,u(t)') + '<br>' +
+    renderTex('\\Longrightarrow\\ x[n]=r(nT_s)=nT_s\\,u[n],\\ T_s=1/8\\,\\text{s}');
+  document.getElementById('f-cexp').innerHTML = renderTex('e^{j\\omega t} = \\cos(\\omega t) + j\\sin(\\omega t)');
+});
+</script>
+</body>
+</html>

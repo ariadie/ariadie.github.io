@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Panduan mail merge (gabungan surat) di Microsoft Word dalam bahasa Indonesia — pengertian, komponen, menyiapkan sumber data Excel, dan langkah membuat surat massal yang dipersonalisasi." />
+  <meta name="author" content="Ariadie Chandra Nugraha" />
+  <meta property="og:title" content="Panduan Mail Merge — Surat Massal di Microsoft Word" />
+  <meta property="og:description" content="Cara membuat surat massal yang dipersonalisasi di Microsoft Word dengan mail merge: dokumen induk, sumber data Excel, merge field, pratinjau, dan mencetak." />
+  <meta property="og:type" content="website" />
+  <title>Panduan Mail Merge — Surat Massal di Microsoft Word</title>
+  <!-- Managed site metadata -->
+  <link rel="canonical" href="https://ariadie.github.io/office/mail_merge.html">
+  <meta property="og:url" content="https://ariadie.github.io/office/mail_merge.html">
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7fafc;
+      --bg-soft: #eef6ff;
+      --card: rgba(255,255,255,0.86);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted-2: #64748b;
+      --line: rgba(148, 163, 184, 0.32);
+      --primary: #0d9488;
+      --primary-2: #14b8a6;
+      --accent: #f59e0b;
+      --accent-2: #8b5cf6;
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1180px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg-soft: #0f1b2d;
+      --card: rgba(15, 23, 42, 0.80);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --muted-2: #94a3b8;
+      --line: rgba(148, 163, 184, 0.22);
+      --primary: #2dd4bf;
+      --primary-2: #5eead4;
+      --accent: #fbbf24;
+      --accent-2: #a78bfa;
+      --danger: #f87171;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(13, 148, 136, 0.14), transparent 32rem),
+        radial-gradient(circle at 85% 10%, rgba(20, 184, 166, 0.12), transparent 28rem),
+        radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.10), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+    .page { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+
+    .nav-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px; height: 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+      box-shadow: var(--shadow-soft);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: -2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+
+    .btn, .icon-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn { padding: 0.7rem 1.08rem; font-size: 0.9rem; }
+    .icon-btn { width: 44px; height: 44px; font-size: 1.05rem; }
+
+    .btn:hover, .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--primary) 46%, var(--line));
+      box-shadow: var(--shadow-soft);
+    }
+
+    /* ─── Hamburger drawer ─── */
+    .ham-btn {
+      width: 44px; height: 44px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 750;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .ham-btn:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--primary) 46%, var(--line)); }
+
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; z-index: 210;
+      width: min(300px, 82vw); height: 100%;
+      background: var(--card-solid);
+      border-left: 1px solid var(--line);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; border-bottom: 1px solid var(--line);
+    }
+    .drawer-header strong { font-size: 1rem; letter-spacing: -0.02em; }
+    .drawer-close {
+      width: 36px; height: 36px; border: none; background: transparent;
+      cursor: pointer; font-size: 1.3rem; color: var(--muted);
+      display: grid; place-items: center; border-radius: 50%;
+    }
+    .drawer-close:hover { background: color-mix(in srgb, var(--line) 40%, transparent); }
+
+    .drawer-body { padding: 10px 0; flex: 1; }
+    .drawer-section { padding: 4px 20px 10px; }
+    .drawer-section-label {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted-2); font-weight: 800; margin-bottom: 6px;
+    }
+    .drawer-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      color: var(--text); text-decoration: none;
+      font-size: 0.9rem; font-weight: 700;
+      transition: background .15s ease;
+    }
+    .drawer-link:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+
+    .btn-primary {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 16px 30px color-mix(in srgb, var(--primary) 24%, transparent);
+    }
+
+    .hero {
+      padding: 50px 0 30px;
+      text-align: center;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 4vw, 54px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
+        radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent-2) 14%, transparent), transparent 22rem);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 78%, transparent);
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.065em;
+      margin: 22px 0 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.15rem);
+      max-width: 820px;
+      margin: 0 auto 24px;
+    }
+
+    .section { padding: 34px 0; }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      margin: 8px 0 0;
+      max-width: 780px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card, .info-card, .algo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary);
+      margin-bottom: 14px;
+      font-size: 1.22rem;
+    }
+
+    .feature-card h3, .info-card h3, .algo-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p, .info-card p, .algo-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .algo-card.highlight {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+    }
+
+    .code-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-soft) 86%, var(--card-solid));
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .code-box h4 {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      letter-spacing: -0.01em;
+      color: var(--muted-2);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      font-size: 0.91rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      border-radius: 16px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      width: 38px; height: 38px;
+      border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 900;
+    }
+
+    .step-title { font-weight: 850; display: block; margin-bottom: 2px; }
+    .step-text { color: var(--muted); font-size: 0.94rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--line);
+      color: var(--muted-2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      vertical-align: top;
+    }
+
+    .footer {
+      padding: 44px 0 54px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+    .footer a:hover { text-decoration: underline; }
+
+    .highlight-box {
+      padding: 16px;
+      border-left: 4px solid var(--primary);
+      background: color-mix(in srgb, var(--primary) 6%, var(--card));
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 12px 0;
+    }
+    .highlight-box p { margin: 0; color: var(--text); }
+
+    .warn-box {
+      padding: 16px;
+      border-left: 4px solid var(--accent);
+      background: color-mix(in srgb, var(--accent) 8%, var(--card));
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 12px 0;
+    }
+    .warn-box p { margin: 0; color: var(--text); }
+
+    .ref-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ref-list li {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+    }
+
+    .ref-authors { font-weight: 700; color: var(--text); }
+    .ref-title { font-style: italic; color: var(--muted); }
+    .ref-source { color: var(--muted-2); font-size: 0.9rem; }
+    .ref-doi a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .ref-doi a:hover { text-decoration: underline; }
+
+    .figure {
+      margin: 12px 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--card-solid) 74%, transparent);
+      box-shadow: var(--shadow-soft);
+    }
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .figure figcaption {
+      padding: 10px 14px;
+      color: var(--muted-2);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .figure-half {
+      width: 50%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .figure-sm {
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .figure-sm img {
+      width: auto;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .step-figure {
+      margin-top: 14px;
+    }
+
+    ul.info-list { margin: 0; padding-left: 20px; color: var(--muted); font-size: 0.95rem; }
+    ul.info-list li { margin-bottom: 6px; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .hero { padding-top: 24px; }
+      .figure-half { width: 100%; }
+    }
+    @media (max-width: 680px) {
+      .nav-inner { min-height: 68px; }
+      .brand-subtitle { display: none; }
+      .hero-card { padding: 24px; }
+      h1 { letter-spacing: -0.055em; }
+    }
+    @media print {
+      .nav, .footer { display: none !important; }
+      body { background: white; color: black; }
+      .hero, .grid-2, .grid-3, .grid-4 { display: block; }
+      .feature-card, .algo-card, .code-box { box-shadow: none; break-inside: avoid; margin-bottom: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Navigasi utama">
+    <div class="nav-inner">
+      <a class="brand" href="../index.html" aria-label="Beranda">
+        <div class="brand-mark">MM</div>
+        <div class="brand-text">
+          <span class="brand-title">Panduan Mail Merge</span>
+          <span class="brand-subtitle">Surat Massal &bull; Microsoft Word &amp; Excel</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <button class="ham-btn" id="hamBtn" aria-label="Buka menu navigasi">☰</button>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle tema">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Drawer -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Navigasi halaman">
+    <div class="drawer-header">
+      <strong>Navigasi</strong>
+      <button class="drawer-close" id="drawerClose" aria-label="Tutup menu">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-section">
+        <div class="drawer-section-label">Halaman Ini</div>
+        <a class="drawer-link" href="#pengertian">📄 Apa itu Mail Merge?</a>
+        <a class="drawer-link" href="#komponen">🧩 Komponen Utama</a>
+        <a class="drawer-link" href="#data">📊 Menyiapkan Data di Excel</a>
+        <a class="drawer-link" href="#langkah">📝 Langkah di Microsoft Word</a>
+        <a class="drawer-link" href="#simpan">💾 Menyimpan &amp; Menggunakan Ulang</a>
+        <a class="drawer-link" href="#tips">💡 Tips &amp; Masalah Umum</a>
+        <a class="drawer-link" href="#referensi">📎 Referensi</a>
+      </div>
+      <div class="drawer-section">
+        <a class="drawer-link" href="./csv.html" style="font-size:0.88rem;">🔗 Panduan CSV</a>
+        <a class="drawer-link" href="../index.html" style="color:var(--muted);font-size:0.82rem;">🏠 Beranda</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Pengantar Mail Merge">
+      <div class="hero-card">
+        <div class="hero-content">
+          <span class="eyebrow">Surat Massal yang Dipersonalisasi</span>
+          <h1>Panduan Mail Merge</h1>
+          <p class="lead">
+            <strong>Mail merge</strong> (gabungan surat / surat massal) adalah fitur
+            <strong>Microsoft Word</strong> untuk menghasilkan banyak surat dengan
+            tampilan yang sama tetapi isi yang berbeda untuk setiap penerima — nama,
+            alamat, jabatan, dan data lain diambil otomatis dari sebuah daftar
+            (umumnya file <strong>Excel</strong>). Anda cukup menulis satu
+            <strong>dokumen induk</strong> berisi penanda, lalu Word membuat satu
+            surat untuk setiap baris data.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a class="btn btn-primary" href="#pengertian">Apa itu Mail Merge?</a>
+            <a class="btn" href="#data">Menyiapkan Data di Excel</a>
+            <a class="btn" href="#langkah">Langkah di Word</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINGKASAN -->
+    <section class="section" id="ringkasan" aria-label="Ringkasan">
+      <div class="grid-3">
+        <article class="feature-card">
+          <div class="feature-icon">📄</div>
+          <h3>Satu Dokumen Induk</h3>
+          <p>Surat ditulis satu kali pada <em>dokumen induk</em> — lengkap dengan format, kop, dan isi tetap. Bagian yang berubah digantikan oleh merge field.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🗂️</div>
+          <h3>Satu Sumber Data</h3>
+          <p>Daftar penerima disimpan sekali sebagai <em>sumber data</em>: file Excel, kontak Outlook, basis data Access, atau daftar yang diketik di Word.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🔁</div>
+          <h3>Otomatis per Penerima</h3>
+          <p>Word menggabungkan keduanya dan menghasilkan satu salinan surat untuk setiap baris data — tanpa salin-tempel manual.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PENGERTIAN -->
+    <section class="section" id="pengertian" aria-label="Apa itu mail merge">
+      <div class="section-head">
+        <div>
+          <h2>Apa itu Mail Merge?</h2>
+          <p class="section-desc">Konsep dasar beserta contoh dokumen induk dan hasilnya.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="algo-card">
+            <h3>Definisi</h3>
+            <p style="margin-top: 8px;">
+              <strong>Mail merge</strong> adalah proses menggabungkan sebuah
+              <strong>dokumen utama</strong> yang formatnya tetap dengan sebuah
+              <strong>sumber data</strong> yang isinya berubah-ubah, sehingga
+              menghasilkan sekumpulan dokumen yang dipersonalisasi. Setiap
+              baris pada sumber data menghasilkan satu surat.
+            </p>
+            <p style="margin-top: 10px;">
+              Word menandai bagian yang berubah dengan <strong>merge field</strong>
+              (field gabungan). Saat penggabungan dijalankan, Word mengisi field
+              tersebut dengan data dari sumber data.
+            </p>
+          </div>
+
+          <div class="code-box" style="margin-top: 14px;">
+            <h4>Ilustrasi: dokumen induk &rarr; hasil</h4>
+            <pre>Dokumen induk (yang Anda tulis):
+
+  Kepada:
+  «Nama» «Nama Belakang»
+  «Alamat»
+  «Kota» «Kode Pos»
+
+  Yth. «Sapaan» «Nama Belakang»,
+  Terima kasih atas partisipasi Anda ...</pre>
+            <pre style="margin-top: 12px;">Hasil untuk baris pertama:
+
+  Kepada:
+  Ahmad Fauzi
+  Jl. Malioboro No. 1
+  Yogyakarta 55213
+
+  Yth. Bapak Fauzi,
+  Terima kasih atas partisipasi Anda ...</pre>
+          </div>
+        </div>
+
+        <div>
+          <div class="algo-card highlight">
+            <h3>Kapan Sebaiknya Dipakai?</h3>
+            <ul class="info-list" style="margin-top: 8px;">
+              <li><strong>Surat undangan</strong> ke banyak peserta dengan nama dan alamat berbeda.</li>
+              <li><strong>Sertifikat, piagam, dan penghargaan</strong> per nama peserta.</li>
+              <li><strong>Label alamat dan amplop</strong> untuk pengiriman massal.</li>
+              <li><strong>Email massal</strong> yang disapa secara pribadi per penerima.</li>
+              <li><strong>Tagihan, notifikasi, atau direktori</strong> berisi data per orang atau per item.</li>
+            </ul>
+          </div>
+
+          <div class="warn-box" style="margin-top: 14px;">
+            <p>⚠️ Mail merge bukan untuk mengirim surat yang isinya <strong>sama persis</strong>
+              tanpa personalisasi. Jika isinya identik, cukup cetak satu dokumen berkali-kali.
+              Kekuatan mail merge justru terletak pada variasi data per penerima.</p>
+          </div>
+
+          <div class="algo-card" style="margin-top: 14px;">
+            <h3>Jenis Dokumen di Menu Word</h3>
+            <table>
+              <tr><th>Pilihan</th><th>Digunakan untuk</th></tr>
+              <tr><td><strong>Letters</strong></td><td>Surat yang dicetak pada lembar terpisah per penerima.</td></tr>
+              <tr><td><strong>E-mail Messages</strong></td><td>Email dengan satu penerima pada baris <em>To</em>.</td></tr>
+              <tr><td><strong>Envelopes</strong></td><td>Amplop berisi nama dan alamat.</td></tr>
+              <tr><td><strong>Labels</strong></td><td>Lembaran label alamat.</td></tr>
+              <tr><td><strong>Directory</strong></td><td>Daftar/katalog data (bukan satu halaman per orang).</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KOMPONEN -->
+    <section class="section" id="komponen" aria-label="Komponen utama">
+      <div class="section-head">
+        <div>
+          <h2>Komponen Utama Mail Merge</h2>
+          <p class="section-desc">Tiga bagian yang selalu ada pada setiap penggabungan surat.</p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <article class="algo-card">
+          <div class="feature-icon">📄</div>
+          <h3>1. Dokumen Induk</h3>
+          <p><em>Main document</em> berisi teks dan format yang sama untuk semua
+            penerima: kop surat, isi, tanda tangan, dan penutup. Bagian yang
+            berubah digantikan oleh merge field.</p>
+        </article>
+        <article class="algo-card">
+          <div class="feature-icon">🗂️</div>
+          <h3>2. Sumber Data</h3>
+          <p><em>Data source</em> berisi daftar penerima: satu baris per orang,
+            satu kolom per informasi (Nama, Alamat, Kota, Kode Pos, dan seterusnya).
+            Dapat berupa Excel, Outlook, Access, atau daftar baru di Word.</p>
+        </article>
+        <article class="algo-card">
+          <div class="feature-icon">🏷️</div>
+          <h3>3. Merge Field</h3>
+          <p><em>Field gabungan</em> adalah penanda seperti <code>«Nama»</code> di
+            dalam dokumen induk. Saat digabungkan, Word menggantinya dengan nilai
+            dari kolom yang bersesuaian.</p>
+        </article>
+      </div>
+
+      <div class="highlight-box">
+        <p>📌 <strong>Alur singkat:</strong> tulis dokumen induk &rarr; hubungkan sumber
+          data &rarr; sisipkan merge field &rarr; pratinjau hasil &rarr; cetak/simpan.
+          Seluruh proses ini dijalankan dari tab <strong>Mailings</strong> di Word.</p>
+      </div>
+    </section>
+
+    <!-- DATA -->
+    <section class="section" id="data" aria-label="Menyiapkan data di Excel">
+      <div class="section-head">
+        <div>
+          <h2>Menyiapkan Sumber Data di Excel</h2>
+          <p class="section-desc">Kualitas data menentukan kualitas hasil mail merge. Rapikan daftar sebelum digabungkan.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="algo-card">
+            <h3>Aturan Dasar Daftar Penerima</h3>
+            <ul class="info-list" style="margin-top: 8px;">
+              <li><strong>Baris pertama = header kolom</strong> (Nama, Alamat, Kota, Kode Pos, dan sebagainya).</li>
+              <li><strong>Satu baris = satu penerima</strong>. Jangan menggabungkan dua orang dalam satu baris.</li>
+              <li><strong>Satu kolom = satu informasi</strong>. Hindari menaruh nama dan alamat pada sel yang sama.</li>
+              <li><strong>Letakkan seluruh data pada satu lembar kerja</strong> (satu sheet), tanpa sel gabungan (<em>merge cell</em>).</li>
+              <li><strong>Jangan ada baris atau kolom kosong</strong> di tengah tabel, dan jangan ada baris judul tambahan di atas header.</li>
+            </ul>
+          </div>
+
+          <div class="code-box" style="margin-top: 14px;">
+            <h4>Contoh tabel data_penerima.xlsx</h4>
+            <pre>Nama;Alamat;Kota;Kode Pos
+Ahmad Fauzi;Jl. Malioboro No. 1;Yogyakarta;55213
+Siti Rahma;Jl. Pemuda No. 20;Surabaya;60271
+Budi Santoso;Jl. Asia Afrika No. 5;Bandung;40111</pre>
+          </div>
+
+          <div class="highlight-box">
+            <p>✅ Simpan file di <strong>komputer lokal atau folder berbagi</strong>.
+              Word tidak dapat memakai sumber data yang tersimpan di alamat web (HTTP)
+              sebagai sumber mail merge.</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="algo-card highlight">
+            <h3>Hal yang Paling Sering Menyebabkan Masalah</h3>
+            <ul class="info-list" style="margin-top: 8px;">
+              <li><strong>Nol di depan hilang</strong> — kode pos seperti <code>00399</code>
+                berubah menjadi <code>399</code>. Format kolom sebagai <strong>Text</strong>.</li>
+              <li><strong>Format persentase</strong> mengalikan nilai dengan 100. Jika tidak
+                diinginkan, format kolom persentase sebagai teks.</li>
+              <li><strong>Angka desimal &amp; mata uang</strong> perlu format kolom yang tepat
+                (Number/Currency) agar tampil rapi di surat.</li>
+              <li><strong>Tanggal</strong> dapat berubah format; pastikan format tanggal
+                sumber sudah sesuai keinginan.</li>
+            </ul>
+          </div>
+
+          <div class="algo-card" style="margin-top: 14px;">
+            <h3>Jika Sumber Data Berupa CSV/TXT</h3>
+            <p style="margin-top: 8px;">
+              Impor dulu ke Excel melalui <strong>Data &rarr; From Text/CSV</strong>.
+              Pada pratinjau impor, atur kolom kode pos menjadi <strong>Text</strong>,
+              lalu pilih <strong>Load</strong>.
+            </p>
+            <figure class="figure figure-sm step-figure">
+              <img src="./mm_excel_import_textcsv.png" alt="Tab Data di Excel dengan perintah From Text/CSV disorot; keterangan menjelaskan impor data dari file teks, CSV, atau teks berformat." loading="lazy">
+              <figcaption>Impor CSV/TXT di Excel: <strong>Data &rarr; From Text/CSV</strong>.</figcaption>
+            </figure>
+            <figure class="figure figure-sm step-figure">
+              <img src="./mm_excel_number_format.png" alt="Daftar format angka di Excel (General, Number, Currency, Accounting, Date, Time, Percentage, Fraction, Scientific, Text) dengan pilihan Text disorot." loading="lazy">
+              <figcaption>Ubah format kolom melalui kotak <strong>Number Format</strong> —
+                pilih <strong>Text</strong> untuk kode pos agar nol di depan tidak hilang.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LANGKAH -->
+    <section class="section" id="langkah" aria-label="Langkah mail merge di Word">
+      <div class="section-head">
+        <div>
+          <h2>Langkah Mail Merge di Microsoft Word</h2>
+          <p class="section-desc">Panduan langkah demi langkah untuk Word versi Windows, dari membuat dokumen induk sampai mencetak.</p>
+        </div>
+      </div>
+
+      <ol class="steps">
+        <li>
+          <div>
+            <span class="step-title">Siapkan dokumen induk &amp; pilih jenis surat</span>
+            <span class="step-text">
+              Buka dokumen kosong di Word, lalu buka tab <strong>Mailings</strong> &rarr;
+              <strong>Start Mail Merge</strong> &rarr; pilih <strong>Letters</strong>.
+              Ini menandai dokumen sebagai surat massal.
+            </span>
+            <figure class="figure figure-sm step-figure">
+              <img src="./mm_start_letters.png" alt="Tab Mailings di Word dengan menu Start Mail Merge terbuka dan pilihan Letters disorot." loading="lazy">
+              <figcaption><strong>Mailings &rarr; Start Mail Merge &rarr; Letters.</strong></figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div>
+            <span class="step-title">Hubungkan sumber data (daftar penerima)</span>
+            <span class="step-text">
+              Bukti tab <strong>Mailings</strong> &rarr; <strong>Select Recipients</strong> &rarr;
+              <strong>Use an Existing List</strong>, lalu pilih file Excel penerima.
+              Pada dialog yang muncul, pilih <strong>sheet</strong> yang berisi data dan
+              biarkan <em>Cell Range</em> kosong, kemudian klik <strong>OK</strong>.
+            </span>
+            <div class="highlight-box" style="margin-top:12px;">
+              <p>💡 Anda juga dapat memilih <strong>Type a New List</strong> untuk mengetik
+                daftar langsung di Word, atau <strong>Choose from Outlook Contacts</strong>
+                untuk memakai kontak Outlook.</p>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div>
+            <span class="step-title">Tulis isi surat</span>
+            <span class="step-text">
+              Ketik teks surat yang sama untuk semua penerima: kop, pembuka, isi,
+              penutup, dan tanda tangan. Sisakan tempat di mana nama dan alamat
+              akan dimasukkan (langkah berikutnya).
+            </span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <span class="step-title">Sisipkan merge field</span>
+            <span class="step-text">
+              Letakkan kursor di posisi yang diinginkan, lalu buka
+              <strong>Mailings &rarr; Address Block</strong> untuk blok alamat.
+              Pilih format nama pada dialog <em>Insert Address Block</em>, lalu klik
+              <strong>OK</strong>. Untuk salam pembuka, gunakan
+              <strong>Mailings &rarr; Greeting Line</strong> dan pilih formatnya.
+              Untuk field lain (mis. nomor invoice), pakai <strong>Insert Merge Field</strong>.
+            </span>
+            <figure class="figure figure-sm step-figure">
+              <img src="./mm_address_block.png" alt="Tab Mailings di Word dengan perintah Address Block pada grup Write & Insert Fields disorot." loading="lazy">
+              <figcaption><strong>Mailings &rarr; Address Block.</strong></figcaption>
+            </figure>
+            <figure class="figure figure-sm step-figure">
+              <img src="./mm_insert_address_block.jpg" alt="Dialog Specify address elements dengan opsi format nama, penanda Insert company name, dan opsi Insert postal address." loading="lazy">
+              <figcaption>Dialog <em>Insert Address Block</em> — pilih format nama dan
+                pengaturan alamat, lalu klik <strong>OK</strong>.</figcaption>
+            </figure>
+            <figure class="figure figure-sm step-figure">
+              <img src="./mm_greeting_line.png" alt="Tab Mailings di Word dengan perintah Greeting Line pada grup Write & Insert Fields disorot." loading="lazy">
+              <figcaption><strong>Mailings &rarr; Greeting Line</strong> untuk salam
+                pembuka yang dipersonalisasi.</figcaption>
+            </figure>
+            <div class="highlight-box" style="margin-top:12px;">
+              <p>📌 Saat belum digabungkan, field tampil sebagai <code>«Nama»</code>,
+                <code>«Alamat»</code>, dan seterusnya. Ini <strong>normal</strong> —
+                hasil sebenarnya terlihat setelah pratinjau.</p>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div>
+            <span class="step-title">Pratinjau hasil</span>
+            <span class="step-text">
+              Klik <strong>Mailings &rarr; Preview Results</strong> untuk melihat surat
+              yang sudah terisi. Gunakan tombol <strong>Next</strong> dan
+              <strong>Previous</strong> (atau kotak nomor record) untuk berpindah antar
+              penerima dan memastikan nama serta alamat tampil benar. Klik
+              <strong>Preview Results</strong> lagi untuk kembali ke tampilan field.
+            </span>
+            <figure class="figure figure-sm step-figure">
+              <img src="./mm_preview_results.png" alt="Grup Preview Results pada tab Mailings dengan tombol navigasi Next dan Previous serta kotak nomor record." loading="lazy">
+              <figcaption>Grup <em>Preview Results</em> untuk menelusuri setiap penerima.</figcaption>
+            </figure>
+          </div>
+        </li>
+        <li>
+          <div>
+            <span class="step-title">Selesaikan &amp; gabungkan</span>
+            <span class="step-text">
+              Buka <strong>Mailings &rarr; Finish &amp; Merge</strong>, lalu pilih salah satu:
+              <strong>Edit Individual Documents</strong> (periksa/ubah tiap surat),
+              <strong>Print Documents</strong> (cetak langsung), atau
+              <strong>Send Email Messages</strong> (kirim sebagai email).
+            </span>
+            <figure class="figure figure-sm step-figure">
+              <img src="./mm_finish_merge.png" alt="Menu Finish & Merge di Word dengan pilihan Edit Individual Documents, Print Documents, dan Send Email Messages." loading="lazy">
+              <figcaption><strong>Finish &amp; Merge</strong> — pilih cara mengeluarkan hasil gabungan.</figcaption>
+            </figure>
+          </div>
+        </li>
+      </ol>
+
+      <div class="warn-box" style="margin-top: 16px;">
+        <p>⚠️ Periksa hasil pada langkah pratinjau <em>sebelum</em> mencetak, khususnya
+          spasi ganda, field kosong (penerima tanpa alamat), dan pemenggalan baris.
+          Lebih mudah membetulkan dokumen induk daripada menyunting ratusan surat hasil.</p>
+      </div>
+    </section>
+
+    <!-- SIMPAN -->
+    <section class="section" id="simpan" aria-label="Menyimpan dan menggunakan ulang">
+      <div class="section-head">
+        <div>
+          <h2>Menyimpan &amp; Menggunakan Ulang</h2>
+          <p class="section-desc">Dokumen mail merge tetap terhubung dengan daftar penerima sehingga dapat dipakai lagi.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="algo-card">
+          <h3>Menyimpan Dokumen</h3>
+          <ol class="steps" style="margin-top: 10px;">
+            <li>
+              <div>
+                <span class="step-title">Simpan dokumen</span>
+                <span class="step-text">Gunakan <strong>File &rarr; Save</strong>. Hubungan ke daftar penerima ikut tersimpan bersama dokumen.</span>
+              </div>
+            </li>
+            <li>
+              <div>
+                <span class="step-title">Buka kembali kapan saja</span>
+                <span class="step-text">Saat dokumen mail merge dibuka lagi, Word menanyakan apakah koneksi ke sumber data dipertahankan. Pilih <strong>Yes</strong>.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="algo-card highlight">
+          <h3>Kebiasaan Baik</h3>
+          <ul class="info-list" style="margin-top: 8px;">
+            <li>Simpan dokumen induk dan file data penerima di lokasi yang tetap agar tautan tidak putus.</li>
+            <li>Simpan salinan master sumber data; perbarui data di file yang sama, bukan membuat file baru setiap kali.</li>
+            <li>Ganti nama file hasil gabungan dengan jelas (mis. <code>surat_undangan_hasil.docx</code>) agar tidak menimpa dokumen induk.</li>
+            <li>Uji dulu dengan sedikit baris data (2–3 penerima) sebelum menjalankan daftar besar.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIPS -->
+    <section class="section" id="tips" aria-label="Tips dan masalah umum">
+      <div class="section-head">
+        <div>
+          <h2>Tips &amp; Masalah Umum</h2>
+          <p class="section-desc">Kendala yang sering ditemui saat mail merge dan cara mengatasinya.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="algo-card">
+          <h3>🔢 Data &amp; Format</h3>
+          <ul class="info-list">
+            <li><strong>Nol di depan hilang</strong> (<code>00399 &rarr; 399</code>): format kolom kode pos sebagai <strong>Text</strong> di Excel.</li>
+            <li><strong>Persentase berlipat 100</strong>: format persentase dapat mengalikan nilai; jadikan teks bila ingin nilai tetap.</li>
+            <li><strong>Simbol mata uang hilang</strong>: tambahkan simbol (mis. <code>Rp</code>) pada dokumen induk di sekitar merge field.</li>
+            <li><strong>Angka jadi notasi ilmiah</strong> pada nomor panjang: jadikan kolom sebagai teks sebelum digabungkan.</li>
+          </ul>
+        </div>
+
+        <div class="algo-card">
+          <h3>📄 Dokumen &amp; Field</h3>
+          <ul class="info-list">
+            <li><strong>Field tampil sebagai <code>«Nama»</code></strong>: wajar sebelum penggabungan; gunakan <em>Preview Results</em> untuk melihat hasil.</li>
+            <li><strong>Alamat tidak lengkap</strong>: gunakan <em>Address Block</em>, atau susun sendiri dengan <em>Insert Merge Field</em> per kolom.</li>
+            <li><strong>Spasi/baris ganda</strong>: periksa dokumen induk, karena field kosong dapat menyisakan baris kosong.</li>
+            <li><strong>Penerima tertentu tidak boleh dicetak</strong>: gunakan <em>Edit Recipient List</em> untuk menghapus centang penerima.</li>
+          </ul>
+        </div>
+
+        <div class="algo-card">
+          <h3>🗂️ Sumber Data</h3>
+          <ul class="info-list">
+            <li><strong>Word tidak menemukan data</strong>: pastikan data berada di satu sheet dengan header di baris pertama.</li>
+            <li><strong>Hanya sebagian data terbaca</strong>: hilangkan baris/kategori kosong dan sel gabungan di tengah tabel.</li>
+            <li><strong>Sumber data di cloud/web</strong>: simpan salinan ke komputer lokal atau folder berbagi sebelum dipakai.</li>
+            <li><strong>Data .txt/.csv</strong>: impor dulu ke Excel (Data &rarr; From Text/CSV) lalu jadikan sumber mail merge.</li>
+          </ul>
+        </div>
+
+        <div class="algo-card">
+          <h3>🔍 Verifikasi Cepat</h3>
+          <ul class="info-list">
+            <li>Jalankan pratinjau untuk beberapa penerima pertama, tengah, dan terakhir.</li>
+            <li>Perhatikan penerima tanpa alamat atau dengan data kosong.</li>
+            <li>Untuk daftar besar, gunakan <em>Edit Individual Documents</em> lalu periksa sekilas sebelum mencetak.</li>
+            <li>Simpan versi master sumber data agar mudah diperbarui untuk pengiriman berikutnya.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFERENSI -->
+    <section class="section" id="referensi" aria-label="Referensi utama">
+      <div class="section-head">
+        <div>
+          <h2>Referensi</h2>
+          <p class="section-desc">Sumber resmi Microsoft yang mendasari panduan ini, termasuk asal tangkapan layar yang digunakan.</p>
+        </div>
+      </div>
+
+      <ul class="ref-list">
+        <li>
+          <div class="ref-authors">Microsoft Support</div>
+          <div class="ref-title">Mail merge using an Excel spreadsheet</div>
+          <div class="ref-source">Dokumentasi resmi Word — menghubungkan dan menyunting daftar, menyisipkan merge field, pratinjau, serta menyelesaikan mail merge.</div>
+          <div class="ref-doi"><a href="https://support.microsoft.com/en-us/word/mail-merge-using-an-excel-spreadsheet" target="_blank" rel="noopener noreferrer">https://support.microsoft.com/en-us/word/mail-merge-using-an-excel-spreadsheet</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Microsoft Support</div>
+          <div class="ref-title">Use mail merge to personalize letters</div>
+          <div class="ref-source">Dokumentasi resmi Word — langkah lengkap membuat surat yang dipersonalisasi, dari menyiapkan surat hingga mencetak.</div>
+          <div class="ref-doi"><a href="https://support.microsoft.com/en-us/word/use-mail-merge-to-personalize-letters" target="_blank" rel="noopener noreferrer">https://support.microsoft.com/en-us/word/use-mail-merge-to-personalize-letters</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Microsoft Support</div>
+          <div class="ref-title">Use mail merge for bulk email, letters, labels, and envelopes</div>
+          <div class="ref-source">Dokumentasi resmi Word — gambaran jenis dokumen dan jenis sumber data yang dapat dipakai untuk mail merge.</div>
+          <div class="ref-doi"><a href="https://support.microsoft.com/en-us/word/use-mail-merge-for-bulk-email-letters-labels-and-envelopes" target="_blank" rel="noopener noreferrer">https://support.microsoft.com/en-us/word/use-mail-merge-for-bulk-email-letters-labels-and-envelopes</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Microsoft Support</div>
+          <div class="ref-title">Prepare your Excel data source for a Word mail merge</div>
+          <div class="ref-source">Dokumentasi resmi Excel/Word — impor CSV/TXT serta pemformatan kolom (kode pos sebagai teks, format angka dan persentase).</div>
+          <div class="ref-doi"><a href="https://support.microsoft.com/en-us/word/prepare-your-excel-data-source-for-a-word-mail-merge" target="_blank" rel="noopener noreferrer">https://support.microsoft.com/en-us/word/prepare-your-excel-data-source-for-a-word-mail-merge</a></div>
+        </li>
+        <li>
+          <div class="ref-authors">Microsoft Support</div>
+          <div class="ref-title">Data sources you can use for a mail merge</div>
+          <div class="ref-source">Dokumentasi resmi Word — daftar sumber data (Excel, Outlook, Access, file teks, daftar baru) dan ketentuan penyimpanannya.</div>
+          <div class="ref-doi"><a href="https://support.microsoft.com/en-us/word/data-sources-you-can-use-for-a-mail-merge" target="_blank" rel="noopener noreferrer">https://support.microsoft.com/en-us/word/data-sources-you-can-use-for-a-mail-merge</a></div>
+        </li>
+      </ul>
+
+      <div class="highlight-box" style="margin-top: 16px;">
+        <p>🖼️ <strong>Atribusi gambar:</strong> seluruh tangkapan layar antarmuka Microsoft Word dan
+          Excel pada halaman ini berasal dari dokumentasi resmi
+          <a href="https://support.microsoft.com/en-us/word/mail-merge-using-an-excel-spreadsheet" target="_blank" rel="noopener noreferrer">support.microsoft.com</a>
+          dan merupakan hak milik Microsoft Corporation; digunakan untuk keperluan edukasi.
+          Tampilan menu dapat sedikit berbeda tergantung versi Office yang Anda pakai.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="page">
+      <strong>Panduan Mail Merge — Surat Massal di Microsoft Word</strong><br>
+      Dibuat oleh <strong>Ariadie Chandra Nugraha</strong> &bull;
+      Dibantu AI <strong>opencode</strong> (model <code>deepseek-v4.1-flash</code>)<br>
+      Dibuat untuk publikasi pendukung di GitHub Pages • 2026
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const saved = localStorage.getItem("theme-mailmerge");
+    function setTheme(t) {
+      root.setAttribute("data-theme", t);
+      toggle.textContent = t === "dark" ? "☀️" : "🌙";
+      localStorage.setItem("theme-mailmerge", t);
+    }
+    if (saved) setTheme(saved);
+    else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    toggle.addEventListener("click", () => setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+    // Hamburger drawer
+    const hamBtn = document.getElementById("hamBtn");
+    const drawer = document.getElementById("drawer");
+    const overlay = document.getElementById("drawerOverlay");
+    const drawerClose = document.getElementById("drawerClose");
+
+    function openDrawer() { drawer.classList.add("open"); overlay.classList.add("open"); document.body.style.overflow = "hidden"; }
+    function closeDrawer() { drawer.classList.remove("open"); overlay.classList.remove("open"); document.body.style.overflow = ""; }
+
+    hamBtn.addEventListener("click", openDrawer);
+    drawerClose.addEventListener("click", closeDrawer);
+    overlay.addEventListener("click", closeDrawer);
+  </script>
+</body>
+</html>

@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<!-- Versi: v03 | Diperbarui: 16-09-2026 22:42 WIB -->
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minggu 2 — Sifat-sifat Sinyal dan Transformasinya | Isyarat dan Sistem</title>
+<script>
+  /* Deteksi apakah halaman ini dijalankan di dalam iframe (mis. embed di BeSmart/Moodle).
+     Dijalankan sesinkron & sedini mungkin (sebelum CSS di-parse penuh) supaya tidak ada
+     "kedipan" tampilan mode-presentasi sebelum berpindah ke mode dokumen biasa. */
+  (function(){
+    var inIframe;
+    try { inIframe = window.self !== window.top; } catch(e) { inIframe = true; }
+    if(inIframe){ document.documentElement.classList.add('embedded'); }
+    if(window.location.protocol === 'file:' && !inIframe){
+      document.documentElement.classList.add('local-file');
+    }
+  })();
+</script>
+<script>
+  /* Terapkan preferensi tema gelap/terang tersimpan (kalau pengguna pernah
+     memilih lewat tombol #themeToggle) sedini mungkin, sebelum CSS dirender —
+     supaya tidak ada "kedipan" dari tema default ke tema pilihan pengguna
+     saat halaman dimuat. Kalau belum pernah memilih (localStorage kosong atau
+     tidak tersedia), halaman mengikuti preferensi sistem (prefers-color-scheme)
+     lewat CSS saja, tanpa atribut data-theme di sini. Pola sama dengan W01 v03,
+     kunci localStorage khusus minggu ini (w02-theme). */
+  (function(){
+    try {
+      var saved = localStorage.getItem('w02-theme');
+      if(saved === 'dark' || saved === 'light'){
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+    } catch(e) { /* localStorage tak tersedia (mis. mode privat ketat) — abaikan, pakai default sistem */ }
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+<style>
+  :root{
+    color-scheme:light;
+    --bg:#f7f5ee;
+    --surface:#fffefa;
+    --surface-secondary:#efece1;
+    --text-primary:#182019;
+    --text-secondary:#59615a;
+    --heading-primary:#123b63;
+    --heading-secondary:#174a73;
+    --border:#d8d5c9;
+    --border-soft:#e7e4d9;
+    --accent:#096b4b;
+    --accent-solid:#096b4b;
+    --accent-muted:#8fbfa9;
+    --attention:#9c3d00;
+    --attention-solid:#9c3d00;
+    --danger:#a32626;
+    /* Alias komponen lama: seluruhnya merujuk palet semantik v04. */
+    --bg-raise:var(--surface);
+    --panel:var(--surface);
+    --panel-2:var(--surface-secondary);
+    --line:var(--border);
+    --line-soft:var(--border-soft);
+    --phosphor:var(--accent);
+    --phosphor-solid:var(--accent-solid);
+    --phosphor-dim:var(--accent-muted);
+    --amber:var(--attention);
+    --amber-solid:var(--attention-solid);
+    --cyan:var(--accent);
+    --red:var(--danger);
+    --paper:var(--text-primary);
+    --paper-dim:var(--text-primary);
+    --text:var(--text-primary);
+    --text-dim:var(--text-secondary);
+    --sans:'Atkinson Hyperlegible Next', Arial, sans-serif;
+    --mono:'JetBrains Mono', 'Courier New', monospace;
+
+    --cover-title-size:36px;
+    --section-title-size:29px;
+    --subheading-size:22px;
+    --hook-question-size:18px;
+    --card-title-size:18px;
+    --body-size:18px;
+    --lede-size:19px;
+    --card-body-size:16px;
+    --table-size:15px;
+    --ui-size:14px;
+    --small-size:13px;
+    --meta-size:12px;
+    --body-weight:300;
+    --heading-weight:500;
+    --hook-weight:400;
+    --ui-weight:400;
+    --mono-weight:300;
+    --strong-weight:500;
+
+
+    /* ================================================================
+       UKURAN GRAFIK (KANVAS) — semua lebar/tinggi kanvas di halaman ini
+       diatur lewat variabel di bawah, dikelompokkan per jenis grafik,
+       mengikuti pola Web/W01-sinyal-dasar_v03.html (lihat
+       week1_review_sol_v2.md Bagian 33). Ubah nilainya di sini untuk
+       mengubah ukuran SEMUA kanvas sejenis sekaligus; tidak perlu
+       mencari tiap aturan CSS satu per satu.
+       ================================================================ */
+    /* #reverseCanvas: 1 kanvas ilustrasi refleksi waktu pada Bagian 01. */
+    --plot-hook-width:100%;
+    --plot-hook-height:170px;
+    /* .mini-plot: 5 kanvas konsep pada Bagian 02 (periodik/kausal/
+       deterministik-stokastik) dan Bagian 04 (genap/ganjil) — 5 kanvas
+       dengan class .mini-plot (data-kind: periodic, causal, stochastic,
+       even, odd). */
+    --plot-mini-width:100%;
+    --plot-mini-height:100px;
+    /* #calcPlot: 1 kanvas simulator kalkulator energi/daya Bagian 03. */
+    --plot-simulator-width:100%;
+    --plot-simulator-height:230px;
+    /* #tfReflect/#tfScale/#tfShift: 3 kanvas transformasi Bagian 05. */
+    --plot-transform-width:100%;
+    --plot-transform-height:150px;
+    /* .solusicanvas: 3 kanvas penyelesaian Contoh 1 Bagian 06A
+       (komponen 3cos(4t), komponen 2sin(6t), dan gabungan), mengikuti pola
+       W01 v03 (week1_review_sol_v2.md Bagian 22/24). */
+    --plot-example-width:100%;
+    --plot-example-height:150px;
+    /* .waveform-divider: SVG dekoratif pada sampul, bukan grafik materi. */
+    --cover-wave-height:52px;
+    /* Kapsul navigasi bagian menurut standar v04. */
+    --nav-pill-width:18px;
+    --nav-pill-active-width:24px;
+    --nav-pill-height:8px;
+    --nav-pill-radius:4px;
+    --nav-pill-gap:0.4rem;
+  }
+
+  @media(max-width:1199px){
+    :root{--cover-title-size:32px;--section-title-size:26px;--subheading-size:20px;--hook-question-size:17px;--card-title-size:17px;--body-size:17px;--lede-size:18px;--card-body-size:15px;--table-size:14px;}
+  }
+  @media(max-width:900px){
+    :root{--cover-title-size:28px;--section-title-size:22px;--subheading-size:18px;--hook-question-size:16px;--card-title-size:16px;--body-size:16px;--lede-size:17px;}
+  }
+
+  /* ---------- mode gelap (dark mode) ----------
+     Arsitektur mengikuti pola acuan final Web/W01-sinyal-dasar_v03.html (lihat
+     week1_review_sol_v2.md Bagian 30): dua-token warna per keluarga aksen yang
+     dipakai ganda sebagai teks DAN sebagai latar tombol solid (--phosphor/
+     --phosphor-solid, --amber/--amber-solid), color-scheme mengikuti tema efektif,
+     dan kanvas grafik/plot sengaja TIDAK ikut digelapkan (tetap "kertas" terang di
+     kedua tema, sama seperti W01 — lihat komentar drawAxes/setupCanvas di bawah).
+     Nilai hex dark identik dengan W01 (palet bersama lintas-minggu), sudah
+     diverifikasi rasio kontras WCAG oleh Codex untuk W01 dan dihitung ulang untuk
+     token --panel-2 yang khusus dipakai W02 (lihat laporan implementasi ini). */
+  @media(prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --bg:#141a17;
+      --surface:#1c2520;
+      --surface-secondary:#26322b;
+      --text-primary:#edf3ee;
+      --text-secondary:#b6c2b9;
+      --heading-primary:#b8daff;
+      --heading-secondary:#9ccbfa;
+      --border:#43564a;
+      --border-soft:#304036;
+      --accent:#65d5a1;
+      --accent-solid:#096b4b;
+      --accent-muted:#519c7d;
+      --attention:#ffb078;
+      --attention-solid:#9c3d00;
+      --danger:#ff8e8e;
+    }
+    :root:not([data-theme="light"]) body::after{
+      background:repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px);
+    }
+    /* Gradasi topbar/navbar ditulis literal rgba() (bukan var()) di aturan aslinya,
+       jadi butuh padanan gelap manual di sini — nilainya senilai --bg gelap. */
+    :root:not([data-theme="light"]) .topbar{
+      background:linear-gradient(180deg, rgba(20,26,23,0.96), rgba(20,26,23,0.75) 70%, transparent);
+    }
+    :root:not([data-theme="light"]) .navbar{
+      background:linear-gradient(0deg, rgba(20,26,23,0.97), rgba(20,26,23,0.7) 75%, transparent);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#141a17;
+    --surface:#1c2520;
+    --surface-secondary:#26322b;
+    --text-primary:#edf3ee;
+    --text-secondary:#b6c2b9;
+    --heading-primary:#b8daff;
+    --heading-secondary:#9ccbfa;
+    --border:#43564a;
+    --border-soft:#304036;
+    --accent:#65d5a1;
+    --accent-solid:#096b4b;
+    --accent-muted:#519c7d;
+    --attention:#ffb078;
+    --attention-solid:#9c3d00;
+    --danger:#ff8e8e;
+  }
+  :root[data-theme="light"]{color-scheme:light;}
+  :root[data-theme="dark"] body::after{
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px);
+  }
+  :root[data-theme="dark"] .topbar{
+    background:linear-gradient(180deg, rgba(20,26,23,0.96), rgba(20,26,23,0.75) 70%, transparent);
+  }
+  :root[data-theme="dark"] .navbar{
+    background:linear-gradient(0deg, rgba(20,26,23,0.97), rgba(20,26,23,0.7) 75%, transparent);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:var(--body-size);
+    font-weight:var(--body-weight);
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+
+  /* ambient texture */
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 42px 42px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+  }
+  body::after{
+    content:'';
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 3px);
+    opacity:0.5;
+    pointer-events:none;
+    z-index:1;
+    mix-blend-mode:multiply;
+  }
+
+  section{
+    position:relative;
+    z-index:2;
+    min-height:100vh;
+    padding:6.5rem 8vw 5rem;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    scroll-snap-align:start;
+    border-bottom:1px solid var(--line-soft);
+  }
+
+  h1,h2,h3{font-family:var(--sans); font-weight:var(--heading-weight); line-height:1.2; margin:0; color:var(--paper);}
+  h1{color:var(--heading-primary);}
+  h2{color:var(--heading-secondary); font-size:var(--section-title-size); letter-spacing:-0.01em;}
+  h3{font-size:var(--subheading-size); color:var(--phosphor); font-weight:500;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:var(--small-size);
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:0.9rem;
+    display:flex;
+    align-items:center;
+    gap:0.6em;
+  }
+  .eyebrow::before{content:'▍'; color:var(--phosphor);}
+
+  p{color:var(--text); width:100%; max-width:none;}
+  .body-copy,.card-copy,.solution-copy,.nav-note,.action-link{color:var(--text); width:100%; max-width:none;}
+  .lede{color:var(--paper-dim); font-size:var(--lede-size); width:100%; max-width:none;}
+  .card-copy,.solution-copy{font-size:var(--card-body-size);}
+  .sentence-break{display:block;height:0;}
+  .sentence-flow .sentence-break{display:inline;}
+  .sentence-flow .sentence-break::after{content:' ';}
+  @media(max-width:900px){
+    .sentence-break{display:inline;}
+    .sentence-break::after{content:' ';}
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    font-family:var(--mono);
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.9rem 8vw;
+    background:linear-gradient(180deg, rgba(247,245,238,0.96), rgba(247,245,238,0.75) 70%, transparent);
+    backdrop-filter:blur(6px);
+    font-size:var(--small-size);
+    letter-spacing:0.05em;
+  }
+  .topbar .crumb{color:var(--text-dim);}
+  .topbar .crumb b{color:var(--phosphor); font-weight:500;}
+  .topbar .sk-badge{
+    border:1px solid var(--phosphor-dim);
+    color:var(--phosphor);
+    padding:0.3em 0.8em;
+    border-radius:100px;
+    font-size:var(--meta-size);
+    letter-spacing:0.08em;
+  }
+
+  /* ---------- tombol ganti tema (terang/gelap) ----------
+     Sengaja diletakkan di luar .topbar (elemen tersendiri, mengambang tetap),
+     bukan di dalamnya — pola yang sama dengan .section-nav-fab: .topbar
+     disembunyikan lewat "html.embedded .topbar{display:none}" pada mode
+     embed/iframe LMS, jadi tombol yang perlu tetap dapat diakses di kedua mode
+     (presentasi maupun embed) harus jadi elemen tersendiri di luar .topbar/
+     .navbar, bukan anak dari salah satunya. Pola identik dengan Web/W01-sinyal-dasar_v03.html. */
+  .theme-toggle{
+    position:fixed; top:0.8rem; left:1.5rem; z-index:120;
+    display:flex; align-items:center; gap:0.4em;
+    background:var(--panel-2); border:1px solid var(--line);
+    color:var(--phosphor); font-family:var(--sans); font-size:var(--small-size);
+    letter-spacing:0.03em; padding:0.42em 0.8em; border-radius:100px;
+    cursor:pointer; transition:all .15s ease;
+  }
+  .theme-toggle:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  .theme-toggle:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  /* Beri ruang untuk toggle di kiri atas pada layar sempit; badge SK2 dan crumb
+     bisa berdesakan dengan toggle di bawah ~900px — sembunyikan crumb dan
+     dorong badge ke kanan, sama seperti perbaikan W01 v03 (week1_review_sol_v2.md
+     Bagian 30, temuan 1 "toggle bertumpuk dengan badge pada viewport 390px"). */
+  @media(max-width:900px){
+    .topbar{justify-content:flex-end; padding-left:8vw;}
+    .topbar .crumb{display:none;}
+  }
+
+  /* ---------- progress / nav ---------- */
+  .navbar{
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; gap:1rem;
+    padding:0.85rem 8vw;
+    background:linear-gradient(0deg, rgba(247,245,238,0.97), rgba(247,245,238,0.7) 75%, transparent);
+    backdrop-filter:blur(6px);
+  }
+  .navbar button{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--phosphor);
+    font-family:var(--sans);
+    font-size:var(--ui-size);
+    padding:0.5em 0.9em;
+    border-radius:6px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .navbar button:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  .navbar button:disabled{opacity:0.3; cursor:default;}
+  .navbar button:disabled:hover{background:var(--panel-2); color:var(--phosphor);}
+  .dots{display:flex; gap:var(--nav-pill-gap); flex:1; min-width:0; justify-content:center; flex-wrap:wrap;}
+  /* Jebakan spesifisitas: .navbar button (0,1,1) menang atas .dot (0,1,0) — konteks
+     induk ditambahkan supaya padding/border-radius tombol umum tidak "bocor" ke dot. */
+  .navbar .dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--line);
+    border:1px solid var(--line);
+    cursor:pointer;
+    transition:all .2s ease;
+    padding:0; flex-shrink:0; appearance:none; -webkit-appearance:none;
+  }
+  .navbar .dot.active{background:var(--phosphor); border-color:var(--phosphor); box-shadow:0 0 8px var(--phosphor);}
+  .navbar .dot:focus-visible{outline:2px solid var(--phosphor); outline-offset:3px;}
+  @media(min-width:641px){
+    .navbar .dot{width:var(--nav-pill-width); height:var(--nav-pill-height); border-radius:var(--nav-pill-radius);}
+    .navbar .dot.active{width:var(--nav-pill-active-width);}
+  }
+  .count{color:var(--text-dim); font-size:var(--small-size); min-width:3.5em; text-align:right;}
+
+  /* ---------- mode embed (di dalam iframe, mis. BeSmart/Moodle) ---------- */
+  html.embedded .topbar,
+  html.embedded .navbar{ display:none; }
+  html.embedded section{
+    min-height:0;
+    padding:2.6rem 6vw;
+    scroll-snap-align:none;
+  }
+  html.embedded #s0{ padding-top:3rem; }
+  html.embedded .cover-num{ font-size:67px; opacity:0.6; }
+  html.embedded body{ font-size:var(--body-size); }
+  .embed-popout{
+    display:none;
+    position:sticky; top:0.7rem; z-index:60;
+    margin:0 0 -1.6rem auto;
+    width:max-content;
+    align-items:center; gap:0.5em;
+    background:var(--panel-2); border:1px solid var(--phosphor-dim);
+    color:var(--phosphor); font-family:var(--mono); font-size:var(--meta-size);
+    letter-spacing:0.04em; text-decoration:none;
+    padding:0.5em 0.9em; border-radius:100px;
+  }
+  .embed-popout:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  html.embedded .embed-popout{ display:inline-flex; }
+
+  /* ---------- section 0 : cover ---------- */
+  #s0{align-items:flex-start;}
+  .cover-num{
+    font-family:var(--sans);
+    font-size:90px;
+    font-weight:300;
+    color:var(--panel-2);
+    -webkit-text-stroke:1.5px var(--phosphor-dim);
+    line-height:0.8;
+    position:absolute;
+    right:6vw; top:18%;
+    z-index:0;
+    user-select:none;
+  }
+  .cover-title{font-size:var(--cover-title-size); max-width:20ch; margin-top:0.4rem;}
+  .cover-sub{color:var(--text); margin-top:1.2rem; font-size:var(--body-size); width:100%; max-width:none;}
+  .cover-objective-groups{
+    display:grid;
+    grid-template-columns:minmax(0,5fr) minmax(0,3fr);
+    gap:0.75rem;
+    width:100%;
+    margin:1rem 0 0;
+  }
+  .cover-objective-group{
+    min-width:0;
+    padding:0.55rem;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--panel-2);
+  }
+  .cover-objective-heading{
+    margin:0 0 0.4rem;
+    color:var(--heading-secondary);
+    font-size:var(--card-title-size);
+    font-weight:var(--heading-weight);
+  }
+  .cover-objectives{
+    counter-reset:cover-objective;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:0.35rem;
+    width:100%;
+    margin:0;
+    padding:0;
+    list-style:none;
+  }
+  .cover-objective-group.transform-time .cover-objectives{grid-template-columns:minmax(0,1fr);}
+  .cover-objectives li{
+    counter-increment:cover-objective;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    min-width:0;
+    padding:0.4rem 0.55rem;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--panel);
+    color:var(--text);
+    font-size:var(--card-body-size);
+  }
+  .cover-objectives li::before{
+    content:counter(cover-objective);
+    display:grid;
+    place-items:center;
+    flex:0 0 1.55rem;
+    width:1.55rem;
+    height:1.55rem;
+    border-radius:50%;
+    background:var(--phosphor-solid);
+    color:#f7f5ef;
+    font-size:var(--small-size);
+    font-weight:var(--ui-weight);
+  }
+  .waveform-divider{width:100%; height:var(--cover-wave-height); margin:2rem 0 0.5rem;}
+
+  .cpmk-strip{display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:2.4rem;}
+  .cover-meta-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:1rem 2rem;width:100%;}
+  .cover-meta-row .cpmk-strip{margin-top:1.2rem;}
+  .cover-author{margin-top:1.2rem;text-align:right;color:var(--text-dim);font-size:var(--small-size);line-height:1.45;}
+  .cover-author-name{color:var(--text);font-size:var(--ui-size);font-weight:var(--heading-weight);}
+  @media(max-width:760px){
+    .cover-meta-row{grid-template-columns:minmax(0,1fr);gap:.35rem;}
+    .cover-author{text-align:left;margin-top:.35rem;}
+    .cover-objective-groups{grid-template-columns:minmax(0,1fr);}
+    .cover-objective-group.signal-properties .cover-objectives{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+  .chip{
+    border:1px solid var(--line);
+    background:var(--panel);
+    padding:0.45em 0.9em;
+    border-radius:100px;
+    font-size:var(--small-size);
+    color:var(--text-dim);
+    letter-spacing:0.03em;
+  }
+  .chip b{color:var(--amber); font-weight:500;}
+
+  /* ---------- hook ---------- */
+  .hook-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:3.5rem; align-items:center;}
+  @media(max-width:860px){.hook-grid{grid-template-columns:1fr;}}
+  .hook-q{
+    font-family:var(--sans); font-style:normal; font-weight:var(--hook-weight);
+    font-size:var(--hook-question-size);
+    color:var(--paper);
+    line-height:1.3;
+    border-left:3px solid var(--amber);
+    padding-left:1.1rem;
+    margin:1.2rem 0 1.6rem;
+  }
+  .voice-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:1.6rem;
+  }
+  .voice-card .label{font-size:var(--small-size); color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.8rem;}
+  canvas#reverseCanvas{width:var(--plot-hook-width); height:var(--plot-hook-height); display:block; border-radius:8px; background:#fbf9f2;}
+  .clip-note{font-size:var(--small-size); color:var(--text-dim); margin-top:0.8rem;}
+  .clip-note b{color:var(--phosphor);}
+  .clip-note .b2{color:var(--cyan);}
+
+  /* ---------- concept blocks ---------- */
+  .concept-cols{display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem; margin-top:2rem;}
+  .concept-cols.two{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .concept-cols.single{grid-template-columns:minmax(0,44rem); justify-content:center;}
+  @media(max-width:860px){.concept-cols{grid-template-columns:1fr;}}
+  .concept-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:1.5rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .concept-card::before{
+    content:attr(data-tag);
+    position:absolute; top:0.9rem; right:1rem;
+    font-size:var(--meta-size); letter-spacing:0.12em; color:var(--phosphor-dim);
+  }
+  .concept-card h4{font-family:var(--sans); color:var(--cyan); margin:0 0 0.6rem; font-size:var(--card-title-size); font-weight:500;}
+  .concept-card p{font-size:var(--card-body-size); color:var(--text); margin:0;}
+  .concept-card .formula{font-size:var(--card-body-size); color:var(--phosphor); margin:0.5rem 0;}
+  .mini-plot{width:var(--plot-mini-width); height:var(--plot-mini-height); margin-bottom:0.9rem; display:block; background:#fbf9f2; border-radius:6px;}
+
+  /* ---------- simulator umum ---------- */
+  .sim-wrap{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:2rem;
+    margin-top:1.6rem;
+  }
+  .sim-controls{
+    display:flex; flex-wrap:wrap; gap:1.6rem 2.2rem;
+    margin-bottom:1.4rem;
+    align-items:flex-end;
+  }
+  .ctrl{display:flex; flex-direction:column; gap:0.4rem; min-width:180px;}
+  .ctrl label{font-size:var(--small-size); letter-spacing:0.07em; text-transform:uppercase; color:var(--text-dim); display:flex; justify-content:space-between; align-items:center;}
+  .ctrl label span{color:var(--phosphor); font-weight:500;}
+  select, input[type=range]{ accent-color: var(--phosphor); }
+  select{
+    background:var(--bg-raise); color:var(--text); border:1px solid var(--line);
+    border-radius:6px; padding:0.5em 0.7em; font-family:var(--mono); font-size:var(--small-size);
+  }
+  .plot-cols{display:grid; grid-template-columns:1fr 1fr; gap:1.4rem;}
+  @media(max-width:760px){.plot-cols{grid-template-columns:1fr;}}
+  .plot-box{background:#fbf9f2; border:1px solid var(--line-soft); border-radius:10px; padding:0.9rem;}
+  .plot-box .ptitle{font-size:var(--small-size); letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:0.5rem; display:flex; justify-content:space-between;}
+  .plot-box .ptitle b{color:var(--amber); font-weight:500; text-transform:none;}
+  canvas.simcanvas{width:var(--plot-simulator-width); height:var(--plot-simulator-height); display:block;}
+  .sim-formula{margin-top:1.2rem; font-size:var(--card-body-size); color:var(--paper-dim); text-align:center;}
+
+  /* ---------- transformasi 3-panel ---------- */
+  .transform-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem; margin-top:1.6rem;}
+  .transform-grid.two{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .transform-grid.single{grid-template-columns:minmax(0,42rem); justify-content:center;}
+  @media(max-width:960px){.transform-grid{grid-template-columns:1fr;}}
+  .transform-panel{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:1.3rem;}
+  .transform-panel .ptitle{font-size:var(--small-size); letter-spacing:0.05em; color:var(--paper); font-weight:500; margin-bottom:0.2rem; font-family:var(--sans);}
+  .transform-panel .psub{font-size:var(--small-size); color:var(--text-dim); margin-bottom:0.8rem;}
+  .transform-panel canvas{width:var(--plot-transform-width); height:var(--plot-transform-height); display:block; background:#fbf9f2; border-radius:8px; margin-bottom:0.7rem;}
+  .plot-legend-static{display:flex;flex-wrap:wrap;gap:.45rem 1rem;list-style:none;margin:.15rem 0 .65rem;padding:0;color:var(--text);font-size:var(--small-size);}
+  .plot-legend-static li{display:inline-flex;align-items:center;gap:.4rem;}
+  .legend-line{display:inline-block;width:22px;height:0;border-top:2px solid var(--legend-color,#59615a);}
+  .legend-line.dashed{border-top-style:dashed;}
+  .transform-panel .tctrl{display:flex; align-items:center; gap:0.6rem; font-size:var(--small-size); color:var(--text-dim); margin-bottom:0.6rem;}
+  .transform-panel .tctrl input[type=checkbox]{ accent-color:var(--phosphor); width:15px; height:15px; }
+  .transform-panel .tformula{font-size:var(--card-body-size); color:var(--paper-dim); text-align:center;}
+  .legend-line{display:inline-flex; align-items:center; gap:0.35em; font-size:var(--small-size); color:var(--text-dim); margin-right:0.9em;}
+  .legend-line .sw{width:14px; height:0; border-top:2px dashed var(--text-dim); display:inline-block;}
+  .legend-line .sw.solid{border-top:2.4px solid var(--phosphor);}
+
+  /* ---------- kalkulator energi/daya ---------- */
+  .calc-result{display:flex; gap:1.6rem; margin-top:1.6rem; flex-wrap:wrap;}
+  .calc-result .m{font-size:var(--small-size); color:var(--text-dim);}
+  .calc-result .m b{display:block; color:var(--paper); font-size:var(--card-title-size); font-family:var(--sans);}
+  .calc-badge{
+    display:inline-flex; align-items:center; gap:0.5em;
+    padding:0.4em 1em; border-radius:100px; font-size:var(--small-size); font-weight:500;
+    letter-spacing:0.03em; margin-top:0.4rem;
+  }
+  .calc-badge.energi{background:rgba(15,107,82,0.1); color:var(--phosphor); border:1px solid var(--phosphor);}
+  .calc-badge.daya{background:rgba(180,83,9,0.1); color:var(--amber); border:1px solid var(--amber);}
+  .calc-guidance{margin-top:0.7rem; border-top:1px dashed var(--line); padding-top:0.55rem;}
+  .calc-guidance summary{cursor:pointer; color:var(--amber); font-size:var(--ui-size);}
+  .calc-guidance p{font-size:var(--small-size); color:var(--text-dim); margin:0.55rem 0 0;}
+
+  /* ---------- gallery (dipakai utk genap/ganjil, contoh soal) ---------- */
+  .gallery{display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; margin-top:1.8rem;}
+  @media(max-width:940px){.gallery{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.gallery{grid-template-columns:1fr;}}
+  .gcard{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:1.2rem;}
+  .gcard h4{font-size:var(--card-title-size); color:var(--paper); margin:0.7rem 0 0.3rem; font-family:var(--sans); font-weight:500;}
+  .gcard .formula{font-size:var(--card-body-size); color:var(--phosphor); margin-bottom:0.6rem;}
+  .gcard p{font-size:var(--card-body-size); color:var(--text-dim); margin:0;}
+  /* canvas.gcanvas: TIDAK menyasar elemen HTML apa pun di berkas ini (bukan galeri
+     kartu bergaya W01 03A–03C) — aturan mati peninggalan templat bersama, dihapus
+     9 September 2026 mengikuti preseden pembersihan canvas.soalcanvas W01 v03
+     (week1_review_sol_v2.md Bagian 33.3), bukan diberi variabel :root. */
+
+  /* ---------- contoh soal & latihan ---------- */
+  .soal-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:1.8rem 2rem; margin-top:1.6rem;
+  }
+  .soal-num{
+    display:inline-block; font-family:var(--sans); font-weight:500; color:var(--bg);
+    background:var(--phosphor); border-radius:6px; padding:0.15em 0.6em; font-size:var(--small-size); margin-bottom:0.9rem;
+  }
+  .soal-num.latihan{background:var(--amber);}
+  .soal-body{color:var(--text);}
+  details.solusi{margin-top:1rem; border-top:1px dashed var(--line); padding-top:0.9rem;}
+  details.solusi summary{cursor:pointer; color:var(--amber); font-size:var(--ui-size); letter-spacing:0.03em;}
+  details.solusi summary:hover{color:var(--phosphor);}
+  .solusi .body{margin-top:0.8rem; font-size:var(--card-body-size); color:var(--paper-dim);}
+  .solusi-plot-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin:0.9rem 0;}
+  @media(max-width:760px){.solusi-plot-grid{grid-template-columns:1fr;}}
+  .solusi-plot{background:var(--bg-raise); border:1px solid var(--line); border-radius:10px; padding:0.8rem;}
+  canvas.solusicanvas{width:var(--plot-example-width); height:var(--plot-example-height); display:block; background:#fbf9f2; border-radius:6px;}
+  .solusi-plot-cap{font-size:var(--small-size); color:var(--text-dim); text-align:center; margin-top:0.5rem;}
+
+  /* ---------- quiz ---------- */
+  .quiz-item{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:1.4rem 1.6rem; margin-bottom:1.1rem;
+  }
+  .quiz-q{font-size:var(--body-size); color:var(--paper); margin-bottom:0.9rem; font-weight:500;}
+  .quiz-opts{display:flex; flex-direction:column; gap:0.55rem;}
+  .opt{
+    display:flex; align-items:center; gap:0.7em; width:100%;
+    padding:0.6em 0.9em; border:1px solid var(--line); border-radius:8px;
+    cursor:pointer; font-size:var(--card-body-size); color:var(--text-dim);
+    transition:all .15s ease;
+    background:none; font-family:inherit; text-align:left;
+  }
+  .opt:hover{border-color:var(--phosphor-dim); color:var(--text);}
+  .opt:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  .opt.correct{border-color:var(--phosphor); background:rgba(15,107,82,0.08); color:var(--phosphor);}
+  .opt.wrong{border-color:var(--red); background:rgba(220,38,38,0.08); color:var(--red);}
+  .opt .k{font-family:var(--mono); font-weight:600; color:var(--cyan); min-width:1.4em;}
+  .quiz-fb{margin-top:0.7rem; font-size:var(--card-body-size); color:var(--text-dim); min-height:1.2em;}
+
+  /* ---------- CTA / labsheet ---------- */
+  .cta-wrap{
+    background:linear-gradient(135deg, var(--panel-2), var(--panel));
+    border:1px solid var(--phosphor-dim);
+    border-radius:18px;
+    padding:2.6rem 2.8rem;
+    margin-top:1.6rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-wrap::after{
+    content:'⏵'; position:absolute; right:-1.2rem; bottom:-2rem;
+    font-size:11rem; color:var(--phosphor-dim); opacity:0.12;
+  }
+  .cta-wrap h3{color:var(--paper); font-size:var(--subheading-size);}
+  .cta-wrap p{color:var(--text); width:100%; max-width:none; margin:0.7rem 0 1.6rem;}
+  .cta-btn{
+    display:inline-flex; align-items:center; gap:0.6em;
+    background:var(--phosphor-solid); color:#f7f5ef; font-family:var(--mono); font-weight:600;
+    font-size:var(--ui-size); padding:0.85em 1.5em; border-radius:8px; text-decoration:none;
+    letter-spacing:0.02em;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .cta-btn:hover{transform:translateY(-2px); box-shadow:0 8px 26px rgba(15,107,82,0.25);}
+  .cta-actions{display:flex; flex-wrap:wrap; gap:0.65rem; align-items:center;}
+  .cta-btn.secondary{background:transparent; color:var(--phosphor); border:1px solid var(--phosphor);}
+  .cta-btn.secondary:hover{background:var(--panel-2); box-shadow:none;}
+  .cta-meta{display:flex; gap:1.6rem; margin-top:1.6rem; flex-wrap:wrap;}
+  .cta-meta .m{font-size:var(--small-size); color:var(--text-dim);}
+  .cta-meta .m b{display:block; color:var(--paper); font-size:var(--small-size); font-family:var(--sans);}
+
+  .recap{margin-top:2.4rem; display:grid; grid-template-columns:repeat(4,1fr); gap:0.9rem;}
+  @media(max-width:760px){.recap{grid-template-columns:repeat(2,1fr);}}
+  .recap .r{border:1px solid var(--line); border-radius:10px; padding:0.9rem; font-size:var(--small-size); color:var(--text-dim);}
+  .recap .r b{display:block; color:var(--phosphor); font-family:var(--sans); font-size:var(--small-size); margin-bottom:0.2rem;}
+
+  /* Bagian gabungan mengikuti pola penutup W03 terbaru. */
+  .merged-section .cta-wrap{padding:1.2rem 1.6rem; margin-top:1rem;}
+  .merged-section .cta-wrap .body-copy{margin:0.5rem 0 1rem;}
+  .merged-section .cta-note{margin:0.5rem 0; line-height:1.4;}
+  .merged-section .cta-meta,.merged-section .recap{margin-top:1rem;}
+  .merged-section .weeknav{margin-top:1rem; padding-top:0.8rem;}
+  @media(min-width:901px) and (max-height:850px){
+    .merged-section{padding-top:3.55rem; padding-bottom:2.9rem;}
+  }
+
+  .weeknav{
+    margin-top:2rem; padding-top:1.4rem;
+    border-top:1px dashed var(--line);
+    display:none; gap:0.8rem; flex-wrap:wrap;
+    align-items:center; justify-content:space-between;
+  }
+  html.local-file:not(.embedded) .weeknav{display:flex;}
+  .weeknav-link{
+    display:inline-flex; align-items:center; gap:0.5em;
+    border:1px solid var(--line); background:var(--panel);
+    color:var(--phosphor); font-family:var(--sans); font-size:var(--ui-size); font-weight:var(--ui-weight); text-decoration:none;
+    padding:0.55em 1.1em; border-radius:8px;
+    transition:all .15s ease;
+  }
+  .weeknav-link:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  .weeknav-link:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  .weeknav-top{width:100%;margin:0 0 1.5rem;padding:0 0 1rem;border-top:0;border-bottom:1px dashed var(--line);position:relative;z-index:1;}
+  html.local-file #s0 .cover-num{top:32%;}
+
+  ::selection{background:var(--phosphor-solid); color:#f7f5ef;}
+  .katex{color:inherit;}
+
+  /* ---------- popup navigasi bagian (FAB) ---------- */
+  .section-nav-fab{
+    position:fixed; right:1.5rem; bottom:5.4rem; z-index:120;
+    width:3rem; height:3rem; border-radius:50%;
+    background:var(--phosphor-solid); color:#f7f5ef; border:none;
+    font-size:21px; line-height:1; cursor:pointer;
+    box-shadow:0 10px 24px -8px rgba(15,107,82,0.55);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .section-nav-fab:hover{transform:translateY(-2px);}
+  .section-nav-fab:focus-visible{outline:2px solid var(--phosphor); outline-offset:3px;}
+  .section-nav-overlay{
+    position:fixed; inset:0; z-index:130;
+    background:rgba(28,33,29,0.45);
+    display:flex; align-items:center; justify-content:center;
+    padding:1.5rem;
+  }
+  .section-nav-overlay[hidden]{display:none;}
+  .section-nav-dialog{
+    width:100%; max-width:26rem; max-height:80vh;
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.4);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .section-nav-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.1rem 1.3rem; border-bottom:1px solid var(--line-soft);
+  }
+  .section-nav-head h3{margin:0; font-size:var(--card-title-size);}
+  .section-nav-close{
+    background:none; border:1px solid var(--line); border-radius:8px;
+    width:2rem; height:2rem; color:var(--text-dim); cursor:pointer; font-size:14px;
+  }
+  .section-nav-close:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  .section-nav-list{overflow-y:auto; padding:0.6rem;}
+  .section-nav-item{
+    display:block; width:100%; text-align:left;
+    background:none; border:1px solid transparent; border-radius:8px;
+    padding:0.6em 0.8em; margin-bottom:0.15rem;
+    font-family:var(--mono); font-size:var(--ui-size); color:var(--text-dim); cursor:pointer;
+  }
+  .section-nav-item:hover{color:var(--text);}
+  .section-nav-item.active{border-color:var(--phosphor); background:rgba(15,107,82,0.08); color:var(--phosphor);}
+  .section-nav-item:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  @media(max-width:640px){
+    .section-nav-dialog{max-height:100vh; border-radius:0;}
+    .section-nav-overlay{padding:0;}
+  }
+
+  /* ---------- info versi & teks pembaca layar ---------- */
+  .version-tag{margin-top:1.2rem; font-size:var(--meta-size); color:var(--text-dim); letter-spacing:0.03em; width:100%; max-width:none;}
+  #s0 .version-tag{margin:.75rem 0 0;}
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  /* ---------- daftar istilah ---------- */
+  .gloss-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-top:1.4rem; align-items:start; min-width:0;}
+  .gloss-grid.single{grid-template-columns:minmax(0,1fr); max-width:72rem; width:100%;}
+  .table-scroll{max-width:100%; min-width:0; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .gloss-table{width:100%; border-collapse:collapse; margin:0; font-size:var(--table-size); table-layout:fixed;}
+  .gloss-table th,.gloss-table td{border:1px solid var(--line); padding:0.55em 0.8em; text-align:left; vertical-align:top;}
+  .gloss-table th{background:var(--panel-2); color:var(--paper); font-family:var(--sans);}
+  .gloss-table td{color:var(--text); overflow-wrap:anywhere;}
+  .gloss-table td:first-child{color:var(--phosphor); white-space:normal;}
+  @media(max-width:900px){
+    .gloss-grid{grid-template-columns:1fr;}
+    .gloss-table{font-size:var(--table-size);}
+    .gloss-table th,.gloss-table td{padding:0.48em 0.55em;}
+  }
+
+  /* ---------- layar presentasi pendek (mis. proyektor 1366x768) ----------
+     Section padat dirapatkan melalui whitespace; ukuran font dan grafik tetap
+     mengikuti token agar materi tidak dikerdilkan untuk memaksa satu viewport. */
+  @media(min-width:901px) and (max-height:850px){
+    section{padding:4.45rem 8vw 3.65rem;}
+    .cover-title{font-size:var(--cover-title-size);}
+    .cover-sub{margin-top:0.75rem;}
+    #s0 .cover-objective-groups{margin-top:0.5rem;}
+    #s0 .cover-objective-group{padding:0.4rem;}
+    #s0 .cover-objective-heading{margin-bottom:0.25rem;}
+    #s0 .cover-objectives{gap:0.25rem;}
+    #s0 .cover-objectives li{padding:0.25rem 0.45rem;}
+    #s0 .waveform-divider{margin-top:0.5rem;}
+    .cpmk-strip{margin-top:1.2rem;}
+    .hook-grid{gap:2rem;}
+    .hook-q{margin:0.7rem 0 0.9rem; font-size:var(--hook-question-size);}
+    .voice-card{padding:1rem;}
+    .concept-cols{gap:1rem; margin-top:1rem;}
+    .concept-card{padding:1rem;}
+    .mini-plot{margin-bottom:0.55rem;}
+    .sim-wrap{padding:1.1rem; margin-top:0.85rem;}
+    .sim-controls{gap:0.7rem 1.2rem; margin-bottom:0.75rem;}
+    .transform-grid{gap:1rem; margin-top:0.8rem;}
+    .transform-panel{padding:0.9rem;}
+    .transform-panel canvas{margin-bottom:0.45rem;}
+    .soal-card{padding:1rem 1.3rem; margin-top:0.8rem;}
+    .quiz-item{padding:0.9rem 1.1rem; margin-bottom:0.7rem;}
+    .quiz-opts{gap:0.35rem;}
+    .opt{padding:0.42em 0.75em;}
+    .gloss-grid{margin-top:0.8rem;}
+    .gloss-table{font-size:var(--table-size);}
+    .gloss-table th,.gloss-table td{padding:0.42em 0.65em;}
+    .cta-wrap{padding:1.5rem 1.8rem; margin-top:0.8rem;}
+    .cta-wrap p{margin:0.5rem 0 0.8rem;}
+    .cta-meta{margin-top:0.8rem;}
+    .recap{margin-top:1rem;}
+    #s3b{padding-top:3.55rem; padding-bottom:2.9rem;}
+    #s3b .lede{margin:0.45rem 0;}
+    #s3b .sim-wrap{margin-top:0.55rem; padding:0.85rem;}
+    #s3b .plot-box{padding:0.65rem;}
+    #s3b .calc-result{gap:0.8rem 1.1rem; margin-top:0.75rem;}
+    #s5b{padding-top:3.6rem; padding-bottom:3rem;}
+    #s5b .lede{margin:0.45rem 0;}
+    #s5b .sim-formula{margin:0.45rem 0 0; font-size:var(--card-body-size);}
+    #s9{padding-top:3.55rem; padding-bottom:2.9rem;}
+    #s9 .cta-wrap{padding:1.1rem 1.5rem;}
+    #s9 .cta-wrap p{font-size:var(--body-size); line-height:1.5;}
+    #s9 .cta-meta .m{font-size:var(--small-size);}
+    #s9 .cta-meta .m b{font-size:var(--small-size);}
+  }
+
+  @media(max-width:640px){
+    section{padding:6rem 6vw 4.5rem;}
+    .cover-num{display:none;}
+    .dots{display:none;}
+    .navbar{justify-content:space-between;}
+    .concept-cols.two,.concept-cols.single,
+    .transform-grid.two,.transform-grid.single{grid-template-columns:minmax(0,1fr);}
+  }
+
+  /* Standar font aktif v04: aturan peran berlaku juga pada HP/embed/fallback. */
+  body,html.embedded body{font-family:var(--sans);font-size:var(--body-size);font-weight:var(--body-weight);line-height:1.5;}
+  h1,h2,h3,h4{font-family:var(--sans);font-weight:var(--heading-weight);line-height:1.2;}
+  h1.cover-title,#s0 .cover-title{font-size:var(--cover-title-size);}
+  h2{font-size:var(--section-title-size);}
+  h3{font-size:var(--subheading-size);}
+  .concept-card h4,.prop-card h4,.gcard h4{font-size:var(--card-title-size);font-weight:var(--heading-weight);line-height:1.25;}
+  .hook-q{font-family:var(--sans);font-size:var(--hook-question-size);font-weight:var(--hook-weight);font-style:normal;line-height:1.35;}
+  .lede{font-size:var(--lede-size);font-weight:var(--body-weight);}
+  .cover-sub{font-size:var(--body-size);font-weight:var(--body-weight);}
+  .concept-card p,.prop-card p,.gcard p,.solusi .body,.solusi .body p,.opt,.quiz-fb{font-weight:var(--body-weight);}
+  .quiz-q{font-weight:var(--body-weight);}
+  .navbar button,.section-nav-item,.cta-btn,.ctrl label,select,input,button{font-family:var(--sans);font-weight:var(--ui-weight);}
+  .section-nav-item.active{font-weight:500;}
+  .eyebrow,.version-tag,code,pre{font-family:var(--mono);font-weight:var(--mono-weight);}
+  .gloss-table,.gloss-table td{font-family:var(--sans);font-size:var(--table-size);font-weight:var(--body-weight);}
+  .gloss-table th{font-family:var(--sans);font-size:var(--table-size);font-weight:var(--heading-weight);}
+  b,strong{font-weight:var(--strong-weight);}
+  .math-fallback{font-family:Georgia,serif;}
+  .gcard-plot-cap,.solusi-plot-cap{font-size:var(--small-size);}
+  .ctrl select,.ctrl input[type=number]{font-size:var(--ui-size);}
+  /* Ruang penutup/tabel proyektor; token font dan isi tetap. */
+  @media(min-width:901px) and (max-height:850px){
+    #s8c{padding-top:3.5rem;padding-bottom:4.5rem;}
+    #s8c .gloss-table th,#s8c .gloss-table td{padding:0.28em 0.65em;}
+    #s9 .cta-wrap p{width:100%;max-width:none;}
+    #s9 .cta-wrap{padding:0.6rem 1rem;}
+    #s9 .cta-wrap .body-copy{margin:0.25rem 0 0.5rem;}
+    #s9 .cta-note{margin:0.25rem 0; line-height:1.3;}
+    #s9 .cta-meta{margin-top:0.5rem;}
+    #s9 .recap{margin-top:0.5rem;}
+    #s9 .recap .r{padding:0.7rem;}
+    #s9 .weeknav{margin-top:0.5rem; padding-top:0.5rem;}
+    #s7b .soal-body p{width:100%;max-width:none;}
+    #s7b .solusi .body{margin-top:0.5rem;}
+    #s7b .solusi .body p{margin:0.5rem 0;}
+    #s7b>.lede{margin:0.5rem 0;}
+    #s7b .soal-card{padding:0.8rem 1.3rem;}
+  }
+</style>
+</head>
+<body>
+
+<a class="embed-popout" id="popoutLink" target="_blank" rel="noopener">⤢ Buka mode presentasi penuh</a>
+<button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false">☾ Gelap</button>
+
+<div class="topbar">
+  <div class="crumb">Isyarat dan Sistem <b>·</b> Minggu 02 / 16 <b>·</b> Labsheet-02</div>
+  <div class="sk-badge">SK2 — CPMK1 — 4%</div>
+</div>
+
+<!-- ================= SECTION 0 — COVER ================= -->
+<section id="s0">
+  <nav class="weeknav weeknav-top" aria-label="Navigasi antarminggu — awal halaman">
+    <a class="weeknav-link" href="W01-sinyal-dasar_v03.html">◂ W01 · Sinyal Dasar</a>
+    <a class="weeknav-link" href="index.html">Daftar Isi</a>
+    <a class="weeknav-link" href="W03-klasifikasi-sistem_v06.html">W03 · Klasifikasi Sistem ▸</a>
+  </nav>
+  <div class="cover-num">02</div>
+  <div class="eyebrow">Minggu 2 · Sub-CPMK 1.1</div>
+  <h1 class="cover-title">Sifat-sifat Sinyal dan Transformasinya</h1>
+  <p class="cover-sub">Mengklasifikasikan sifat sinyal dan menerapkan transformasi waktu:</p>
+  <div class="cover-objective-groups">
+    <div class="cover-objective-group signal-properties">
+      <h2 class="cover-objective-heading">Sifat sinyal</h2>
+      <ol class="cover-objectives" aria-label="Lima sifat sinyal">
+        <li>Periodisitas</li>
+        <li>Kausalitas</li>
+        <li>Deterministik vs stokastik</li>
+        <li>Energi &amp; daya</li>
+        <li>Genap &amp; ganjil</li>
+      </ol>
+    </div>
+    <div class="cover-objective-group transform-time">
+      <h2 class="cover-objective-heading">Transformasi waktu</h2>
+      <ol class="cover-objectives" aria-label="Tiga transformasi waktu">
+        <li>Refleksi</li>
+        <li>Penskalaan</li>
+        <li>Pergeseran</li>
+      </ol>
+    </div>
+  </div>
+  <svg class="waveform-divider" viewBox="0 0 800 52" preserveAspectRatio="none">
+    <path d="M0,26 Q20,4 40,26 T80,26 T120,26 T160,26 T200,26 T240,26 T280,26 T320,26 T360,26 T400,26 T440,26 T480,26 T520,26 T560,26 T600,26 T640,26 T680,26 T720,26 T760,26 T800,26" fill="none" stroke="var(--phosphor-dim)" stroke-width="1.5"/>
+  </svg>
+  <div class="cover-meta-row">
+    <div class="cpmk-strip">
+      <div class="chip">Sinyal = <b>fungsi waktu atau indeks</b></div>
+      <div class="chip">Target: <b>mengklasifikasi sifat dan memprediksi hasil transformasi</b></div>
+    </div>
+    <div class="cover-author" aria-label="Penyusun dan institusi">
+      <div class="cover-author-name">Ariadie Chandra Nugraha</div>
+      <div>Departemen Pendidikan Teknik Elektro</div>
+      <div>Universitas Negeri Yogyakarta</div>
+    </div>
+  </div>
+  <p class="version-tag">Versi v03 · Diperbarui 16-09-2026 22:42 WIB</p>
+</section>
+
+<!-- ================= SECTION 1 — HOOK ================= -->
+<section id="s1">
+  <div class="eyebrow">01 — Pemantik: Refleksi Waktu</div>
+  <h2>Kenapa lagu yang diputar mundur terdengar aneh, tetapi durasinya tetap sama?</h2>
+  <div class="hook-grid">
+    <div>
+      <p class="hook-q">“Rekaman yang dibalik bukan sinyal baru—sinyalnya tetap sama, tetapi arah sumbu waktunya dibalik.”</p>
+      <p class="body-copy">Itulah gambaran paling intuitif dari <b style="color:var(--phosphor)">refleksi waktu (<em>time reversal</em>)</b>: mengganti $x(t)$ menjadi $x(-t)$. Bentuknya berubah drastis ketika didengar, tetapi durasi dan energi totalnya tidak berubah.</p>
+      <p class="body-copy" style="margin-top:0.9rem;">Minggu ini kita mempelajari tiga transformasi dasar—refleksi, penskalaan, dan pergeseran waktu—serta cara mengenali sifat penting suatu sinyal sebelum memanipulasinya.</p>
+    </div>
+    <div class="voice-card">
+      <div class="label">Ilustrasi &middot; x(t) asli vs x(−t) (dibalik)</div>
+      <canvas id="reverseCanvas" role="img" aria-label="Grafik sinyal asli x(t) sebagai garis putus-putus hijau dan hasil refleksi x(−t) sebagai garis penuh biru, dicerminkan terhadap sumbu vertikal t=0"></canvas>
+      <div class="clip-note"><b>Hijau putus-putus</b> = sinyal asli x(t). <span class="b2" style="color:var(--cyan)"><b class="b2">Biru garis penuh</b></span> = hasil refleksi x(−t) — dicerminkan terhadap sumbu vertikal t=0.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 2A — PERIODIK / KAUSAL ================= -->
+<section id="s2">
+  <div class="eyebrow">02A — Periodik &amp; Kausal</div>
+  <h2>Dua pertanyaan tentang perilaku terhadap waktu</h2>
+  <p class="lede">Apakah pola sinyal berulang, dan apakah sinyal baru aktif sesudah waktu acuan?</p>
+  <div class="concept-cols two">
+    <div class="concept-card" data-tag="PERIODIK">
+      <canvas class="mini-plot" data-kind="periodic" role="img" aria-label="Grafik sinyal periodik sinusoidal dengan penanda selang periode fundamental T0"></canvas>
+      <h4>Periodik?</h4>
+      <div class="formula" id="f-periodic"></div>
+      <p class="card-copy">Berulang identik tiap selang <b style="color:var(--paper)">T₀</b> (periode fundamental (<em>fundamental period</em>) — selang <b>positif</b> terkecil yang memenuhi ini; sinyal konstan periodik untuk sembarang T&gt;0 sehingga tidak punya T₀ terkecil). Contoh: gelombang bunyi nada musik.</p>
+    </div>
+    <div class="concept-card" data-tag="KAUSAL">
+      <canvas class="mini-plot" data-kind="causal" role="img" aria-label="Grafik sinyal kausal yang bernilai nol untuk t kurang dari nol"></canvas>
+      <h4>Kausal?</h4>
+      <div class="formula" id="f-causal"></div>
+      <p class="card-copy">Sinyal kausal bernilai nol untuk <b style="color:var(--paper)">t &lt; 0</b>—belum "ada" sebelum waktu acuan dimulai. Kebalikannya adalah sinyal nonkausal, yang bernilai tak nol pada waktu negatif. <b style="color:var(--paper)">Catatan:</b> ini sifat sinyal berdasarkan dukungan (<em>support</em>) terhadap t=0, berbeda dari sistem kausal yang keluarannya tidak bergantung pada masukan masa depan. Rentang yang diplot juga bukan dukungan sinyal: <code>e<sup>-t</sup></code> tanpa faktor u(t) tetap bernilai tak nol untuk t&lt;0 meskipun grafiknya sering hanya digambar untuk t≥0.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 2B — DETERMINISTIK / STOKASTIK ================= -->
+<section id="s2b">
+  <div class="eyebrow">02B — Deterministik vs Stokastik</div>
+  <h2>Terlihat acak belum tentu stokastik</h2>
+  <p class="lede">Pembeda utamanya adalah model pembentuk sinyal, bukan sekadar bentuk grafiknya.</p>
+  <div class="concept-cols single">
+    <div class="concept-card" data-tag="DETERMINISTIK">
+      <canvas class="mini-plot" data-kind="stochastic" role="img" aria-label="Grafik perbandingan sinyal deterministik sinusoidal putus-putus hijau dan kurva oranye yang tampak tidak beraturan tetapi tetap deterministik"></canvas>
+      <h4>Deterministik vs Stokastik</h4>
+      <p class="card-copy"><b style="color:var(--paper)">Deterministik</b> (hijau putus-putus): nilainya bisa dipastikan lewat rumus. Kurva <b style="color:var(--amber)">oranye</b> di sini <b>juga deterministik</b>—jumlah beberapa sinus tetap yang sengaja dibuat terlihat tidak beraturan, bukan sinyal stokastik sungguhan. Sinyal <b style="color:var(--paper)">stokastik</b> yang sebenarnya, misalnya derau sensor, berasal dari model probabilistik dan dideskripsikan secara statistik.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 3A — ENERGI VS DAYA ================= -->
+<section id="s3">
+  <div class="eyebrow">03A — Energi vs Daya</div>
+  <h2>Sinyal Energi vs Sinyal Daya</h2>
+  <p class="lede" id="energyFormulaLede"></p>
+  <p class="body-copy">Pulsa persegi <code>rect(t/2)</code> di kalkulator bawah dapat dibentuk dari dua undak satuan: <code>rect(t/2) = u(t+1) − u(t−1)</code>. Nilai pada batas <code>t=±1</code> dapat berbeda antarkonvensi undak, tetapi tidak mengubah integral energi CT; perbedaan itu hanya dapat memengaruhi sampel DT tepat pada batas.</p>
+</section>
+
+<!-- ================= SECTION 3B — KALKULATOR ENERGI/DAYA ================= -->
+<section id="s3b">
+  <div class="eyebrow">03B — Kalkulator Energi/Daya</div>
+  <h2>Amati pola energi saat jendela membesar</h2>
+  <p class="lede">Tiga jendela dipakai agar klasifikasi tidak bergantung pada satu rasio numerik saja.</p>
+  <div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl">
+        <label for="calcSig">Pilih sinyal</label>
+        <select id="calcSig">
+          <option value="pulse">Pulsa persegi (durasi 2 detik)</option>
+          <option value="expo">Eksponensial turun (kausal)</option>
+          <option value="sinus">Sinusoidal periodik</option>
+          <option value="step">Undak satuan u(t)</option>
+          <option value="ramp">Ramp (bukan energi maupun daya)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="plot-cols">
+      <div class="plot-box">
+        <div class="ptitle">Sinyal <b id="calcFormula"></b></div>
+        <canvas class="simcanvas" id="calcPlot" role="img" aria-label="Grafik sinyal yang dipilih pada kalkulator energi dan daya"></canvas>
+      </div>
+      <div class="plot-box">
+        <div class="ptitle">Kalkulator energi/daya (estimasi numerik, 3 jendela)</div>
+        <div class="calc-result">
+          <div class="m"><b id="calcE5">–</b>E, jendela ±5 dtk</div>
+          <div class="m"><b id="calcE20">–</b>E, jendela ±20 dtk</div>
+          <div class="m"><b id="calcE80">–</b>E, jendela ±80 dtk</div>
+          <div class="m"><b id="calcRatio">–</b>rasio E₂₀/E₅ (r1)</div>
+          <div class="m"><b id="calcRatio2">–</b>rasio E₈₀/E₂₀ (r2)</div>
+          <div class="m"><b id="calcP">–</b>estimasi daya rata-rata P (jendela ±80 dtk)</div>
+        </div>
+        <div id="calcBadge" aria-live="polite"></div>
+        <details class="calc-guidance">
+          <summary>▸ Cara membaca tiga jendela</summary>
+          <p class="nav-note">Rasio tunggal E₂₀/E₅ <b>bukan</b> penentu umum: r1 dan r2 harus sama-sama mendekati 1 untuk sinyal energi, atau sama-sama mendekati 4 untuk sinyal daya karena setiap jendela melebar 4×. Sinyal ramp <code>t·u(t)</code> memiliki r1=r2=64 sehingga bukan sinyal energi maupun sinyal daya.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 4A — GENAP VS GANJIL ================= -->
+<section id="s4">
+  <div class="eyebrow">04A — Genap vs Ganjil</div>
+  <h2>Genap, ganjil, atau bukan keduanya?</h2>
+  <p class="lede">Sinyal itu sendiri bisa genap, ganjil, bukan keduanya, atau—khusus sinyal nol—genap dan ganjil sekaligus.</p>
+  <div class="concept-cols two">
+    <div class="concept-card" data-tag="GENAP">
+      <canvas class="mini-plot" data-kind="even" role="img" aria-label="Grafik sinyal genap cosinus yang simetris terhadap sumbu vertikal"></canvas>
+      <h4>Contoh Genap</h4>
+      <div class="formula" id="f-even"></div>
+      <p class="card-copy">$x(t)=\cos(t)$ simetris terhadap sumbu vertikal $t=0$. Cerminan kiri-kanannya identik.</p>
+    </div>
+    <div class="concept-card" data-tag="GANJIL">
+      <canvas class="mini-plot" data-kind="odd" role="img" aria-label="Grafik sinyal ganjil sinus yang antisimetris terhadap titik asal"></canvas>
+      <h4>Contoh Ganjil</h4>
+      <div class="formula" id="f-odd"></div>
+      <p class="card-copy">$x(t)=\sin(t)$ antisimetris terhadap titik asal. Refleksinya sama dengan versi yang tandanya dibalik.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 4B — DEKOMPOSISI ================= -->
+<section id="s4b">
+  <div class="eyebrow">04B — Dekomposisi Genap + Ganjil</div>
+  <h2>Setiap sinyal dapat diurai menjadi dua komponen</h2>
+  <p class="lede">Dekomposisi ini tidak berarti sinyal asalnya sekaligus memiliki dua sifat.</p>
+  <div class="concept-cols single">
+    <div class="concept-card" data-tag="UMUM">
+      <h4>Dekomposisi Genap+Ganjil</h4>
+      <div class="formula" id="f-decomp"></div>
+      <p class="card-copy">Berlaku untuk sinyal apa pun, termasuk sinyal yang bukan genap maupun ganjil. Dekomposisi ini akan dipakai kembali saat membahas simetri spektrum Fourier pada CPMK2.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 5A — REFLEKSI & PENSKALAAN ================= -->
+<section id="s5">
+  <div class="eyebrow">05A — Refleksi &amp; Penskalaan Waktu</div>
+  <h2>Membalik dan mengubah skala waktu</h2>
+  <p class="lede">Garis putus-putus abu adalah sinyal asli $x(t)$; garis penuh adalah hasil transformasinya.</p>
+
+  <div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl">
+        <label for="tfSigA">Sinyal dasar x(t)</label>
+        <select id="tfSigA">
+          <option value="pulse">Pulsa persegi (durasi 2 detik)</option>
+          <option value="expo">Eksponensial turun (kausal)</option>
+          <option value="sinus">Sinusoidal periodik</option>
+          <option value="step">Undak satuan u(t)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="transform-grid two">
+      <div class="transform-panel">
+        <div class="ptitle">Refleksi Waktu</div>
+        <div class="psub">y(t) = x(−t) — dicerminkan terhadap t=0</div>
+        <canvas id="tfReflect" role="img" aria-label="Grafik refleksi waktu: sinyal asli putus-putus abu dan hasil x(−t) garis penuh biru"></canvas>
+        <ul class="plot-legend-static" aria-label="Legenda grafik refleksi waktu"><li><span class="legend-line dashed"></span>x(t) asli</li><li><span class="legend-line" style="--legend-color:#0f6fa3"></span>x(−t)</li></ul>
+        <div class="tctrl"><input type="checkbox" id="reflectToggle" checked><label for="reflectToggle">Tampilkan x(−t)</label></div>
+        <div class="tformula" id="tfReflectFormula"></div>
+      </div>
+      <div class="transform-panel">
+        <div class="ptitle">Penskalaan Waktu</div>
+        <div class="psub">y(t) = x(a·t) — memampatkan/melebarkan sumbu waktu</div>
+        <canvas id="tfScale" role="img" aria-label="Grafik penskalaan waktu: sinyal asli putus-putus abu dan hasil x(a·t) garis penuh hijau"></canvas>
+        <ul class="plot-legend-static" aria-label="Legenda grafik penskalaan waktu"><li><span class="legend-line dashed"></span>x(t) asli</li><li><span class="legend-line" style="--legend-color:#0f6b52"></span>x(a·t)</li></ul>
+        <div class="ctrl" style="min-width:auto;">
+          <label for="scaleSlider">Faktor skala a <span id="scaleVal">1.0</span></label>
+          <input type="range" id="scaleSlider" min="0.3" max="3" step="0.1" value="1">
+        </div>
+        <div class="tformula" id="tfScaleFormula"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 5B — PERGESERAN ================= -->
+<section id="s5b">
+  <div class="eyebrow">05B — Pergeseran Waktu</div>
+  <h2>Menunda atau memajukan sinyal</h2>
+  <p class="lede">Nilai t₀ positif menggeser sinyal ke kanan (menunda); nilai negatif menggesernya ke kiri (memajukan).</p>
+  <div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl">
+        <label for="tfSigB">Sinyal dasar x(t)</label>
+        <select id="tfSigB">
+          <option value="pulse">Pulsa persegi (durasi 2 detik)</option>
+          <option value="expo">Eksponensial turun (kausal)</option>
+          <option value="sinus">Sinusoidal periodik</option>
+          <option value="step">Undak satuan u(t)</option>
+        </select>
+      </div>
+    </div>
+    <div class="transform-grid single">
+      <div class="transform-panel">
+        <div class="ptitle">Pergeseran Waktu</div>
+        <div class="psub">y(t) = x(t − t₀) — menggeser sinyal di sumbu waktu</div>
+        <canvas id="tfShift" role="img" aria-label="Grafik pergeseran waktu: sinyal asli putus-putus abu dan hasil x(t−t0) garis penuh oranye"></canvas>
+        <ul class="plot-legend-static" aria-label="Legenda grafik pergeseran waktu"><li><span class="legend-line dashed"></span>x(t) asli</li><li><span class="legend-line" style="--legend-color:#b45309"></span>x(t−t₀)</li></ul>
+        <div class="ctrl" style="min-width:auto;">
+          <label for="shiftSlider">Pergeseran t₀ <span id="shiftVal">0.0</span></label>
+          <input type="range" id="shiftSlider" min="-3" max="3" step="0.5" value="0">
+        </div>
+        <div class="tformula" id="tfShiftFormula"></div>
+      </div>
+    </div>
+    <p class="sim-formula" id="tfSummary" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- ================= SECTION 6A — CONTOH PERIODISITAS ================= -->
+<section id="s6">
+  <div class="eyebrow">06A — Contoh Terselesaikan: Periodisitas</div>
+  <h2>Menentukan periode fundamental gabungan sinusoid</h2>
+
+  <div class="soal-card">
+    <span class="soal-num">Contoh 1</span>
+    <div class="soal-body">
+      <p class="card-copy">Tentukan apakah $x(t) = 3\cos(4t) + 2\sin(6t)$ periodik. Jika ya, tentukan periode fundamentalnya $T_0$.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p class="solution-copy">Pecah menjadi dua komponen sinusoidal, gambar masing-masing, lalu jumlahkan:</p>
+          <div class="solusi-plot-grid">
+            <div class="solusi-plot">
+              <canvas class="solusicanvas" id="soal1canvasA" role="img" aria-label="Grafik komponen 3 cos 4t: sinusoidal dengan periode pi per 2."></canvas>
+              <div class="solusi-plot-cap">$3\cos(4t)$ — periode $T_1=\pi/2$</div>
+            </div>
+            <div class="solusi-plot">
+              <canvas class="solusicanvas" id="soal1canvasB" role="img" aria-label="Grafik komponen 2 sin 6t: sinusoidal dengan periode pi per 3."></canvas>
+              <div class="solusi-plot-cap">$2\sin(6t)$ — periode $T_2=\pi/3$</div>
+            </div>
+            <div class="solusi-plot">
+              <canvas class="solusicanvas" id="soal1canvas" role="img" aria-label="Grafik gabungan 3 cos 4t ditambah 2 sin 6t: periodik dengan periode fundamental pi."></canvas>
+              <div class="solusi-plot-cap">$x(t) = 3\cos(4t)+2\sin(6t)$ — gabungan</div>
+            </div>
+          </div>
+          <p class="solution-copy">Komponen pertama periodik dengan $T_1 = 2\pi/4 = \pi/2$. Komponen kedua periodik dengan $T_2 = 2\pi/6 = \pi/3$.</p>
+          <p class="solution-copy">Jumlah dua sinyal periodik bersifat periodik jika rasio $T_1/T_2$ adalah bilangan rasional. Di sini $T_1/T_2 = (\pi/2)/(\pi/3) = 3/2$, sehingga $T_0$ adalah kelipatan persekutuan terkecil dari kedua periode, yaitu $\pi$ karena $\pi/T_1=2$ dan $\pi/T_2=3$.</p>
+          <p class="solution-copy"><b>Kesimpulan:</b> $x(t)$ periodik dengan $T_0 = \pi$.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 6B — CONTOH ENERGI/DAYA ================= -->
+<section id="s6b">
+  <div class="eyebrow">06B — Contoh Terselesaikan: Energi/Daya</div>
+  <h2>Mengklasifikasikan undak satuan</h2>
+  <div class="soal-card">
+    <span class="soal-num">Contoh 2</span>
+    <div class="soal-body">
+      <p class="card-copy">Klasifikasikan $x(t) = A\,u(t)$ (undak satuan beramplitudo $A$, dengan $A$ konstanta real dan $A \neq 0$) sebagai sinyal energi atau sinyal daya.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p class="solution-copy"><em>Catatan: untuk $A$ kompleks, ganti setiap $A^2$ di bawah dengan $|A|^2$; hasil akhirnya sama. Jika $A=0$, sinyalnya adalah sinyal nol dan berada di luar dua kelas ini ($E=0$, $P=0$).</em></p>
+          <p class="solution-copy">Energi: $E = \int_{0}^{\infty} A^2\,dt \to \infty$ karena integralnya tidak konvergen.</p>
+          <p class="solution-copy">Daya rata-rata: $P = \lim_{T\to\infty} \frac{1}{2T}\int_{-T}^{T} |x(t)|^2\,dt = \lim_{T\to\infty} \frac{A^2T}{2T} = \frac{A^2}{2}$, yaitu terhingga dan tidak nol.</p>
+          <p class="solution-copy"><b>Kesimpulan:</b> $x(t)=A\,u(t)$ adalah <b>sinyal daya</b> ($E=\infty$, $0<P<\infty$), bukan sinyal energi. Bandingkan dengan hasil kalkulator interaktif pada Bagian 03B untuk “Undak satuan”.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 7A — LATIHAN MANDIRI ================= -->
+<section id="s7">
+  <div class="eyebrow">07A — Latihan Mandiri: Periodisitas DT</div>
+  <h2>Coba kerjakan sendiri dulu</h2>
+  <p class="lede">Berbeda dari contoh di atas, latihan ini <b style="color:var(--paper)">tidak</b> disertai jawaban lengkap — kerjakan di kertas, lalu diskusikan di kelas atau bandingkan hasilnya lewat Labsheet-02.</p>
+
+  <div class="soal-card">
+    <span class="soal-num latihan">Latihan 1</span>
+    <div class="soal-body">
+      <p class="card-copy">Tentukan apakah $x[n] = \cos(\pi n/4)$ periodik dalam domain diskrit. Jika ya, tentukan periode fundamental $N_0$.</p>
+      <details class="solusi">
+        <summary>💡 Lihat petunjuk (bukan jawaban lengkap)</summary>
+        <div class="body"><p class="solution-copy">Periodisitas DT membutuhkan syarat tambahan dibandingkan CT: $x[n]=\cos(\omega_0 n)$ periodik hanya jika $\omega_0/(2\pi)$ merupakan bilangan rasional $k/N_0$. Cari $\omega_0$ dari soal, lalu sederhanakan $\omega_0/(2\pi)$.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 7B — LATIHAN DEKOMPOSISI ================= -->
+<section id="s7b">
+  <div class="eyebrow">07B — Latihan Mandiri: Energi &amp; Dekomposisi</div>
+  <h2>Uji perhitungan energi dan genap–ganjil</h2>
+  <p class="lede">Gunakan definisi energi untuk Latihan 2; untuk Latihan 3, bentuk x(−t) lalu gunakan rumus dekomposisi Bagian 04B.</p>
+  <div class="soal-card">
+    <span class="soal-num latihan">Latihan 2</span>
+    <div class="soal-body">
+      <p class="card-copy">Hitung energi sinyal $x(t) = e^{-2t}u(t)$.</p>
+      <details class="solusi">
+        <summary>💡 Lihat petunjuk (bukan jawaban lengkap)</summary>
+        <div class="body"><p class="solution-copy">Karena terdapat faktor $u(t)$, batas bawah integral energi menjadi 0, bukan $-\infty$. Gunakan $\int_0^\infty e^{-kt}\,dt = 1/k$ untuk $k>0$ dengan integran $|x(t)|^2 = e^{-4t}$.</p></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="soal-card">
+    <span class="soal-num latihan">Latihan 3</span>
+    <div class="soal-body">
+      <p class="card-copy">Tentukan komponen genap $x_e(t)$ dan ganjil $x_o(t)$ dari sinyal ramp $x(t) = t\,u(t)$.</p>
+      <details class="solusi">
+        <summary>💡 Lihat petunjuk (bukan jawaban lengkap)</summary>
+        <div class="body"><p class="solution-copy">Gunakan rumus dekomposisi pada Bagian 04B. Bentuk dahulu $x(-t)$ dan perhatikan bagaimana $u(-t)$ memindahkan daerah tak-nol ke $t<0$.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 8 — KUIS ================= -->
+<section id="s8">
+  <div class="eyebrow">08A — Kuis Pemahaman (1/4)</div>
+  <h2>Cek cepat sebelum lanjut ke labsheet</h2>
+  <p class="lede">Formatif—tidak dinilai (bobot 0%). Jika masih ragu, ulangi Bagian 02–04. Di kelas, dosen dapat menampilkan soal sebelum opsi dipilih; saat belajar mandiri, pilih opsi untuk memperoleh umpan balik instan.</p>
+
+  <div id="quizRoot1"></div>
+</section>
+
+<!-- ================= SECTION 8B — KUIS 2 ================= -->
+<section id="s8q2">
+  <div class="eyebrow">08B — Kuis Pemahaman (2/4)</div>
+  <h2>Klasifikasi energi atau daya</h2>
+  <p class="lede">Pilih definisi yang memenuhi syarat matematis untuk sebuah sinyal energi.</p>
+  <div id="quizRoot2"></div>
+</section>
+
+<!-- ================= SECTION 8C — KUIS 3 ================= -->
+<section id="s8q3">
+  <div class="eyebrow">08C — Kuis Pemahaman (3/4)</div>
+  <h2>Dekomposisi genap–ganjil</h2>
+  <p class="lede">Ingat perbedaan tanda pada rumus komponen genap dan komponen ganjil.</p>
+  <div id="quizRoot3"></div>
+</section>
+
+<!-- ================= SECTION 8D — KUIS 4 ================= -->
+<section id="s8q4">
+  <div class="eyebrow">08D — Kuis Pemahaman (4/4)</div>
+  <h2>Arah pergeseran waktu</h2>
+  <p class="lede">Gunakan rentang aktif sinyal untuk memeriksa arah dan besar pergeserannya.</p>
+  <div id="quizRoot4"></div>
+</section>
+
+<!-- ================= SECTION 9A — DAFTAR ISTILAH A–O ================= -->
+<section id="s8b">
+  <div class="eyebrow">09A — Glosarium A–O</div>
+  <h2>Daftar istilah (<em>glossary</em>) Inggris–Indonesia</h2>
+  <p class="lede">Dalam paparan dipakai istilah Indonesia yang relatif dikenal; istilah Inggris dicetak miring dan dipertahankan karena lazim dipakai di buku teks dan pencarian. Singkatan CT/DT dan simbol matematika tidak dicetak miring.</p>
+  <div class="gloss-grid single">
+    <div class="table-scroll">
+    <table class="gloss-table">
+      <caption class="sr-only">Daftar istilah A sampai O</caption>
+      <thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead>
+      <tbody>
+        <tr><td><em>aperiodic signal</em></td><td>sinyal aperiodik</td><td>Tidak memenuhi x(t+T₀)=x(t) untuk T₀&gt;0 mana pun</td></tr>
+        <tr><td><em>causal signal</em></td><td>sinyal kausal</td><td>Bernilai nol untuk t&lt;0 (dukungan terhadap titik asal waktu)</td></tr>
+        <tr><td><em>deterministic signal</em></td><td>sinyal deterministik</td><td>Nilai dapat dipastikan lewat rumus</td></tr>
+        <tr><td><em>energy signal</em></td><td>sinyal energi</td><td>0&lt;E&lt;∞ dan P=0</td></tr>
+        <tr><td><em>even signal</em></td><td>sinyal genap</td><td>x(−t)=x(t)</td></tr>
+        <tr><td><em>fundamental period</em></td><td>periode fundamental</td><td>T₀&gt;0 terkecil (CT) atau N₀&gt;0 terkecil (DT)</td></tr>
+        <tr><td><em>odd signal</em></td><td>sinyal ganjil</td><td>x(−t)=−x(t)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 9B — DAFTAR ISTILAH P–Z ================= -->
+<section id="s8b2">
+  <div class="eyebrow">09B — Glosarium P–Z</div>
+  <h2>Daftar istilah (<em>glossary</em>) lanjutan</h2>
+  <p class="lede">Bagian kedua memuat istilah periodisitas, daya, stokastik, dukungan, dan tiga transformasi waktu.</p>
+  <div class="gloss-grid single">
+    <div class="table-scroll">
+    <table class="gloss-table">
+      <caption class="sr-only">Daftar istilah P sampai Z</caption>
+      <thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead>
+      <tbody>
+        <tr><td><em>periodic signal</em></td><td>sinyal periodik</td><td>x(t+T₀)=x(t) untuk semua t</td></tr>
+        <tr><td><em>power signal</em></td><td>sinyal daya</td><td>E=∞ dan 0&lt;P&lt;∞</td></tr>
+        <tr><td><em>stochastic signal</em></td><td>sinyal stokastik</td><td>Berasal dari model probabilistik, dideskripsikan statistik</td></tr>
+        <tr><td><em>support</em></td><td>dukungan</td><td>Rentang waktu/indeks tempat sinyal bernilai tak nol</td></tr>
+        <tr><td><em>time reversal</em></td><td>refleksi waktu</td><td>y(t)=x(−t)</td></tr>
+        <tr><td><em>time scaling</em></td><td>penskalaan waktu</td><td>y(t)=x(a·t)</td></tr>
+        <tr><td><em>time shifting</em></td><td>pergeseran waktu</td><td>y(t)=x(t−t₀)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 10A — DAFTAR SIMBOL DASAR ================= -->
+<section id="s8c">
+  <div class="eyebrow">10A — Daftar Simbol Dasar</div>
+  <h2>Simbol waktu, periode, dan energi</h2>
+  <p class="lede">Simbol disusun berdasarkan urutan kemunculannya di materi minggu ini — bukan urutan abjad.</p>
+  <div class="gloss-grid single">
+    <div class="table-scroll">
+    <table class="gloss-table">
+      <caption class="sr-only">Daftar simbol dasar matematika beserta nama dan artinya</caption>
+      <thead><tr><th scope="col">Simbol</th><th scope="col">Nama simbol</th><th scope="col">Artinya</th></tr></thead>
+      <tbody>
+        <tr><td>t</td><td>t (waktu kontinu)</td><td>Variabel waktu kontinu pada sinyal x(t)</td></tr>
+        <tr><td>n</td><td>n (indeks diskrit)</td><td>Variabel indeks bilangan bulat pada sinyal x[n]</td></tr>
+        <tr><td>x(t), x[n]</td><td>x dari t, x dari n</td><td>Notasi umum sinyal input CT dan DT yang diuji sifat-sifatnya</td></tr>
+        <tr><td>y(t)</td><td>y dari t (sinyal hasil transformasi)</td><td>Sinyal keluaran setelah refleksi, penskalaan, atau pergeseran diterapkan pada x(t)</td></tr>
+        <tr><td>T<sub>0</sub></td><td>T subskrip nol (periode fundamental CT)</td><td>Periode terkecil T₀&gt;0 sehingga x(t+T₀)=x(t)</td></tr>
+        <tr><td>N<sub>0</sub></td><td>N subskrip nol (periode fundamental DT)</td><td>Periode terkecil N₀&gt;0 (bilangan bulat) sehingga x[n+N₀]=x[n]</td></tr>
+        <tr><td>ω<sub>0</sub></td><td>omega subskrip nol (frekuensi sudut fundamental)</td><td>Frekuensi sudut dasar sinyal periodik, ω₀=2π/T₀</td></tr>
+        <tr><td>E</td><td>E (energi sinyal)</td><td>E=∫|x(t)|²dt; sinyal energi bila 0&lt;E&lt;∞</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 10B — DAFTAR SIMBOL LANJUTAN ================= -->
+<section id="s8c2">
+  <div class="eyebrow">10B — Daftar Simbol Transformasi</div>
+  <h2>Simbol daya, transformasi, dan dekomposisi</h2>
+  <p class="lede">Gunakan daftar ini saat membaca rumus atau menulis laporan Labsheet-02.</p>
+  <div class="gloss-grid single">
+    <div class="table-scroll">
+    <table class="gloss-table">
+      <caption class="sr-only">Daftar simbol lanjutan matematika beserta nama dan artinya</caption>
+      <thead><tr><th scope="col">Simbol</th><th scope="col">Nama simbol</th><th scope="col">Artinya</th></tr></thead>
+      <tbody>
+        <tr><td>P</td><td>P (daya rata-rata sinyal)</td><td>P=lim<sub>T→∞</sub>(1/2T)∫|x(t)|²dt; sinyal daya bila 0&lt;P&lt;∞</td></tr>
+        <tr><td>a</td><td>a (faktor penskalaan waktu)</td><td>Konstanta pengali pada y(t)=x(a·t); a&gt;1 memampatkan, 0&lt;a&lt;1 melebarkan</td></tr>
+        <tr><td>t<sub>0</sub></td><td>t subskrip nol (titik pergeseran waktu)</td><td>Besar pergeseran pada y(t)=x(t−t₀)</td></tr>
+        <tr><td>x<sub>e</sub>(t)</td><td>x subskrip e dari t (komponen genap)</td><td>x_e(t)=(x(t)+x(−t))/2</td></tr>
+        <tr><td>x<sub>o</sub>(t)</td><td>x subskrip o dari t (komponen ganjil)</td><td>x_o(t)=(x(t)−x(−t))/2</td></tr>
+        <tr><td>A</td><td>A (amplitudo)</td><td>Skala/tinggi puncak sinyal pada contoh dan latihan</td></tr>
+        <tr><td>π</td><td>pi</td><td>Konstanta ≈3,14159, muncul pada ω₀=2π/T₀</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 11 — CTA LABSHEET & RINGKASAN ================= -->
+<section id="s9" class="merged-section">
+  <div class="eyebrow">11 — Praktik Labsheet &amp; Rekap</div>
+  <h2>Lanjutkan praktik dan cek bekal</h2>
+  <div class="cta-wrap">
+    <h3>Lanjutkan di Labsheet-02</h3>
+    <p class="body-copy">Di Labsheet-02, uji periodisitas, genap–ganjil, energi/daya, serta transformasi waktu sinyal CT. Untuk DT, praktikkan refleksi dan pergeseran berindeks bulat; penskalaan DT dibahas pada Minggu 11.</p>
+    <div class="cta-actions">
+      <a class="cta-btn" href="https://colab.research.google.com/drive/1bo8w9CiV-WzWLTRgsR2Vy8FRj6UAUwJt" target="_blank" rel="noopener">↗ Buka Labsheet-02 di Colab</a>
+      <a class="cta-btn secondary" href="../Labsheet/L02_Sifat-Sifat_dan_Transformasi_Dasar_Sinyal_v02.ipynb" download>⬇ Unduh versi lokal terbaru</a>
+    </div>
+    <p class="nav-note cta-note">Colab: pilih <b>File → Save a copy in Drive</b>. Unduhan digunakan untuk Jupyter lokal.</p>
+    <div class="cta-meta">
+      <div class="m"><b>SK2</b>checkpoint partisipatif</div>
+      <div class="m"><b>4%</b>bobot nilai akhir</div>
+      <div class="m"><b>5 wajib + 1 opsional</b>tugas</div>
+      <div class="m"><b>Sub-1.1</b>Sub-CPMK</div>
+    </div>
+    <p class="nav-note cta-note"><b>Rubrik SK2 (35/25/30/10):</b> konsep/numerik · grafik · penalaran/laporan · keterulangan/kelengkapan. Tugas 6 opsional; maksimum 100.</p>
+  </div>
+  <div class="recap">
+    <div class="r"><b>4 sifat sinyal</b>periodik, kausal, energi/daya, genap-ganjil</div>
+    <div class="r"><b>3 transformasi</b>refleksi, skala, geser</div>
+    <div class="r"><b>Kalkulator E/P</b>pola E<sub>T</sub> di 3 jendela (bukan 1 rasio) memisahkan energi/daya/bukan keduanya</div>
+    <div class="r"><b>Minggu depan</b>Labsheet-03 — Klasifikasi dan Karakterisasi Sistem</div>
+  </div>
+  <nav class="weeknav" aria-label="Navigasi antarminggu — akhir halaman">
+    <a class="weeknav-link" href="W01-sinyal-dasar_v03.html">◂ W01 · Sinyal Dasar</a>
+    <a class="weeknav-link" href="index.html">Daftar Isi</a>
+    <a class="weeknav-link" href="W03-klasifikasi-sistem_v06.html">W03 · Klasifikasi Sistem ▸</a>
+  </nav>
+</section>
+
+<div class="navbar">
+  <button id="prevBtn">◂ Sebelumnya</button>
+  <div class="dots" id="dots"></div>
+  <span class="count" id="count">1 / 23</span>
+  <button id="nextBtn">Berikutnya ▸</button>
+</div>
+
+<!-- Popup navigasi bagian: aktif di mode presentasi MAUPUN embed (mode embed mematikan
+     dot/Sebelumnya/Berikutnya, jadi popup ini satu-satunya cara lompat cepat saat itu). -->
+<button type="button" id="sectionNavBtn" class="section-nav-fab" aria-haspopup="dialog" aria-controls="sectionNavDialog" aria-label="Lompat ke bagian" title="Lompat ke bagian">☰</button>
+
+<div class="section-nav-overlay" id="sectionNavOverlay" hidden>
+  <div class="section-nav-dialog" role="dialog" aria-modal="true" aria-labelledby="sectionNavTitle" id="sectionNavDialog">
+    <div class="section-nav-head">
+      <h3 id="sectionNavTitle">Lompat ke bagian</h3>
+      <button type="button" class="section-nav-close" id="sectionNavClose" aria-label="Tutup daftar bagian">✕</button>
+    </div>
+    <div class="section-nav-list" id="sectionNavList"></div>
+  </div>
+</div>
+
+<script>
+/* ============ mode embed: popout link + matikan navigasi presentasi ============ */
+const isEmbedded = document.documentElement.classList.contains('embedded');
+const popoutLink = document.getElementById('popoutLink');
+if(popoutLink) popoutLink.href = window.location.href;
+
+if(isEmbedded){
+  function postHeight(){
+    try{ window.parent.postMessage({type:'iframeResize', height: document.documentElement.scrollHeight}, '*'); }catch(e){}
+  }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
+  setTimeout(postHeight, 400);
+}
+
+/* ============ presentation-mode navigation (nonaktif dalam mode embed) ============ */
+const sections = Array.from(document.querySelectorAll('section'));
+
+function sectionLabel(s){
+  const eyebrowEl = s.querySelector('.eyebrow');
+  return eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+}
+
+if(!isEmbedded){
+  const dotsWrap = document.getElementById('dots');
+  const countEl = document.getElementById('count');
+  sections.forEach((s,i)=>{
+    const d = document.createElement('button');
+    d.type='button';
+    d.className='dot';
+    d.title = sectionLabel(s);
+    d.setAttribute('aria-label','Ke bagian: '+sectionLabel(s));
+    d.addEventListener('click',()=>s.scrollIntoView({behavior:'smooth',block:'start'}));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  const currentIndex = ()=>{
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx=0;
+    sections.forEach((s,i)=>{ if(s.offsetTop <= y) idx=i; });
+    return idx;
+  };
+  const updateNav = ()=>{
+    const idx = currentIndex();
+    dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+    countEl.textContent = (idx+1)+' / '+sections.length;
+    document.getElementById('prevBtn').disabled = idx===0;
+    document.getElementById('nextBtn').disabled = idx===sections.length-1;
+  };
+  window.addEventListener('scroll', ()=>requestAnimationFrame(updateNav), {passive:true});
+  updateNav();
+
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    const idx = Math.min(currentIndex()+1, sections.length-1);
+    sections[idx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  document.getElementById('prevBtn').addEventListener('click',()=>{
+    const idx = Math.max(currentIndex()-1,0);
+    sections[idx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  window.addEventListener('keydown',(e)=>{
+    const navOverlay = document.getElementById('sectionNavOverlay');
+    if(navOverlay && !navOverlay.hidden) return;
+    const t = e.target;
+    const tag = (t && t.tagName || '').toLowerCase();
+    const inControl = tag==='input' || tag==='select' || tag==='textarea' || tag==='button' || tag==='a' || tag==='summary' || (t && t.isContentEditable);
+    if(['ArrowRight','ArrowDown','PageDown'].includes(e.key)){
+      if(inControl && e.key!=='PageDown') return;
+      e.preventDefault();
+      document.getElementById('nextBtn').click();
+    } else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){
+      if(inControl && e.key!=='PageUp') return;
+      e.preventDefault();
+      document.getElementById('prevBtn').click();
+    }
+  });
+}
+
+/* ============ popup navigasi bagian: aktif di mode presentasi MAUPUN embed ============ */
+(function(){
+  const fab = document.getElementById('sectionNavBtn');
+  const overlay = document.getElementById('sectionNavOverlay');
+  const closeBtn = document.getElementById('sectionNavClose');
+  const listEl = document.getElementById('sectionNavList');
+  if(!fab || !overlay || !closeBtn || !listEl) return;
+
+  sections.forEach((s,i)=>{
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'section-nav-item';
+    item.textContent = (i+1)+'. '+sectionLabel(s);
+    item.addEventListener('click',()=>{
+      s.scrollIntoView({behavior:'smooth', block:'start'});
+      closeDialog();
+    });
+    listEl.appendChild(item);
+  });
+  const items = Array.from(listEl.children);
+
+  function activeIndex(){
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx = 0;
+    sections.forEach((s,i)=>{ if(s.getBoundingClientRect().top + window.scrollY <= y) idx = i; });
+    return idx;
+  }
+
+  let lastFocused = null;
+  function openDialog(){
+    lastFocused = document.activeElement;
+    items.forEach((it,i)=> it.classList.toggle('active', i===activeIndex()));
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+    document.addEventListener('keydown', onDialogKeydown);
+  }
+  function closeDialog(){
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onDialogKeydown);
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+  function onDialogKeydown(e){
+    if(e.key === 'Escape'){
+      e.preventDefault();
+      closeDialog();
+    } else if(e.key === 'Tab'){
+      const focusable = [closeBtn, ...items];
+      const first = focusable[0], last = focusable[focusable.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    }
+  }
+
+  fab.addEventListener('click', openDialog);
+  closeBtn.addEventListener('click', closeDialog);
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) closeDialog(); });
+})();
+
+/* ============ canvas plotting helpers ============ */
+function setupCanvas(cv){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = cv.getBoundingClientRect();
+  cv.width = rect.width*dpr; cv.height = rect.height*dpr;
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx, w:rect.width, h:rect.height};
+}
+function drawAxes(ctx,w,h,pad,tmin,tmax,vmax){
+  ctx.strokeStyle = '#c8c0a4';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, h/2); ctx.lineTo(w-8, h/2);
+  ctx.moveTo(pad, 8); ctx.lineTo(pad, h-8);
+  ctx.stroke();
+
+  // Label rentang & penanda titik asal (t=0), supaya grafik bisa dibaca kuantitatif
+  // (bukan cuma bentuknya) -- lihat mapXY di bawah untuk pemetaan koordinatnya.
+  if(tmin===undefined || tmax===undefined || vmax===undefined) return;
+  ctx.font = '9px JetBrains Mono';
+  ctx.fillStyle = '#8a8370';
+  ctx.textAlign = 'left';
+  ctx.fillText(tmin.toFixed(1), pad, h-2);
+  ctx.textAlign = 'right';
+  ctx.fillText(tmax.toFixed(1), w-4, h-2);
+  ctx.textAlign = 'left';
+  ctx.fillText('+'+vmax.toFixed(1), pad+4, 13);
+  ctx.fillText('−'+vmax.toFixed(1), pad+4, h-14);
+
+  if(tmin<=0 && 0<=tmax){
+    const [x0,y0] = mapXY(0,0,tmin,tmax,-vmax,vmax,w,h,pad);
+    ctx.beginPath(); ctx.arc(x0,y0,2.4,0,2*Math.PI);
+    ctx.fillStyle='#6b756e'; ctx.fill();
+    ctx.textAlign='center';
+    ctx.fillText('0', x0, Math.min(h-2,h/2+13));
+  }
+}
+function mapXY(t,val,tmin,tmax,vmin,vmax,w,h,pad){
+  const x = pad + (t-tmin)/(tmax-tmin)*(w-pad-10);
+  const y = h/2 - (val)/(vmax-vmin)*(h-24);
+  return [x,y];
+}
+
+function drawCT(cv, fn, tmin, tmax, vmax, opts){
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad=26;
+  drawAxes(ctx,w,h,pad,tmin,tmax,vmax);
+  ctx.strokeStyle = opts.color || '#0f6b52';
+  ctx.lineWidth = 2;
+  if(opts.dashed) ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  let started=false;
+  const N=400;
+  for(let i=0;i<=N;i++){
+    const t = tmin + (tmax-tmin)*i/N;
+    const val = fn(t);
+    const [x,y] = mapXY(t,val,tmin,tmax,-vmax,vmax,w,h,pad);
+    if(!started){ctx.moveTo(x,y); started=true;} else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+  return {ctx,w,h,pad};
+}
+
+/* overlay: sinyal asli (dashed, abu) + sinyal hasil transformasi (solid, warna) pada 1 canvas */
+function drawOverlay(cv, fnOrig, fnTrans, tmin, tmax, vmax, colorTrans, showTrans){
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad=22;
+  drawAxes(ctx,w,h,pad,tmin,tmax,vmax);
+  const N=400;
+
+  // original: dashed abu-abu
+  ctx.strokeStyle = '#9aa39a';
+  ctx.lineWidth = 1.6;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  let started=false;
+  for(let i=0;i<=N;i++){
+    const t = tmin + (tmax-tmin)*i/N;
+    const [x,y] = mapXY(t, fnOrig(t), tmin,tmax,-vmax,vmax,w,h,pad);
+    if(!started){ctx.moveTo(x,y); started=true;} else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  if(showTrans !== false){
+    ctx.strokeStyle = colorTrans || '#0f6b52';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    started=false;
+    for(let i=0;i<=N;i++){
+      const t = tmin + (tmax-tmin)*i/N;
+      const [x,y] = mapXY(t, fnTrans(t), tmin,tmax,-vmax,vmax,w,h,pad);
+      if(!started){ctx.moveTo(x,y); started=true;} else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+}
+
+function drawDT(cv, fn, nmin, nmax, vmax, opts){
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad=26;
+  drawAxes(ctx,w,h,pad,nmin,nmax,vmax);
+  ctx.strokeStyle = opts.color || '#0f6fa3';
+  ctx.fillStyle = opts.color || '#0f6fa3';
+  for(let n=nmin;n<=nmax;n++){
+    const val = fn(n);
+    const [x,y0] = mapXY(n,0,nmin,nmax,-vmax,vmax,w,h,pad);
+    const [,y1] = mapXY(n,val,nmin,nmax,-vmax,vmax,w,h,pad);
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x,y1,3.2,0,7); ctx.fill();
+  }
+}
+
+function renderTex(str){
+  try{ return katex.renderToString(str, {throwOnError:false}); }
+  catch(e){ return str; }
+}
+
+/* ============ hook: refleksi waktu (x(t) vs x(-t)) ============ */
+function baseHookSignal(t){
+  // sinyal asimetris sengaja: pulsa landai + bump, supaya efek refleksi terlihat jelas
+  if(t < -3) return 0;
+  if(t < -1) return (t+3)*0.5;
+  if(t < 1)  return 1 - Math.abs(t)*0.3;
+  if(t < 3)  return Math.exp(-(t-1)*1.2);
+  return 0;
+}
+function drawReverseHook(){
+  const cv = document.getElementById('reverseCanvas');
+  drawOverlay(cv, baseHookSignal, t=>baseHookSignal(-t), -5, 5, 1.3, '#0f6fa3', true);
+}
+
+/* ============ konsep: periodik / kausal / deterministik-stokastik ============ */
+function drawPeriodicIllustration(cv){
+  const {ctx,w,h} = setupCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad=26; drawAxes(ctx,w,h,pad,-1,6,1.3);
+  const f=0.4, T0=1/f;
+  ctx.strokeStyle='#0f6b52'; ctx.lineWidth=2; ctx.beginPath();
+  let started=false;
+  for(let i=0;i<=400;i++){
+    const t=-1+7*i/400;
+    const [x,y]=mapXY(t, Math.sin(2*Math.PI*f*t), -1,6,-1.3,1.3,w,h,pad);
+    if(!started){ctx.moveTo(x,y);started=true;} else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  // marker T0 bracket antara t=0.5 dan t=0.5+T0... keep within range
+  const t1=0.6, t2=t1+T0;
+  const [x1] = mapXY(t1,0,-1,6,-1.3,1.3,w,h,pad);
+  const [x2] = mapXY(t2,0,-1,6,-1.3,1.3,w,h,pad);
+  const ybar = 10;
+  ctx.strokeStyle='#b45309'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(x1,ybar); ctx.lineTo(x2,ybar);
+  ctx.moveTo(x1,ybar-4); ctx.lineTo(x1,ybar+4);
+  ctx.moveTo(x2,ybar-4); ctx.lineTo(x2,ybar+4);
+  ctx.stroke();
+  ctx.fillStyle='#b45309'; ctx.font='9px JetBrains Mono';
+  ctx.fillText('T0', (x1+x2)/2-8, ybar-6);
+}
+function pseudoNoise(t){
+  return 0.3*Math.sin(t*17.3)+0.25*Math.sin(t*9.7+1)+0.2*Math.sin(t*23.1+2)+0.15*Math.sin(t*4.4+0.5);
+}
+function renderConceptPlots(){
+  document.querySelectorAll('.mini-plot').forEach(cv=>{
+    const kind = cv.dataset.kind;
+    if(kind==='periodic'){
+      drawPeriodicIllustration(cv);
+    } else if(kind==='causal'){
+      drawCT(cv, t=> (t<0?0:Math.exp(-0.5*t)), -3,6,1.3,{color:'#0f6b52'});
+    } else if(kind==='stochastic'){
+      drawOverlay(cv, t=>0.7*Math.sin(2*Math.PI*0.4*t), t=>pseudoNoise(t), -2,8,1.1,'#b45309', true);
+    } else if(kind==='even'){
+      drawCT(cv, t=>Math.cos(t), -4,4,1.3,{color:'#0f6b52'});
+    } else if(kind==='odd'){
+      drawCT(cv, t=>Math.sin(t), -4,4,1.3,{color:'#0f6b52'});
+    }
+  });
+}
+
+/* ============ energi/daya: definisi sinyal contoh (dipakai bersama S3 & S5) ============ */
+const SIGCTX = {
+  pulse: { label:'Pulsa persegi (durasi 2 detik)', formula:'x(t) = \\mathrm{rect}(t/2)', fn: t => (Math.abs(t)<1 ? 1 : 0) },
+  expo:  { label:'Eksponensial turun (kausal)',     formula:'x(t) = e^{-t}u(t)',         fn: t => (t>=0 ? Math.exp(-t) : 0) },
+  sinus: { label:'Sinusoidal periodik',             formula:'x(t) = \\sin(\\pi t)',       fn: t => Math.sin(Math.PI*t) },
+  step:  { label:'Undak satuan u(t)',               formula:'x(t) = u(t)',                fn: t => (t>=0 ? 1 : 0) },
+  ramp:  { label:'Ramp (bukan energi maupun daya)', formula:'x(t) = t\\,u(t)',            fn: t => (t>=0 ? t : 0), vmax:6 },
+};
+
+function trapzEnergy(fn, T, N){
+  // Modulus kuadrat |fn(t)|^2 -- fungsi fn di sini selalu real, tapi ditulis dengan
+  // Math.abs()**2 supaya polanya konsisten dengan versi Python (np.abs(fn(t))**2)
+  // yang harus benar juga untuk sinyal kompleks.
+  let sum = 0;
+  const dt = (2*T)/N;
+  let prev = Math.pow(Math.abs(fn(-T)), 2);
+  for(let i=1;i<=N;i++){
+    const t = -T + i*dt;
+    const cur = Math.pow(Math.abs(fn(t)), 2);
+    sum += (prev+cur)/2*dt;
+    prev = cur;
+  }
+  return sum;
+}
+
+function dekat(x, target, tol){ return Math.abs(x-target) < tol; }
+
+function updateCalc(){
+  const key = document.getElementById('calcSig').value;
+  const sig = SIGCTX[key];
+  document.getElementById('calcFormula').innerHTML = renderTex(sig.formula);
+  const calcPlot = document.getElementById('calcPlot');
+  calcPlot.setAttribute('aria-label','Grafik '+sig.label+' yang dipilih pada kalkulator energi dan daya');
+  drawCT(calcPlot, sig.fn, -6, 6, sig.vmax || 1.4, {color:'#0f6b52'});
+
+  // Tiga jendela yang tiap kali melebar 4x (5 -> 20 -> 80), supaya pola pertumbuhan
+  // E_T bisa diperiksa dua kali (r1, r2) -- bukan cuma satu rasio tunggal.
+  const E5  = trapzEnergy(sig.fn, 5, 1000);
+  const E20 = trapzEnergy(sig.fn, 20, 4000);
+  const E80 = trapzEnergy(sig.fn, 80, 16000);
+  const r1 = E5 > 1e-9 ? (E20/E5) : (E20 > 1e-9 ? Infinity : NaN);
+  const r2 = E20 > 1e-9 ? (E80/E20) : (E80 > 1e-9 ? Infinity : NaN);
+  const P80 = E80/160;
+
+  document.getElementById('calcE5').textContent = E5.toFixed(3);
+  document.getElementById('calcE20').textContent = E20.toFixed(3);
+  document.getElementById('calcE80').textContent = E80.toFixed(3);
+  document.getElementById('calcRatio').textContent = (isFinite(r1)?r1.toFixed(2):'∞')+'×';
+  document.getElementById('calcRatio2').textContent = (isFinite(r2)?r2.toFixed(2):'∞')+'×';
+  document.getElementById('calcP').textContent = P80.toFixed(4);
+
+  const badge = document.getElementById('calcBadge');
+  if(dekat(r1,1,0.25) && dekat(r2,1,0.25)){
+    badge.innerHTML = '<span class="calc-badge energi">✓ Indikasi sinyal energi — E<sub>T</sub> mendekati konstan (r1≈r2≈1), P→0</span>';
+  } else if(dekat(r1,4,0.6) && dekat(r2,4,0.6)){
+    badge.innerHTML = '<span class="calc-badge daya">✓ Indikasi sinyal daya — E<sub>T</sub> tumbuh ~linear thd T (r1≈r2≈4), P konvergen</span>';
+  } else {
+    badge.innerHTML = '<span class="calc-badge" style="background:rgba(107,117,110,0.12); color:var(--text-dim); border:1px solid var(--line);">? Belum dapat disimpulkan dari tiga jendela ini — kemungkinan bukan sinyal energi maupun sinyal daya (bandingkan dengan "Ramp")</span>';
+  }
+}
+document.getElementById('calcSig').addEventListener('input', updateCalc);
+
+/* ============ simulator 3 transformasi ============ */
+const tfSigA = document.getElementById('tfSigA');
+const tfSigB = document.getElementById('tfSigB');
+const reflectToggle = document.getElementById('reflectToggle');
+const scaleSlider = document.getElementById('scaleSlider');
+const shiftSlider = document.getElementById('shiftSlider');
+
+function updateTransforms(){
+  const sig = SIGCTX[tfSigA.value];
+  const a = parseFloat(scaleSlider.value);
+  const t0 = parseFloat(shiftSlider.value);
+  document.getElementById('scaleVal').textContent = a.toFixed(1);
+  document.getElementById('shiftVal').textContent = t0.toFixed(1);
+
+  const reflectPlot = document.getElementById('tfReflect');
+  const scalePlot = document.getElementById('tfScale');
+  const shiftPlot = document.getElementById('tfShift');
+  reflectPlot.setAttribute('aria-label','Grafik '+sig.label+': sinyal asli dan hasil refleksi x(−t)'+(reflectToggle.checked?' ditampilkan':' disembunyikan'));
+  scalePlot.setAttribute('aria-label','Grafik '+sig.label+': sinyal asli dan hasil penskalaan x('+a.toFixed(1)+'t)');
+  shiftPlot.setAttribute('aria-label','Grafik '+sig.label+': sinyal asli dan hasil pergeseran x(t−('+t0.toFixed(1)+'))');
+  drawOverlay(reflectPlot, sig.fn, t=>sig.fn(-t), -6,6,1.4, '#0f6fa3', reflectToggle.checked);
+  document.getElementById('tfReflectFormula').innerHTML = renderTex('y(t) = x(-t)');
+
+  drawOverlay(scalePlot, sig.fn, t=>sig.fn(a*t), -6,6,1.4, '#0f6b52', true);
+  document.getElementById('tfScaleFormula').innerHTML = renderTex('y(t) = x('+a.toFixed(1)+'\\,t)');
+
+  drawOverlay(shiftPlot, sig.fn, t=>sig.fn(t-t0), -6,6,1.4, '#b45309', true);
+  document.getElementById('tfShiftFormula').innerHTML = renderTex('y(t) = x(t - ('+t0.toFixed(1)+'))');
+
+  const summary = document.getElementById('tfSummary');
+  if(summary){
+    const refl = reflectToggle.checked ? 'refleksi x(−t) ditampilkan' : 'refleksi x(−t) disembunyikan';
+    summary.textContent = 'Sinyal: '+sig.label+'. Faktor skala a = '+a.toFixed(1)+' (a>1 memampatkan, 0<a<1 melebarkan). Pergeseran t₀ = '+t0.toFixed(1)+' (positif menunda, negatif memajukan). '+refl+'.';
+  }
+}
+[reflectToggle, scaleSlider, shiftSlider].forEach(el=>el.addEventListener('input', updateTransforms));
+tfSigA.addEventListener('input', ()=>{
+  tfSigB.value = tfSigA.value;
+  updateTransforms();
+});
+tfSigB.addEventListener('input', ()=>{
+  tfSigA.value = tfSigB.value;
+  updateTransforms();
+});
+
+/* ============ quiz ============ */
+const QUIZ = [
+  {
+    q:'Sinyal x(t) = sin(3t) memiliki periode fundamental T0 = ?',
+    opts:['3','2π','2π/3','π/3'],
+    correct:2,
+    fb:'Benar — untuk x(t)=sin(ωt), T0 = 2π/ω. Di sini ω=3, jadi T0 = 2π/3.'
+  },
+  {
+    q:'Sinyal disebut "sinyal energi" jika...',
+    opts:['E = ∞ dan 0 < P < ∞','0 < E < ∞ dan P = 0','E = 0 dan P = 0','E dan P sama-sama tak hingga'],
+    correct:1,
+    fb:'Benar — sinyal energi punya energi total terhingga & tidak nol, sehingga daya rata-ratanya (energi dibagi durasi tak-hingga) menjadi nol.'
+  },
+  {
+    q:'Komponen genap dari sinyal x(t) dihitung dengan rumus...',
+    opts:['x(t)·x(−t)','x(t)/x(−t)','[x(t)−x(−t)]/2','[x(t)+x(−t)]/2'],
+    correct:3,
+    fb:'Benar — xe(t) = [x(t)+x(−t)]/2 (genap), sedangkan xo(t) = [x(t)−x(−t)]/2 adalah komponen ganjilnya.'
+  },
+  {
+    q:'Jika x(t) aktif (tidak nol) pada rentang [−1, 3), maka y(t) = x(t−2) aktif pada rentang...',
+    opts:['[1, 5)','[−3, 1)','[−1, 3)','[1, 3)'],
+    correct:0,
+    fb:'Benar — pergeseran t0=2 menggeser seluruh rentang aktif sebesar +2: [−1,3) menjadi [−1+2, 3+2) = [1,5).'
+  }
+];
+function renderQuiz(){
+  QUIZ.forEach((item,qi)=>{
+    const root = document.getElementById('quizRoot'+(qi+1));
+    const box = document.createElement('div');
+    box.className='quiz-item';
+    const q = document.createElement('div');
+    q.className='quiz-q';
+    q.id='quizQuestion'+(qi+1);
+    q.textContent = (qi+1)+'. '+item.q;
+    box.setAttribute('role','group');
+    box.setAttribute('aria-labelledby',q.id);
+    box.appendChild(q);
+    const opts = document.createElement('div');
+    opts.className='quiz-opts';
+    const fb = document.createElement('div');
+    fb.className='quiz-fb';
+    fb.setAttribute('role','status');
+    fb.setAttribute('aria-live','polite');
+    item.opts.forEach((optText,oi)=>{
+      const o = document.createElement('button');
+      o.type='button';
+      o.className='opt';
+      o.setAttribute('aria-label','Pilihan '+String.fromCharCode(65+oi)+': '+optText);
+      o.setAttribute('aria-pressed','false');
+      o.innerHTML = '<span class="k">'+String.fromCharCode(65+oi)+'</span><span>'+optText+'</span>';
+      o.addEventListener('click',()=>{
+        if(box.dataset.answered) return;
+        box.dataset.answered='1';
+        Array.from(opts.children).forEach((el,ei)=>{
+          if(ei===item.correct) el.classList.add('correct');
+          else if(ei===oi) el.classList.add('wrong');
+          el.setAttribute('aria-pressed',ei===oi?'true':'false');
+        });
+        const explanation = item.fb.replace(/^Benar\s*[—-]\s*/,'');
+        fb.textContent = (oi===item.correct? '✓ Tepat. ' : '✗ Belum tepat. ') + explanation;
+      });
+      opts.appendChild(o);
+    });
+    box.appendChild(opts);
+    box.appendChild(fb);
+    root.appendChild(box);
+  });
+}
+
+/* ============ soal canvases (Contoh 1, Bagian 06A) ============ */
+function drawSoalCanvases(){
+  const c1a = document.getElementById('soal1canvasA');
+  if(c1a) drawCT(c1a, t=> 3*Math.cos(4*t), -Math.PI, Math.PI, 4, {color:'#0f6b52'});
+  const c1b = document.getElementById('soal1canvasB');
+  if(c1b) drawCT(c1b, t=> 2*Math.sin(6*t), -Math.PI, Math.PI, 4, {color:'#b45309'});
+  const c1 = document.getElementById('soal1canvas');
+  if(c1) drawCT(c1, t=> 3*Math.cos(4*t)+2*Math.sin(6*t), -Math.PI, Math.PI, 4, {color:'#0f6fa3'});
+}
+
+/* Kanvas Contoh 1 berada di dalam <details class="solusi">, yang tersembunyi
+   (lebar/tinggi 0) sampai dibuka -- gambar ulang begitu detailnya dibuka supaya
+   ketiga grafik tidak kosong. */
+document.querySelectorAll('details.solusi').forEach(d=>{
+  d.addEventListener('toggle', ()=>{ if(d.open) drawSoalCanvases(); });
+});
+
+/* ============ pemisahan kalimat adaptif pada paragraf ============ */
+let sentenceLayoutFrame=0;
+function addSentenceBreaks(root){
+  root.querySelectorAll('p:not(.version-tag)').forEach(function(paragraph){
+    const walker=document.createTreeWalker(paragraph,NodeFilter.SHOW_TEXT,{
+      acceptNode:function(node){
+        if(node.parentElement.closest('.tex,.katex,code,pre,.sentence-break')) return NodeFilter.FILTER_REJECT;
+        return /[.!?…]\s+(?=[A-ZÀ-ÖØ-Þ0-9“"'])/u.test(node.data)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+      }
+    });
+    const nodes=[];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function(node){
+      const pieces=node.data.split(/(?<=[.!?…])\s+(?=[A-ZÀ-ÖØ-Þ0-9“"'])/u);
+      if(pieces.length<2) return;
+      const fragment=document.createDocumentFragment();
+      pieces.forEach(function(piece,index){
+        if(index){
+          const marker=document.createElement('span');
+          marker.className='sentence-break';
+          marker.setAttribute('aria-hidden','true');
+          fragment.appendChild(marker);
+        }
+        fragment.appendChild(document.createTextNode(piece));
+      });
+      node.replaceWith(fragment);
+    });
+  });
+}
+function fitSentenceBreaks(){
+  sections.forEach(function(section){section.classList.remove('sentence-flow');});
+  if(innerWidth<=900) return;
+  const heightLimit=innerHeight*1.1+1;
+  sections.forEach(function(section){
+    if(section.getBoundingClientRect().height>heightLimit) section.classList.add('sentence-flow');
+  });
+}
+function scheduleSentenceLayout(){
+  cancelAnimationFrame(sentenceLayoutFrame);
+  sentenceLayoutFrame=requestAnimationFrame(function(){
+    addSentenceBreaks(document);
+    sentenceLayoutFrame=requestAnimationFrame(fitSentenceBreaks);
+  });
+}
+const sentenceObserver=new MutationObserver(scheduleSentenceLayout);
+sentenceObserver.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['open']});
+
+/* Font variable dapat selesai setelah gambar pertama: gambar ulang setelah siap. */
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(function(){window.dispatchEvent(new Event('resize'));});
+}
+
+/* ============ init ============ */
+drawReverseHook();
+renderConceptPlots();
+updateCalc();
+updateTransforms();
+renderQuiz();
+drawSoalCanvases();
+scheduleSentenceLayout();
+
+window.addEventListener('resize', ()=>{
+  drawReverseHook();
+  renderConceptPlots();
+  updateCalc();
+  updateTransforms();
+  drawSoalCanvases();
+  scheduleSentenceLayout();
+});
+
+window.addEventListener('load',()=>{
+  document.getElementById('energyFormulaLede').innerHTML =
+    'Energi ' + renderTex('E=\\int_{-\\infty}^{\\infty}|x(t)|^2\\,dt') + '<br>' +
+    'Daya rata-rata ' + renderTex('P=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^2\\,dt') + '<br>' +
+    'Sinyal <b style="color:var(--phosphor)">energi</b>: 0&lt;E&lt;∞ (P=0).<br>' +
+    'Sinyal <b style="color:var(--amber)">daya</b>: E=∞, 0&lt;P&lt;∞.';
+
+  document.getElementById('f-periodic').innerHTML = renderTex('x(t+T_0)=x(t),\\quad x[n+N_0]=x[n]');
+  document.getElementById('f-causal').innerHTML = renderTex('x(t)=0,\\ t<0');
+  document.getElementById('f-even').innerHTML = renderTex('x(-t)=x(t)');
+  document.getElementById('f-odd').innerHTML = renderTex('x(-t)=-x(t)');
+  document.getElementById('f-decomp').innerHTML = renderTex('x_e(t)=\\frac{x(t)+x(-t)}{2},\\quad x_o(t)=\\frac{x(t)-x(-t)}{2}');
+
+  if(window.renderMathInElement){
+    renderMathInElement(document.body, {
+      delimiters:[
+        {left:'$$', right:'$$', display:true},
+        {left:'$', right:'$', display:false}
+      ]
+    });
+  }
+  scheduleSentenceLayout();
+});
+
+/* ============ toggle mode gelap/terang ============ */
+(function(){
+  const btn = document.getElementById('themeToggle');
+  if(!btn) return;
+  const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function effectiveTheme(){
+    const explicit = document.documentElement.getAttribute('data-theme');
+    if(explicit === 'dark' || explicit === 'light') return explicit;
+    return (mql && mql.matches) ? 'dark' : 'light';
+  }
+  function updateToggleUI(){
+    const dark = effectiveTheme() === 'dark';
+    btn.textContent = dark ? '☀ Terang' : '☾ Gelap';
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.setAttribute('aria-label', dark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap');
+  }
+  updateToggleUI();
+  btn.addEventListener('click', ()=>{
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try{ localStorage.setItem('w02-theme', next); }catch(e){}
+    updateToggleUI();
+  });
+  if(mql && mql.addEventListener){
+    mql.addEventListener('change', ()=>{
+      if(!document.documentElement.getAttribute('data-theme')) updateToggleUI();
+    });
+  }
+})();
+</script>
+</body>
+</html>

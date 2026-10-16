@@ -1,0 +1,3045 @@
+<!DOCTYPE html>
+<!-- Versi: v06 | Diperbarui: 27-09-2026 00:00 WIB -->
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minggu 3 — Klasifikasi dan Karakterisasi Sistem | Isyarat dan Sistem</title>
+<script>
+  /* Deteksi apakah halaman ini dijalankan di dalam iframe (mis. embed di BeSmart/Moodle).
+     Dijalankan sesinkron & sedini mungkin (sebelum CSS di-parse penuh) supaya tidak ada
+     "kedipan" tampilan mode-presentasi sebelum berpindah ke mode dokumen biasa. */
+  (function(){
+    var inIframe;
+    try { inIframe = window.self !== window.top; } catch(e) { inIframe = true; }
+    if(inIframe){ document.documentElement.classList.add('embedded'); }
+    /* Navigasi lintas-HTML hanya untuk berkas lokal yang dibuka langsung. */
+    if(window.location.protocol === 'file:' && !inIframe){
+      document.documentElement.classList.add('local-file');
+    }
+  })();
+</script>
+<script>
+  /* Terapkan preferensi tema tersimpan sedini mungkin, sebelum CSS dirender. */
+  (function(){
+    try {
+      var saved = localStorage.getItem('w03-theme');
+      if(saved === 'dark' || saved === 'light'){
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+    } catch(e) { /* localStorage tak tersedia — pakai default sistem */ }
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+<style>
+  :root{
+    color-scheme:light;
+    --bg:#f7f5ee;
+    --surface:#fffefa;
+    --surface-secondary:#efece1;
+    --text-primary:#182019;
+    --text-secondary:#59615a;
+    --heading-primary:#123b63;
+    --heading-secondary:#174a73;
+    --border:#d8d5c9;
+    --border-soft:#e7e4d9;
+    --accent:#096b4b;
+    --accent-solid:#096b4b;
+    --accent-muted:#8fbfa9;
+    --attention:#9c3d00;
+    --attention-solid:#9c3d00;
+    --danger:#a32626;
+    /* Alias komponen lama: semua merujuk palet semantik yang sama. */
+    --bg-raise:var(--surface);
+    --panel:var(--surface);
+    --panel-2:var(--surface-secondary);
+    --line:var(--border);
+    --line-soft:var(--border-soft);
+    --phosphor:var(--accent);
+    --phosphor-solid:var(--accent-solid);
+    --phosphor-dim:var(--accent-muted);
+    --amber:var(--attention);
+    --amber-solid:var(--attention-solid);
+    --cyan:var(--accent);
+    --red:var(--danger);
+    --paper:var(--text-primary);
+    --paper-dim:var(--text-primary);
+    --text:var(--text-primary);
+    --text-dim:var(--text-secondary);
+    --sans:'Atkinson Hyperlegible Next', Arial, sans-serif;
+    --mono:'JetBrains Mono', 'Courier New', monospace;
+    /* Tipografi standar web_and_labsheet_design_v04.md. */
+    --cover-title-size:36px;
+    --section-title-size:29px;
+    --subheading-size:22px;
+    --hook-question-size:18px;
+    --card-title-size:18px;
+    --body-size:18px;
+    --lede-size:19px;
+    --card-body-size:16px;
+    --table-size:15px;
+    --ui-size:14px;
+    --small-size:13px;
+    /* Catatan skenario substantif: 13 × 1,2 dibulatkan menjadi 16 px. */
+    --scenario-note-size:16px;
+    /* Catatan konsep dalam kartu: 16 px di desktop dan HP. */
+    --concept-note-size:16px;
+    --meta-size:12px;
+    --body-weight:300;
+    --heading-weight:500;
+    --hook-weight:400;
+    --ui-weight:400;
+    --mono-weight:300;
+    --strong-weight:500;
+    /* #hookCanvas: 1 kanvas pemantik. */
+    --plot-hook-height:170px;
+    /* .mini-plot: 3 kanvas ilustrasi konsep. */
+    --plot-mini-height:100px;
+    /* .concept-diagram svg: 2 diagram blok interaktif pada Slide 02. */
+    --concept-block-height:64px;
+    /* canvas.simcanvas (#ioPlot, #tiPlot): 2 kanvas simulator. */
+    --plot-simulator-height:230px;
+    /* canvas.soalcanvas: 6 kanvas LHS/RHS jawaban contoh, termasuk saat details tertutup. */
+    --plot-example-height:150px;
+    /* canvas.soalcanvas: batas lebar 2 kanvas jawaban contoh; nilai lama dipertahankan. */
+    --plot-example-max-width:520px;
+    /* .inverse-canvas: 6 kanvas sistem S1–S6 pada 09B–09D. */
+    --plot-inverse-height:160px;
+    /* #s3 .property-canvas: 2 kanvas linearitas LHS/RHS; dipendekkan untuk memberi ruang legenda interaktif. */
+    --plot-linear-height:128px;
+    /* .property-canvas: tinggi dasar 4 kanvas sifat sistem pada 03A–03C; 03A memakai pasangan LHS/RHS. */
+    --plot-property-height:160px;
+    /* .waveform-divider: 1 SVG dekoratif sampul, bukan grafik materi. */
+    --cover-wave-height:52px;
+    /* Kapsul footer standar: 18/24 × 8 px; hover tidak mengubah ukuran. */
+    --nav-pill-width:18px;
+    --nav-pill-active-width:24px;
+    --nav-pill-height:8px;
+    --nav-pill-radius:4px;
+    --nav-pill-gap:0.4rem;
+  }
+
+  /* Ukuran font bulat: desktop sempit 901–1199 px, HP/tablet ≤900 px. */
+  @media(max-width:1199px){
+    :root{--cover-title-size:32px;}
+    :root{--section-title-size:26px;}
+    :root{--subheading-size:20px;}
+    :root{--hook-question-size:17px;}
+    :root{--card-title-size:17px;}
+    :root{--body-size:17px;}
+    :root{--lede-size:18px;}
+    :root{--card-body-size:15px;}
+    :root{--table-size:14px;}
+  }
+  @media(max-width:900px){
+    :root{--cover-title-size:28px;}
+    :root{--section-title-size:22px;}
+    :root{--subheading-size:18px;}
+    :root{--hook-question-size:16px;}
+    :root{--card-title-size:16px;}
+    :root{--body-size:16px;}
+    :root{--lede-size:17px;}
+  }
+
+  /* ---------- mode gelap (dark mode) ----------
+     Default mengikuti preferensi sistem; tombol #themeToggle menimpanya lewat
+     atribut data-theme pada <html> dan pilihan disimpan di localStorage.
+     Latar kanvas grafik (#fbf9f2) SENGAJA tetap terang di kedua mode sebagai
+     "kertas grafik" — warna garis sinyal sudah dikalibrasi untuk latar terang. */
+  @media(prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --bg:#141a17;
+      --surface:#1c2520;
+      --surface-secondary:#26322b;
+      --text-primary:#edf3ee;
+      --text-secondary:#b6c2b9;
+      --heading-primary:#b8daff;
+      --heading-secondary:#9ccbfa;
+      --border:#43564a;
+      --border-soft:#304036;
+      --accent:#65d5a1;
+      --accent-solid:#096b4b;
+      --accent-muted:#519c7d;
+      --attention:#ffb078;
+      --attention-solid:#9c3d00;
+      --danger:#ff8e8e;
+    }
+    :root:not([data-theme="light"]) body::after{
+      background:repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px);
+    }
+    :root:not([data-theme="light"]) .topbar{
+      background:linear-gradient(180deg, rgba(20,26,23,0.96), rgba(20,26,23,0.75) 70%, transparent);
+    }
+    :root:not([data-theme="light"]) .navbar{
+      background:linear-gradient(0deg, rgba(20,26,23,0.97), rgba(20,26,23,0.7) 75%, transparent);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#141a17;
+    --surface:#1c2520;
+    --surface-secondary:#26322b;
+    --text-primary:#edf3ee;
+    --text-secondary:#b6c2b9;
+    --heading-primary:#b8daff;
+    --heading-secondary:#9ccbfa;
+    --border:#43564a;
+    --border-soft:#304036;
+    --accent:#65d5a1;
+    --accent-solid:#096b4b;
+    --accent-muted:#519c7d;
+    --attention:#ffb078;
+    --attention-solid:#9c3d00;
+    --danger:#ff8e8e;
+  }
+  :root[data-theme="light"]{color-scheme:light;}
+  :root[data-theme="dark"] body::after{
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px);
+  }
+  :root[data-theme="dark"] .topbar{
+    background:linear-gradient(180deg, rgba(20,26,23,0.96), rgba(20,26,23,0.75) 70%, transparent);
+  }
+  :root[data-theme="dark"] .navbar{
+    background:linear-gradient(0deg, rgba(20,26,23,0.97), rgba(20,26,23,0.7) 75%, transparent);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:var(--body-size);
+    font-weight:var(--body-weight);
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 42px 42px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+  }
+  body::after{
+    content:'';
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 3px);
+    opacity:0.5;
+    pointer-events:none;
+    z-index:1;
+    mix-blend-mode:multiply;
+  }
+
+  section{
+    position:relative;
+    z-index:2;
+    min-height:100vh;
+    padding:5rem 8vw 4.5rem;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    scroll-snap-align:start;
+    border-bottom:1px solid var(--line-soft);
+  }
+
+  h1,h2,h3{font-family:var(--sans); font-weight:500; line-height:1.2; margin:0; color:var(--paper);}
+  h1{color:var(--heading-primary);}
+  h2{color:var(--heading-secondary); font-size:var(--section-title-size); letter-spacing:-0.01em;}
+  h3{font-size:var(--subheading-size); color:var(--phosphor); font-weight:500;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:var(--small-size);
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:0.9rem;
+    display:flex;
+    align-items:center;
+    gap:0.6em;
+  }
+  .eyebrow::before{content:'▍'; color:var(--phosphor);}
+
+  /* Setiap paragraf memakai kelas peran; aturan p hanya baseline bersama. */
+  p{color:var(--text); width:100%; max-width:none;}
+  .body-copy,.card-copy,.solution-copy,.nav-note,.action-link{color:var(--text); width:100%; max-width:none;}
+  .lede{color:var(--paper-dim); font-size:var(--lede-size); width:100%; max-width:none;}
+  /* Pemisah kalimat adaptif: baris baru di desktop bila section tetap dalam toleransi tinggi. */
+  .sentence-break{display:block;height:0;}
+  .sentence-flow .sentence-break{display:inline;}
+  .sentence-flow .sentence-break::after{content:' ';}
+  @media(max-width:900px){
+    .sentence-break{display:inline;}
+    .sentence-break::after{content:' ';}
+  }
+
+  .topbar{
+    font-family:var(--mono);
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.9rem 8vw;
+    background:linear-gradient(180deg, rgba(247,245,238,0.96), rgba(247,245,238,0.75) 70%, transparent);
+    backdrop-filter:blur(6px);
+    font-size:var(--small-size);
+    letter-spacing:0.05em;
+  }
+  .topbar .crumb{color:var(--text-dim);}
+  .topbar .crumb b{color:var(--phosphor); font-weight:500;}
+  .topbar .sk-badge{
+    border:1px solid var(--phosphor-dim);
+    color:var(--phosphor);
+    padding:0.3em 0.8em;
+    border-radius:100px;
+    font-size:var(--meta-size);
+    letter-spacing:0.08em;
+  }
+
+  .navbar{
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; gap:1rem;
+    padding:0.85rem 8vw;
+    background:linear-gradient(0deg, rgba(247,245,238,0.97), rgba(247,245,238,0.7) 75%, transparent);
+    backdrop-filter:blur(6px);
+  }
+  .navbar button{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--phosphor);
+    font-family:var(--sans);
+    font-size:var(--ui-size);
+    padding:0.5em 0.9em;
+    border-radius:6px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .navbar button:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  .navbar button:disabled{opacity:0.3; cursor:default;}
+  .navbar button:disabled:hover{background:var(--panel-2); color:var(--phosphor);}
+  .dots{display:flex; gap:var(--nav-pill-gap); flex:1; min-width:0; justify-content:center; flex-wrap:wrap;}
+  /* Selector diawali ".navbar" supaya spesifisitasnya mengalahkan ".navbar button"
+     di atas — tanpa ini, padding/border-radius tombol Sebelumnya/Berikutnya "bocor"
+     ke tombol dot dan mengubahnya dari lingkaran kecil jadi pil besar. */
+  .navbar .dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--line);
+    border:1px solid var(--line);
+    cursor:pointer;
+    transition:all .2s ease;
+    padding:0; flex-shrink:0; appearance:none; -webkit-appearance:none;
+  }
+  .navbar .dot.active{background:var(--phosphor); border-color:var(--phosphor); box-shadow:0 0 8px var(--phosphor);}
+  .navbar .dot:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  @media(min-width:641px){
+    .navbar .dot{width:var(--nav-pill-width); height:var(--nav-pill-height); border-radius:var(--nav-pill-radius);}
+    .navbar .dot.active{width:var(--nav-pill-active-width);}
+  }
+  .count{color:var(--text-dim); font-size:var(--small-size); min-width:3.5em; text-align:right;}
+
+  html.embedded .topbar,
+  html.embedded .navbar{ display:none; }
+  html.embedded section{
+    min-height:0;
+    padding:2.6rem 6vw;
+    scroll-snap-align:none;
+  }
+  html.embedded #s0{ padding-top:3rem; }
+  html.embedded .cover-num{ font-size:67px; opacity:0.6; }
+  html.embedded body{ font-size:var(--body-size); }
+  .embed-popout{
+    display:none;
+    position:sticky; top:0.7rem; z-index:60;
+    margin:0 0 -1.6rem auto;
+    width:max-content;
+    align-items:center; gap:0.5em;
+    background:var(--panel-2); border:1px solid var(--phosphor-dim);
+    color:var(--phosphor); font-family:var(--sans); font-size:var(--ui-size);
+    letter-spacing:0.04em; text-decoration:none;
+    padding:0.5em 0.9em; border-radius:100px;
+  }
+  .embed-popout:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  html.embedded .embed-popout{ display:inline-flex; }
+
+  #s0{align-items:flex-start;}
+  .cover-num{
+    font-family:var(--sans);
+    font-size:90px;
+    font-weight:300;
+    color:var(--panel-2);
+    -webkit-text-stroke:1.5px var(--phosphor-dim);
+    line-height:0.8;
+    position:absolute;
+    right:6vw; top:18%;
+    z-index:0;
+    user-select:none;
+  }
+  .cover-title{font-size:var(--cover-title-size); max-width:20ch; margin-top:0.4rem;}
+  .cover-sub{color:var(--text); margin-top:1.2rem; font-size:var(--body-size); width:100%; max-width:none;}
+  .cover-objectives{
+    counter-reset:cover-objective;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:0.55rem 0.75rem;
+    width:100%;
+    margin:0.75rem 0 0;
+    padding:0;
+    list-style:none;
+  }
+  .cover-objectives li{
+    counter-increment:cover-objective;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    min-width:0;
+    padding:0.5em 0.75em;
+    border:1px solid var(--line);
+    border-left:3px solid var(--phosphor);
+    border-radius:9px;
+    background:var(--panel);
+    color:var(--text);
+    font-size:var(--card-body-size);
+  }
+  .cover-objectives li::before{
+    content:counter(cover-objective);
+    display:grid;
+    place-items:center;
+    flex:0 0 1.55rem;
+    width:1.55rem;
+    height:1.55rem;
+    border:1px solid var(--phosphor-dim);
+    border-radius:50%;
+    color:var(--phosphor);
+    font-family:var(--mono);
+    font-size:var(--small-size);
+    font-weight:var(--ui-weight);
+  }
+  .waveform-divider{width:100%; height:var(--cover-wave-height); margin:2rem 0 0.5rem;}
+
+  .cpmk-strip{display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:2.4rem;}
+  .cover-meta-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:1rem 2rem;width:100%;}
+  .cover-meta-row .cpmk-strip{margin-top:1.2rem;}
+  .cover-author{margin-top:1.2rem;text-align:right;color:var(--text-dim);font-size:var(--small-size);line-height:1.45;}
+  .cover-author-name{color:var(--text);font-size:var(--ui-size);font-weight:var(--heading-weight);}
+  @media(max-width:760px){
+    .cover-meta-row{grid-template-columns:minmax(0,1fr);gap:.35rem;}
+    .cover-author{text-align:left;margin-top:.35rem;}
+  }
+  .chip{
+    border:1px solid var(--line);
+    background:var(--panel);
+    padding:0.45em 0.9em;
+    border-radius:100px;
+    font-size:var(--small-size);
+    color:var(--text-dim);
+    letter-spacing:0.03em;
+  }
+  .chip b{color:var(--amber); font-weight:500;}
+
+  .hook-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:3.5rem; align-items:center;}
+  @media(max-width:860px){.hook-grid{grid-template-columns:1fr;}}
+  .hook-q{
+    font-family:var(--sans); font-style:normal; font-weight:var(--hook-weight);
+    font-size:var(--hook-question-size);
+    color:var(--paper);
+    line-height:1.3;
+    border-left:3px solid var(--amber);
+    padding-left:1.1rem;
+    margin:1.2rem 0 1.6rem;
+  }
+  .voice-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:1.6rem;
+  }
+  .voice-card .label{font-size:var(--small-size); color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.8rem;}
+  canvas#hookCanvas{width:100%; height:var(--plot-hook-height); display:block; border-radius:8px; background:#fbf9f2;}
+  .clip-note{font-size:var(--small-size); color:var(--text-dim); margin-top:0.8rem;}
+  .scenario-note{font-size:var(--scenario-note-size);}
+  .ctrl.scenario-control label{text-transform:none;letter-spacing:normal;}
+  .clip-note b{color:var(--phosphor);}
+  /* Legend standar (garis sampel + label) untuk grafik kanvas — dirender di luar area plot sebagai HTML, bukan digambar di atas kurva. */
+  .plot-legend{list-style:none; display:flex; flex-wrap:wrap; gap:0.3rem 1.1rem; margin:0.5rem 0 0; padding:0; font-family:var(--mono); font-size:var(--small-size); font-weight:var(--mono-weight); color:var(--text-secondary);}
+  .legend-item label{display:inline-flex; align-items:center; gap:0.4rem; cursor:pointer; user-select:none;}
+  .legend-item input[type="checkbox"]{margin:0; width:13px; height:13px; accent-color:var(--phosphor-solid); cursor:pointer; flex:none;}
+  .legend-item.is-off{opacity:0.4;}
+  .legend-item.is-off .legend-swatch{opacity:0.5;}
+  .legend-item:focus-within{opacity:1;}
+  .legend-item input:focus-visible{outline:2px solid var(--phosphor); outline-offset:3px;}
+  .legend-swatch{width:22px; height:10px; flex:none; display:block;}
+
+  .concept-cols{display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem; margin-top:2rem;}
+  #s2{padding-top:5rem; padding-bottom:4rem;}
+  #s2 .concept-cols{margin-top:1rem;}
+  #s9b .concept-cols{margin-top:1rem;}
+  /* 09B–09D: dua sistem per slide, persamaan, grafik dan penjelasan. */
+  .inverse-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .inverse-grid .prop-card{min-width:0;}
+  .inverse-grid .inverse-formula{margin:.5rem 0; color:var(--text-primary);}
+  .inverse-grid .inverse-signal{margin:0 0 .6rem;}
+  .inverse-grid .inverse-explanation{margin-top:.6rem;}
+  .inverse-section .solusi .solution-copy{margin:0;}
+  .inverse-section .solusi .body{margin-top:6px;}
+  .inverse-figure{margin:0;}
+  .inverse-canvas{display:block; width:100%; height:var(--plot-inverse-height); border-radius:8px; background:#fbf9f2;}
+  @media(max-width:900px){.inverse-grid{grid-template-columns:minmax(0,1fr);}}
+  @media(min-width:901px) and (max-width:1199px){
+    .inverse-grid .prop-card{padding:16px 20px;}
+    .inverse-section .prop-grid.inverse-grid{margin-top:10px;}
+  }
+  @media(max-width:860px){.concept-cols{grid-template-columns:1fr;}}
+  .concept-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:1.5rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .concept-card::before{
+    content:attr(data-tag);
+    position:absolute; top:0.9rem; right:1rem;
+    font-size:var(--meta-size); letter-spacing:0.12em; color:var(--phosphor-dim);
+  }
+  .concept-card h4{font-family:var(--sans); color:var(--cyan); margin:0 0 0.6rem; font-size:var(--card-title-size); line-height:1.25; font-weight:500;}
+  .concept-card .card-copy{font-size:var(--card-body-size); color:var(--text); margin:0;}
+  .concept-card .formula{font-size:var(--card-body-size); color:var(--phosphor); margin:0.5rem 0;}
+  .mini-plot{width:100%; height:var(--plot-mini-height); margin-bottom:0.9rem; display:block; background:#fbf9f2; border-radius:6px;}
+  .concept-control{display:flex;align-items:center;flex-wrap:wrap;gap:.3rem .6rem;margin:.5rem 0;}
+  .concept-control label{font-size:var(--small-size);color:var(--text-secondary);}
+  .concept-control select{flex:1;min-width:0;width:100%;}
+  .concept-diagram svg{display:block;width:100%;height:var(--concept-block-height);color:var(--text-primary);font-family:var(--mono);font-size:12px;}
+  .concept-diagram svg text{fill:currentColor;}
+  .concept-card .concept-note{font-size:var(--concept-note-size);margin:.4rem 0 0;}
+  #s2 .mini-plot,#s2b .mini-plot{margin-bottom:.4rem;}
+  #s2 .plot-legend,#s2b .plot-legend{gap:.2rem .7rem;}
+  /* Kartu pilihan dirapatkan sampai 1399 px; ukuran font tetap mengikuti token tipografi. */
+  @media(min-width:901px) and (max-width:1399px){
+    #s2 .concept-card{padding:16px 20px;}
+    #s2 .concept-cols{margin-top:8px;}
+    #s2 .concept-control{margin:4px 0;}
+    #s2 .concept-card .formula{margin:4px 0;}
+  }
+  /* Ruang catatan konsep 16 px pada desktop sempit, tanpa mengecilkan font/grafik. */
+  @media(min-width:901px) and (max-width:1199px){
+    #s2{padding-top:4rem;}
+    #s2 .concept-card{padding-top:12px;padding-bottom:12px;}
+    #s2 .concept-cols{margin-top:4px;}
+    #s2 .concept-control,#s2 .concept-card .formula{margin-top:2px;margin-bottom:2px;}
+  }
+
+  .prop-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:1.2rem; margin-top:1.8rem;}
+  .property-layout{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:1.2rem;margin-top:1rem;}
+  .property-layout>div{min-width:0;}
+  .property-stack{display:flex;flex-direction:column;gap:.8rem;margin-top:1rem;}
+  .property-definition-content{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.5fr);gap:1.2rem;align-items:center;}
+  .property-definition-content>*{min-width:0;}
+  .property-controls{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;}
+  .property-control{flex:1;min-width:140px;display:flex;flex-direction:column;gap:.3rem;}
+  .property-control label{font-size:var(--small-size);color:var(--text-secondary);}
+  .property-control select{width:100%;min-width:0;}
+  .property-canvas{width:100%;height:var(--plot-property-height);display:block;background:#fbf9f2;border-radius:8px;}
+  #s3 .property-canvas{height:var(--plot-linear-height);}
+  .property-layout .property-note{font-size:var(--small-size);margin:.7rem 0 0;}
+  .property-stack .property-note{font-size:var(--small-size);margin:.55rem 0 0;}
+  .lhs-rhs-comparison{display:grid;grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr);gap:.75rem;align-items:center;margin-top:.65rem;}
+  .comparison-pane{min-width:0;}
+  .comparison-formula{min-height:2.1em;margin:.3rem 0;color:var(--phosphor);font-size:var(--card-body-size);}
+  .comparison-titleline{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.4rem .75rem;margin:.15rem 0 .35rem;min-width:0;}
+  .comparison-titleline .comparison-formula{flex:0 1 auto;min-height:0;margin:0;}
+  .comparison-path{flex:none;color:var(--text-dim);font-size:var(--small-size);font-weight:var(--body-weight);white-space:nowrap;}
+  .ti-property-controls{align-items:flex-start;}
+  .ti-input-definition{display:flex;align-items:center;align-self:flex-start;flex:1 1 420px;flex-wrap:wrap;gap:.35rem .65rem;margin:0;color:var(--text);}
+  .ti-input-label{font-size:var(--card-body-size);font-weight:var(--heading-weight);}
+  .ti-input-definition .formula{min-height:0;margin:0;color:var(--phosphor);font-size:var(--card-body-size);}
+  .comparison-operator{display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:var(--panel-2);color:var(--phosphor);font-family:var(--mono);font-size:var(--subheading-size);font-weight:var(--heading-weight);}
+  .comparison-operator.is-different{color:var(--amber);border-color:var(--amber);}
+  .comparison-verdict{margin-top:.6rem;font-size:var(--card-body-size);color:var(--text);}
+  .comparison-verdict b{color:var(--phosphor);}
+  .comparison-verdict.is-different b{color:var(--amber);}
+  .proof-path-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:.7rem 0;}
+  .proof-path{min-width:0;padding:.75rem .9rem;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);}
+  .proof-path h5{margin:0 0 .35rem;color:var(--text);font-size:var(--card-body-size);font-weight:var(--heading-weight);}
+  .proof-path .formula{margin:0;color:var(--phosphor);font-size:var(--card-body-size);}
+  #s3,#s3a{padding-top:4rem;padding-bottom:3rem;}
+  #s3 .property-stack,#s3a .property-stack{gap:.55rem;margin-top:.65rem;}
+  #s3 .property-definition,#s3a .property-definition,
+  #s3 .comparison-card,#s3a .comparison-card{padding:.8rem 1rem;}
+  #s3 .property-definition-content,#s3a .property-definition-content{gap:.8rem;}
+  #s3 .comparison-card h4,#s3a .comparison-card h4{margin-bottom:.2rem;}
+  #s3 .property-controls,#s3a .property-controls{margin:.3rem 0;}
+  #s3 .lhs-rhs-comparison,#s3a .lhs-rhs-comparison{margin-top:.3rem;}
+  #s3 .comparison-titleline,#s3a .comparison-titleline{margin:.05rem 0 .15rem;}
+  #s3 .comparison-formula,#s3a .comparison-formula{min-height:0;margin:0;}
+  #s3 .comparison-card>.formula,#s3a .comparison-card>.formula{margin:.25rem 0;}
+  #s3 .comparison-verdict,#s3a .comparison-verdict{margin-top:.25rem;}
+  @media(max-width:900px){.property-layout{grid-template-columns:minmax(0,1fr);}}
+  @media(max-width:760px){
+    .property-definition-content,.proof-path-grid{grid-template-columns:minmax(0,1fr);}
+    .lhs-rhs-comparison{grid-template-columns:minmax(0,1fr);}
+    .comparison-operator{margin:0 auto;}
+    .comparison-titleline{justify-content:flex-start;}
+  }
+  @media(max-width:860px){.prop-grid{grid-template-columns:1fr;}}
+  .prop-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:1.4rem 1.5rem;}
+  .prop-card h4{font-family:var(--sans); color:var(--paper); margin:0 0 0.4rem; font-size:var(--card-title-size); line-height:1.25; font-weight:500;}
+  .prop-card h4 . verdict-yes{color:var(--phosphor); font-size:var(--card-title-size); font-family:var(--mono);}
+  .prop-card .formula{font-size:var(--card-body-size); color:var(--phosphor); margin:0.4rem 0 0.6rem;}
+  .prop-card .card-copy{font-size:var(--card-body-size); color:var(--text); margin:0;}
+  .prop-card .mini-ex{font-size:var(--small-size); color:var(--amber); margin-top:0.5rem;}
+
+  .sim-wrap{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:2rem;
+    margin-top:1.6rem;
+  }
+  .sim-controls{
+    display:flex; flex-wrap:wrap; gap:1.6rem 2.2rem;
+    margin-bottom:1.4rem;
+    align-items:flex-start;
+  }
+  .ctrl{display:flex; flex-direction:column; gap:0.4rem; min-width:180px;}
+  .ctrl label{font-size:var(--small-size); letter-spacing:0.07em; text-transform:uppercase; color:var(--text-dim); display:flex; justify-content:space-between; align-items:center; gap:0.5em; flex-wrap:wrap;}
+  .ctrl label span{color:var(--phosphor); font-weight:500;}
+  select, input[type=range]{ accent-color: var(--phosphor); }
+  select{
+    background:var(--bg-raise); color:var(--text); border:1px solid var(--line);
+    border-radius:6px; padding:0.5em 0.7em; font-family:var(--sans); font-size:var(--ui-size);
+    max-width:100%;
+  }
+  .plot-cols{display:grid; grid-template-columns:1fr 1fr; gap:1.4rem;}
+  @media(max-width:760px){.plot-cols{grid-template-columns:1fr;}}
+  .plot-box{background:#fbf9f2; border:1px solid var(--line-soft); border-radius:10px; padding:0.9rem;}
+  .plot-box .ptitle{font-size:var(--small-size); letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:0.5rem; display:flex; justify-content:space-between;}
+  .plot-box .ptitle b{color:var(--amber); font-weight:500;}
+  canvas.simcanvas{width:100%; height:var(--plot-simulator-height); display:block;}
+  .sim-formula{margin-top:1.2rem; font-size:var(--card-body-size); color:var(--paper-dim); text-align:center;}
+  .ctrl-formula{margin-top:0.1rem; font-size:var(--small-size); color:var(--phosphor); text-align:left; overflow-x:auto; overflow-y:hidden;}
+
+  .badges{display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:1.2rem;}
+  .badge{
+    display:inline-flex; align-items:center; gap:0.5em;
+    padding:0.4em 1em; border-radius:100px; font-size:var(--small-size); font-weight:500;
+    letter-spacing:0.02em; border:1px solid;
+  }
+  .badge.yes{background:rgba(15,107,82,0.1); color:var(--phosphor); border-color:var(--phosphor);}
+  .badge.no{background:rgba(156,61,0,0.08); color:var(--attention); border-color:var(--attention);}
+  .badge .src{font-family:var(--mono); font-weight:400; font-size:var(--meta-size); color:var(--text-secondary);}
+  .test-line{margin-top:1rem; font-size:var(--card-body-size); color:var(--text);}
+  .test-line b{color:var(--paper);}
+  .lti-flag{
+    margin-top:1rem; padding:0.9rem 1.2rem; border-radius:10px; font-size:var(--card-body-size);
+    border:1px dashed var(--line); color:var(--text-dim); background:var(--bg);
+  }
+  .lti-flag.is-lti{border:1px solid var(--phosphor); background:rgba(15,107,82,0.07); color:var(--phosphor); font-weight:500;}
+
+  .rigor-note{
+    margin-top:1.8rem; border-left:3px solid var(--phosphor);
+    background:var(--panel); border:1px solid var(--line); border-radius:0 12px 12px 0;
+    padding:1.1rem 1.4rem; font-size:var(--card-body-size); color:var(--text-dim);
+  }
+  .rigor-note b{color:var(--paper);}
+
+  .soal-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:1.8rem 2rem; margin-top:1.6rem;
+  }
+  .soal-num{
+    display:inline-block; font-family:var(--sans); font-weight:500; color:#f7f5ef;
+    background:var(--phosphor-solid); border-radius:6px; padding:0.15em 0.6em; font-size:var(--ui-size); margin-bottom:0.9rem;
+  }
+  .soal-num.latihan{background:var(--amber-solid);}
+  .soal-body{color:var(--text);}
+  details.solusi{margin-top:1rem; border-top:1px dashed var(--line); padding-top:0.9rem;}
+  details.solusi summary{cursor:pointer; color:var(--amber); font-size:var(--ui-size); letter-spacing:0.03em;}
+  details.solusi summary:hover{color:var(--phosphor);}
+  .solusi .body{margin-top:0.8rem; font-size:var(--card-body-size); color:var(--paper-dim);}
+  canvas.soalcanvas{width:100%; max-width:var(--plot-example-max-width); height:var(--plot-example-height); display:block; background:#fbf9f2; border-radius:8px; margin-top:0.9rem;}
+  .worked-comparison .plot-legend{gap:.25rem .75rem;}
+
+  .quiz-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.2rem; margin-top:1rem;}
+  .quiz-grid>div{min-width:0;}
+  .quiz-grid .quiz-item{height:100%; margin-bottom:0;}
+  @media(max-width:900px){.quiz-grid{grid-template-columns:minmax(0,1fr);}}
+  .quiz-item{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:1.4rem 1.6rem; margin-bottom:1.1rem;
+  }
+  .quiz-q{font-size:var(--body-size); color:var(--paper); margin-bottom:0.9rem; font-weight:500;}
+  .quiz-opts{display:flex; flex-direction:column; gap:0.55rem;}
+  .opt{
+    display:flex; align-items:center; gap:0.7em; width:100%;
+    padding:0.6em 0.9em; border:1px solid var(--line); border-radius:8px;
+    cursor:pointer; font-size:var(--card-body-size); color:var(--text);
+    transition:all .15s ease;
+    background:none; font-family:inherit; text-align:left;
+  }
+  .opt:hover{border-color:var(--phosphor-dim); color:var(--text);}
+  .opt:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  .opt.correct{border-color:var(--phosphor); background:rgba(15,107,82,0.08); color:var(--phosphor);}
+  .opt.wrong{border-color:var(--red); background:rgba(220,38,38,0.08); color:var(--red);}
+  .opt .k{font-family:var(--mono); font-weight:600; color:var(--cyan); min-width:1.4em;}
+  .quiz-fb{margin-top:0.7rem; font-size:var(--card-body-size); color:var(--text); min-height:1.2em;}
+
+  .cta-wrap{
+    background:linear-gradient(135deg, var(--panel-2), var(--panel));
+    border:1px solid var(--phosphor-dim);
+    border-radius:18px;
+    padding:2.6rem 2.8rem;
+    margin-top:1.6rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-wrap::after{
+    content:'⏵'; position:absolute; right:-1.2rem; bottom:-2rem;
+    font-size:123px; color:var(--phosphor-dim); opacity:0.12;
+  }
+  .cta-wrap h3{color:var(--paper); font-size:var(--subheading-size);}
+  .cta-wrap .body-copy{color:var(--text); width:100%; max-width:none; margin:0.7rem 0 1.6rem;}
+  .cta-btn{
+    display:inline-flex; align-items:center; gap:0.6em;
+    background:var(--phosphor-solid); color:#f7f5ef; font-family:var(--sans); font-weight:500;
+    font-size:var(--ui-size); padding:0.85em 1.5em; border-radius:8px; text-decoration:none;
+    letter-spacing:0.02em;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .cta-btn:hover{transform:translateY(-2px); box-shadow:0 8px 26px rgba(15,107,82,0.25);}
+  .cta-note{font-size:var(--small-size); color:var(--text-dim); margin-top:0.8rem; max-width:60ch;}
+  .cta-meta{display:flex; gap:1.6rem; margin-top:1.6rem; flex-wrap:wrap;}
+  .cta-meta .m{font-size:var(--small-size); color:var(--text-dim);}
+  .cta-meta .m b{display:block; color:var(--paper); font-size:var(--small-size); font-family:var(--sans); font-weight:500;}
+
+  .recap{margin-top:2.4rem; display:grid; grid-template-columns:repeat(4,1fr); gap:0.9rem;}
+  @media(max-width:760px){.recap{grid-template-columns:repeat(2,1fr);}}
+  .recap .r{border:1px solid var(--line); border-radius:10px; padding:0.9rem; font-size:var(--small-size); color:var(--text-dim);}
+  .recap .r b{display:block; color:var(--phosphor); font-family:var(--sans); font-size:var(--small-size); font-weight:500; margin-bottom:0.2rem;}
+
+  .weeknav{
+    margin-top:2rem; padding-top:1.4rem;
+    border-top:1px dashed var(--line);
+    display:none; gap:0.8rem; flex-wrap:wrap;
+    align-items:center; justify-content:space-between;
+  }
+  html.local-file:not(.embedded) .weeknav{display:flex;}
+  .weeknav-link{
+    display:inline-flex; align-items:center; gap:0.5em;
+    border:1px solid var(--line); background:var(--panel);
+    color:var(--phosphor); font-family:var(--sans); font-size:var(--ui-size); font-weight:var(--ui-weight); text-decoration:none;
+    padding:0.55em 1.1em; border-radius:8px;
+    transition:all .15s ease;
+  }
+  .weeknav-link:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  .weeknav-link:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  .weeknav-top{width:100%;margin:0 0 1.5rem;padding:0 0 1rem;border-top:0;border-bottom:1px dashed var(--line);position:relative;z-index:1;}
+  html.local-file #s0 .cover-num{top:32%;}
+
+  /* ---------- navigasi popup bagian (lompat cepat antar-bagian; tetap aktif di
+     mode embed karena mode itu mematikan dot/Sebelumnya/Berikutnya) ---------- */
+  .section-nav-fab{
+    position:fixed; right:1.5rem; bottom:5.4rem; z-index:120;
+    width:3rem; height:3rem; border-radius:50%;
+    background:var(--phosphor-solid); color:#f7f5ef; border:none;
+    font-size:21px; line-height:1; cursor:pointer;
+    box-shadow:0 10px 24px -8px rgba(15,107,82,0.55);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .section-nav-fab:hover{transform:translateY(-2px); box-shadow:0 14px 30px -8px rgba(15,107,82,0.6);}
+  .section-nav-fab:focus-visible{outline:2px solid var(--paper); outline-offset:3px;}
+  html.embedded .section-nav-fab{bottom:1.5rem;}
+  .section-nav-overlay{
+    position:fixed; inset:0; z-index:130;
+    background:rgba(28,33,29,0.45);
+    display:flex; align-items:center; justify-content:center;
+    padding:1.5rem;
+  }
+  .section-nav-overlay[hidden]{display:none;}
+  .section-nav-dialog{
+    width:100%; max-width:26rem; max-height:80vh;
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.4);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .section-nav-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.1rem 1.3rem; border-bottom:1px solid var(--line-soft);
+  }
+  .section-nav-head h3{font-size:var(--card-title-size);}
+  .section-nav-close{
+    background:none; border:1px solid var(--line); border-radius:8px;
+    width:2rem; height:2rem; color:var(--text-dim); cursor:pointer; font-size:14px;
+  }
+  .section-nav-close:hover{border-color:var(--red); color:var(--red);}
+  .section-nav-list{overflow-y:auto; padding:0.6rem;}
+  .section-nav-item{
+    display:block; width:100%; text-align:left;
+    background:none; border:1px solid transparent; border-radius:8px;
+    padding:0.6em 0.8em; margin-bottom:0.15rem;
+    font-family:var(--sans); font-size:var(--ui-size); color:var(--text-dim); cursor:pointer;
+  }
+  .section-nav-item:hover{border-color:var(--phosphor-dim); color:var(--text);}
+  .section-nav-item:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  .section-nav-item.active{border-color:var(--phosphor); background:rgba(15,107,82,0.08); color:var(--phosphor);}
+  @media(max-width:640px){
+    .section-nav-overlay{padding:0;}
+    .section-nav-dialog{max-width:100%; max-height:100%; height:100%; border-radius:0;}
+  }
+
+  /* ---------- tombol ganti tema (terang/gelap) ---------- */
+  .theme-toggle{
+    position:fixed; top:0.8rem; left:1.5rem; z-index:120;
+    display:flex; align-items:center; gap:0.4em;
+    background:var(--panel-2); border:1px solid var(--line);
+    color:var(--phosphor); font-family:var(--sans); font-size:var(--small-size);
+    letter-spacing:0.03em; padding:0.42em 0.8em; border-radius:100px;
+    cursor:pointer; transition:all .15s ease;
+  }
+  .theme-toggle:hover{background:var(--phosphor-solid); color:#f7f5ef; border-color:var(--phosphor-solid);}
+  .theme-toggle:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+
+  .version-tag{margin-top:1.2rem; font-family:var(--mono); font-size:var(--meta-size); color:var(--text-dim); letter-spacing:0.03em;}
+  #s0 .version-tag{margin:.75rem 0 0;}
+
+  .bridge-flow{
+    display:flex; align-items:stretch; justify-content:center; gap:0.7rem; flex-wrap:wrap;
+    margin:1.6rem 0;
+  }
+  .bnode{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:0.9rem 1.2rem; text-align:center; min-width:96px;
+  }
+  .bnode.sys{border-color:var(--phosphor); background:rgba(15,107,82,0.06);}
+  .bnode b{display:block; font-family:var(--sans); font-size:var(--card-title-size); font-weight:500; color:var(--phosphor);}
+  .bnode span{display:block; font-size:var(--small-size); color:var(--text-dim); margin-top:0.2rem;}
+  .barrow{align-self:center; color:var(--amber); font-size:22px; font-weight:600;}
+
+  .gloss-table{width:100%; border-collapse:collapse; margin-top:1.6rem; font-size:var(--table-size); table-layout:fixed;}
+  .gloss-table th,.gloss-table td{border:1px solid var(--line); padding:0.4em 0.5em; text-align:left; vertical-align:top;}
+  .gloss-table th{background:var(--panel-2); color:var(--paper); font-family:var(--sans); font-size:var(--table-size); font-weight:500;}
+  .gloss-table td{color:var(--text);}
+  .gloss-table td:first-child{color:var(--phosphor); white-space:normal;}
+
+  ::selection{background:var(--phosphor-solid); color:#f7f5ef;}
+  .katex{color:inherit;}
+  code,pre{font-family:var(--mono);}
+  code{font-size:inherit; overflow-wrap:anywhere;}
+  pre,.formula,.sim-formula,.katex-display{max-width:100%; overflow-x:auto; overflow-y:hidden;}
+  .tex{display:inline-block; max-width:100%; vertical-align:middle; overflow-x:auto; overflow-y:hidden;}
+  p,td,.cta-note,.opt{overflow-wrap:anywhere;}
+  .concept-cols,.prop-grid,.plot-cols,.hook-grid{min-width:0;}
+  .concept-card,.prop-card,.plot-box,.hook-grid>div{min-width:0;}
+  @media(max-width:640px){
+    section{min-height:0; padding:7rem 6vw 4rem;}
+    #s2{padding:7rem 6vw 4rem;}
+    .topbar{font-family:var(--sans); font-size:var(--small-size); gap:0.4rem; padding-left:6vw; padding-right:6vw;}
+    .topbar .crumb{max-width:70%;}
+    .theme-toggle{top:3.3rem; left:6vw;}
+    .navbar{padding-left:6vw; padding-right:6vw; gap:0.4rem;}
+    .navbar button{padding:0.5em 0.6em;}
+    .sim-wrap,.soal-card,.cta-wrap{padding:1.1rem;}
+    .ctrl{min-width:0; max-width:100%;}
+    .gloss-table th,.gloss-table td{padding:0.32em 0.4em;}
+    .cover-num{display:none;}
+    .cover-objectives{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .dots{display:none;}
+    .navbar{justify-content:space-between;}
+  }
+
+  /* Tata letak konsep dengan font Atkinson + JetBrains. */
+  .concept-cols.two{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .concept-cols.single{grid-template-columns:minmax(0,1fr);max-width:68ch;margin:1.2rem auto;}
+  .navbar button,.theme-toggle,.section-nav-item,.ctrl label,select{font-weight:500;}
+  .rigor-note,.lti-flag,.test-line,.solusi .body{color:var(--text-primary);}
+  .plot-box .ptitle{color:#59615a;}
+  .plot-box .ptitle{flex-wrap:wrap;gap:0.35em;}
+  .plot-box .ptitle b{color:#9c3d00;}
+  a:not(.cta-btn):not(.weeknav-link):not(.embed-popout){color:var(--accent);}
+  @media(max-width:900px){.concept-cols.two{grid-template-columns:1fr;}}
+
+  #s10 .gloss-table{margin-top:1rem;}
+  #s10 .lede{margin-bottom:0.4rem;}
+  #s10{padding-top:4.5rem;padding-bottom:3.5rem;}
+  .concept-card::before{color:var(--text-secondary);font-family:var(--mono);}
+  #s3 .prop-grid{margin-top:1rem;}
+  #s3,#s3a{padding-top:4rem;padding-bottom:3rem;}
+  .tex{padding-inline:0.15em;}
+  @media(max-width:640px){#s3,#s3a,#s10{padding:7rem 6vw 4rem;}}
+  /* Pada layar menengah, kapsul dapat membungkus banyak baris.
+     Sisakan ruang konten dan naikkan popup tanpa mengecilkan kapsul. */
+  @media(min-width:641px) and (max-width:900px){
+    section,#s2,#s3,#s10{padding-bottom:8rem;}
+    .section-nav-fab{bottom:9rem;}
+  }
+
+  /* Standar font aktif v04: aturan peran berlaku juga pada HP/embed/fallback. */
+  body,html.embedded body{font-family:var(--sans);font-size:var(--body-size);font-weight:var(--body-weight);line-height:1.5;}
+  h1,h2,h3,h4{font-family:var(--sans);font-weight:var(--heading-weight);line-height:1.2;}
+  h1.cover-title,#s0 .cover-title{font-size:var(--cover-title-size);}
+  h2{font-size:var(--section-title-size);}
+  h3{font-size:var(--subheading-size);}
+  .concept-card h4,.prop-card h4,.gcard h4{font-size:var(--card-title-size);font-weight:var(--heading-weight);line-height:1.25;}
+  .hook-q{font-family:var(--sans);font-size:var(--hook-question-size);font-weight:var(--hook-weight);font-style:normal;line-height:1.35;}
+  .lede{font-size:var(--lede-size);font-weight:var(--body-weight);}
+  .cover-sub{font-size:var(--body-size);font-weight:var(--body-weight);}
+  .concept-card p,.prop-card p,.gcard p,.solusi .body,.solusi .body p,.opt,.quiz-fb{font-weight:var(--body-weight);}
+  .quiz-q{font-weight:var(--body-weight);}
+  .navbar button,.section-nav-item,.cta-btn,.ctrl label,select,input,button{font-family:var(--sans);font-weight:var(--ui-weight);}
+  .section-nav-item.active{font-weight:500;}
+  .eyebrow,.version-tag,code,pre{font-family:var(--mono);font-weight:var(--mono-weight);}
+  .gloss-table,.gloss-table td{font-family:var(--sans);font-size:var(--table-size);font-weight:var(--body-weight);}
+  .gloss-table th{font-family:var(--sans);font-size:var(--table-size);font-weight:var(--heading-weight);}
+  b,strong{font-weight:var(--strong-weight);}
+  .math-fallback{font-family:Georgia,serif;}
+
+  /* Bagian yang digabung: rapikan ruang, tanpa mengubah token font/kanvas. */
+  .merged-section .sim-wrap{padding:1rem 1.2rem;margin-top:1rem;}
+  .merged-section .soal-card{padding:1rem 1.3rem;margin-top:.8rem;}
+  .merged-section .rigor-note{margin-top:.8rem;}
+  .merged-section>.lede,.merged-section>.nav-note{margin:.6rem 0;}
+  .merged-section .concept-cols,.merged-section .prop-grid{margin-top:1rem;}
+  .merged-section .cta-wrap{padding:1.2rem 1.6rem;margin-top:1rem;}
+  .merged-section .cta-wrap .body-copy{margin:.5rem 0 1rem;}
+  .merged-section .cta-meta,.merged-section .recap{margin-top:1rem;}
+  .merged-section .weeknav{margin-top:1rem;padding-top:.8rem;}
+  .merged-section .version-tag{margin-top:.7rem;}
+  .merged-section .gloss-table{margin-top:1rem;}
+  #s4b .sim-formula{margin-top:0;}
+  #s4b .scenario-results{margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--line);}
+  #s4b .test-line{margin-top:0;}
+  .interconnection-note{margin-top:1rem;padding:1rem 1.3rem;border:1px solid var(--line);border-left:3px solid var(--phosphor);border-radius:0 12px 12px 0;background:var(--panel);}
+  .interconnection-note h4{font-size:var(--card-title-size);font-weight:var(--heading-weight);line-height:1.25;margin:0 0 .6rem;}
+  .interconnection-note p{font-size:var(--card-body-size);font-weight:var(--body-weight);margin:.4rem 0;}
+  .practice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem;margin-top:1rem;}
+  .merged-section .practice-grid .soal-card{margin-top:0;}
+  @media(max-width:900px){.practice-grid{grid-template-columns:minmax(0,1fr);}}
+  @media(min-width:901px) and (max-height:850px){
+    .merged-section{padding-top:4rem;padding-bottom:4.5rem;}
+    .merged-section .gloss-table th,.merged-section .gloss-table td{padding:.28em .45em;}
+  }
+  @media(min-width:901px) and (max-width:1199px){
+    .sim-wrap{padding:20px;}
+    .sim-controls{gap:16px 22px;}
+  }
+</style>
+</head>
+<body>
+
+<a class="embed-popout" id="popoutLink" target="_blank" rel="noopener">⤢ Buka mode presentasi penuh</a>
+
+<div class="topbar">
+  <div class="crumb">Isyarat dan Sistem <b>·</b> Minggu 03 / 16 <b>·</b> Labsheet-03</div>
+  <div class="sk-badge">SK3 — CPMK1 — 4%</div>
+</div>
+
+<!-- ================= SECTION 0 — COVER ================= -->
+<section id="s0">
+  <nav class="weeknav weeknav-top" aria-label="Navigasi antarminggu — awal halaman">
+    <a class="weeknav-link" href="W02-sifat-transformasi_v03.html">◂ W02 · Sifat &amp; Transformasi</a>
+    <a class="weeknav-link" href="index.html">Daftar Isi</a>
+    <a class="weeknav-link" href="W04-konvolusi_v10.html">W04 · Konvolusi ▸</a>
+  </nav>
+  <div class="cover-num">03</div>
+  <div class="eyebrow">Minggu 3 · Sub-CPMK 1.2</div>
+  <h1 class="cover-title">Klasifikasi dan Karakterisasi Sistem</h1>
+  <p class="cover-sub">Mengklasifikasikan sistem dan menguji enam sifatnya:</p>
+  <ol class="cover-objectives" aria-label="Enam sifat sistem yang dipelajari">
+    <li>Linearitas</li>
+    <li>Invariansi waktu</li>
+    <li>Kausalitas</li>
+    <li>Stabilitas BIBO</li>
+    <li>Sifat memori</li>
+    <li>Keterbalikan</li>
+  </ol>
+  <svg class="waveform-divider" viewBox="0 0 800 52" preserveAspectRatio="none">
+    <path d="M0,26 Q20,4 40,26 T80,26 T120,26 T160,26 T200,26 T240,26 T280,26 T320,26 T360,26 T400,26 T440,26 T480,26 T520,26 T560,26 T600,26 T640,26 T680,26 T720,26 T760,26 T800,26" fill="none" stroke="#8fbfa9" stroke-width="1.5"/>
+  </svg>
+  <div class="cover-meta-row">
+    <div class="cpmk-strip">
+      <div class="chip">Sistem = <b>pemetaan input → output</b></div>
+      <div class="chip">Target: <b>mengenali sistem LTI dan alasan klasifikasinya</b></div>
+    </div>
+    <div class="cover-author" aria-label="Penyusun dan institusi">
+      <div class="cover-author-name">Ariadie Chandra Nugraha</div>
+      <div>Departemen Pendidikan Teknik Elektro</div>
+      <div>Universitas Negeri Yogyakarta</div>
+    </div>
+  </div>
+  <p class="version-tag">Versi v06 · Diperbarui 27-09-2026 00:00 WIB</p>
+</section>
+
+<!-- ================= SECTION 1 — HOOK ================= -->
+<section id="s1">
+  <div class="eyebrow">01 — Pemantik</div>
+  <h2>Penguat ideal vs efek distorsi gitar</h2>
+  <div class="hook-grid">
+    <div>
+      <p class="hook-q">“Mengapa penguat ideal memperbesar suara apa adanya, sedangkan efek distorsi justru mengubah karakternya?”</p>
+      <p class="body-copy">Penguat ideal (<em>amplifier</em>) adalah <b style="color:var(--phosphor)">sistem linier</b>: output-nya versi input yang diskalakan — dua kali input berarti tepat dua kali output. Efek distorsi (<em>overdrive</em>) sengaja <b style="color:var(--amber)">melanggar</b> aturan itu: sinyal kecil diperbesar, tapi sinyal besar "dipadatkan" (lihat ilustrasi). Pelanggaran inilah yang justru memberi warna suara rock yang khas.</p>
+      <p class="body-copy" style="margin-top:0.9rem;">Minggu ini kita merumuskan "aturan main" semacam itu secara matematis — diawali jenis-jenis sistem (Bagian 02), lalu empat sifat utama yang, bersama sifat memori, membentuk lima sifat dasar untuk mengkarakterisasi sistem.</p>
+    </div>
+    <div class="voice-card">
+      <div class="label">GELOMBANG SUARA ASLI VS SETELAH EFEK DISTORSI</div>
+      <canvas id="hookCanvas" role="img" aria-label="Gelombang suara: sinus murni vs hasil penguat linier dan distorsi yang memampatkan puncak"></canvas>
+      <ul class="plot-legend" id="hookLegend"></ul>
+      <div class="clip-note">Masukan <span class="tex">x(t)=\sin(2\pi\cdot1{,}2t)</span> adalah sinusoid ilustratif dengan frekuensi diperlambat, bukan audio. Penguat ideal <span class="tex">y(t)=2x(t)</span>: amplitudo dua kali, bentuk tetap. Model distorsi <span class="tex">y(t)=\tanh(2x(t))</span>: puncak memadat. Semua kurva memakai skala amplitudo yang sama. Ubah amplitudo di simulator Bagian 04A untuk mengamati perubahan keluaran.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 2 — APA ITU SISTEM ================= -->
+<section id="s2">
+<div class="eyebrow">02 — Kotak Hitam & Domain Sistem</div>
+<h2>Sistem: kotak hitam input → output</h2>
+<p class="lede">Dari sudut pandang isyarat dan sistem, sebuah sistem adalah <b>kotak hitam</b>: yang dikaji hubungan masukan–keluaran <span id="f-sysop"></span>, bukan rangkaian di dalamnya. Contoh: gitar, penguat, dan speaker membentuk sistem dari petikan sampai suara penonton.</p>
+<div class="concept-cols two">
+  <div class="concept-card" id="channelCard" data-tag="SALURAN">
+    <h4>SISO / SIMO / MISO / MIMO</h4>
+    <div class="concept-control"><label for="channelSelect">Jumlah saluran</label><select id="channelSelect"><option value="siso">SISO — 1 masukan, 1 keluaran</option><option value="simo">SIMO — 1 masukan, 2 keluaran</option><option value="miso">MISO — 2 masukan, 1 keluaran</option><option value="mimo">MIMO — 2 masukan, 2 keluaran</option></select></div>
+    <div class="concept-diagram" id="channelDiagram"></div>
+    <canvas class="mini-plot" id="channelCanvas" data-kind="channels" role="img" aria-label="Contoh sinyal per saluran sistem"></canvas>
+    <ul class="plot-legend" id="channelLegend"></ul>
+    <div class="formula" id="f-siso"></div>
+    <p class="card-copy" id="channelCopy"></p>
+    <p class="nav-note concept-note">Jumlah saluran, bukan bentuk gelombang, menentukan kategori. Mata kuliah ini terutama memakai SISO.</p>
+  </div>
+  <div class="concept-card" id="domainCard" data-tag="DOMAIN">
+    <h4>CT / DT / Hibrida</h4>
+    <div class="concept-control"><label for="domainSelect">Domain sistem</label><select id="domainSelect"><option value="ct">CT — waktu kontinu</option><option value="dt">DT — waktu diskrit</option><option value="hybrid">Hibrida — kontinu ke diskrit (ADC)</option></select></div>
+    <div class="concept-diagram" id="domainDiagram"></div>
+    <canvas class="mini-plot" id="domainCanvas" data-kind="domain" role="img" aria-label="Perbandingan domain masukan dan keluaran"></canvas>
+    <ul class="plot-legend" id="hybridLegend"></ul>
+    <div class="formula" id="domainFormula"></div>
+    <p class="card-copy" id="domainCopy"></p>
+  </div>
+</div>
+</section>
+<section id="s2b">
+<div class="eyebrow">02A — Memori Sistem</div>
+<h2>Statis atau dinamis: apa yang diingat sistem?</h2>
+<div class="concept-cols single"><div class="concept-card" data-tag="MEMORI">
+  <h4>Statis vs Dinamis</h4>
+  <div class="concept-control"><label for="memorySelect">Memori sistem</label><select id="memorySelect"><option value="static">Statis — tanpa memori</option><option value="dynamic">Dinamis — dengan memori</option></select></div>
+  <canvas class="mini-plot" id="memoryCanvas" data-kind="memory" role="img" aria-label="Masukan pulsa dan keluaran sistem statis"></canvas>
+  <ul class="plot-legend" id="memoryLegend"></ul>
+  <div class="formula" id="f-memory"></div>
+  <p class="card-copy" id="memoryCopy"></p>
+  <p class="nav-note concept-note">Masukan sama pada kedua pilihan: x[n]=1 untuk n=0,1; nol di luar itu. Dinamis berarti bergantung pada waktu lain, bukan selalu berekor panjang; contoh ini memakai satu sampel masa lalu.</p>
+</div></div>
+</section>
+
+<!-- ================= SECTION 3–3C — EMPAT SIFAT ================= -->
+<section id="s3" class="property-section">
+<div class="eyebrow">03 — Linearitas</div>
+<h2>Linearitas: skala dan penjumlahan</h2>
+<div class="property-stack">
+  <div class="prop-card property-definition">
+    <h4>Definisi dan makna</h4>
+    <div class="property-definition-content">
+      <div class="formula" id="f-linear"></div>
+      <p class="card-copy">Homogenitas menguji skala dan aditivitas menguji penjumlahan. Pada ruas kiri (LHS, <em>left-hand side</em>), masukan digabungkan sebelum masuk sistem; pada ruas kanan (RHS, <em>right-hand side</em>), keluaran sistem yang digabungkan. Keduanya harus identik untuk semua masukan dan koefisien yang diizinkan.</p>
+    </div>
+    <p class="nav-note property-note">Bagian 03–03C membahas empat sifat utama. Bersama memori pada 02A, semuanya membentuk lima sifat dasar. Kurva berhimpit pada satu skenario hanya ilustrasi, bukan bukti universal.</p>
+  </div>
+  <div class="prop-card comparison-card">
+    <h4>Grafik perbandingan</h4>
+    <div class="property-controls"><div class="property-control"><label for="linearSystem">Sistem</label><select id="linearSystem"><option value="pass">Memenuhi: y=2x</option><option value="fail">Melanggar: y=x²</option></select></div><div class="property-control"><label for="linearTest">Syarat yang diuji</label><select id="linearTest"><option value="homogeneity">Homogenitas (a=3)</option><option value="additivity">Aditivitas (x1+x2)</option></select></div></div>
+    <div class="lhs-rhs-comparison">
+      <div class="comparison-pane">
+        <div class="comparison-titleline"><div class="comparison-formula formula" id="linearLhsFormula"></div><span class="comparison-path" id="linearLhsPath">(kalikan lalu proses)</span></div>
+        <canvas class="property-canvas" id="linearLhsCanvas" role="img" aria-label="Grafik ruas kiri uji linearitas"></canvas>
+        <ul class="plot-legend" id="linearLhsLegend" aria-label="Legenda interaktif grafik ruas kiri linearitas"></ul>
+      </div>
+      <div class="comparison-operator" id="linearCompareOperator" aria-hidden="true">=</div>
+      <div class="comparison-pane">
+        <div class="comparison-titleline"><div class="comparison-formula formula" id="linearRhsFormula"></div><span class="comparison-path" id="linearRhsPath">(proses lalu kalikan)</span></div>
+        <canvas class="property-canvas" id="linearRhsCanvas" role="img" aria-label="Grafik ruas kanan uji linearitas"></canvas>
+        <ul class="plot-legend" id="linearRhsLegend" aria-label="Legenda interaktif grafik ruas kanan linearitas"></ul>
+      </div>
+    </div>
+    <div class="formula" id="linearEquation"></div>
+    <p class="card-copy comparison-verdict" id="linearResult" aria-live="polite"></p>
+  </div>
+</div>
+</section>
+
+<section id="s3a" class="property-section">
+<div class="eyebrow">03A — Invariansi Waktu</div>
+<h2>Geser masukan, geser keluaran</h2>
+<div class="property-stack">
+  <div class="prop-card property-definition">
+    <h4>Definisi dan makna</h4>
+    <div class="property-definition-content">
+      <div class="formula" id="f-ti"></div>
+      <p class="card-copy">Sistem invarian waktu tidak berubah ketika waktu asal dipindahkan. Ruas kiri (LHS) adalah jalur geser masukan lalu proses; ruas kanan (RHS) adalah jalur proses lalu geser keluaran. Keduanya harus identik untuk setiap masukan dan pergeseran.</p>
+    </div>
+    <p class="nav-note property-note">Linier dan invarian waktu membentuk sistem LTI. Respons kondisi awal nol sistem LTI dapat dihitung dengan konvolusi; pembahasannya dilanjutkan pada Minggu 4.</p>
+  </div>
+  <div class="prop-card comparison-card">
+    <h4>Grafik perbandingan</h4>
+    <div class="property-controls ti-property-controls"><div class="property-control"><label for="tiSystem">Sistem</label><select id="tiSystem"><option value="pass">Memenuhi: y[n]=2x[n]</option><option value="fail">Melanggar: y[n]=n·x[n]</option></select></div><div class="ti-input-definition" aria-label="Definisi masukan uji dan besar pergeseran"><span class="ti-input-label">Masukan uji:</span><div class="formula" id="tiEquation"></div></div></div>
+    <div class="lhs-rhs-comparison">
+      <div class="comparison-pane">
+        <div class="comparison-titleline"><div class="comparison-formula formula" id="tiLhsFormula"></div><span class="comparison-path">(geser lalu proses)</span></div>
+        <canvas class="property-canvas" id="tiLhsCanvas" role="img" aria-label="Grafik ruas kiri uji invariansi waktu: geser masukan lalu proses"></canvas>
+        <ul class="plot-legend" id="tiLhsLegend" aria-label="Legenda interaktif grafik ruas kiri invariansi waktu"></ul>
+      </div>
+      <div class="comparison-operator" id="tiCompareOperator" aria-hidden="true">=</div>
+      <div class="comparison-pane">
+        <div class="comparison-titleline"><div class="comparison-formula formula" id="tiRhsFormula"></div><span class="comparison-path">(proses lalu geser)</span></div>
+        <canvas class="property-canvas" id="tiRhsCanvas" role="img" aria-label="Grafik ruas kanan uji invariansi waktu: proses masukan lalu geser keluaran"></canvas>
+        <ul class="plot-legend" id="tiRhsLegend" aria-label="Legenda interaktif grafik ruas kanan invariansi waktu"></ul>
+      </div>
+    </div>
+    <p class="card-copy comparison-verdict" id="tiResult" aria-live="polite"></p>
+  </div>
+</div>
+</section>
+
+<section id="s3b" class="property-section">
+<div class="eyebrow">03B — Kausalitas</div>
+<h2>Apakah keluaran memerlukan masa depan?</h2>
+<p class="lede">Untuk menguji kausalitas, bandingkan dua masukan yang sama hingga waktu pengamatan t₀ tetapi berbeda setelahnya. Keluaran pada t₀ harus tetap sama.</p>
+<div class="property-layout">
+  <div class="prop-card">
+    <h4>Definisi dan makna</h4>
+    <div class="formula" id="f-causal"></div>
+    <p class="card-copy">Keluaran pada t₀ hanya boleh bergantung pada masukan pada t≤t₀. Sistem nonkausal dapat memakai nilai masukan setelah t₀; pemrosesan rekaman tersimpan dapat menyediakan nilai tersebut.</p>
+    <p class="nav-note property-note">Ilustrasi memakai t₀=0. Masukan xa(t)=0; xb(t)=maks(1−2|t−1|,0), pulsa segitiga yang hanya muncul setelah t₀. Garis nol xa dan ya berhimpit.</p>
+  </div>
+  <div class="prop-card">
+    <h4>Ilustrasi perbandingan</h4>
+    <div class="property-controls"><div class="property-control"><label for="causalSystem">Sistem</label><select id="causalSystem"><option value="pass">Memenuhi: y(t)=2x(t)</option><option value="fail">Melanggar: y(t)=x(t+1)</option></select></div></div>
+    <canvas class="property-canvas" id="causalCanvas" role="img" aria-label="Apakah keluaran memerlukan masa depan?"></canvas>
+    <ul class="plot-legend" id="causalLegend"></ul>
+    <div class="formula" id="causalEquation"></div>
+    <p class="card-copy" id="causalResult"></p>
+  </div>
+</div>
+</section>
+
+<section id="s3c" class="property-section">
+<div class="eyebrow">03C — Stabilitas BIBO</div>
+<h2>Masukan terbatas, apakah keluaran terbatas?</h2>
+<p class="lede">Stabilitas BIBO berarti setiap masukan terbatas menghasilkan keluaran terbatas. Besar keluaran tidak harus sama dengan besar masukan.</p>
+<div class="property-layout">
+  <div class="prop-card">
+    <h4>Definisi dan makna</h4>
+    <div class="formula" id="f-bibo"></div>
+    <p class="card-copy">Masukan x[n]=1 untuk semua indeks bulat bersifat terbatas. Penguat y[n]=2x[n] menghasilkan keluaran 2; sistem y[n]=n·x[n] menghasilkan keluaran n yang tidak terbatas.</p>
+    <p class="nav-note property-note">Jendela grafik selalu terbatas. Ketidakstabilan disimpulkan dari y[n]=n saat n bertambah tanpa batas, bukan hanya dari gambar hingga N. Contoh yang lolos bukan bukti universal.</p>
+  </div>
+  <div class="prop-card">
+    <h4>Ilustrasi perbandingan</h4>
+    <div class="property-controls"><div class="property-control"><label for="stableSystem">Sistem</label><select id="stableSystem"><option value="pass">Stabil: y[n]=2x[n]</option><option value="fail">Tidak stabil: y[n]=n·x[n]</option></select></div><div class="property-control"><label for="stableHorizon">Batas jendela N <span id="stableHorizonValue">8</span></label><input id="stableHorizon" type="range" min="4" max="20" step="4" value="8"></div></div>
+    <canvas class="property-canvas" id="stableCanvas" role="img" aria-label="Masukan terbatas, apakah keluaran terbatas?"></canvas>
+    <ul class="plot-legend" id="stableLegend"></ul>
+    <div class="formula" id="stableEquation"></div>
+    <p class="card-copy" id="stableResult"></p>
+  </div>
+</div>
+</section>
+
+
+<!-- ================= SECTION 4 — SIMULATOR SYSTEM TESTER ================= -->
+<section id="s4" class="merged-section">
+<div class="eyebrow">04 — Penguji Sistem: Teori & Skenario</div>
+<h2>Bedah enam sistem: teori dan skenario</h2>
+<p class="lede">Pilih sistem, pilih input, lalu amati pasangan input-output-nya. Lencana sifat <b style="color:var(--phosphor)">✓/✗</b> di bawah grafik adalah <i>kesimpulan teoretis</i> dari analisis definisi. Hasil skenario numerik untuk linearitas dan invariansi waktu (uji <em>superposition</em> &amp; uji geser yang benar-benar dihitung di browser) dipaparkan terpisah pada baris hasil di bawah lencana — "lolos skenario" bukan bukti universal.</p>
+<div class="rigor-note">
+    <b>Catatan ketelitian (<em>rigor</em>):</b> setiap sifat di atas harus berlaku untuk <b>semua</b> kasus yang diizinkan — semua sinyal masukan, semua skala, semua pergeseran (perhatikan kuantifier ∀ pada rumus). Satu <em>counterexample</em> yang sah cukup untuk menggugurkan klaim. Pengujian linearitas pada sistem dinamis mengasumsikan kondisi awal nol yang sama (<em>zero-state response</em>).
+  </div>
+<p class="nav-note">Atur sistem dan masukan pada bagian 04A. Hasil pengujian dan lencana sifat tampil pada bagian 04B; perubahan kontrol memperbarui seluruh hasil secara langsung.</p>
+</section>
+<section id="s4a">
+<div class="eyebrow">04A — Simulator: Kontrol & Grafik</div>
+<h2>Amati masukan, keluaran, dan dua jalur TI</h2>
+<div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl">
+        <label>Sistem yang diuji</label>
+        <select id="sysSelect">
+          <option value="s1">S1 · y = 2x (penguat linier)</option>
+          <option value="s2">S2 · y = x² (kuadratik)</option>
+          <option value="s3">S3 · y(t) = x(t−2) (tundaan)</option>
+          <option value="s4">S4 · y(t) = x(2t) (penskalaan waktu)</option>
+          <option value="s5">S5 · y[n] = x[n]+x[n−1] (jumlah berjalan 2-tap)</option>
+          <option value="s6">S6 · y[n] = n·x[n] (penguatan waktu)</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label>Sinyal input x</label>
+        <select id="inSelect">
+          <option value="sin">Sinusoidal</option>
+          <option value="pulse">Pulsa persegi</option>
+          <option value="step">Step</option>
+          <option value="ramp">Ramp (kausal)</option>
+        </select>
+        <div class="ctrl-formula" id="inputFormulaA"></div>
+      </div>
+      <div class="ctrl">
+        <label>Amplitudo A <span id="ampVal">1.0</span></label>
+        <input type="range" id="ampSlider" min="0.5" max="2.5" step="0.1" value="1">
+      </div>
+      <div class="ctrl">
+        <label>Geser uji TI <span id="shiftVal">t₀ = 1.0</span></label>
+        <input type="range" id="shiftSlider" min="0.5" max="4" step="0.5" value="1">
+      </div>
+    </div>
+
+    <div class="plot-cols">
+      <div class="plot-box">
+        <div class="ptitle">Input vs Output <b id="sysDomain">CT</b></div>
+        <canvas class="simcanvas" id="ioPlot" role="img" aria-label="Grafik input versus output sistem yang dipilih; hasil numerik diringkas pada lencana sifat di bawahnya"></canvas>
+        <ul class="plot-legend" id="ioLegend"></ul>
+      </div>
+      <div class="plot-box">
+        <div class="ptitle">Uji <em>time-invariance</em> <b>S{x−geser} vs geser{S{x}}</b></div>
+        <canvas class="simcanvas" id="tiPlot" role="img" aria-label="Grafik uji dua jalur time-invariance: sistem menerima input tergeser versus output yang digeser; hasil numerik diringkas pada teks di bawahnya"></canvas>
+        <ul class="plot-legend" id="tiLegend"></ul>
+      </div>
+    </div>
+</div>
+</section>
+<section id="s4b" class="merged-section">
+<div class="eyebrow">04B — Simulator: Hasil & Galat</div>
+<h2>Baca kesimpulan teori dan hasil numerik</h2>
+<p class="nav-note">Hasil ini mengikuti pilihan terakhir di bagian 04A. Kembali ke bagian itu untuk mengganti sistem atau skenario.</p><div class="sim-wrap">    <div class="sim-formula" id="sysFormula"></div>
+    <div class="sim-formula" id="inputFormula"></div>
+    <div class="badges" id="badges"></div>
+    
+    <div class="lti-flag" id="ltiFlag"></div>
+    <div class="scenario-results"><div class="test-line" id="testLine"></div></div>
+  </div>
+</section>
+
+
+<!-- ================= SECTION 5 — CONTOH SOAL ================= -->
+<section id="s5" class="example-section">
+<div class="eyebrow">05 — Contoh 1: Superposisi</div>
+<h2>Buktikan linearitas penguat murni</h2>
+<div class="soal-card">
+    <span class="soal-num">Contoh 1</span>
+    <div class="soal-body">
+      <p class="card-copy">Buktikan bahwa sistem <span class="tex">y(t) = 2x(t)</span> bersifat linier memakai uji superposisi.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p class="solution-copy">Ambil dua input sembarang <span class="tex">x_1(t), x_2(t)</span> dan dua skalar <span class="tex">a, b</span>. Bentuk kombinasi <span class="tex">x(t) = a\,x_1(t) + b\,x_2(t)</span>.</p>
+          <div class="proof-path-grid">
+            <div class="proof-path">
+              <h5>Ruas kiri (LHS) — kombinasi lalu proses</h5>
+              <div class="formula"><span class="tex">S\{a x_1+b x_2\}=2(a x_1+b x_2)=2a x_1+2b x_2</span></div>
+            </div>
+            <div class="proof-path">
+              <h5>Ruas kanan (RHS) — proses lalu kombinasi</h5>
+              <div class="formula"><span class="tex">aS\{x_1\}+bS\{x_2\}=a(2x_1)+b(2x_2)=2a x_1+2b x_2</span></div>
+            </div>
+          </div>
+          <p class="solution-copy"><b>Masukan untuk grafik perbandingan:</b></p>
+          <div class="formula"><span class="tex">\begin{aligned}x_1(t)&=\sin(\pi t),\\x_2(t)&=\begin{cases}1,&0&lt;t&lt;2\\0,&\text{selainnya}\end{cases}\qquad a=1,\quad b=0{,}5.\end{aligned}</span></div>
+          <div class="lhs-rhs-comparison worked-comparison">
+            <div class="comparison-pane">
+              <div class="comparison-titleline"><div class="comparison-formula formula"><span class="tex">\mathrm{LHS}=S\{x_1+0{,}5x_2\}</span></div><span class="comparison-path">(kombinasikan lalu proses)</span></div>
+              <canvas class="soalcanvas" id="soal1LhsCanvas" role="img" aria-label="Grafik ruas kiri pembuktian linearitas penguat pada Contoh 1: x satu, nol koma lima x dua, kombinasi masukan, dan hasil akhir LHS"></canvas>
+              <ul class="plot-legend" id="soal1LhsLegend" aria-label="Legenda interaktif grafik ruas kiri Contoh 1"></ul>
+            </div>
+            <div class="comparison-operator" aria-hidden="true">=</div>
+            <div class="comparison-pane">
+              <div class="comparison-titleline"><div class="comparison-formula formula"><span class="tex">\mathrm{RHS}=S\{x_1\}+0{,}5S\{x_2\}</span></div><span class="comparison-path">(proses lalu kombinasikan)</span></div>
+              <canvas class="soalcanvas" id="soal1RhsCanvas" role="img" aria-label="Grafik ruas kanan pembuktian linearitas penguat pada Contoh 1: x satu, x dua, hasil proses tiap masukan, dan hasil akhir RHS"></canvas>
+              <ul class="plot-legend" id="soal1RhsLegend" aria-label="Legenda interaktif grafik ruas kanan Contoh 1"></ul>
+            </div>
+          </div>
+          <p class="solution-copy"><b>Maka:</b> LHS = RHS untuk <b>setiap</b> <span class="tex">x_1,x_2,a,b</span>, sehingga sistem linier. Grafik memvisualisasikan satu skenario; persamaan aljabar di atas membuktikan pernyataan universalnya.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+<section id="s5c" class="example-section">
+<div class="eyebrow">05A — Contoh 2: Uji Geser</div>
+<h2>Penguatan yang berubah terhadap waktu</h2>
+<div class="soal-card">
+    <span class="soal-num">Contoh 2</span>
+    <div class="soal-body">
+      <p class="card-copy">Tentukan apakah sistem <span class="tex">y[n] = n\,x[n]</span> <em>time-invariant</em>. Jika tidak, tunjukkan dengan satu <em>counterexample</em> konkret.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p class="solution-copy">Ambil <span class="tex">x[n] = u[n]</span> (step) dan geser <span class="tex">n_0 = 2</span>.</p>
+          <div class="proof-path-grid">
+            <div class="proof-path">
+              <h5>Ruas kiri (LHS) — geser lalu proses</h5>
+              <div class="formula"><span class="tex">S\{x[n-2]\}=S\{u[n-2]\}=n\,u[n-2]</span></div>
+              <p class="solution-copy">Pada <span class="tex">n=2</span>, LHS = 2.</p>
+            </div>
+            <div class="proof-path">
+              <h5>Ruas kanan (RHS) — proses lalu geser</h5>
+              <div class="formula"><span class="tex">y[n-2]=(n-2)u[n-2]</span></div>
+              <p class="solution-copy">Pada <span class="tex">n=2</span>, RHS = 0.</p>
+            </div>
+          </div>
+          <p class="solution-copy"><b>Grafik perbandingan:</b> kedua ruas memakai domain dan skala sumbu yang sama.</p>
+          <div class="lhs-rhs-comparison worked-comparison">
+            <div class="comparison-pane">
+              <div class="comparison-titleline"><div class="comparison-formula formula"><span class="tex">\mathrm{LHS}=n\,u[n-2]</span></div><span class="comparison-path">(geser lalu proses)</span></div>
+              <canvas class="soalcanvas" id="soal2LhsCanvas" role="img" aria-label="Grafik ruas kiri uji invariansi waktu Contoh 2: masukan, masukan tergeser, dan hasil akhir LHS"></canvas>
+              <ul class="plot-legend" id="soal2LhsLegend" aria-label="Legenda interaktif grafik ruas kiri Contoh 2"></ul>
+            </div>
+            <div class="comparison-operator is-different" aria-hidden="true">≠</div>
+            <div class="comparison-pane">
+              <div class="comparison-titleline"><div class="comparison-formula formula"><span class="tex">\mathrm{RHS}=(n-2)u[n-2]</span></div><span class="comparison-path">(proses lalu geser)</span></div>
+              <canvas class="soalcanvas" id="soal2RhsCanvas" role="img" aria-label="Grafik ruas kanan uji invariansi waktu Contoh 2: masukan, keluaran sebelum digeser, dan hasil akhir RHS"></canvas>
+              <ul class="plot-legend" id="soal2RhsLegend" aria-label="Legenda interaktif grafik ruas kanan Contoh 2"></ul>
+            </div>
+          </div>
+          <p class="solution-copy"><b>Maka:</b> LHS ≠ RHS pada <span class="tex">n=2</span>. Satu contoh penyangkal cukup untuk menyimpulkan sistem berubah terhadap waktu (<em>time-varying</em>), bukan invarian waktu.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="s5d" class="example-section">
+<div class="eyebrow">05B — Contoh 3: Kausalitas & Invariansi Waktu</div>
+<h2>Nonkausal, tetapi tetap invarian waktu</h2>
+<div class="soal-card">
+    <span class="soal-num">Contoh 3</span>
+    <div class="soal-body">
+      <p class="card-copy">Tentukan apakah sistem <span class="tex">y(t) = x(t) + x(t+1)</span> kausal atau nonkausal, lalu tentukan apakah ia invarian waktu (<em>time-invariant</em>). Berikan argumen berdasarkan definisi.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p class="solution-copy"><b>1 · Kausalitas.</b> Keluaran pada waktu <span class="tex">t</span> memerlukan <span class="tex">x(t+1)</span>, yaitu nilai masukan satu satuan waktu di masa depan. Untuk membuktikan nonkausalitas secara konkret, bandingkan dua masukan yang memiliki riwayat sama sampai waktu pengamatan.</p>
+          <p class="solution-copy">Ambil waktu pengamatan <span class="tex">t=0</span> dan dua masukan <span class="tex">x_a(t)=0</span> serta <span class="tex">x_b(t)=u(t-\tfrac12)</span>. Keduanya identik untuk seluruh <span class="tex">t\le 0</span>, tetapi <span class="tex">x_a(1)=0</span> dan <span class="tex">x_b(1)=1</span>. Maka <span class="tex">y_a(0)=0+0=0</span>, sedangkan <span class="tex">y_b(0)=0+1=1</span>. Riwayat masukan yang sama menghasilkan keluaran saat ini yang berbeda: sistem <b>nonkausal</b>.</p>
+          <p class="solution-copy"><b>2 · Invariansi waktu.</b> Ambil masukan <span class="tex">x(t)</span> dan pergeseran <span class="tex">\tau</span> sembarang. Definisikan masukan tergeser <span class="tex">x_\tau(t)=x(t-\tau)</span>, lalu bandingkan dua jalur berikut.</p>
+          <div class="proof-path-grid">
+            <div class="proof-path">
+              <h5>Ruas kiri (LHS) — geser lalu proses</h5>
+              <div class="formula"><span class="tex">S\{x_\tau\}(t)=x_\tau(t)+x_\tau(t+1)=x(t-\tau)+x(t+1-\tau)</span></div>
+            </div>
+            <div class="proof-path">
+              <h5>Ruas kanan (RHS) — proses lalu geser</h5>
+              <div class="formula"><span class="tex">y(t-\tau)=x(t-\tau)+x((t-\tau)+1)=x(t-\tau)+x(t+1-\tau)</span></div>
+            </div>
+          </div>
+          <p class="solution-copy"><b>Grafik perbandingan skenario:</b> gunakan pulsa segitiga <span class="tex">x(t)=\max(1-|t|,0)</span> dan pergeseran <span class="tex">\tau=2</span>. Grafik memvisualisasikan satu skenario; persamaan di atas berlaku untuk masukan dan pergeseran sembarang.</p>
+          <div class="lhs-rhs-comparison worked-comparison">
+            <div class="comparison-pane">
+              <div class="comparison-titleline"><div class="comparison-formula formula"><span class="tex">\mathrm{LHS}=S\{x(t-2)\}</span></div><span class="comparison-path">(geser lalu proses)</span></div>
+              <canvas class="soalcanvas" id="soal3TiLhsCanvas" role="img" aria-label="Grafik ruas kiri invariansi waktu Contoh 3: masukan tergeser, komponen yang dimajukan, dan hasil akhir LHS"></canvas>
+              <ul class="plot-legend" id="soal3TiLhsLegend" aria-label="Legenda interaktif grafik ruas kiri invariansi waktu Contoh 3"></ul>
+            </div>
+            <div class="comparison-operator" aria-hidden="true">=</div>
+            <div class="comparison-pane">
+              <div class="comparison-titleline"><div class="comparison-formula formula"><span class="tex">\mathrm{RHS}=y(t-2)</span></div><span class="comparison-path">(proses lalu geser)</span></div>
+              <canvas class="soalcanvas" id="soal3TiRhsCanvas" role="img" aria-label="Grafik ruas kanan invariansi waktu Contoh 3: masukan asli, komponen yang dimajukan, keluaran awal, dan hasil akhir RHS"></canvas>
+              <ul class="plot-legend" id="soal3TiRhsLegend" aria-label="Legenda interaktif grafik ruas kanan invariansi waktu Contoh 3"></ul>
+            </div>
+          </div>
+          <p class="solution-copy">Kedua jalur identik untuk <b>setiap</b> masukan dan pergeseran yang diizinkan: <span class="tex">S\{x(t-\tau)\}(t)=y(t-\tau),\quad\forall x,\tau</span>. Jadi sistem <b>invarian waktu</b>. Pemajuan tetap satu satuan waktu tidak berubah ketika waktu acuan digeser.</p>
+          <p class="solution-copy"><b>Kesimpulan:</b> sistem <span class="tex">y(t)=x(t)+x(t+1)</span> <b>nonkausal, tetapi invarian waktu</b>. Invariansi waktu tidak menjamin kausalitas; kedua sifat harus dinilai terpisah.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 6 — LATIHAN MANDIRI ================= -->
+<section id="s6" class="merged-section">
+<div class="eyebrow">06 — Latihan: Linearitas & Stabilitas</div>
+<h2>Uji linearitas dan stabilitas BIBO</h2>
+<p class="lede">Berbeda dari ketiga contoh di atas, dua soal ini <b style="color:var(--paper)">tidak</b> disertai jawaban lengkap — kerjakan di kertas, lalu verifikasi secara numerik lewat fungsi uji di Labsheet-03.</p>
+<div class="practice-grid">
+<div class="soal-card">
+    <span class="soal-num latihan">Latihan 1</span>
+    <div class="soal-body">
+      <p class="card-copy">Selidiki linearitas sistem <span class="tex">y(t) = x(t) + 3</span>. Tampak "sederhana" — tapi apakah ia linier?</p>
+      <details class="solusi">
+        <summary>💡 Lihat petunjuk (bukan jawaban lengkap)</summary>
+        <div class="body"><p class="solution-copy">Uji aksioma paling murah dulu: sistem linier wajib memetakan input nol ke output nol. Cek <span class="tex">S\{0\}</span> untuk sistem ini — kalau bukan nol, Anda sudah punya <em>counterexample</em> satu baris.</p></div>
+      </details>
+    </div>
+  </div>
+
+<div class="soal-card">
+    <span class="soal-num latihan">Latihan 2</span>
+    <div class="soal-body">
+      <p class="card-copy">Selidiki stabilitas BIBO sistem akumulator <span class="tex">y[n] = \sum_{k=-\infty}^{n} x[k]</span> memakai input step <span class="tex">x[n] = u[n]</span>.</p>
+      <details class="solusi">
+        <summary>💡 Lihat petunjuk (bukan jawaban lengkap)</summary>
+        <div class="body"><p class="solution-copy">Input step jelas terbatas (<span class="tex">|x[n]|\le 1</span>). Tuliskan <span class="tex">y[n]</span> untuk <span class="tex">n \ge 0</span> sebagai fungsi <span class="tex">n</span> — apakah ia tetap terbatas ketika <span class="tex">n \to \infty</span>?</p></div>
+      </details>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- ================= SECTION 7 — KUIS ================= -->
+<section id="s7">
+<div class="eyebrow">07 — Kuis: Klasifikasi & Contoh Penyangkal</div>
+<h2>Cek cepat sebelum lanjut ke labsheet</h2>
+<p class="lede">Formatif — tidak dinilai (bobot 0%), tapi kalau ragu-ragu di sini, ulangi Bagian 02–04 dulu.</p>
+<div class="quiz-grid">
+  <div id="quizRoot"></div>
+  <div id="quizRoot2"></div>
+</div>
+</section>
+<section id="s7c">
+<div class="eyebrow">07A — Kuis: LTI & Stabilitas</div>
+<h2>LTI tidak otomatis stabil</h2>
+<div class="quiz-grid">
+  <div id="quizRoot3"></div>
+  <div id="quizRoot4"></div>
+</div>
+</section>
+
+<!-- ================= SECTION 8 — JEMBATAN RESPONS IMPULS ================= -->
+<section id="s8" class="merged-section">
+<div class="eyebrow">08 — Respons Impuls & Konvolusi</div>
+<h2>Dari respons impuls ke konvolusi</h2>
+  <p class="lede">Mengapa status LTI begitu istimewa? Karena seluruh perilaku sistem LTI terangkum dalam <b style="color:var(--paper)">satu sinyal saja</b>: tanggapannya terhadap impuls satuan, yang disebut respons impuls (<em>impulse response</em>) <span id="f-hnot"></span>.</p>
+
+  <div class="bridge-flow" role="img" aria-label="Diagram alir: impuls delta masuk ke sistem LTI menghasilkan respons impuls h">
+    <div class="bnode"><b>δ</b><span>impuls satuan</span></div>
+    <div class="barrow">→</div>
+    <div class="bnode sys"><b>sistem LTI</b><span>T</span></div>
+    <div class="barrow">→</div>
+    <div class="bnode"><b>h</b><span>respons impuls</span></div>
+  </div>
+
+
+
+<p class="lede">Intuisinya: setiap masukan dapat dipandang sebagai <b style="color:var(--paper)">jumlah impuls-impuls tergeser yang berbobot</b> oleh nilai sinyal itu sendiri. Karena sistem linier (jumlah respons = respons jumlah) dan invarian waktu (impuls tergeser → respons impuls tergeser), keluarannya pun menjadi <b style="color:var(--paper)">jumlah respons impuls tergeser yang berbobot</b> — dan operasi penjumlahan inilah yang bernama konvolusi (<em>convolution</em>).</p>
+  <div class="sim-formula" id="f-conv"></div>
+  <p class="lede" style="margin-top:0.8rem;">Rumus di atas hanya <b>pratinjau</b> — cara menghitungnya langkah-demi-langkah (termasuk versi waktu-kontinu) dibahas penuh di Minggu 4. Yang perlu dibawa pulang hari ini: <b style="color:var(--phosphor)">LTI ⇔ cukup kenal h untuk meramalkan seluruh respons pada kondisi awal nol</b> (respons keadaan-nol, <em>zero-state response</em>). Untuk kondisi awal tak nol, h saja belum menentukan keluaran total.</p>
+</section>
+
+
+<!-- ================= SECTION 9 — INVERTIBILITAS ================= -->
+<section id="s9">
+<div class="eyebrow">09 — Keterbalikan Sistem</div>
+<h2>Bisakah masukan dipulihkan secara unik?</h2>
+  <p class="lede">Lima sifat dasar — empat dari Bagian 03 plus sifat memori dari Bagian 02 — sudah kita uji. Sifat keenam ini menjawab pertanyaan praktis: <b style="color:var(--paper)">bisakah sinyal asli dipulihkan kembali dari keluarannya?</b> Misalnya, bisakah rekaman yang sudah diperkuat dikembalikan persis ke suara aslinya?</p>
+
+  <div class="bridge-flow" role="img" aria-label="Diagram blok: x masuk sistem T menjadi y, lalu masuk sistem invers T-invers kembali menjadi x">
+    <div class="bnode"><b>x</b><span>masukan</span></div>
+    <div class="barrow">→</div>
+    <div class="bnode sys"><b>T</b><span>sistem</span></div>
+    <div class="barrow">→</div>
+    <div class="bnode"><b>y</b><span>keluaran</span></div>
+    <div class="barrow">→</div>
+    <div class="bnode sys"><b>T⁻¹</b><span>sistem invers (<em>inverse system</em>)</span></div>
+    <div class="barrow">→</div>
+    <div class="bnode"><b>x</b><span>pulih</span></div>
+  </div>
+
+  <p class="body-copy">Definisi: sistem <b style="color:var(--paper)">invertibel</b> (<em>invertible</em>) jika keluarannya masih menyimpan informasi yang cukup sehingga masukannya dapat dipulihkan secara unik oleh suatu sistem invers. Syaratnya:</p>
+  <div class="sim-formula" id="f-inv"></div>
+
+</section>
+<section id="s9a">
+<div class="eyebrow">09A — Keterbalikan: Contoh & Skenario</div>
+<h2>Informasi tanda dan pembatasan domain</h2>
+  <div class="prop-grid">
+    <div class="prop-card">
+      <h4>Contoh invertibel: S1</h4>
+      <div class="formula" id="f-invex"></div>
+      <p class="card-copy">Untuk setiap y selalu ada tepat satu x yang menghasilkannya — tidak ada dua masukan berbeda yang tertukar menjadi keluaran sama.</p>
+    </div>
+    <div class="prop-card">
+      <h4><em>Counterexample</em>: S2 pada ℝ</h4>
+      <div class="formula" id="f-invcex"></div>
+      <p class="card-copy">Masukan x dan −x menghasilkan keluaran identik — informasi tanda hilang dan tak bisa dipulihkan. <b>Domain menentukan <em>verdict</em>:</b> bila masukan dibatasi x ≥ 0, <em>squarer</em> menjadi invertibel dengan invers berupa akar kuadrat.</p>
+    </div>
+  </div>
+
+  <div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl scenario-control">
+        <label for="invSlider">Masukan uji x₁ — dibandingkan dengan x₂ = −x₁ <span id="invVal">1.5</span></label>
+        <input type="range" id="invSlider" min="-3" max="3" step="0.5" value="1.5">
+      </div>
+    </div>
+    <div class="test-line" id="invLine"></div>
+    <div class="clip-note scenario-note">Panel skenario (bukan bukti universal): untuk setiap x₁, tetapkan x₂ = −x₁ lalu bandingkan keluarannya. Saat x₁ ≠ 0, S2 memberi keluaran sama untuk dua masukan berbeda — itulah <em>counterexample</em> konkretnya.</div>
+  </div>
+
+
+</section>
+<!-- ================= 09B–09D — INVERS PER SISTEM ================= -->
+<section id="s9c" class="merged-section inverse-section">
+<div class="eyebrow">09B — Invers: S1 & S2</div>
+<h2>Amplitudo dapat pulih, tanda dapat hilang</h2>
+<p class="lede">Bandingkan penguatan linier dengan penguadratan. Grafik adalah ilustrasi; kesimpulan keterbalikan tetap ditentukan oleh persamaan dan domain masukan.</p>
+<div class="prop-grid inverse-grid">
+  <div class="prop-card inverse-item">
+    <h4>S1 — Penguat linier: invertibel</h4>
+    <div class="inverse-formula"><span class="tex">y(t)=2x(t),\quad x(t)=y(t)/2</span></div>
+    <p class="card-copy inverse-signal">Sinyal grafik: <span class="tex">x(t)=\cos(\pi t/2)</span>.</p>
+    <figure class="inverse-figure">
+      <canvas class="inverse-canvas" id="inverseS1" data-inverse-system="s1" role="img" aria-label="S1: masukan kosinus dan keluaran beramplitudo dua kali; keluaran dibagi dua memulihkan masukan"></canvas>
+      <ul class="plot-legend" id="inverseLegendS1" aria-label="Legenda grafik S1"></ul>
+    </figure>
+    <p class="card-copy inverse-explanation">Keluaran <span class="tex">y(t)=2\cos(\pi t/2)</span> hanya berubah amplitudonya. Membagi keluaran dengan 2 memulihkan tepat satu masukan pada setiap waktu; tidak ada informasi yang hilang.</p>
+  </div>
+  <div class="prop-card inverse-item">
+    <h4>S2 — Kuadratik: bergantung domain</h4>
+    <div class="inverse-formula"><span class="tex">y(t)=x^2(t)</span>; <span class="tex">x(t)=\sqrt{y(t)}\ \text{jika }x(t)\ge0</span>.</div>
+    <p class="card-copy inverse-signal">Sinyal grafik: <span class="tex">x_a(t)=\cos(\pi t/2)</span>, <span class="tex">x_b(t)=-x_a(t)</span>.</p>
+    <figure class="inverse-figure">
+      <canvas class="inverse-canvas" id="inverseS2" data-inverse-system="s2" role="img" aria-label="S2: dua masukan kosinus dengan tanda berlawanan menghasilkan keluaran kuadrat yang sama"></canvas>
+      <ul class="plot-legend" id="inverseLegendS2" aria-label="Legenda grafik S2"></ul>
+    </figure>
+    <p class="card-copy inverse-explanation">Keluaran keduanya <span class="tex">y_a(t)=y_b(t)=\cos^2(\pi t/2)</span>: tanda hilang. Pada domain real, invers tidak unik. Akar positif menjadi invers jika masukan dibatasi <span class="tex">x(t)\ge0</span>; syarat ini berlaku pada seluruh sinyal masukan.</p>
+  </div>
+</div>
+<details class="solusi">
+  <summary>▸ Cek pemahaman: pada domain apa S2 menjadi invertibel, dan apa inversnya?</summary>
+  <div class="body"><p class="solution-copy">Batasi masukan pada x≥0 atau x≤0. Untuk y≥0, invers masing-masing ialah x=√y atau x=−√y. Pemilihan domain menghilangkan ambiguitas tanda.</p></div>
+</details>
+</section>
+
+<section id="s9d" class="merged-section inverse-section">
+<div class="eyebrow">09C — Invers: S3 & S4</div>
+<h2>Mengembalikan posisi dan skala waktu</h2>
+<p class="lede">Untuk sinyal waktu-kontinu pada seluruh sumbu waktu, pergeseran dan penskalaan dengan faktor tak nol tidak menghapus informasi. Jendela grafik hanya menampilkan sebagian sumbu waktu.</p>
+<div class="prop-grid inverse-grid">
+  <div class="prop-card inverse-item">
+    <h4>S3 — Tundaan: invertibel</h4>
+    <div class="inverse-formula"><span class="tex">y(t)=x(t-2),\quad x(t)=y(t+2)</span></div>
+    <p class="card-copy inverse-signal">Sinyal grafik: <span class="tex">x(t)=\max(1-|t|,0)</span>.</p>
+    <figure class="inverse-figure">
+      <canvas class="inverse-canvas" id="inverseS3" data-inverse-system="s3" role="img" aria-label="S3: pulsa segitiga berpuncak pada t nol ditunda sehingga puncak keluaran berada pada t dua detik"></canvas>
+      <ul class="plot-legend" id="inverseLegendS3" aria-label="Legenda grafik S3"></ul>
+    </figure>
+    <p class="card-copy inverse-explanation">Keluaran <span class="tex">y(t)=\max(1-|t-2|,0)</span> mempunyai bentuk dan amplitudo yang sama, tetapi puncaknya bergeser 2 detik. Invers memajukan keluaran 2 detik; invers ini nonkausal karena memerlukan keluaran pada waktu mendatang.</p>
+  </div>
+  <div class="prop-card inverse-item">
+    <h4>S4 — Penskalaan waktu: invertibel</h4>
+    <div class="inverse-formula"><span class="tex">y(t)=x(2t),\quad x(t)=y(t/2)</span></div>
+    <p class="card-copy inverse-signal">Sinyal grafik: <span class="tex">x(t)=\max(1-|t|,0)</span>.</p>
+    <figure class="inverse-figure">
+      <canvas class="inverse-canvas" id="inverseS4" data-inverse-system="s4" role="img" aria-label="S4: pulsa segitiga masukan dimampatkan menjadi separuh lebarnya pada keluaran, tanpa mengubah tinggi puncak"></canvas>
+      <ul class="plot-legend" id="inverseLegendS4" aria-label="Legenda grafik S4"></ul>
+    </figure>
+    <p class="card-copy inverse-explanation">Keluaran <span class="tex">y(t)=\max(1-|2t|,0)</span> memiliki lebar separuh masukan, tetapi tinggi puncak tetap. Substitusi waktu t/2 meregangkan kembali keluaran dan memulihkan masukan; ini bukan pengambilan sampel diskrit.</p>
+  </div>
+</div>
+<details class="solusi">
+  <summary>▸ Cek pemahaman: apakah invers tundaan S3 harus kausal?</summary>
+  <div class="body"><p class="solution-copy">Tidak. Invers S3 adalah pemajuan 2 detik, x(t)=y(t+2), yang nonkausal. Keterbalikan tidak mensyaratkan kausalitas; informasi bisa utuh meskipun pemulihannya membutuhkan nilai keluaran mendatang.</p></div>
+</details>
+</section>
+
+<section id="s9e" class="merged-section inverse-section">
+<div class="eyebrow">09D — Invers: S5 & S6</div>
+<h2>Kondisi awal dan sampel yang hilang</h2>
+<p class="lede">Pada sinyal waktu-diskrit, cari apakah masukan berbeda bisa menghasilkan keluaran sama. Kondisi awal dapat menentukan keunikan invers rekursif.</p>
+<div class="prop-grid inverse-grid">
+  <div class="prop-card inverse-item">
+    <h4>S5 — Jumlah berjalan dua tap: bersyarat</h4>
+    <div class="inverse-formula"><span class="tex">y[n]=x[n]+x[n-1]</span>; <span class="tex">x[n]=y[n]-x[n-1]</span>.</div>
+    <p class="card-copy inverse-signal">Sinyal dua sisi: <span class="tex">x_a[n]=(-1)^n</span>, <span class="tex">x_b[n]=0</span>.</p>
+    <figure class="inverse-figure">
+      <canvas class="inverse-canvas" id="inverseS5" data-inverse-system="s5" role="img" aria-label="S5: masukan bergantian plus satu dan minus satu serta masukan nol menghasilkan keluaran nol yang sama, pada sinyal dua sisi tanpa kondisi awal"></canvas>
+      <ul class="plot-legend" id="inverseLegendS5" aria-label="Legenda grafik S5"></ul>
+    </figure>
+    <p class="card-copy inverse-explanation">Karena <span class="tex">(-1)^n+(-1)^{n-1}=0</span>, kedua masukan menghasilkan keluaran nol: tidak invertibel pada sinyal dua sisi tanpa syarat tambahan. Mulai n≥0 dengan x[−1] diketahui, rekursi memberi pemulihan unik.</p>
+  </div>
+  <div class="prop-card inverse-item">
+    <h4>S6 — Penguatan waktu: tidak invertibel</h4>
+    <div class="inverse-formula"><span class="tex">y[n]=n\,x[n]</span>; <span class="tex">x[n]=y[n]/n,\ n\ne0</span>.</div>
+    <p class="card-copy inverse-signal">Sinyal grafik: <span class="tex">x_a[n]=\delta[n]</span>, <span class="tex">x_b[n]=0</span>.</p>
+    <figure class="inverse-figure">
+      <canvas class="inverse-canvas" id="inverseS6" data-inverse-system="s6" role="img" aria-label="S6: impuls satu pada n nol dan masukan nol menghasilkan keluaran nol yang sama; sampel masukan pada n nol hilang"></canvas>
+      <ul class="plot-legend" id="inverseLegendS6" aria-label="Legenda grafik S6"></ul>
+    </figure>
+    <p class="card-copy inverse-explanation">Keduanya menghasilkan <span class="tex">y_a[n]=y_b[n]=0</span> karena <span class="tex">n\,\delta[n]=0</span>. Pembagian hanya memulihkan sampel n≠0; nilai x[0] hilang, sehingga seluruh sinyal tidak dapat dipulihkan secara unik pada domain tanpa pembatasan.</p>
+  </div>
+</div>
+<details class="solusi">
+  <summary>▸ Cek pemahaman: bagaimana kondisi awal membantu memulihkan masukan S5?</summary>
+  <div class="body"><p class="solution-copy">Misalkan x[−1]=0 dan keluaran y[0]=1, y[1]=3. Rekursi memberi x[0]=1−0=1 dan x[1]=3−1=2. Tanpa x[−1], nilai x[0] belum unik; masukan bergantian pada grafik tidak mempunyai kondisi awal yang sama dengan masukan nol.</p></div>
+</details>
+</section>
+
+
+<!-- ================= SECTION 9E — INTERKONEKSI SISTEM ================= -->
+<section id="s9b" class="merged-section">
+<div class="eyebrow">09E — Interkoneksi Sistem</div>
+<h2>Tiga pola interkoneksi sistem</h2>
+<p class="lede">Sistem nyata biasanya tersusun dari beberapa blok. Minggu ini cukup kenali tiga pola dasarnya; cara menghitung respons gabungan sistem LTI melalui respons impuls dan konvolusi dibahas pada Minggu 4.</p><div class="concept-cols two"><div class="concept-card" data-tag="KASKADE">
+      <h4>Interkoneksi kaskade</h4>
+      <p class="card-copy">Pada interkoneksi kaskade (<em>cascade interconnection</em>), keluaran sistem pertama menjadi masukan sistem berikutnya: <span class="tex">y=T_2\{T_1\{x\}\}</span>.</p>
+      <p class="card-copy">Diagram T lalu T⁻¹ pada Bagian 09 adalah contoh khusus: gabungannya harus menjadi sistem identitas, sehingga masukan pulih tanpa berubah.</p>
+    </div>
+<div class="concept-card" data-tag="PARALEL">
+      <h4>Interkoneksi paralel</h4>
+      <p class="card-copy">Pada interkoneksi paralel (<em>parallel interconnection</em>), satu masukan diproses oleh beberapa cabang, kemudian keluarannya dijumlahkan: <span class="tex">y=T_1\{x\}+T_2\{x\}</span>.</p>
+      <p class="card-copy">Contoh: sinyal audio asli dicampur dengan jalur efek untuk mengatur keseimbangan suara bersih dan suara olahan.</p>
+    </div></div>
+
+<div class="interconnection-note">
+      <h4>Umpan balik</h4>
+      <p class="card-copy">Pada umpan balik (<em>feedback</em>), sebagian keluaran dikembalikan ke masukan. Pola ini lazim pada penguat, kendali otomatis, dan sistem rekursif.</p>
+      <p class="card-copy">Umpan balik dapat memperbaiki atau merusak perilaku sistem; analisis kuantitatifnya memerlukan model yang dibahas pada minggu-minggu berikutnya.</p>
+    </div>
+</section>
+
+
+<!-- ================= SECTION 10 — DAFTAR ISTILAH ================= -->
+<section id="s10">
+<div class="eyebrow">10 — Istilah: A–C</div>
+<h2>Daftar istilah Inggris–Indonesia (1/3)</h2>
+<p class="lede">Dalam paparan dipakai istilah Indonesia yang relatif dikenal; istilah Inggris dicetak miring dan dipertahankan karena lazim dipakai di buku teks dan pencarian. Singkatan internasional CT, DT, TI, LTI, BIBO tidak dicetak miring.</p><table class="gloss-table"><thead><tr><th><em>English term</em></th><th>Istilah Indonesia</th><th>Catatan</th></tr></thead><tbody><tr><td><em>additivity</em>; <em>homogeneity/scaling</em></td><td>aditivitas; homogenitas/penskalaan</td><td>Dua komponen linearitas</td></tr>
+<tr><td><em>bounded-input bounded-output</em> (BIBO) <em>stability</em></td><td>kestabilan masukan-terbatas keluaran-terbatas (BIBO)</td><td>Untuk setiap masukan terbatas</td></tr>
+<tr><td><em>cascade interconnection</em></td><td>interkoneksi kaskade</td><td>Keluaran sistem pertama menjadi masukan sistem berikutnya</td></tr>
+<tr><td><em>causal</em>; <em>noncausal</em></td><td>kausal; nonkausal</td><td>Tidak mengintip masa depan</td></tr>
+<tr><td><em>continuous-time</em> (CT); <em>discrete-time</em> (DT)</td><td>waktu-kontinu (CT); waktu-diskrit (DT)</td><td></td></tr>
+<tr><td><em>convolution</em></td><td>konvolusi</td><td>Minggu 4</td></tr>
+<tr><td><em>counterexample</em></td><td>contoh penyangkal</td><td>Satu cukup menggugurkan klaim</td></tr></tbody></table>
+</section>
+<section id="s10b">
+<div class="eyebrow">10A — Istilah: F–P</div>
+<h2>Daftar istilah Inggris–Indonesia (2/3)</h2>
+<table class="gloss-table"><thead><tr><th><em>English term</em></th><th>Istilah Indonesia</th><th>Catatan</th></tr></thead><tbody><tr><td><em>feedback</em></td><td>umpan balik</td><td>Sebagian keluaran dikembalikan ke masukan</td></tr>
+<tr><td><em>impulse</em>; <em>impulse response</em></td><td>impuls; respons impuls</td><td>Notasi: δ, h</td></tr>
+<tr><td><em>invertible system</em>; <em>inverse system</em>; <em>invertibility</em></td><td>sistem invertibel; sistem invers; keterbalikan/invertibilitas</td><td>Lihat Bagian 09</td></tr>
+<tr><td><em>left-hand side</em> (LHS)</td><td>ruas kiri (LHS)</td><td>Ruas di kiri tanda sama dengan</td></tr>
+<tr><td><em>linear time-invariant</em> (LTI)</td><td>linier dan invarian waktu (LTI)</td><td>Pintu ke konvolusi</td></tr>
+<tr><td><em>linearity</em>; <em>superposition</em></td><td>linearitas; superposisi</td><td>Berlaku ∀ masukan &amp; skala</td></tr>
+<tr><td><em>memoryless/static system</em></td><td>sistem tanpa memori/statis</td><td>y saat ini hanya dari x saat ini</td></tr>
+<tr><td><em>MIMO</em> (<em>multi-input multi-output</em>)</td><td>banyak-masuk-banyak-keluar</td><td>mis. sistem antena ganda</td></tr>
+<tr><td><em>MISO</em> (<em>multi-input single-output</em>)</td><td>banyak-masuk-satu-keluar</td><td>mis. mixer audio</td></tr>
+<tr><td><em>parallel interconnection</em></td><td>interkoneksi paralel</td><td>Keluaran beberapa cabang digabungkan</td></tr>
+<tr><td><em>path</em></td><td>jalur</td><td>Lintasan/rute perhitungan (mis. uji TI) atau cabang sinyal — bukan <em>channel</em> (kanal)</td></tr></tbody></table>
+</section>
+<section id="s10c">
+<div class="eyebrow">10B — Istilah: R–Z</div>
+<h2>Daftar istilah Inggris–Indonesia (3/3)</h2>
+<table class="gloss-table"><thead><tr><th><em>English term</em></th><th>Istilah Indonesia</th><th>Catatan</th></tr></thead><tbody><tr><td><em>right-hand side</em> (RHS)</td><td>ruas kanan (RHS)</td><td>Ruas di kanan tanda sama dengan</td></tr>
+<tr><td><em>running sum</em>; <em>two-tap moving sum</em></td><td>jumlah berjalan; jumlah berjalan dua tap</td><td>S5 (tanpa normalisasi)</td></tr>
+<tr><td><em>SIMO</em> (<em>single-input multi-output</em>)</td><td>satu-masuk-banyak-keluar</td><td>mis. 1 sensor → display + logger</td></tr>
+<tr><td><em>SISO</em> (<em>single-input single-output</em>)</td><td>satu-masuk-satu-keluar</td><td>mis. amplifier; dominan di semester ini</td></tr>
+<tr><td><em>system</em>; <em>input</em>; <em>output</em></td><td>sistem; masukan; keluaran</td><td>Notasi: y = S{x}</td></tr>
+<tr><td><em>system property</em></td><td>sifat sistem</td><td></td></tr>
+<tr><td><em>system with memory/dynamic system</em></td><td>sistem bermemori/dinamis</td><td></td></tr>
+<tr><td><em>time shift</em>; <em>delay</em>; <em>advance</em></td><td>pergeseran waktu; tundaan; pemajuan</td><td></td></tr>
+<tr><td><em>time-invariant</em> (TI); <em>time-varying</em></td><td>invarian waktu (TI); berubah terhadap waktu</td><td>Berlaku ∀ pergeseran</td></tr>
+<tr><td><em>zero-state response</em></td><td>respons keadaan-nol</td><td>Kondisi awal nol</td></tr></tbody></table>
+</section>
+<section id="s10d" class="merged-section">
+<div class="eyebrow">10C — Simbol & Notasi</div>
+<h2>Daftar simbol dan notasi</h2>
+<table class="gloss-table"><thead><tr><th>Simbol</th><th>Nama</th><th>Arti</th></tr></thead><tbody><tr><td>x(t), x[n]</td><td>masukan</td><td>sinyal masukan CT / DT</td></tr>
+<tr><td>y(t), y[n]</td><td>keluaran</td><td>sinyal keluaran CT / DT</td></tr>
+<tr><td>S{·}, T</td><td>operator sistem</td><td>pemetaan masukan → keluaran</td></tr>
+<tr><td>T<sup>−1</sup></td><td>sistem invers</td><td>mengembalikan keluaran ke masukan</td></tr>
+<tr><td>δ, h</td><td>impuls, respons impuls</td><td>δ = impuls satuan; h = respons sistem LTI terhadap δ</td></tr>
+<tr><td>u(t), u[n]</td><td>undak satuan</td><td>step satuan CT / DT</td></tr><tr><td>t, n</td><td>waktu</td><td>variabel waktu kontinu / diskrit</td></tr>
+<tr><td>t<sub>0</sub>, τ, n<sub>0</sub></td><td>pergeseran</td><td>besar pergeseran waktu kontinu (t₀ atau τ) / diskrit (n₀)</td></tr>
+<tr><td>a, b</td><td>skalar</td><td>koefisien kombinasi linier</td></tr>
+<tr><td>M<sub>x</sub>, M<sub>y</sub></td><td>batas</td><td>batas amplitudo masukan / keluaran (BIBO)</td></tr>
+<tr><td>∀</td><td>kuantifier universal</td><td>"untuk semua" — syarat sifat universal</td></tr>
+<tr><td>ℝ</td><td>bilangan real</td><td>domain masukan (mis. x ≥ 0)</td></tr></tbody></table>
+</section>
+
+
+<!-- ================= SECTION 11 — CTA LABSHEET ================= -->
+<section id="s11" class="merged-section">
+<div class="eyebrow">11 — Praktik Labsheet & Rekap</div>
+<h2>Lanjutkan pengujian di notebook</h2>
+  <div class="cta-wrap">
+    <h3>Lanjutkan di Labsheet-03</h3>
+    <p class="body-copy">Konsep di atas dipraktikkan langsung di notebook ini: menulis fungsi uji generik (<code>is_linear</code>, <code>is_time_invariant</code>, <code>is_causal</code>, <code>is_stable</code>) dalam Python, menerapkannya ke 6 sistem contoh di simulator, lalu menentukan sistem mana saja yang LTI.</p>
+    <a class="cta-btn" href="https://colab.research.google.com/drive/1vDqQ5cO0Gkjhu0vbBb0HOl6FJABIyeiq" target="_blank" rel="noopener">▸ Buka Labsheet-03 (Colab / Jupyter)</a>
+    <div class="cta-meta">
+      <div class="m"><b>SK3</b>checkpoint partisipatif</div>
+      <div class="m"><b>4%</b>bobot nilai akhir</div>
+      <div class="m"><b>5</b>tugas inti</div>
+      <div class="m"><b>Sub-1.2</b>Sub-CPMK</div>
+    </div>
+  </div>
+
+
+
+<div class="recap">
+    <div class="r"><b>Sistem</b>kotak hitam input → output (SISO dominan)</div>
+    <div class="r"><b>6 aspek</b>linier, TI, kausal, stabil, memori, invertibel</div>
+    <div class="r"><b>LTI</b>linier + TI → siap dikonvolusi</div>
+    <div class="r"><b>Minggu depan</b>Labsheet-04 — konvolusi CT &amp; DT</div>
+  </div>
+
+
+  <nav class="weeknav" aria-label="Navigasi antarminggu — akhir halaman">
+    <a class="weeknav-link" href="W02-sifat-transformasi_v03.html">◂ W02 · Sifat &amp; Transformasi</a>
+    <a class="weeknav-link" href="index.html">Daftar Isi</a>
+    <a class="weeknav-link" href="W04-konvolusi_v10.html">W04 · Konvolusi ▸</a>
+  </nav>
+</section>
+
+
+<div class="navbar">
+  <button id="prevBtn">◂ Sebelumnya</button>
+  <div class="dots" id="dots"></div>
+  <span class="count" id="count">1 / 27</span>
+  <button id="nextBtn">Berikutnya ▸</button>
+</div>
+
+<button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false">☾ Gelap</button>
+
+<button type="button" id="sectionNavBtn" class="section-nav-fab" aria-haspopup="dialog" aria-controls="sectionNavDialog" aria-label="Lompat ke bagian" title="Lompat ke bagian">☰</button>
+
+<div class="section-nav-overlay" id="sectionNavOverlay" hidden>
+  <div class="section-nav-dialog" role="dialog" aria-modal="true" aria-labelledby="sectionNavTitle" id="sectionNavDialog">
+    <div class="section-nav-head">
+      <h3 id="sectionNavTitle">Lompat ke bagian</h3>
+      <button type="button" class="section-nav-close" id="sectionNavClose" aria-label="Tutup daftar bagian">✕</button>
+    </div>
+    <div class="section-nav-list" id="sectionNavList"></div>
+  </div>
+</div>
+
+<script>
+/* ============ mode embed: popout link + matikan navigasi presentasi ============ */
+const isEmbedded = document.documentElement.classList.contains('embedded');
+const popoutLink = document.getElementById('popoutLink');
+if(popoutLink) popoutLink.href = window.location.href;
+
+if(isEmbedded){
+  function postHeight(){
+    try{ window.parent.postMessage({type:'iframeResize', height: document.documentElement.scrollHeight}, '*'); }catch(e){}
+  }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
+  setTimeout(postHeight, 400);
+}
+
+/* ============ presentation-mode navigation (nonaktif dalam mode embed) ============ */
+const sections = Array.from(document.querySelectorAll('section'));
+
+if(!isEmbedded){
+  const dotsWrap = document.getElementById('dots');
+  const countEl = document.getElementById('count');
+  sections.forEach((s,i)=>{
+    const d = document.createElement('button');
+    d.type='button';
+    d.className='dot';
+    const eyebrowEl = s.querySelector('.eyebrow');
+    const sectionLabel = eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+    d.title = sectionLabel;
+    d.setAttribute('aria-label','Ke bagian: '+sectionLabel);
+    d.addEventListener('click',()=>s.scrollIntoView({behavior:'smooth',block:'start'}));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  const currentIndex = ()=>{
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx=0;
+    sections.forEach((s,i)=>{ if(s.offsetTop <= y) idx=i; });
+    return idx;
+  };
+  const updateNav = ()=>{
+    const idx = currentIndex();
+    dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+    countEl.textContent = (idx+1)+' / '+sections.length;
+    document.getElementById('prevBtn').disabled = idx===0;
+    document.getElementById('nextBtn').disabled = idx===sections.length-1;
+  };
+  window.addEventListener('scroll', ()=>requestAnimationFrame(updateNav), {passive:true});
+  updateNav();
+
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    const idx = Math.min(currentIndex()+1, sections.length-1);
+    sections[idx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  document.getElementById('prevBtn').addEventListener('click',()=>{
+    const idx = Math.max(currentIndex()-1,0);
+    sections[idx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  window.addEventListener('keydown',(e)=>{
+    const navOverlay = document.getElementById('sectionNavOverlay');
+    if(navOverlay && !navOverlay.hidden) return; // popup bagian terbuka, jangan pindah slide
+    /* Jangan merampas tombol panah saat fokus di kontrol interaktif (slider,
+       select, kuis, dsb.) — tombol itu milik kontrol tersebut. PageUp/PageDown
+       tetap untuk pindah bagian, kecuali fokus di field teks/pilihan. */
+    const t = e.target;
+    const tag = (t && t.tagName || '').toLowerCase();
+    const inField = tag==='input' || tag==='select' || tag==='textarea' || tag==='button' || tag==='a' || (t && t.isContentEditable);
+    if(['ArrowRight','ArrowDown','PageDown'].includes(e.key)){
+      if(inField && e.key!=='PageDown') return;
+      e.preventDefault();
+      document.getElementById('nextBtn').click();
+    } else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){
+      if(inField && e.key!=='PageUp') return;
+      e.preventDefault();
+      document.getElementById('prevBtn').click();
+    }
+  });
+}
+
+/* ============ tombol ganti tema terang/gelap ============ */
+(function(){
+  const btn = document.getElementById('themeToggle');
+  if(!btn) return;
+  const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function effectiveTheme(){
+    const explicit = document.documentElement.getAttribute('data-theme');
+    if(explicit === 'dark' || explicit === 'light') return explicit;
+    return (mql && mql.matches) ? 'dark' : 'light';
+  }
+  function updateToggleUI(){
+    const dark = effectiveTheme() === 'dark';
+    btn.textContent = dark ? '☀ Terang' : '☾ Gelap';
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.setAttribute('aria-label', dark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap');
+  }
+  updateToggleUI();
+  btn.addEventListener('click', ()=>{
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try{ localStorage.setItem('w03-theme', next); }catch(e){}
+    updateToggleUI();
+  });
+  if(mql && mql.addEventListener){
+    mql.addEventListener('change', ()=>{
+      if(!document.documentElement.getAttribute('data-theme')) updateToggleUI();
+    });
+  }
+})();
+
+/* ============ popup navigasi bagian (aktif di mode presentasi MAUPUN embed) ============ */
+(function(){
+  const fab = document.getElementById('sectionNavBtn');
+  const overlay = document.getElementById('sectionNavOverlay');
+  const closeBtn = document.getElementById('sectionNavClose');
+  const listEl = document.getElementById('sectionNavList');
+  if(!fab || !overlay || !closeBtn || !listEl) return;
+
+  sections.forEach((s,i)=>{
+    const eyebrowEl = s.querySelector('.eyebrow');
+    const label = eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'section-nav-item';
+    item.textContent = (i+1)+'. '+label;
+    item.addEventListener('click',()=>{
+      s.scrollIntoView({behavior:'smooth', block:'start'});
+      closeDialog();
+    });
+    listEl.appendChild(item);
+  });
+  const items = Array.from(listEl.children);
+
+  function activeIndex(){
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx = 0;
+    sections.forEach((s,i)=>{ if(s.getBoundingClientRect().top + window.scrollY <= y) idx = i; });
+    return idx;
+  }
+  let lastFocused = null;
+  function openDialog(){
+    lastFocused = document.activeElement;
+    items.forEach((it,i)=> it.classList.toggle('active', i===activeIndex()));
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+    document.addEventListener('keydown', onDialogKeydown);
+  }
+  function closeDialog(){
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onDialogKeydown);
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+  function onDialogKeydown(e){
+    if(e.key === 'Escape'){
+      e.preventDefault();
+      closeDialog();
+    } else if(e.key === 'Tab'){
+      const focusable = [closeBtn, ...items];
+      const first = focusable[0], last = focusable[focusable.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    }
+  }
+  fab.addEventListener('click', openDialog);
+  closeBtn.addEventListener('click', closeDialog);
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) closeDialog(); });
+})();
+
+/* ============ legend helper (HTML, di luar kanvas, interaktif) ============ */
+const seriesVisibility = {}; /* {legendId: [bool, bool, ...]} */
+function isSeriesVisible(legendId, idx){
+  if(!legendId) return true;
+  const arr = seriesVisibility[legendId];
+  return !arr || arr[idx] !== false;
+}
+function legendSwatchSVG(color, dashed){
+  const dash = dashed ? ' stroke-dasharray="4,3"' : '';
+  return '<svg class="legend-swatch" viewBox="0 0 22 10" aria-hidden="true"><line x1="1" y1="5" x2="21" y2="5" stroke="'+color+'" stroke-width="2.2"'+dash+' stroke-linecap="round"/></svg>';
+}
+function setLegend(id, items, onToggle){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(!seriesVisibility[id]) seriesVisibility[id] = items.map(function(){ return true; });
+  const state = seriesVisibility[id];
+  /* Pertahankan node checkbox: redraw tidak boleh menghilangkan fokus keyboard. */
+  if(el.children.length !== items.length){
+    const active = document.activeElement;
+    const focusIdx = el.contains(active) ? active.dataset.idx : undefined;
+    el.replaceChildren(...items.map(function(it, i){
+      const li = document.createElement('li');
+      li.className = 'legend-item';
+      li.innerHTML = '<label><input type="checkbox" data-idx="'+i+'">'+
+        '<span class="legend-mark" aria-hidden="true"></span><span class="legend-text"></span></label>';
+      return li;
+    }));
+    if(focusIdx !== undefined){
+      const replacement = el.querySelector('input[data-idx="'+focusIdx+'"]');
+      if(replacement) replacement.focus({preventScroll:true});
+    }
+  }
+  items.forEach(function(it, i){
+    const li = el.children[i], cb = li.querySelector('input');
+    cb.checked = state[i] !== false;
+    li.classList.toggle('is-off', !cb.checked);
+    li.querySelector('.legend-mark').innerHTML = legendSwatchSVG(it.color, it.dashed);
+    li.querySelector('.legend-text').textContent = it.label;
+    /* Satu handler aktif; callback terbaru mengikuti sistem/domain saat ini. */
+    cb.onchange = function(){
+      state[i] = cb.checked;
+      li.classList.toggle('is-off', !cb.checked);
+      if(onToggle) onToggle();
+    };
+  });
+}
+
+/* ============ canvas plotting helpers ============ */
+function setupCanvas(cv){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = cv.getBoundingClientRect();
+  cv.width = rect.width*dpr; cv.height = rect.height*dpr;
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx, w:rect.width, h:rect.height};
+}
+/* Format tampilan saja; rentang dan perhitungan numerik tetap presisi penuh. */
+function formatAxisNumber(value){
+  const numeric = Number(value);
+  if(!Number.isFinite(numeric)) return String(value);
+  return String(Number(numeric.toFixed(1))); /* Hapus nol desimal dan negatif nol. */
+}
+function drawAxes(ctx,w,h,pad,ax){
+  ax = ax || {};
+  ctx.strokeStyle = '#798178';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, h/2); ctx.lineTo(w-8, h/2);
+  ctx.moveTo(pad, 8); ctx.lineTo(pad, h-8);
+  ctx.stroke();
+  /* Nama/batas sumbu gelap dan tebal, tanpa bantalan latar. */
+  const fs = ax.font || 12;
+  ctx.font = '600 '+fs+'px "JetBrains Mono", "Courier New", monospace';
+  ctx.fillStyle = '#182019'; /* Kontras lokal untuk kertas grafik terang di kedua tema. */
+  if(ax.tmin!==undefined){
+    const labelY = h/2 + fs + 4;
+    ctx.textAlign='left';
+    ctx.fillText(formatAxisNumber(ax.tmin), pad, labelY);
+    ctx.textAlign='right';
+    ctx.fillText(formatAxisNumber(ax.tmax), w-4, labelY);
+    if(ax.vticks!==false && ax.vmax!==undefined){
+      const upper = Number(ax.vmax);
+      const lower = ax.vmin!==undefined ? Number(ax.vmin) : -upper;
+      ctx.textAlign='left';
+      ctx.fillText((upper>0?'+':'')+formatAxisNumber(upper), pad+4, 12);
+      ctx.fillText(formatAxisNumber(lower).replace('-', '−'), pad+4, h-12);
+    }
+    if(ax.xLabel){
+      ctx.textAlign='right';
+      ctx.fillText(ax.xLabel, w-4, labelY+fs+4);
+    }
+  }
+  if(ax.yLabel){
+    ctx.save();
+    ctx.translate(11, h/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center';
+    ctx.fillText(ax.yLabel, 0, 0);
+    ctx.restore();
+  }
+  ctx.textAlign='left';
+}
+function mapXY(t,val,tmin,tmax,vmin,vmax,w,h,pad){
+  const x = pad + (t-tmin)/(tmax-tmin)*(w-pad-10);
+  const y = h/2 - (val)/(vmax-vmin)*(h-24);
+  return [x,y];
+}
+function drawCT(cv, fn, tmin, tmax, vmax, opts){
+  opts = opts || {};
+  const setupRet = setupCanvas(cv);
+  const ctx = setupRet.ctx, w = setupRet.w, h = setupRet.h;
+  ctx.clearRect(0,0,w,h);
+  const pad=26;
+  drawAxes(ctx,w,h,pad,{tmin:tmin,tmax:tmax,vmax:vmax,xLabel:opts.xLabel||'t',yLabel:opts.yLabel||'x',font:opts.axFont||12});
+  ctx.strokeStyle = opts.color || '#096b4b';
+  ctx.lineWidth = opts.lw || 2;
+  if(opts.dashed) ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  let started=false;
+  const N=400;
+  for(let i=0;i<=N;i++){
+    const t = tmin + (tmax-tmin)*i/N;
+    const val = fn(t);
+    const xy = mapXY(t,val,tmin,tmax,-vmax,vmax,w,h,pad);
+    if(!started){ctx.moveTo(xy[0],xy[1]); started=true;} else ctx.lineTo(xy[0],xy[1]);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+function drawOverlayCT(cv, fnOrig, fnTrans, tmin, tmax, vmax, colorTrans, showTrans, labelOrig, labelTrans, ax){
+  const setupRet = setupCanvas(cv);
+  const ctx = setupRet.ctx, w = setupRet.w, h = setupRet.h;
+  ctx.clearRect(0,0,w,h);
+  const pad=22;
+  drawAxes(ctx,w,h,pad,ax||{tmin:tmin,tmax:tmax,vmax:vmax,xLabel:'t',yLabel:'x / y'});
+  const N=400;
+  const legendId = ax && ax.legendId;
+  if(isSeriesVisible(legendId,0)){
+    ctx.strokeStyle = '#59615a';
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    let started=false;
+    for(let i=0;i<=N;i++){
+      const t = tmin + (tmax-tmin)*i/N;
+      const xy = mapXY(t, fnOrig(t), tmin,tmax,-vmax,vmax,w,h,pad);
+      if(!started){ctx.moveTo(xy[0],xy[1]); started=true;} else ctx.lineTo(xy[0],xy[1]);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  if(showTrans !== false && isSeriesVisible(legendId,1)){
+    ctx.strokeStyle = colorTrans || '#096b4b';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    let started=false;
+    for(let i=0;i<=N;i++){
+      const t = tmin + (tmax-tmin)*i/N;
+      const xy = mapXY(t, fnTrans(t), tmin,tmax,-vmax,vmax,w,h,pad);
+      if(!started){ctx.moveTo(xy[0],xy[1]); started=true;} else ctx.lineTo(xy[0],xy[1]);
+    }
+    ctx.stroke();
+  }
+  if(legendId){
+    setLegend(legendId, [
+      {color:'#59615a', dashed:true, label: labelOrig || 'x(t) input'},
+      showTrans!==false ? {color: colorTrans || '#096b4b', dashed:false, label: labelTrans || 'y(t) output'} : null
+    ].filter(Boolean), ax.redraw);
+  }
+}
+function drawDTpair(cv, nArr, xArr, yArr, nmin, nmax, vmax, labelX, labelY, ax){
+  const setupRet = setupCanvas(cv);
+  const ctx = setupRet.ctx, w = setupRet.w, h = setupRet.h;
+  ctx.clearRect(0,0,w,h);
+  const pad=26;
+  drawAxes(ctx,w,h,pad, Object.assign({tmin:nmin,tmax:nmax,vmax:vmax,xLabel:'n',yLabel:'x / y'}, ax||{}));
+  const legendId = ax && ax.legendId;
+  const visX = isSeriesVisible(legendId,0), visY = isSeriesVisible(legendId,1);
+  for(let i=0;i<nArr.length;i++){
+    const n = nArr[i];
+    if(visX){
+      const xy0x = mapXY(n,0,nmin,nmax,-vmax,vmax,w,h,pad);
+      const xy1x = mapXY(n,xArr[i],nmin,nmax,-vmax,vmax,w,h,pad);
+      ctx.strokeStyle = '#59615a'; ctx.lineWidth = 1.4;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(xy0x[0],xy0x[1]); ctx.lineTo(xy1x[0],xy1x[1]); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    if(visY){
+      const xy0y = mapXY(n+0.12*(nmax-nmin)/nArr.length,0,nmin,nmax,-vmax,vmax,w,h,pad);
+      const xy1y = mapXY(n+0.12*(nmax-nmin)/nArr.length,yArr[i],nmin,nmax,-vmax,vmax,w,h,pad);
+      ctx.strokeStyle = '#0f6fa3'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(xy0y[0],xy0y[1]); ctx.lineTo(xy1y[0],xy1y[1]); ctx.stroke();
+      ctx.fillStyle = '#0f6fa3';
+      ctx.beginPath(); ctx.arc(xy1y[0],xy1y[1],2.6,0,7); ctx.fill();
+    }
+  }
+  if(legendId){
+    setLegend(legendId, [
+      {color:'#59615a', dashed:true, label: labelX || 'x (abu, putus-putus)'},
+      {color:'#0f6fa3', dashed:false, label: labelY || 'y (biru)'}
+    ], ax.redraw);
+  }
+}
+function renderTex(str){
+  try{ return katex.renderToString(str, {throwOnError:false}); }
+  catch(e){ return str; }
+}
+
+
+/* ============ 09B–09D: grafik keterbalikan (CT dan stem DT) ============ */
+const inversePlotDefs = {
+  s1:{min:-2,max:4,vmax:2.5,series:[
+    {label:'x(t)',color:'#59615a',dashed:true,fn:function(t){return Math.cos(Math.PI*t/2);}},
+    {label:'y(t) = 2x(t)',color:'#096b4b',fn:function(t){return 2*Math.cos(Math.PI*t/2);}}
+  ]},
+  s2:{min:-2,max:4,vmax:1.3,series:[
+    {label:'x_a(t)',color:'#59615a',dashed:true,fn:function(t){return Math.cos(Math.PI*t/2);}},
+    {label:'x_b(t) = −x_a(t)',color:'#0f6fa3',dashed:true,fn:function(t){return -Math.cos(Math.PI*t/2);}},
+    {label:'y_a(t) = y_b(t)',color:'#9c3d00',fn:function(t){const x=Math.cos(Math.PI*t/2);return x*x;}}
+  ]},
+  s3:{min:-2,max:4,vmax:1.3,series:[
+    {label:'x(t): puncak t=0',color:'#59615a',dashed:true,fn:function(t){return Math.max(1-Math.abs(t),0);}},
+    {label:'y(t): puncak t=2',color:'#096b4b',fn:function(t){return Math.max(1-Math.abs(t-2),0);}}
+  ]},
+  s4:{min:-2,max:2,vmax:1.3,series:[
+    {label:'x(t)',color:'#59615a',dashed:true,fn:function(t){return Math.max(1-Math.abs(t),0);}},
+    {label:'y(t): lebar separuh',color:'#096b4b',fn:function(t){return Math.max(1-Math.abs(2*t),0);}}
+  ]},
+  s5:{min:-4,max:4,vmax:1.3,discrete:true,series:[
+    {label:'x_a[n] = (−1)^n',color:'#59615a',dashed:true,fn:function(n){return Math.pow(-1,n);}},
+    {label:'x_b[n] = 0',color:'#0f6fa3',dashed:true,fn:function(){return 0;}},
+    {label:'y_a[n] = y_b[n] = 0',color:'#9c3d00',fn:function(){return 0;}}
+  ]},
+  s6:{min:-4,max:4,vmax:1.3,discrete:true,series:[
+    {label:'x_a[n] = δ[n]',color:'#59615a',dashed:true,fn:function(n){return n===0?1:0;}},
+    {label:'x_b[n] = 0',color:'#0f6fa3',dashed:true,fn:function(){return 0;}},
+    {label:'y_a[n] = y_b[n] = 0',color:'#9c3d00',fn:function(){return 0;}}
+  ]}
+};
+function drawInversePlot(cv){
+  const def=inversePlotDefs[cv.dataset.inverseSystem];
+  const legendId='inverseLegend'+cv.dataset.inverseSystem.toUpperCase();
+  const setup=setupCanvas(cv), ctx=setup.ctx, w=setup.w, h=setup.h, pad=30;
+  ctx.clearRect(0,0,w,h);
+  drawAxes(ctx,w,h,pad,{tmin:def.min,tmax:def.max,vmax:def.vmax,xLabel:def.discrete?'n':'t (s)',yLabel:'amplitudo',font:12});
+  def.series.forEach(function(series,index){
+    if(!isSeriesVisible(legendId,index)) return;
+    ctx.strokeStyle=series.color; ctx.fillStyle=series.color; ctx.lineWidth=2;
+    ctx.setLineDash(series.dashed?[4,3]:[]);
+    if(def.discrete){
+      for(let n=def.min;n<=def.max;n++){
+        const base=mapXY(n,0,def.min,def.max,-def.vmax,def.vmax,w,h,pad);
+        const point=mapXY(n,series.fn(n),def.min,def.max,-def.vmax,def.vmax,w,h,pad);
+        ctx.beginPath();ctx.moveTo(base[0],base[1]);ctx.lineTo(point[0],point[1]);ctx.stroke();
+        ctx.setLineDash([]);
+        /* Marker konsentris membedakan seri yang berhimpit; indeks tetap tepat. */
+        ctx.beginPath();ctx.arc(point[0],point[1],5-index,0,2*Math.PI);
+        if(series.dashed) ctx.stroke(); else ctx.fill();
+        ctx.setLineDash(series.dashed?[4,3]:[]);
+      }
+    } else {
+      ctx.beginPath();
+      for(let i=0;i<=480;i++){
+        const t=def.min+(def.max-def.min)*i/480;
+        const point=mapXY(t,series.fn(t),def.min,def.max,-def.vmax,def.vmax,w,h,pad);
+        if(i===0) ctx.moveTo(point[0],point[1]); else ctx.lineTo(point[0],point[1]);
+      }
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  });
+  setLegend(legendId,def.series,function(){drawInversePlot(cv);});
+}
+function renderInversePlots(){
+  document.querySelectorAll('.inverse-canvas').forEach(drawInversePlot);
+}
+
+/* ============ hook: gelombang suara asli vs linier vs distorsi ============ */
+function drawHook(){
+  const cv = document.getElementById('hookCanvas');
+  const r = setupCanvas(cv), ctx=r.ctx, w=r.w, h=r.h;
+  ctx.clearRect(0,0,w,h);
+  const pad=26, tmin=-2, tmax=2, vmax=2.6;
+  drawAxes(ctx,w,h,pad,{tmin:tmin,tmax:tmax,vmax:vmax,xLabel:'t (s)',yLabel:'x, y',font:12});
+  const input=function(t){return Math.sin(2*Math.PI*1.2*t);};
+  const series=[
+    {label:'x(t) — masukan',color:'#59615a',dashed:true,width:1.6,fn:input},
+    {label:'y(t)=2x(t) — penguat ideal',color:'#096b4b',width:1.8,fn:function(t){return 2*input(t);}},
+    {label:'y(t)=tanh(2x(t)) — distorsi',color:'#9c3d00',width:2,fn:function(t){return Math.tanh(2*input(t));}}
+  ];
+  /* Persamaan persis seperti keterangan; ketiga seri memakai pemetaan amplitudo yang sama. */
+  series.forEach(function(s,idx){
+    if(!isSeriesVisible('hookLegend',idx)) return;
+    ctx.strokeStyle=s.color; ctx.lineWidth=s.width;
+    ctx.setLineDash(s.dashed?[4,4]:[]); ctx.beginPath();
+    for(let i=0;i<=500;i++){
+      const t=tmin+(tmax-tmin)*i/500;
+      const xy=mapXY(t,s.fn(t),tmin,tmax,-vmax,vmax,w,h,pad);
+      if(i===0) ctx.moveTo(xy[0],xy[1]); else ctx.lineTo(xy[0],xy[1]);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  });
+  setLegend('hookLegend',series,drawHook);
+}
+
+/* ============ konsep: pilihan ilustrasi saluran, domain dan memori ============ */
+const conceptModeVisibility={channel:{},domain:{},memory:{}};
+function conceptLegendState(group,mode,legendId,count){
+  if(!conceptModeVisibility[group])conceptModeVisibility[group]={};
+  const cache=conceptModeVisibility[group];
+  if(!cache[mode]) cache[mode]=Array(count).fill(true);
+  seriesVisibility[legendId]=cache[mode]; /* Visibilitas terpisah untuk tiap kategori. */
+}
+function conceptBlock(id,inputs,outputs,block){
+  const positions=function(n){return n===1?[32]:[16,48];};
+  let svg='<svg viewBox="0 0 320 64" role="img" aria-label="'+inputs.join(', ')+' menuju '+block+' menuju '+outputs.join(', ')+'">';
+  svg+='<rect x="99" y="8" width="122" height="48" rx="6" fill="none" stroke="currentColor"/><text x="160" y="36" text-anchor="middle">'+block+'</text>';
+  inputs.forEach(function(label,i){
+    const y=positions(inputs.length)[i];
+    svg+='<text x="3" y="'+(y+4)+'">'+label+'</text><path d="M60 '+y+'H99 m-6 -4 6 4 -6 4" fill="none" stroke="currentColor"/>';
+  });
+  outputs.forEach(function(label,i){
+    const y=positions(outputs.length)[i];
+    svg+='<path d="M221 '+y+'H266 m-6 -4 6 4 -6 4" fill="none" stroke="currentColor"/><text x="270" y="'+(y+4)+'">'+label+'</text>';
+  });
+  document.getElementById(id).innerHTML=svg+'</svg>';
+}
+function drawConceptGraph(cv,def,legendId){
+  const r=setupCanvas(cv),ctx=r.ctx,w=r.w,h=r.h,pad=26;
+  ctx.clearRect(0,0,w,h);
+  drawAxes(ctx,w,h,pad,{tmin:def.min,tmax:def.max,vmax:def.vmax,xLabel:def.axis,yLabel:def.yAxis||'x, y',font:10});
+  def.series.forEach(function(s,index){
+    if(!isSeriesVisible(legendId,index)) return;
+    ctx.strokeStyle=s.color;ctx.lineWidth=s.dashed?1.5:2;
+    ctx.setLineDash(s.dashed?[4,3]:[]);
+    if(s.discrete){
+      for(let n=s.nmin;n<=s.nmax;n++){
+        const t=s.time?s.time(n):n;
+        const base=mapXY(t,0,def.min,def.max,-def.vmax,def.vmax,w,h,pad);
+        const point=mapXY(t,s.fn(n),def.min,def.max,-def.vmax,def.vmax,w,h,pad);
+        ctx.beginPath();ctx.moveTo(base[0],base[1]);ctx.lineTo(point[0],point[1]);ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath();ctx.arc(point[0],point[1],s.dashed?3.6:2.2,0,Math.PI*2);
+        if(s.dashed){ctx.stroke();}else{ctx.fillStyle=s.color;ctx.fill();}
+        ctx.setLineDash(s.dashed?[4,3]:[]);
+      }
+    }else{
+      ctx.beginPath();
+      for(let i=0;i<=400;i++){
+        const t=def.min+(def.max-def.min)*i/400;
+        const p=mapXY(t,s.fn(t),def.min,def.max,-def.vmax,def.vmax,w,h,pad);
+        if(i===0)ctx.moveTo(p[0],p[1]);else ctx.lineTo(p[0],p[1]);
+      }
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  });
+  if(legendId) setLegend(legendId,def.series,def.redraw||renderConceptPlots);
+}
+function conceptChannelDef(mode){
+  const x=function(t){return Math.sin(Math.PI*t/2);};
+  const z=function(t){return Math.cos(Math.PI*t/2);};
+  const multipleIn=mode==='miso'||mode==='mimo',multipleOut=mode==='simo'||mode==='mimo';
+  const series=[{label:multipleIn?'x1(t)':'x(t)',color:'#59615a',dashed:true,fn:x}];
+  if(multipleIn)series.push({label:'x2(t)',color:'#123b63',dashed:true,fn:z});
+  if(mode==='siso'||mode==='simo')series.push({label:multipleOut?'y1(t)=2x(t)':'y(t)=2x(t)',color:'#096b4b',fn:function(t){return 2*x(t);}});
+  else series.push({label:multipleOut?'y1(t)=x1(t)+x2(t)':'y(t)=x1(t)+x2(t)',color:'#096b4b',fn:function(t){return x(t)+z(t);}});
+  if(multipleOut)series.push({label:mode==='simo'?'y2(t)=-x(t)':'y2(t)=x1(t)-x2(t)',color:'#9c3d00',fn:mode==='simo'?function(t){return -x(t);}:function(t){return x(t)-z(t);}});
+  return {min:-2,max:4,vmax:2.6,axis:'t',series:series,inputs:multipleIn?['x1(t)','x2(t)']:['x(t)'],outputs:multipleOut?['y1(t)','y2(t)']:['y(t)']};
+}
+function conceptDomainDef(mode){
+  const x=function(t){return Math.sin(Math.PI*t/2);};
+  if(mode==='ct')return {min:-.5,max:4,vmax:2.6,axis:'t (s)',series:[
+    {label:'x(t) — kontinu',color:'#59615a',dashed:true,fn:x},
+    {label:'y(t)=2x(t) — kontinu',color:'#096b4b',fn:function(t){return 2*x(t);}}]};
+  if(mode==='dt')return {min:-1,max:8,vmax:2.6,axis:'n',series:[
+    {label:'x[n] — diskrit',color:'#59615a',dashed:true,discrete:true,nmin:0,nmax:8,fn:function(n){return x(n/2);}},
+    {label:'y[n]=2x[n] — diskrit',color:'#096b4b',discrete:true,nmin:0,nmax:8,fn:function(n){return 2*x(n/2);}}]};
+  return {min:-.5,max:4,vmax:1.3,axis:'t=nTs (s)',series:[
+    {label:'xa(t) — kontinu',color:'#59615a',dashed:true,fn:x},
+    {label:'y[n] — sampel terkuantisasi',color:'#096b4b',discrete:true,nmin:0,nmax:8,time:function(n){return n/2;},fn:function(n){return Math.round(x(n/2)/.5)*.5;}}]};
+}
+function conceptMemoryDef(mode){
+  const x=function(n){return n===0||n===1?1:0;};
+  return {min:-2,max:4,vmax:2.6,axis:'n',series:[
+    {label:'x[n] — pulsa',color:'#59615a',dashed:true,discrete:true,nmin:-2,nmax:4,fn:x},
+    {label:mode==='static'?'y[n]=2x[n]':'y[n]=x[n]+x[n-1]',color:'#096b4b',discrete:true,nmin:-2,nmax:4,fn:mode==='static'?function(n){return 2*x(n);}:function(n){return x(n)+x(n-1);}}]};
+}
+function renderConceptPlots(){
+  const channel=document.getElementById('channelSelect').value;
+  const cd=conceptChannelDef(channel);
+  conceptLegendState('channel',channel,'channelLegend',cd.series.length);
+  conceptBlock('channelDiagram',cd.inputs,cd.outputs,'S');
+  drawConceptGraph(document.getElementById('channelCanvas'),cd,'channelLegend');
+  const channelText={
+    siso:['y(t)=2x(t)','Satu masukan, satu keluaran; contoh penguat.'],
+    simo:['\\begin{aligned}y_1(t)&=2x(t)\\\\y_2(t)&=-x(t)\\end{aligned}','Satu masukan, beberapa keluaran; contoh satu sensor ke penampil dan pencatat.'],
+    miso:['y(t)=x_1(t)+x_2(t)','Beberapa masukan, satu keluaran; contoh pencampur audio.'],
+    mimo:['\\begin{aligned}y_1(t)&=x_1(t)+x_2(t)\\\\y_2(t)&=x_1(t)-x_2(t)\\end{aligned}','Beberapa masukan dan keluaran; contoh sistem antena ganda.']
+  };
+  document.getElementById('f-siso').innerHTML=renderTex(channelText[channel][0]);
+  document.getElementById('channelCopy').textContent=channelText[channel][1];
+  document.getElementById('channelCanvas').setAttribute('aria-label','Ilustrasi '+channel.toUpperCase()+': '+cd.inputs.length+' masukan, '+cd.outputs.length+' keluaran');
+  const domain=document.getElementById('domainSelect').value,dd=conceptDomainDef(domain);
+  conceptLegendState('domain',domain,'hybridLegend',dd.series.length);
+  conceptBlock('domainDiagram',[domain==='ct'?'x(t)':domain==='dt'?'x[n]':'xa(t)'],[domain==='ct'?'y(t)':'y[n]'],domain==='hybrid'?'ADC: sampel + Q':'S');
+  drawConceptGraph(document.getElementById('domainCanvas'),dd,'hybridLegend');
+  const domainText={
+    ct:['y(t)=2x(t)','Masukan dan keluaran waktu kontinu: kurva dapat dievaluasi pada setiap t. Contoh penguat analog.'],
+    dt:['y[n]=2x[n]','Masukan dan keluaran waktu diskrit: hanya indeks bulat n. Titik tidak dihubungkan menjadi kurva kontinu. Contoh penguat digital.'],
+    hybrid:['y[n]=Q_{0.5}\\{x_a(nT_s)\\}','ADC mengubah kontinu ke diskrit: sampling setiap Ts=0,5 s dan kuantisasi amplitudo ke kelipatan 0,5 terdekat. Posisi titik t=nTs; keluarannya tetap urutan diskrit y[n].']
+  };
+  document.getElementById('domainFormula').innerHTML=renderTex(domainText[domain][0]);
+  document.getElementById('domainCopy').textContent=domainText[domain][1];
+  document.getElementById('domainCanvas').setAttribute('aria-label','Ilustrasi domain '+domain+': '+domainText[domain][1]);
+  const memory=document.getElementById('memorySelect').value,md=conceptMemoryDef(memory);
+  conceptLegendState('memory',memory,'memoryLegend',md.series.length);
+  drawConceptGraph(document.getElementById('memoryCanvas'),md,'memoryLegend');
+  document.getElementById('f-memory').innerHTML=renderTex(memory==='static'?'y[n]=2x[n]':'y[n]=x[n]+x[n-1]');
+  document.getElementById('memoryCopy').textContent=memory==='static'?
+    'Statis: keluaran pada n hanya memakai masukan pada n. Setelah pulsa berakhir, y[2]=0.':
+    'Dinamis: keluaran pada n juga memakai x[n−1]. Pulsa berakhir pada n=1, tetapi y[2]=1 karena x[1]=1. Pada n=3, keluaran kembali nol.';
+  document.getElementById('memoryCanvas').setAttribute('aria-label','Masukan pulsa dan keluaran sistem '+(memory==='static'?'statis tanpa memori':'dinamis dengan memori satu sampel'));
+}
+['channelSelect','domainSelect','memorySelect'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',renderConceptPlots);
+});
+
+/* ============ 03–03C: ilustrasi empat sifat, bukan bukti universal ============ */
+function propertyLinearDef(mode,test){
+  const x=function(t){return Math.sin(Math.PI*t/2);},z=function(t){return Math.cos(Math.PI*t/2);};
+  const S=mode==='pass'?function(v){return 2*v;}:function(v){return v*v;};
+  const homogeneityScale=3;
+  const vmax=test==='homogeneity'?10.8:3.4;
+  const lhsInputFn=function(t){return test==='homogeneity'?x(t):x(t)+z(t);};
+  const scaledX1Fn=function(t){return homogeneityScale*x(t);};
+  const sx1Fn=function(t){return S(x(t));};
+  const sx2Fn=function(t){return S(z(t));};
+  const lhsFn=function(t){return S(test==='homogeneity'?homogeneityScale*x(t):x(t)+z(t));};
+  const rhsFn=function(t){return test==='homogeneity'?homogeneityScale*S(x(t)):S(x(t))+S(z(t));};
+  const lhsSeries=test==='homogeneity'?[
+    {label:'x₁(t)',color:'#59615a',dashed:true,fn:x},
+    {label:'3x₁(t)',color:'#9c3d00',dashed:true,fn:scaledX1Fn},
+    {label:'LHS = S{3x₁}',color:'#123b63',fn:lhsFn}
+  ]:[
+    {label:'x₁(t)',color:'#59615a',dashed:true,fn:x},
+    {label:'x₂(t)',color:'#9c3d00',dashed:true,fn:z},
+    {label:'x₁(t)+x₂(t)',color:'#6f4b8b',dashed:true,fn:lhsInputFn},
+    {label:'LHS = S{x₁+x₂}',color:'#123b63',fn:lhsFn}
+  ];
+  const rhsSeries=test==='homogeneity'?[
+    {label:'x₁(t)',color:'#59615a',dashed:true,fn:x},
+    {label:'S{x₁}',color:'#123b63',dashed:true,fn:sx1Fn},
+    {label:'RHS = 3S{x₁}',color:'#096b4b',fn:rhsFn}
+  ]:[
+    {label:'x₁(t)',color:'#59615a',dashed:true,fn:x},
+    {label:'x₂(t)',color:'#9c3d00',dashed:true,fn:z},
+    {label:'S{x₁}',color:'#123b63',dashed:true,fn:sx1Fn},
+    {label:'S{x₂}',color:'#6f4b8b',dashed:true,fn:sx2Fn},
+    {label:'RHS = S{x₁}+S{x₂}',color:'#096b4b',fn:rhsFn}
+  ];
+  return {
+    lhs:{min:-2,max:4,vmax:vmax,axis:'t',yAxis:'amplitudo',redraw:renderPropertyPlots,series:lhsSeries},
+    rhs:{min:-2,max:4,vmax:vmax,axis:'t',yAxis:'amplitudo',redraw:renderPropertyPlots,series:rhsSeries}
+  };
+}
+function propertyTiDef(mode){
+  const x=function(n){return n===0||n===1?1:0;};
+  const S=function(n,v){return mode==='pass'?2*v:n*v;};
+  const shiftedX=function(n){return x(n-2);};
+  const y=function(n){return S(n,x(n));};
+  return {
+    lhs:{min:-2,max:6,vmax:3.6,axis:'n',yAxis:'amplitudo',redraw:renderPropertyPlots,series:[
+      {label:'x[n]',color:'#59615a',dashed:true,discrete:true,nmin:-2,nmax:6,fn:x},
+      {label:'x[n−2]',color:'#9c3d00',dashed:true,discrete:true,nmin:-2,nmax:6,fn:shiftedX},
+      {label:'LHS = S{x[n−2]}',color:'#123b63',discrete:true,nmin:-2,nmax:6,fn:function(n){return S(n,shiftedX(n));}}
+    ]},
+    rhs:{min:-2,max:6,vmax:3.6,axis:'n',yAxis:'amplitudo',redraw:renderPropertyPlots,series:[
+      {label:'x[n]',color:'#59615a',dashed:true,discrete:true,nmin:-2,nmax:6,fn:x},
+      {label:'y[n] = S{x[n]}',color:'#9c3d00',dashed:true,discrete:true,nmin:-2,nmax:6,fn:y},
+      {label:'RHS = y[n−2]',color:'#096b4b',discrete:true,nmin:-2,nmax:6,fn:function(n){return y(n-2);}}
+    ]}
+  };
+}
+function propertyCausalDef(mode){
+  const a=function(){return 0;},b=function(t){return Math.max(1-2*Math.abs(t-1),0);};
+  return {min:-1,max:2,vmax:2.6,axis:'t',redraw:renderPropertyPlots,series:[
+    {label:'xa(t)=0',color:'#59615a',dashed:true,fn:a},
+    {label:'xb(t) — masa depan',color:'#123b63',dashed:true,fn:b},
+    {label:'ya(t)=0',color:'#096b4b',dashed:true,fn:a},
+    {label:'yb(t)',color:'#9c3d00',fn:mode==='pass'?function(t){return 2*b(t);}:function(t){return b(t+1);}}
+  ]};
+}
+function propertyStableDef(mode,N){
+  return {min:0,max:N,vmax:mode==='pass'?2.6:N*1.2,axis:'n',redraw:renderPropertyPlots,series:[
+    {label:'x[n]=1',color:'#59615a',dashed:true,discrete:true,nmin:0,nmax:N,fn:function(){return 1;}},
+    {label:mode==='pass'?'y[n]=2':'y[n]=n',color:'#096b4b',discrete:true,nmin:0,nmax:N,fn:mode==='pass'?function(){return 2;}:function(n){return n;}}
+  ]};
+}
+function renderPropertyPlots(){
+  const mode=document.getElementById('linearSystem').value,test=document.getElementById('linearTest').value;
+  const linear=propertyLinearDef(mode,test);
+  const linearStateKey=mode+'-'+test;
+  conceptLegendState('propertyLinearLhs',linearStateKey,'linearLhsLegend',linear.lhs.series.length);
+  conceptLegendState('propertyLinearRhs',linearStateKey,'linearRhsLegend',linear.rhs.series.length);
+  drawConceptGraph(document.getElementById('linearLhsCanvas'),linear.lhs,'linearLhsLegend');
+  drawConceptGraph(document.getElementById('linearRhsCanvas'),linear.rhs,'linearRhsLegend');
+  document.getElementById('linearLhsFormula').innerHTML=renderTex(test==='homogeneity'?'\\mathrm{LHS}=S\\{3x_1\\}':'\\mathrm{LHS}=S\\{x_1+x_2\\}');
+  document.getElementById('linearRhsFormula').innerHTML=renderTex(test==='homogeneity'?'\\mathrm{RHS}=3S\\{x_1\\}':'\\mathrm{RHS}=S\\{x_1\\}+S\\{x_2\\}');
+  document.getElementById('linearLhsPath').textContent=test==='homogeneity'?'(kalikan lalu proses)':'(jumlahkan lalu proses)';
+  document.getElementById('linearRhsPath').textContent=test==='homogeneity'?'(proses lalu kalikan)':'(proses lalu jumlahkan)';
+  const linearOperator=document.getElementById('linearCompareOperator');
+  linearOperator.textContent=mode==='pass'?'=':'≠';
+  linearOperator.classList.toggle('is-different',mode!=='pass');
+  document.getElementById('linearEquation').innerHTML=renderTex('y(t)='+ (mode==='pass'?'2x(t)':'x^2(t)')+'\\quad x_1(t)=\\sin(\\pi t/2)\\quad x_2(t)=\\cos(\\pi t/2)');
+  const linearResult=document.getElementById('linearResult');
+  linearResult.classList.toggle('is-different',mode!=='pass');
+  linearResult.innerHTML=mode==='pass'?
+    '<b>LHS = RHS pada skenario ini.</b> Untuk penguat 2x, persamaan definisi menunjukkan identitas berlaku untuk semua masukan; kedua grafik hanya memvisualkan '+(test==='homogeneity'?'penskalaan a=3.':'penjumlahan dua masukan.'):
+    test==='homogeneity'?'<b>LHS ≠ RHS.</b> Pada t=1, S{3x₁}=9, sedangkan 3S{x₁}=3. Satu contoh gagal menggugurkan homogenitas dan linearitas.':
+    '<b>LHS ≠ RHS.</b> Pada t=0,5, S{x₁+x₂}=2, sedangkan S{x₁}+S{x₂}=1. Satu contoh gagal menggugurkan aditivitas dan linearitas.';
+  const tiMode=document.getElementById('tiSystem').value,ti=propertyTiDef(tiMode);
+  conceptLegendState('propertyTiLhs',tiMode,'tiLhsLegend',ti.lhs.series.length);
+  conceptLegendState('propertyTiRhs',tiMode,'tiRhsLegend',ti.rhs.series.length);
+  drawConceptGraph(document.getElementById('tiLhsCanvas'),ti.lhs,'tiLhsLegend');
+  drawConceptGraph(document.getElementById('tiRhsCanvas'),ti.rhs,'tiRhsLegend');
+  document.getElementById('tiLhsFormula').innerHTML=renderTex('\\mathrm{LHS}=S\\{x[n-2]\\}');
+  document.getElementById('tiRhsFormula').innerHTML=renderTex('\\mathrm{RHS}=y[n-2]');
+  const tiOperator=document.getElementById('tiCompareOperator');
+  tiOperator.textContent=tiMode==='pass'?'=':'≠';
+  tiOperator.classList.toggle('is-different',tiMode!=='pass');
+  document.getElementById('tiEquation').innerHTML=renderTex('x[n]=\\begin{cases}1,&n\\in\\{0,1\\}\\\\0,&\\text{lainnya}\\end{cases}\\qquad n_0=2');
+  const tiResult=document.getElementById('tiResult');
+  tiResult.classList.toggle('is-different',tiMode!=='pass');
+  tiResult.innerHTML=tiMode==='pass'?
+    '<b>LHS = RHS pada skenario ini.</b> Secara analitis, penguat konstan memenuhi invariansi waktu untuk semua pergeseran.':
+    '<b>LHS ≠ RHS.</b> Pada n=2, LHS memberi 2 sedangkan RHS memberi 0. Satu <em>counterexample</em> cukup untuk menyatakan sistem berubah terhadap waktu (<em>time-varying</em>).';
+  const causalMode=document.getElementById('causalSystem').value,causal=propertyCausalDef(causalMode);
+  conceptLegendState('propertyCausal',causalMode,'causalLegend',4);
+  const cv=document.getElementById('causalCanvas');
+  drawConceptGraph(cv,causal,'causalLegend');
+  const ctx=cv.getContext('2d'),w=cv.getBoundingClientRect().width,h=cv.getBoundingClientRect().height;
+  const px=mapXY(0,0,causal.min,causal.max,-causal.vmax,causal.vmax,w,h,26)[0];
+  ctx.strokeStyle='#59615a';ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(px,12);ctx.lineTo(px,h-12);ctx.stroke();ctx.setLineDash([]);
+  ctx.font='600 10px "JetBrains Mono",monospace';ctx.fillStyle='#182019';ctx.fillText('t0=0',px+4,16);
+  document.getElementById('causalEquation').innerHTML=renderTex('y(t)='+ (causalMode==='pass'?'2x(t)':'x(t+1)'));
+  document.getElementById('causalResult').textContent=causalMode==='pass'?
+    'Pada t0=0, ya(0)=yb(0)=0. Perubahan masukan di masa depan tidak mengubah keluaran saat ini. Penguat 2x hanya memakai masukan saat yang sama.':
+    'Pada t0=0, ya(0)=0 tetapi yb(0)=xb(1)=1. Masukan berbeda hanya di masa depan, namun keluaran saat ini berbeda: sistem nonkausal.';
+  const stableMode=document.getElementById('stableSystem').value,N=Number(document.getElementById('stableHorizon').value);
+  const stable=propertyStableDef(stableMode,N);
+  conceptLegendState('propertyStable',stableMode,'stableLegend',2);
+  drawConceptGraph(document.getElementById('stableCanvas'),stable,'stableLegend');
+  document.getElementById('stableHorizonValue').textContent=N;
+  document.getElementById('stableEquation').innerHTML=renderTex('x[n]=1,\\qquad y[n]='+ (stableMode==='pass'?'2':'n'));
+  document.getElementById('stableResult').textContent=stableMode==='pass'?
+    'Dalam jendela ini maksimum |y|=2. Secara umum, |x|≤Mx memberi |y|≤2Mx; jadi penguat ini stabil BIBO.':
+    'Dalam jendela 0 sampai '+N+', maksimum |y|='+N+'. Memperbesar N memperlihatkan pertumbuhan; karena y[n]=n tanpa batas atas, sistem tidak stabil BIBO. Skala sumbu mengikuti N, bukan normalisasi data.';
+  [['linearLhsCanvas','ruas kiri '+(mode==='pass'?'contoh linear':'contoh nonlinear')+'. Kurva: '+linear.lhs.series.map(function(s){return s.label;}).join(', ')],
+   ['linearRhsCanvas','ruas kanan '+(mode==='pass'?'contoh linear':'contoh nonlinear')+'. Kurva: '+linear.rhs.series.map(function(s){return s.label;}).join(', ')],
+   ['tiLhsCanvas','ruas kiri '+(tiMode==='pass'?'invarian waktu':'tidak invarian waktu')+'. Kurva: '+ti.lhs.series.map(function(s){return s.label;}).join(', ')],
+   ['tiRhsCanvas','ruas kanan '+(tiMode==='pass'?'invarian waktu':'tidak invarian waktu')+'. Kurva: '+ti.rhs.series.map(function(s){return s.label;}).join(', ')],
+   ['causalCanvas',causalMode==='pass'?'kausal':'nonkausal'],
+   ['stableCanvas',stableMode==='pass'?'stabil BIBO':'tidak stabil BIBO']].forEach(function(pair){
+    document.getElementById(pair[0]).setAttribute('aria-label','Grafik '+pair[1]+'. '+document.getElementById(pair[0]).closest('.prop-card').querySelector('.card-copy').textContent);
+  });
+}
+['linearSystem','linearTest','tiSystem','causalSystem','stableSystem'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',renderPropertyPlots);
+});
+document.getElementById('stableHorizon').addEventListener('input',renderPropertyPlots);
+/* ============ SYSTEM TESTER ============ */
+const INPUTS = {
+  sin:   { label:'sinusoidal',    fn:function(t,A){ return A*Math.cos(2*Math.PI*0.25*t); } },
+  pulse: { label:'pulsa persegi', fn:function(t,A){ return (Math.abs(t)<1 ? A : 0); } },
+  step:  { label:'step',          fn:function(t,A){ return (t>=0 ? A : 0); } },
+  ramp:  { label:'ramp (kausal)', fn:function(t,A){ return (t>=0 ? A*t*0.5 : 0); } }
+};
+function inputSignalTex(inputKey, A, isDT){
+  const v = isDT ? 'n' : 't';
+  const lhs = isDT ? 'x['+v+']' : 'x('+v+')';
+  const As = A.toFixed(1);
+  const u = isDT ? 'u['+v+']' : 'u('+v+')';
+  switch(inputKey){
+    case 'sin':   return lhs+' = '+As+'\\cos\\!\\left(\\tfrac{\\pi}{2}'+v+'\\right)';
+    case 'pulse': return lhs+' = \\begin{cases}'+As+' & |'+v+'|<1\\\\[2pt] 0 & \\text{lainnya}\\end{cases}';
+    case 'step':  return lhs+' = '+As+'\\,'+u;
+    case 'ramp':  return lhs+' = 0.5\\cdot'+As+'\\cdot '+v+'\\,'+u;
+    default: return '';
+  }
+}
+/* Setiap sistem: apply(x,t) untuk CT memakai t kontinu; untuk DT memakai n diskrit.
+   Tabel sifat: L (linier), TI, K (kausal), S (stabil BIBO), M (statis/tanpa memori).
+   L & TI diverifikasi numerik saat runtime (uji superposisi & uji geser); K/S/M dari definisi. */
+const SYSTEMS = {
+  s1: { domain:'CT', tex:'y(t) = 2\\,x(t)',
+        apply:function(x,t){ return 2*x; },
+        props:{L:true, TI:true, K:true, S:true, M:true},
+        note:'Penguat ideal — acuan sistem LTI.' },
+  s2: { domain:'CT', tex:'y(t) = x^2(t)',
+        apply:function(x,t){ return x*x; },
+        props:{L:false, TI:true, K:true, S:true, M:true},
+        note:'Nonlinier (gagal uji superposisi), sisanya "baik-baik saja". Stabil untuk input terbatas.' },
+  s3: { domain:'CT', tex:'y(t) = x(t-2)',
+        apply:function(x,t,getX){ return getX(t-2); },
+        needsSignal:true,
+        props:{L:true, TI:true, K:true, S:true, M:false},
+        note:'Tundaan murni 2 detik — LTI dengan memori (mengingat masa lalu).' },
+  s4: { domain:'CT', tex:'y(t) = x(2t)',
+        apply:function(x,t,getX){ return getX(2*t); },
+        needsSignal:true,
+        props:{L:true, TI:false, K:false, S:true, M:false},
+        note:'Penskalaan waktu — linier tapi <em>time-varying</em> DAN non-kausal (butuh masa depan saat t>0).' },
+  s5: { domain:'DT', tex:'y[n] = x[n] + x[n-1]',
+        applyDT:function(xArr,i){ return xArr[i] + (i>0 ? xArr[i-1] : 0); },
+        props:{L:true, TI:true, K:true, S:true, M:false},
+        note:'Jumlah berjalan 2-tap (<em>moving average</em> tanpa normalisasi) — filter LTI kausal paling sederhana.' },
+  s6: { domain:'DT', tex:'y[n] = n\\cdot x[n]',
+        applyDT:function(xArr,i,nArr){ return nArr[i]*xArr[i]; },
+        props:{L:true, TI:false, K:true, S:false, M:true},
+        note:'Penguatan membesar terhadap n — linier & kausal, tapi <em>time-varying</em> dan TIDAK stabil.' }
+};
+
+const sysSelect = document.getElementById('sysSelect');
+const inSelect = document.getElementById('inSelect');
+const ampSlider = document.getElementById('ampSlider');
+const shiftSlider = document.getElementById('shiftSlider');
+
+/* Sampel sinyal input pada grid t (untuk sistem CT yang butuh getX, interpolasi linier). */
+function makeSignalCT(inputKey, A, tmin, tmax, N){
+  const fn = INPUTS[inputKey].fn;
+  const ts = [], xs = [];
+  for(let i=0;i<=N;i++){
+    const t = tmin + (tmax-tmin)*i/N;
+    ts.push(t); xs.push(fn(t,A));
+  }
+  function getX(t){
+    if(t<=ts[0]) return xs[0];
+    if(t>=ts[N]) return xs[N];
+    const u = (t-tmin)/(tmax-tmin)*N;
+    const i0 = Math.floor(u), f = u-i0;
+    return xs[i0]*(1-f)+xs[Math.min(i0+1,N)]*f;
+  }
+  return {ts:ts, xs:xs, getX:getX};
+}
+function maxAbsDiff(a,b){
+  let m=0;
+  for(let i=0;i<a.length;i++){ m=Math.max(m,Math.abs(a[i]-b[i])); }
+  return m;
+}
+/* Uji linearitas numerik: S{a·x1+b·x2} vs a·S{x1}+b·S{x2}, x1=sinus, x2=pulsa. */
+function numericLinearity(sys){
+  const a=1.7, b=-0.6;
+  if(sys.domain==='CT'){
+    const g1=makeSignalCT('sin',1.2,-6,6,1200), g2=makeSignalCT('pulse',1.0,-6,6,1200);
+    const lhs=[], rhs=[];
+    for(let i=0;i<g1.ts.length;i++){
+      const t=g1.ts[i];
+      const x1=g1.xs[i], x2=g2.xs[i];
+      let yL, yR;
+      if(sys.needsSignal){
+        const getC=function(tt){ return a*g1.getX(tt)+b*g2.getX(tt); };
+        yL=sys.apply(0,t,getC);
+        yR=a*sys.apply(0,t,g1.getX)+b*sys.apply(0,t,g2.getX);
+      } else {
+        yL=sys.apply(a*x1+b*x2,t);
+        yR=a*sys.apply(x1,t)+b*sys.apply(x2,t);
+      }
+      lhs.push(yL); rhs.push(yR);
+    }
+    return maxAbsDiff(lhs,rhs);
+  } else {
+    const n=[], x1=[], x2=[];
+    for(let k=-8;k<=12;k++){ n.push(k); x1.push(Math.sin(Math.PI*0.5*k)); x2.push(Math.abs(k)<2?1:0); }
+    const lhs=[], rhs=[];
+    for(let i=0;i<n.length;i++){
+      const xc=x1.map(function(v,j){return a*v+b*x2[j];});
+      lhs.push(sys.applyDT(xc,i,n));
+      rhs.push(a*sys.applyDT(x1,i,n)+b*sys.applyDT(x2,i,n));
+    }
+    return maxAbsDiff(lhs,rhs);
+  }
+}
+/* Uji TI numerik: S{x(t−t0)} vs y(t−t0), input = sinyal terpilih, geser = slider.
+   Sumber dibuat LEBIH LEBAR ([-10,10]) dari interval evaluasi ([-6,6]) dan galat
+   hanya dihitung pada interval interior — supaya efek tepi ekstrapolasi tidak
+   mencemari hasil. Skenario default: input sinusoidal, t0=1 (non-kebetulan). */
+function numericTI(sys, inputKey, A, shift){
+  if(sys.domain==='CT'){
+    const g=makeSignalCT(inputKey,A,-22,22,2200);
+    const tmin=-6, tmax=6;
+    const ts=g.ts.filter(function(t){return t>=tmin && t<=tmax;});
+    const lhs=[], rhs=[];
+    for(let i=0;i<ts.length;i++){
+      const t=ts[i];
+      const getShifted=function(tt){ return g.getX(tt-shift); };
+      let yL, yS;
+      if(sys.needsSignal){
+        yL=sys.apply(0,t,getShifted);
+        yS=sys.apply(0,t-shift,g.getX);
+      } else {
+        yL=sys.apply(g.getX(t-shift),t);
+        yS=sys.apply(g.getX(t-shift),t-shift);
+      }
+      lhs.push(yL); rhs.push(yS);
+    }
+    return maxAbsDiff(lhs,rhs);
+  } else {
+    const n0=Math.round(shift);
+    const n=[], x=[];
+    for(let k=-8;k<=16;k++){ n.push(k); x.push(INPUTS[inputKey].fn(k,A)); }
+    const getXS=function(kk){
+      const idx=n.indexOf(kk);
+      return idx>=0 ? x[idx] : 0;
+    };
+    const lhs=[], rhs=[];
+    for(let i=0;i<n.length;i++){
+      const xs=x.map(function(v,j){return getXS(n[j]-n0);});
+      lhs.push(sys.applyDT(xs,i,n));
+      const yFull=x.map(function(v,j){return sys.applyDT(x,j,n);});
+      const idx2=n.indexOf(n[i]-n0);
+      rhs.push(idx2>=0 ? yFull[idx2] : 0);
+    }
+    return maxAbsDiff(lhs,rhs);
+  }
+}
+
+function updateSystemTester(){
+  const sysKey = sysSelect.value;
+  const sys = SYSTEMS[sysKey];
+  const inputKey = inSelect.value;
+  const A = parseFloat(ampSlider.value);
+  const isDT = sys.domain==='DT';
+  shiftSlider.min = isDT ? '1' : '0.5';
+  shiftSlider.step = isDT ? '1' : '0.5';
+  if(parseFloat(shiftSlider.value) < parseFloat(shiftSlider.min)) shiftSlider.value = shiftSlider.min;
+  const shift = parseFloat(shiftSlider.value);
+  const shiftTxt = isDT ? ('n₀ = '+Math.round(shift)) : ('t₀ = '+shift.toFixed(1));
+  document.getElementById('ampVal').textContent = A.toFixed(1);
+  document.getElementById('shiftVal').textContent = shiftTxt;
+  document.getElementById('sysDomain').textContent = sys.domain;
+  document.getElementById('sysFormula').innerHTML = sysKey.toUpperCase()+' · '+renderTex(sys.tex);
+  document.getElementById('inputFormula').innerHTML = 'Input · '+renderTex(inputSignalTex(inputKey, A, isDT));
+  document.getElementById('inputFormulaA').innerHTML = renderTex(inputSignalTex(inputKey, A, isDT));
+
+  const errL = numericLinearity(sys);
+  const errTI = numericTI(sys, inputKey, A, shift);
+  const linOK = errL < 1e-6;
+  const tiOK = errTI < 1e-6;
+
+  if(sys.domain==='CT'){
+    const tmin=-6, tmax=6, vmax0=3;
+    const g=makeSignalCT(inputKey,A,-8,8,1600);
+    const xs=g.ts.filter(function(t){return t>=tmin && t<=tmax;}).map(function(t){return g.getX(t);});
+    const ts=g.ts.filter(function(t){return t>=tmin && t<=tmax;});
+    const ys=ts.map(function(t){
+      if(sys.needsSignal) return sys.apply(0,t,g.getX);
+      return sys.apply(g.getX(t),t);
+    });
+    let vmax=vmax0;
+    xs.concat(ys).forEach(function(v){ vmax=Math.max(vmax,Math.abs(v)*1.15); });
+    const cv=document.getElementById('ioPlot');
+    const sret=setupCanvas(cv), ctx=sret.ctx, w=sret.w, h=sret.h;
+    ctx.clearRect(0,0,w,h);
+    const pad=22; drawAxes(ctx,w,h,pad,{tmin:tmin,tmax:tmax,vmax:vmax.toFixed(1),xLabel:'t (detik)',yLabel:'x, y'});
+    const N=ts.length;
+    if(isSeriesVisible('ioLegend',0)){
+      ctx.strokeStyle='#59615a'; ctx.lineWidth=1.6; ctx.setLineDash([4,4]);
+      ctx.beginPath();
+      for(let i=0;i<N;i++){ const xy=mapXY(ts[i],xs[i],tmin,tmax,-vmax,vmax,w,h,pad); if(i===0)ctx.moveTo(xy[0],xy[1]); else ctx.lineTo(xy[0],xy[1]); }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    if(isSeriesVisible('ioLegend',1)){
+      ctx.strokeStyle='#096b4b'; ctx.lineWidth=2.2;
+      ctx.beginPath();
+      for(let i=0;i<N;i++){ const xy=mapXY(ts[i],ys[i],tmin,tmax,-vmax,vmax,w,h,pad); if(i===0)ctx.moveTo(xy[0],xy[1]); else ctx.lineTo(xy[0],xy[1]); }
+      ctx.stroke();
+    }
+    setLegend('ioLegend', [
+      {color:'#59615a', dashed:true, label:'x input (abu)'},
+      {color:'#096b4b', dashed:false, label:'y output (hijau)'}
+    ], updateSystemTester);
+
+    /* plot uji TI: dua jalur */
+    const g2=makeSignalCT(inputKey,A,-8,8,1600);
+    const l1=ts.map(function(t){
+      const getSh=function(tt){ return g2.getX(tt-shift); };
+      if(sys.needsSignal) return sys.apply(0,t,getSh);
+      return sys.apply(g2.getX(t-shift),t);
+    });
+    const l2=ts.map(function(t){
+      if(sys.needsSignal) return sys.apply(0,t-shift,g2.getX);
+      return sys.apply(g2.getX(t-shift),t-shift);
+    });
+    let vmax2=1;
+    l1.concat(l2).forEach(function(v){ vmax2=Math.max(vmax2,Math.abs(v)*1.15); });
+    const cv2=document.getElementById('tiPlot');
+    const s2=setupCanvas(cv2), c2=s2.ctx, w2=s2.w, h2=s2.h;
+    c2.clearRect(0,0,w2,h2);
+    const pad2=22; drawAxes(c2,w2,h2,pad2,{tmin:tmin,tmax:tmax,vmax:vmax2.toFixed(1),xLabel:'t (detik)',yLabel:'respons'});
+    if(isSeriesVisible('tiLegend',0)){
+      c2.strokeStyle='#0f6fa3'; c2.lineWidth=2.2; c2.beginPath();
+      for(let i=0;i<N;i++){ const xy=mapXY(ts[i],l1[i],tmin,tmax,-vmax2,vmax2,w2,h2,pad2); if(i===0)c2.moveTo(xy[0],xy[1]); else c2.lineTo(xy[0],xy[1]); }
+      c2.stroke();
+    }
+    if(isSeriesVisible('tiLegend',1)){
+      c2.strokeStyle='#9c3d00'; c2.lineWidth=1.6; c2.setLineDash([4,4]); c2.beginPath();
+      for(let i=0;i<N;i++){ const xy=mapXY(ts[i],l2[i],tmin,tmax,-vmax2,vmax2,w2,h2,pad2); if(i===0)c2.moveTo(xy[0],xy[1]); else c2.lineTo(xy[0],xy[1]); }
+      c2.stroke(); c2.setLineDash([]);
+    }
+    setLegend('tiLegend', [
+      {color:'#0f6fa3', dashed:false, label:'S{x geser} (biru)'},
+      {color:'#9c3d00', dashed:true, label:'y geser (oranye putus)'}
+    ], updateSystemTester);
+  } else {
+    const n=[], x=[];
+    for(let k=-8;k<=12;k++){ n.push(k); x.push(INPUTS[inputKey].fn(k,A)); }
+    const y=x.map(function(v,i){ return sys.applyDT(x,i,n); });
+    let vmax=1;
+    x.concat(y).forEach(function(v){ vmax=Math.max(vmax,Math.abs(v)*1.2); });
+    drawDTpair(document.getElementById('ioPlot'), n, x, y, -8, 12, vmax, 'x input (abu)', 'y output (biru)', {xLabel:'n',yLabel:'x, y',font:12,legendId:'ioLegend',redraw:updateSystemTester});
+    /* plot uji TI DT */
+    const n0=Math.round(shift);
+    const getXS=function(kk){ const idx=n.indexOf(kk); return idx>=0?x[idx]:0; };
+    const xsShifted=x.map(function(v,j){ return getXS(n[j]-n0); });
+    const l1=x.map(function(v,i){ return sys.applyDT(xsShifted,i,n); });
+    const yFull=x.map(function(v,j){ return sys.applyDT(x,j,n); });
+    const l2=x.map(function(v,i){ const idx=n.indexOf(n[i]-n0); return idx>=0?yFull[idx]:0; });
+    let vmax2=1;
+    l1.concat(l2).forEach(function(v){ vmax2=Math.max(vmax2,Math.abs(v)*1.2); });
+    const cv2=document.getElementById('tiPlot');
+    const s2=setupCanvas(cv2), c2=s2.ctx, w2=s2.w, h2=s2.h;
+    c2.clearRect(0,0,w2,h2);
+    const pad2=26; drawAxes(c2,w2,h2,pad2,{tmin:-8,tmax:12,vmax:vmax2.toFixed(1),xLabel:'n',yLabel:'respons'});
+    for(let i=0;i<n.length;i++){
+      const nn=n[i];
+      if(isSeriesVisible('tiLegend',0)){
+        let xy0=mapXY(nn,0,-8,12,-vmax2,vmax2,w2,h2,pad2);
+        let xy1=mapXY(nn,l1[i],-8,12,-vmax2,vmax2,w2,h2,pad2);
+        c2.strokeStyle='#0f6fa3'; c2.lineWidth=2;
+        c2.beginPath(); c2.moveTo(xy0[0],xy0[1]); c2.lineTo(xy1[0],xy1[1]); c2.stroke();
+        c2.fillStyle='#0f6fa3'; c2.beginPath(); c2.arc(xy1[0],xy1[1],3,0,7); c2.fill();
+      }
+      if(isSeriesVisible('tiLegend',1)){
+        let xy2=mapXY(nn+0.25,l2[i],-8,12,-vmax2,vmax2,w2,h2,pad2);
+        let xy02=mapXY(nn+0.25,0,-8,12,-vmax2,vmax2,w2,h2,pad2);
+        c2.strokeStyle='#9c3d00'; c2.lineWidth=1.4; c2.setLineDash([3,3]);
+        c2.beginPath(); c2.moveTo(xy02[0],xy02[1]); c2.lineTo(xy2[0],xy2[1]); c2.stroke(); c2.setLineDash([]);
+      }
+    }
+    setLegend('tiLegend', [
+      {color:'#0f6fa3', dashed:false, label:'S{x geser} (biru)'},
+      {color:'#9c3d00', dashed:true, label:'y geser (oranye)'}
+    ], updateSystemTester);
+  }
+
+  const P = sys.props;
+  function badge(ok,label,src){
+    return '<span class="badge '+(ok?'yes':'no')+'">'+(ok?'✓ ':'✗ ')+label+' <span class="src">'+src+'</span></span>';
+  }
+  document.getElementById('badges').innerHTML =
+    badge(P.L,'Linier','kesimpulan teoretis') +
+    badge(P.TI,'Invarian waktu','kesimpulan teoretis') +
+    badge(P.K,'Kausal','analisis definisi') +
+    badge(P.S,'Stabil (BIBO)','analisis definisi') +
+    badge(P.M,'Statis','analisis definisi');
+  document.getElementById('testLine').innerHTML =
+    'Skenario uji — superposisi (x1=sinus, x2=pulsa, a=1.7, b=−0.6): galat = <b>'+errL.toExponential(1)+'</b> '+(linOK?'(lolos skenario)':'(GAGAL — <em>counterexample</em> nonlinier)')+
+    ' &nbsp;·&nbsp; Skenario uji — geser '+shiftTxt+': galat = <b>'+errTI.toExponential(1)+'</b> '+(tiOK?'(lolos skenario)':'(GAGAL — <em>counterexample</em> <em>time-varying</em>)')+
+    '<br>“Lolos skenario” bukan bukti universal — konfirmasi analitisnya di Laporan Tugas Labsheet-03. Kausal/stabil disimpulkan dari definisi (lihat Bagian 03A); statis/memori dari Bagian 02A.'+
+    '<br>Catatan: '+sys.note;
+  const isLTI = P.L && P.TI;
+  const flag=document.getElementById('ltiFlag');
+  if(isLTI){ flag.className='lti-flag is-lti'; flag.textContent='★ Berdasarkan analisis definisi + lolos skenario numerik: sistem ini LTI (linier + invarian waktu) — responsnya terhadap input apa pun dapat dihitung lewat konvolusi (minggu 4).'; }
+  else { flag.className='lti-flag'; flag.textContent='Sistem ini BUKAN LTI menurut analisis definisi ('+(!P.L?'tidak linier':'')+(!P.L&&!P.TI?', ':'')+(!P.TI?'berubah terhadap waktu':'')+') — konvolusi minggu 4 tidak berlaku untuknya.'; }
+}
+[sysSelect,inSelect,ampSlider,shiftSlider].forEach(function(el){ el.addEventListener('input',updateSystemTester); });
+
+/* ============ panel invertibilitas: pasangan p vs -p (skenario, bukan bukti) ============ */
+function updateInv(){
+  const slider = document.getElementById('invSlider');
+  const line = document.getElementById('invLine');
+  if(!slider || !line) return;
+  const x1 = parseFloat(slider.value);
+  const x2 = -x1;
+  document.getElementById('invVal').textContent = x1.toFixed(1);
+  const s1x1 = 2*x1, s1x2 = 2*x2, s2x1 = x1*x1, s2x2 = x2*x2;
+  line.innerHTML =
+    'S1 (linier): S{x₁} = 2·('+x1.toFixed(1)+') = <b>'+s1x1.toFixed(2)+'</b> vs S{x₂} = 2·('+x2.toFixed(1)+') = <b>'+s1x2.toFixed(2)+'</b> — '+(x1 !== 0 ? 'pasangan terbedakan ✓' : 'x₁ = x₂ = 0 (tak diagnostik)')+
+    '<br>S2 (kuadratik): S{x₁} = ('+x1.toFixed(1)+')² = <b>'+s2x1.toFixed(2)+'</b> vs S{x₂} = ('+x2.toFixed(1)+')² = <b>'+s2x2.toFixed(2)+'</b> — '+(x1 !== 0 ? 'pasangan TAK terbedakan ✗ (<em>counterexample</em>)' : 'x₁ = x₂ = 0 (tak diagnostik)');
+}
+(function(){
+  const slider = document.getElementById('invSlider');
+  if(slider) slider.addEventListener('input', updateInv);
+})();
+
+/* ============ soal canvases ============ */
+function workedLinearDef(){
+  const x1=function(t){return Math.sin(2*Math.PI*0.5*t);};
+  const x2=function(t){return Math.abs(t-1)<1?1:0;};
+  return {
+    lhs:{min:-3,max:5,vmax:3,axis:'t',yAxis:'amplitudo',redraw:drawSoalCanvases,series:[
+      {label:'x₁(t)',color:'#59615a',dashed:true,fn:x1},
+      {label:'0,5x₂(t)',color:'#9c3d00',dashed:true,fn:function(t){return 0.5*x2(t);}},
+      {label:'x₁(t)+0,5x₂(t)',color:'#6f4b8b',dashed:true,fn:function(t){return x1(t)+0.5*x2(t);}},
+      {label:'LHS = S{x₁+0,5x₂}',color:'#123b63',fn:function(t){return 2*(x1(t)+0.5*x2(t));}}
+    ]},
+    rhs:{min:-3,max:5,vmax:3,axis:'t',yAxis:'amplitudo',redraw:drawSoalCanvases,series:[
+      {label:'x₁(t)',color:'#59615a',dashed:true,fn:x1},
+      {label:'x₂(t)',color:'#9c3d00',dashed:true,fn:x2},
+      {label:'S{x₁}',color:'#123b63',dashed:true,fn:function(t){return 2*x1(t);}},
+      {label:'0,5S{x₂}',color:'#6f4b8b',dashed:true,fn:function(t){return 0.5*(2*x2(t));}},
+      {label:'RHS = S{x₁}+0,5S{x₂}',color:'#096b4b',fn:function(t){return 2*x1(t)+0.5*(2*x2(t));}}
+    ]}
+  };
+}
+function workedTiDef(){
+  const u=function(m){return m>=0?1:0;};
+  return {
+    lhs:{min:-2,max:8,vmax:9.6,axis:'n',yAxis:'amplitudo',redraw:drawSoalCanvases,series:[
+      {label:'x[n] = u[n]',color:'#59615a',dashed:true,discrete:true,nmin:-2,nmax:8,fn:u},
+      {label:'x[n−2] = u[n−2]',color:'#9c3d00',dashed:true,discrete:true,nmin:-2,nmax:8,fn:function(n){return u(n-2);}},
+      {label:'LHS = S{x[n−2]}',color:'#123b63',discrete:true,nmin:-2,nmax:8,fn:function(n){return n*u(n-2);}}
+    ]},
+    rhs:{min:-2,max:8,vmax:9.6,axis:'n',yAxis:'amplitudo',redraw:drawSoalCanvases,series:[
+      {label:'x[n] = u[n]',color:'#59615a',dashed:true,discrete:true,nmin:-2,nmax:8,fn:u},
+      {label:'y[n] = n·u[n]',color:'#9c3d00',dashed:true,discrete:true,nmin:-2,nmax:8,fn:function(n){return n*u(n);}},
+      {label:'RHS = y[n−2]',color:'#096b4b',discrete:true,nmin:-2,nmax:8,fn:function(n){return (n-2)*u(n-2);}}
+    ]}
+  };
+}
+function workedExample3TiDef(){
+  const x=function(t){return Math.max(1-Math.abs(t),0);};
+  const y=function(t){return x(t)+x(t+1);};
+  return {
+    lhs:{min:-3,max:5,vmax:1.3,axis:'t',yAxis:'amplitudo',redraw:drawSoalCanvases,series:[
+      {label:'xτ(t) = x(t−2)',color:'#59615a',dashed:true,fn:function(t){return x(t-2);}},
+      {label:'xτ(t+1) = x(t−1)',color:'#9c3d00',dashed:true,fn:function(t){return x(t-1);}},
+      {label:'LHS = S{x(t−2)}',color:'#123b63',fn:function(t){return x(t-2)+x(t-1);}}
+    ]},
+    rhs:{min:-3,max:5,vmax:1.3,axis:'t',yAxis:'amplitudo',redraw:drawSoalCanvases,series:[
+      {label:'x(t)',color:'#59615a',dashed:true,fn:x},
+      {label:'x(t+1)',color:'#9c3d00',dashed:true,fn:function(t){return x(t+1);}},
+      {label:'y(t) = x(t)+x(t+1)',color:'#6f4b8b',dashed:true,fn:y},
+      {label:'RHS = y(t−2)',color:'#096b4b',fn:function(t){return y(t-2);}}
+    ]}
+  };
+}
+function drawSoalCanvases(){
+  const c1lhs=document.getElementById('soal1LhsCanvas'),c1rhs=document.getElementById('soal1RhsCanvas');
+  if(c1lhs&&c1rhs){
+    const linear=workedLinearDef();
+    drawConceptGraph(c1lhs,linear.lhs,'soal1LhsLegend');
+    drawConceptGraph(c1rhs,linear.rhs,'soal1RhsLegend');
+  }
+  const c2lhs=document.getElementById('soal2LhsCanvas'),c2rhs=document.getElementById('soal2RhsCanvas');
+  if(c2lhs&&c2rhs){
+    const ti=workedTiDef();
+    drawConceptGraph(c2lhs,ti.lhs,'soal2LhsLegend');
+    drawConceptGraph(c2rhs,ti.rhs,'soal2RhsLegend');
+  }
+  const c3lhs=document.getElementById('soal3TiLhsCanvas'),c3rhs=document.getElementById('soal3TiRhsCanvas');
+  if(c3lhs&&c3rhs){
+    const ti3=workedExample3TiDef();
+    drawConceptGraph(c3lhs,ti3.lhs,'soal3TiLhsLegend');
+    drawConceptGraph(c3rhs,ti3.rhs,'soal3TiRhsLegend');
+  }
+}
+
+/* ============ quiz ============ */
+/* Seperti W01, grafik contoh berada dalam solusi yang awalnya tertutup.
+   Gambar ulang setelah panel terbuka agar ukuran kanvas mengikuti layout. */
+document.querySelectorAll('.example-section details.solusi').forEach(function(detail){
+  detail.addEventListener('toggle', function(){
+    if(detail.open) requestAnimationFrame(drawSoalCanvases);
+  });
+});
+
+const QUIZ = [
+  {
+    q:'Sistem y(t) = 5·x(t) + 0 (penguat murni) termasuk jenis apa?',
+    opts:['LTI, kausal, stabil, statis','Nonlinier dan <em>time-varying</em>','Kausal tapi tidak stabil','Statis tapi non-kausal'],
+    correct:0,
+    fb:'Benar — penguatan konstan memenuhi superposisi, tidak berubah terhadap waktu, tidak mengintip masa depan, output terbatas untuk input terbatas, dan tanpa memori.',
+    hint:'Opsi A yang benar: penguatan konstan murni memenuhi kelima sifat (linier, invarian waktu, kausal, stabil, statis). Uji tiap opsi lain terhadap definisinya.'
+  },
+  {
+    q:'Cara tercepat membuktikan sebuah sistem TIDAK linier adalah...',
+    opts:['Menguji semua pasangan input yang mungkin','Mengecek apakah input nol menghasilkan output nol','Menghitung energinya','Menggeser input lalu membandingkan output'],
+    correct:1,
+    fb:'Benar — sistem linier wajib memetakan 0 → 0. Jika S{0} ≠ 0 (mis. y = x+3), sistem pasti nonlinier dalam satu langkah.',
+    hint:'Opsi B yang benar: uji termurah adalah memasukkan input nol — sistem linier wajib menghasilkan output nol.'
+  },
+  {
+    q:'Mengapa status LTI begitu penting di mata kuliah ini?',
+    opts:['Karena respons LTI dengan keadaan awal nol dapat dihitung lewat konvolusi','Karena semua sistem fisis pasti LTI','Karena sistem LTI tidak pernah punya memori','Karena sistem LTI selalu stabil'],
+    correct:0,
+    fb:'Benar — pada sistem LTI dengan keadaan awal nol, keluaran adalah konvolusi masukan dan respons impuls (minggu 4). Sistem LTI boleh punya memori dan tidak otomatis stabil.',
+    hint:'Opsi A yang benar: konvolusi adalah cara menghitung respons sistem LTI — tiga opsi lain adalah pernyataan yang salah tentang LTI.'
+  },
+  {
+    q:'Akumulator diberi masukan undak u[n], sehingga y[n] = (n+1)u[n]. Apa kesimpulan BIBO?',
+    opts:['Stabil, karena masukan terbatas','Tidak stabil: masukan terbatas menghasilkan keluaran tak terbatas','Stabil, karena akumulator adalah LTI','Tidak bisa ditentukan tanpa menguji semua masukan'],
+    correct:1,
+    fb:'Benar — |u[n]| ≤ 1, tetapi y[n] = n+1 untuk n ≥ 0 tumbuh tanpa batas. Satu masukan terbatas ini cukup sebagai contoh penyangkal stabilitas BIBO; LTI tidak menjamin stabilitas.',
+    hint:'Opsi B yang benar: masukan undak terbatas, tetapi keluaran akumulator tak terbatas. Satu contoh penyangkal cukup untuk menunjukkan sistem tidak stabil BIBO.'
+  }
+];
+function renderQuiz(){
+  QUIZ.forEach(function(item,qi){
+    const root = document.getElementById('quizRoot'+(qi ? qi+1 : ''));
+    const box = document.createElement('div');
+    box.className='quiz-item';
+    const q = document.createElement('div');
+    q.className='quiz-q';
+    q.id = 'quizQuestion'+(qi+1);
+    q.textContent = 'Kuis '+(qi+1)+' — '+item.q;
+    box.setAttribute('role','group');
+    box.setAttribute('aria-labelledby',q.id);
+    box.appendChild(q);
+    const opts = document.createElement('div');
+    opts.className='quiz-opts';
+    const fb = document.createElement('div');
+    fb.className='quiz-fb';
+    fb.setAttribute('role','status');
+    fb.setAttribute('aria-live','polite');
+    item.opts.forEach(function(optText,oi){
+      const o = document.createElement('button');
+      o.type='button';
+      o.className='opt';
+      o.setAttribute('aria-label',('Pilihan '+String.fromCharCode(65+oi)+': '+optText).replace(/<[^>]*>/g,''));
+      o.innerHTML = '<span class="k">'+String.fromCharCode(65+oi)+'</span><span>'+optText+'</span>';
+      o.addEventListener('click',function(){
+        if(box.dataset.answered) return;
+        box.dataset.answered='1';
+        Array.from(opts.children).forEach(function(el,ei){
+          if(ei===item.correct) el.classList.add('correct');
+          else if(ei===oi) el.classList.add('wrong');
+        });
+        fb.textContent = (oi===item.correct? '✓ Tepat. ' + item.fb : '✗ Belum tepat. ' + item.hint);
+      });
+      opts.appendChild(o);
+    });
+    box.appendChild(opts);
+    box.appendChild(fb);
+    root.appendChild(box);
+  });
+}
+
+/* ============ pemisahan kalimat adaptif pada paragraf ============ */
+let sentenceLayoutFrame=0;
+function addSentenceBreaks(root){
+  root.querySelectorAll('p:not(.version-tag)').forEach(function(paragraph){
+    const walker=document.createTreeWalker(paragraph,NodeFilter.SHOW_TEXT,{
+      acceptNode:function(node){
+        if(node.parentElement.closest('.tex,.katex,code,pre,.sentence-break')) return NodeFilter.FILTER_REJECT;
+        return /[.!?…]\s+(?=[A-ZÀ-ÖØ-Þ0-9“"'])/u.test(node.data)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+      }
+    });
+    const nodes=[];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function(node){
+      const pieces=node.data.split(/(?<=[.!?…])\s+(?=[A-ZÀ-ÖØ-Þ0-9“"'])/u);
+      if(pieces.length<2) return;
+      const fragment=document.createDocumentFragment();
+      pieces.forEach(function(piece,index){
+        if(index){
+          const marker=document.createElement('span');
+          marker.className='sentence-break';
+          marker.setAttribute('aria-hidden','true');
+          fragment.appendChild(marker);
+        }
+        fragment.appendChild(document.createTextNode(piece));
+      });
+      node.replaceWith(fragment);
+    });
+  });
+}
+function fitSentenceBreaks(){
+  const sections=Array.from(document.querySelectorAll('section'));
+  sections.forEach(function(section){section.classList.remove('sentence-flow');});
+  if(innerWidth<=900) return;
+  const heightLimit=innerHeight*1.1+1;
+  sections.forEach(function(section){
+    if(section.getBoundingClientRect().height>heightLimit) section.classList.add('sentence-flow');
+  });
+}
+function scheduleSentenceLayout(){
+  cancelAnimationFrame(sentenceLayoutFrame);
+  sentenceLayoutFrame=requestAnimationFrame(function(){
+    addSentenceBreaks(document);
+    sentenceLayoutFrame=requestAnimationFrame(fitSentenceBreaks);
+  });
+}
+const sentenceObserver=new MutationObserver(scheduleSentenceLayout);
+sentenceObserver.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['open']});
+
+/* ============ init ============ */
+drawHook();
+renderConceptPlots();
+renderPropertyPlots();
+renderInversePlots();
+updateSystemTester();
+drawSoalCanvases();
+renderQuiz();
+scheduleSentenceLayout();
+
+/* Font web bisa selesai setelah gambar pertama dibuat: gambar ulang kanvas
+   ketika font siap; fallback tetap berfungsi jika Google Fonts tidak tersedia. */
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(function(){
+    drawHook(); renderConceptPlots(); renderPropertyPlots(); renderInversePlots(); updateSystemTester(); drawSoalCanvases();
+    scheduleSentenceLayout();
+  });
+}
+
+window.addEventListener('resize', function(){
+  drawHook();
+  renderConceptPlots();
+  renderPropertyPlots();
+  renderInversePlots();
+  updateSystemTester();
+  updateInv();
+  drawSoalCanvases();
+  scheduleSentenceLayout();
+});
+
+window.addEventListener('load',function(){
+  document.getElementById('f-sysop').innerHTML = renderTex('y = S\\{x\\}');
+  document.getElementById('f-linear').innerHTML = renderTex('\\begin{aligned}S\\{a\\,x_1+b\\,x_2\\}&=a\\,S\\{x_1\\}+b\\,S\\{x_2\\}\\\\&\\forall x_1,x_2,a,b\\end{aligned}');
+  document.getElementById('f-ti').innerHTML = renderTex('\\begin{aligned}S\\{x(t-t_0)\\}&=y(t-t_0),\\quad\\forall t_0\\\\S\\{x[n-n_0]\\}&=y[n-n_0],\\quad\\forall n_0\\end{aligned}');
+  document.getElementById('f-causal').innerHTML = renderTex('\\begin{aligned}y(t_0)&\\text{ hanya dari }x(t),\\ t\\le t_0\\\\&\\forall t_0\\end{aligned}');
+  document.getElementById('f-bibo').innerHTML = renderTex('\\begin{aligned}\\forall x:\\ |x|&\\le M_x<\\infty\\\\\\Rightarrow |y|&\\le M_y<\\infty\\end{aligned}');
+  document.getElementById('f-hnot').innerHTML = renderTex('h = T\\{\\delta\\}');
+  document.getElementById('f-conv').innerHTML = renderTex('y[n]=\\sum_{k} x[k]\\,h[n-k]\\qquad\\text{(pratinjau Minggu 4)}');
+  document.getElementById('f-inv').innerHTML = renderTex('T^{-1}\\{T\\{x\\}\\} = x');
+  document.getElementById('f-invex').innerHTML = renderTex('y = 2x \\quad\\Longleftrightarrow\\quad x = y/2');
+  document.getElementById('f-invcex').innerHTML = renderTex('\\begin{aligned}y&=x^2\\\\x=1\\ \\text{dan}\\ x=-1&\\ \\to\\ y=1\\end{aligned}');
+  /* Elemen <span class="tex"> memuat LaTeX tanpa delimiter $, jadi auto-render
+     (yang memakai delimiter $) tidak menyentuhnya — render eksplisit selalu. */
+  document.querySelectorAll('.tex').forEach(function(el){
+    el.innerHTML = renderTex(el.textContent);
+  });
+  if(window.renderMathInElement){
+    renderMathInElement(document.body, {
+      delimiters:[
+        {left:'$$', right:'$$', display:true},
+        {left:'$', right:'$', display:false}
+      ]
+    });
+  }
+  scheduleSentenceLayout();
+});
+</script>
+</body>
+</html>

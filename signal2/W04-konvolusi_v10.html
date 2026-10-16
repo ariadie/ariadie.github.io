@@ -1,0 +1,2433 @@
+<!DOCTYPE html>
+<!-- Versi: v10 | Diperbarui: 29-09-2026 21:44 WIB -->
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minggu 4 — Konvolusi CT &amp; DT | Isyarat dan Sistem</title>
+<script>
+  /* Deteksi apakah halaman ini dijalankan di dalam iframe (mis. embed di BeSmart/Moodle).
+     Dijalankan sesinkron & sedini mungkin (sebelum CSS di-parse penuh) supaya tidak ada
+     "kedipan" tampilan mode-presentasi sebelum berpindah ke mode dokumen biasa. */
+  (function(){
+    var inIframe;
+    try { inIframe = window.self !== window.top; } catch(e) { inIframe = true; }
+    if(inIframe){ document.documentElement.classList.add('embedded'); }
+    /* Navigasi lintas-HTML hanya untuk berkas lokal yang dibuka langsung. */
+    if(window.location.protocol === 'file:' && !inIframe){
+      document.documentElement.classList.add('local-file');
+    }
+  })();
+</script>
+<script>
+  /* Terapkan preferensi tema tersimpan sebelum CSS dirender agar tidak berkedip. */
+  (function(){
+    try {
+      var saved = localStorage.getItem('w04-theme');
+      if(saved === 'dark' || saved === 'light'){
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+    } catch(e) { /* localStorage tak tersedia — pakai default sistem */ }
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+<style>
+  :root{
+    color-scheme:light;
+    --bg:#f7f5ee;
+    --surface:#fffefa;
+    --surface-secondary:#efece1;
+    --text-primary:#182019;
+    --text-secondary:#59615a;
+    --heading-primary:#123b63;
+    --heading-secondary:#174a73;
+    --border:#d8d5c9;
+    --border-soft:#e7e4d9;
+    --accent:#096b4b;
+    --accent-solid:#096b4b;
+    --accent-muted:#8fbfa9;
+    --attention:#9c3d00;
+    --attention-solid:#9c3d00;
+    --danger:#a32626;
+    /* Alias komponen lama: semua merujuk palet semantik yang sama. */
+    --bg-raise:var(--surface);
+    --panel:var(--surface);
+    --panel-2:var(--surface-secondary);
+    --line:var(--border);
+    --line-soft:var(--border-soft);
+    --phosphor:var(--accent);
+    --phosphor-solid:var(--accent-solid);
+    --phosphor-dim:var(--accent-muted);
+    --amber:var(--attention);
+    --amber-solid:var(--attention-solid);
+    --cyan:var(--accent);
+    --red:var(--danger);
+    --paper:var(--text-primary);
+    --paper-dim:var(--text-primary);
+    --text:var(--text-primary);
+    --text-dim:var(--text-secondary);
+    --serif:var(--sans);
+    --sans:'Atkinson Hyperlegible Next', Arial, sans-serif;
+    --mono:'JetBrains Mono', 'Courier New', monospace;
+    /* Tipografi standar web_and_labsheet_design_v04.md. */
+    --cover-title-size:36px;
+    --section-title-size:29px;
+    --subheading-size:22px;
+    --hook-question-size:18px;
+    --card-title-size:18px;
+    --body-size:18px;
+    --lede-size:19px;
+    --card-body-size:16px;
+    --table-size:15px;
+    --ui-size:14px;
+    --small-size:13px;
+    --concept-note-size:16px;
+    --meta-size:12px;
+    --body-weight:300;
+    --heading-weight:500;
+    --hook-weight:400;
+    --ui-weight:400;
+    --mono-weight:300;
+    --strong-weight:500;
+    --plot-hook-height:170px;
+    --plot-mini-height:100px;
+    --plot-simulator-height:230px;
+    --plot-simulator-projector-height:205px;
+    --plot-example-height:150px;
+    --plot-example-max-width:520px;
+    --cover-wave-height:52px;
+    /* Kapsul footer standar: 18/24 × 8 px; hover tidak mengubah ukuran. */
+    --nav-pill-width:18px;
+    --nav-pill-active-width:24px;
+    --nav-pill-height:8px;
+    --nav-pill-radius:4px;
+    --nav-pill-gap:0.4rem;
+  }
+  @media(max-width:1199px){
+    :root{--cover-title-size:32px;--section-title-size:26px;--subheading-size:20px;--hook-question-size:17px;--card-title-size:17px;--body-size:17px;--lede-size:18px;--card-body-size:15px;--table-size:14px;}
+  }
+  @media(max-width:900px){
+    :root{--cover-title-size:28px;--section-title-size:22px;--subheading-size:18px;--hook-question-size:16px;--card-title-size:16px;--body-size:16px;--lede-size:17px;}
+  }
+/* ---------- mode gelap (dark mode) ----------
+     Default mengikuti preferensi sistem; tombol #themeToggle menimpanya lewat
+     atribut data-theme pada <html> dan pilihan disimpan di localStorage.
+     Latar kanvas grafik (#fbf9f2) SENGAJA tetap terang di kedua mode sebagai
+     "kertas grafik" — warna garis sinyal sudah dikalibrasi untuk latar terang. */
+  @media(prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --bg:#141a17;
+      --surface:#1c2520;
+      --surface-secondary:#26322b;
+      --text-primary:#edf3ee;
+      --text-secondary:#b6c2b9;
+      --heading-primary:#b8daff;
+      --heading-secondary:#9ccbfa;
+      --border:#43564a;
+      --border-soft:#304036;
+      --accent:#65d5a1;
+      --accent-solid:#096b4b;
+      --accent-muted:#519c7d;
+      --attention:#ffb078;
+      --attention-solid:#9c3d00;
+      --danger:#ff8e8e;
+    }
+    :root:not([data-theme="light"]) body::after{
+      background:repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px);
+    }
+    :root:not([data-theme="light"]) .topbar{
+      background:linear-gradient(180deg, rgba(20,26,23,0.96), rgba(20,26,23,0.75) 70%, transparent);
+    }
+    :root:not([data-theme="light"]) .navbar{
+      background:linear-gradient(0deg, rgba(20,26,23,0.97), rgba(20,26,23,0.7) 75%, transparent);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#141a17;
+    --surface:#1c2520;
+    --surface-secondary:#26322b;
+    --text-primary:#edf3ee;
+    --text-secondary:#b6c2b9;
+    --heading-primary:#b8daff;
+    --heading-secondary:#9ccbfa;
+    --border:#43564a;
+    --border-soft:#304036;
+    --accent:#65d5a1;
+    --accent-solid:#096b4b;
+    --accent-muted:#519c7d;
+    --attention:#ffb078;
+    --attention-solid:#9c3d00;
+    --danger:#ff8e8e;
+  }
+  :root[data-theme="light"]{color-scheme:light;}
+:root[data-theme="dark"] body::after{
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px);
+  }
+  :root[data-theme="dark"] .topbar{
+    background:linear-gradient(180deg, rgba(20,26,23,0.96), rgba(20,26,23,0.75) 70%, transparent);
+  }
+  :root[data-theme="dark"] .navbar{
+    background:linear-gradient(0deg, rgba(20,26,23,0.97), rgba(20,26,23,0.7) 75%, transparent);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:16px;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 42px 42px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+  }
+  body::after{
+    content:'';
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 3px);
+    opacity:0.5;
+    pointer-events:none;
+    z-index:1;
+    mix-blend-mode:multiply;
+  }
+
+  section{
+    position:relative;
+    z-index:2;
+    min-height:100vh;
+    padding:6.5rem 8vw 5rem;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    scroll-snap-align:start;
+    border-bottom:1px solid var(--line-soft);
+  }
+
+  h1,h2,h3{font-family:var(--serif); font-weight:600; margin:0; color:var(--paper);}
+  h2{font-size:var(--section-title-size); letter-spacing:-0.01em;}
+  h3{font-size:var(--subheading-size); color:var(--phosphor); font-weight:500;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:var(--small-size);
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:0.9rem;
+    display:flex;
+    align-items:center;
+    gap:0.6em;
+  }
+  .eyebrow::before{content:'▍'; color:var(--phosphor);}
+
+  p{color:var(--text); max-width:62ch;}
+  .lede{color:var(--paper-dim); font-size:var(--lede-size); max-width:66ch;}
+
+  .topbar{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.9rem 8vw;
+    background:linear-gradient(180deg, rgba(247,245,239,0.96), rgba(247,245,239,0.75) 70%, transparent);
+    backdrop-filter:blur(6px);
+    font-size:var(--small-size);
+    letter-spacing:0.05em;
+  }
+  .topbar .crumb{color:var(--text-dim);}
+  .topbar .crumb b{color:var(--phosphor); font-weight:600;}
+  .topbar .sk-badge{
+    border:1px solid var(--phosphor-dim);
+    color:var(--phosphor);
+    padding:0.3em 0.8em;
+    border-radius:100px;
+    font-size:var(--meta-size);
+    letter-spacing:0.08em;
+  }
+
+  .navbar{
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; gap:1rem;
+    padding:0.85rem 8vw;
+    background:linear-gradient(0deg, rgba(247,245,239,0.97), rgba(247,245,239,0.7) 75%, transparent);
+    backdrop-filter:blur(6px);
+  }
+  .navbar button{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--phosphor);
+    font-family:var(--sans);
+    font-size:var(--ui-size);
+    padding:0.5em 0.9em;
+    border-radius:6px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .navbar button:hover{background:var(--phosphor); color:#f7f5ef; border-color:var(--phosphor);}
+  .navbar button:disabled{opacity:0.3; cursor:default;}
+  .navbar button:disabled:hover{background:var(--panel-2); color:var(--phosphor);}
+  .dots{display:flex; gap:0.4rem; flex:1; justify-content:center; flex-wrap:wrap;}
+  .dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--line);
+    border:1px solid var(--line);
+    cursor:pointer;
+    transition:all .2s ease;
+  }
+  .dot.active{background:var(--phosphor); border-color:var(--phosphor); box-shadow:0 0 8px var(--phosphor);}
+  .count{color:var(--text-dim); font-size:var(--small-size); min-width:3.5em; text-align:right;}
+
+  html.embedded .topbar,
+  html.embedded .navbar{ display:none; }
+  html.embedded section{
+    min-height:0;
+    padding:2.6rem 6vw;
+    scroll-snap-align:none;
+  }
+  html.embedded #s0{ padding-top:3rem; }
+  html.embedded .cover-num{ font-size:96px; opacity:0.6; }
+  html.embedded body{ font-size:var(--body-size); }
+  .embed-popout{
+    display:none;
+    position:sticky; top:0.7rem; z-index:60;
+    margin:0 0 -1.6rem auto;
+    width:max-content;
+    align-items:center; gap:0.5em;
+    background:var(--panel-2); border:1px solid var(--phosphor-dim);
+    color:var(--phosphor); font-family:var(--mono); font-size:var(--meta-size);
+    letter-spacing:0.04em; text-decoration:none;
+    padding:0.5em 0.9em; border-radius:100px;
+  }
+  .embed-popout:hover{background:var(--phosphor); color:#f7f5ef; border-color:var(--phosphor);}
+  html.embedded .embed-popout{ display:inline-flex; }
+
+  #s0{align-items:flex-start;}
+  .cover-num{
+    font-family:var(--serif);
+    font-size:176px;
+    font-weight:300;
+    color:var(--panel-2);
+    -webkit-text-stroke:1.5px var(--phosphor-dim);
+    line-height:0.8;
+    position:absolute;
+    right:6vw; top:18%;
+    z-index:0;
+    user-select:none;
+  }
+  .cover-title{font-size:var(--cover-title-size); max-width:24ch; margin-top:0.4rem;}
+  .cover-sub{color:var(--text); margin-top:1.2rem; font-size:var(--body-size); width:100%; max-width:none;}
+  .waveform-divider{width:100%; height:52px; margin:2rem 0 0.5rem;}
+
+  .cpmk-strip{display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:2.4rem;}
+  .chip{
+    border:1px solid var(--line);
+    background:var(--panel);
+    padding:0.45em 0.9em;
+    border-radius:100px;
+    font-size:var(--small-size);
+    color:var(--text-dim);
+    letter-spacing:0.03em;
+  }
+  .chip b{color:var(--amber); font-weight:600;}
+
+  .hook-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:3.5rem; align-items:center;}
+  @media(max-width:860px){.hook-grid{grid-template-columns:1fr;}}
+  .hook-q{
+    font-family:var(--serif); font-style:italic; font-weight:500;
+    font-size:var(--hook-question-size);
+    color:var(--paper);
+    line-height:1.3;
+    border-left:3px solid var(--amber);
+    padding-left:1.1rem;
+    margin:1.2rem 0 1.6rem;
+  }
+  .voice-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:1.6rem;
+  }
+  .voice-card .label{font-size:var(--small-size); color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.8rem;}
+  canvas#hookCanvas{width:100%; height:var(--plot-hook-height); display:block; border-radius:8px; background:#fbf9f2;}
+  .clip-note{font-size:var(--small-size); color:var(--text-dim); margin-top:0.8rem;}
+  .clip-note b{color:var(--phosphor);}
+
+  .concept-cols{display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem; margin-top:2rem;}
+  @media(max-width:860px){.concept-cols{grid-template-columns:1fr;}}
+  .concept-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:1.5rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .concept-card::before{
+    content:attr(data-tag);
+    position:absolute; top:0.9rem; right:1rem;
+    font-size:var(--meta-size); letter-spacing:0.12em; color:var(--text-secondary);
+  }
+  .concept-card h4{font-family:var(--serif); color:var(--cyan); margin:0 0 0.6rem; font-size:var(--card-title-size); font-weight:600;}
+  .concept-card p{font-size:var(--card-body-size); color:var(--text); margin:0;}
+  .concept-card .formula{font-size:var(--card-body-size); color:var(--phosphor); margin:0.5rem 0;}
+  .mini-plot{width:100%; height:var(--plot-mini-height); margin-bottom:0.9rem; display:block; background:#fbf9f2; border-radius:6px;}
+
+  .prop-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:1.2rem; margin-top:1.8rem;}
+  @media(max-width:860px){.prop-grid{grid-template-columns:1fr;}}
+  .prop-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:1.4rem 1.5rem;}
+  .prop-card h4{font-family:var(--serif); color:var(--paper); margin:0 0 0.4rem; font-size:var(--card-title-size);}
+  .prop-card .formula{font-size:var(--card-body-size); color:var(--phosphor); margin:0.4rem 0 0.6rem;}
+  .prop-card p{font-size:var(--card-body-size); color:var(--text); margin:0;}
+
+  .sim-wrap{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:2rem;
+    margin-top:1.6rem;
+  }
+  .sim-controls{
+    display:flex; flex-wrap:wrap; gap:1.6rem 2.2rem;
+    margin-bottom:1.4rem;
+    align-items:flex-start;
+  }
+  .ctrl{display:flex; flex-direction:column; gap:0.4rem; min-width:180px;}
+  .ctrl label{font-size:var(--small-size); letter-spacing:0.07em; text-transform:uppercase; color:var(--text-dim); display:flex; justify-content:space-between; align-items:center;}
+  .ctrl label span{color:var(--phosphor); font-weight:600;}
+  select, input[type=range]{ accent-color: var(--phosphor); }
+  select{
+    background:var(--bg-raise); color:var(--text); border:1px solid var(--line);
+    border-radius:6px; padding:0.5em 0.7em; font-family:var(--sans); font-size:var(--ui-size);
+    max-width:100%;
+  }
+  .plot-cols{display:grid; grid-template-columns:1fr 1fr; gap:1.4rem;}
+  @media(max-width:760px){.plot-cols{grid-template-columns:1fr;}}
+  .plot-box{background:#fbf9f2; border:1px solid var(--line-soft); border-radius:10px; padding:0.9rem;}
+  .plot-box .ptitle{font-size:var(--small-size); letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:0.5rem; display:flex; justify-content:space-between;}
+  .plot-box .ptitle b{color:var(--amber); font-weight:600; text-transform:none;}
+  canvas.simcanvas{width:100%; height:var(--plot-simulator-height); display:block;}
+  .sim-formula{margin-top:1.2rem; font-size:var(--card-body-size); color:var(--paper-dim); text-align:center;}
+  .sim-readout{margin-top:0.6rem; font-size:var(--card-body-size); color:var(--paper); text-align:center;}
+  .sim-readout b{color:var(--phosphor); font-size:var(--body-size);}
+  .sim-readout .readout-note{display:block; font-size:var(--small-size); color:var(--text-dim);}
+
+  .soal-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:1.8rem 2rem; margin-top:1.6rem;
+  }
+  .soal-num{
+    display:inline-block; font-family:var(--serif); font-weight:600; color:var(--bg);
+    background:var(--phosphor); border-radius:6px; padding:0.15em 0.6em; font-size:var(--small-size); margin-bottom:0.9rem;
+  }
+  .soal-num.latihan{background:var(--amber);}
+  .soal-body{color:var(--text);}
+  details.solusi{margin-top:1rem; border-top:1px dashed var(--line); padding-top:0.9rem;}
+  details.solusi summary{cursor:pointer; color:var(--amber); font-size:var(--ui-size); letter-spacing:0.03em;}
+  details.solusi summary:hover{color:var(--phosphor);}
+  .solusi .body{margin-top:0.8rem; font-size:var(--card-body-size); color:var(--paper-dim);}
+  canvas.soalcanvas{width:100%; max-width:var(--plot-example-max-width); height:var(--plot-example-height); display:block; background:#fbf9f2; border-radius:8px; margin-top:0.9rem;}
+
+  .quiz-item{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:1.4rem 1.6rem; margin-bottom:1.1rem;
+  }
+  .quiz-q{font-size:var(--body-size); color:var(--paper); margin-bottom:0.9rem; font-weight:500;}
+  .quiz-opts{display:flex; flex-direction:column; gap:0.55rem;}
+  .opt{
+    display:flex; align-items:center; gap:0.7em;
+    padding:0.6em 0.9em; border:1px solid var(--line); border-radius:8px;
+    cursor:pointer; font-size:var(--card-body-size); color:var(--text-dim);
+    transition:all .15s ease;
+  }
+  .opt:hover{border-color:var(--phosphor-dim); color:var(--text);}
+  .opt.correct{border-color:var(--phosphor); background:rgba(15,107,82,0.08); color:var(--phosphor);}
+  .opt.wrong{border-color:var(--red); background:rgba(220,38,38,0.08); color:var(--red);}
+  .opt .k{font-family:var(--mono); font-weight:700; color:var(--cyan); min-width:1.4em;}
+  .quiz-fb{margin-top:0.7rem; font-size:var(--card-body-size); color:var(--text-dim); min-height:1.2em;}
+
+  .cta-wrap{
+    background:linear-gradient(135deg, var(--panel-2), var(--panel));
+    border:1px solid var(--phosphor-dim);
+    border-radius:18px;
+    padding:2.6rem 2.8rem;
+    margin-top:1.6rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-wrap::after{
+    content:'⏵'; position:absolute; right:-1.2rem; bottom:-2rem;
+    font-size:176px; color:var(--phosphor-dim); opacity:0.12;
+  }
+  .cta-wrap h3{color:var(--paper); font-size:var(--subheading-size);}
+  .cta-wrap p{color:var(--text-dim); max-width:56ch; margin:0.7rem 0 1.6rem;}
+  .cta-btn{
+    display:inline-flex; align-items:center; gap:0.6em;
+    background:var(--phosphor-solid); color:#f7f5ef; font-family:var(--sans); font-weight:500;
+    font-size:var(--ui-size); padding:0.85em 1.5em; border-radius:8px; text-decoration:none;
+    letter-spacing:0.02em;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .cta-btn:hover{transform:translateY(-2px); box-shadow:0 8px 26px rgba(15,107,82,0.25);}
+  .cta-note{font-size:var(--small-size); color:var(--text-dim); margin-top:0.8rem; max-width:60ch;}
+  .cta-meta{display:flex; gap:1.6rem; margin-top:1.6rem; flex-wrap:wrap;}
+  .cta-meta .m{font-size:var(--small-size); color:var(--text-dim);}
+  .cta-meta .m b{display:block; color:var(--paper); font-size:var(--card-title-size); font-family:var(--serif);}
+
+  .recap{margin-top:2.4rem; display:grid; grid-template-columns:repeat(4,1fr); gap:0.9rem;}
+  @media(max-width:760px){.recap{grid-template-columns:repeat(2,1fr);}}
+  .recap .r{border:1px solid var(--line); border-radius:10px; padding:0.9rem; font-size:var(--small-size); color:var(--text-dim);}
+  .recap .r b{display:block; color:var(--phosphor); font-family:var(--serif); font-size:var(--card-body-size); margin-bottom:0.2rem;}
+
+  ::selection{background:var(--phosphor); color:#f7f5ef;}
+  .katex{color:inherit;}
+  @media(max-width:640px){
+    section{padding:6rem 6vw 4.5rem;}
+    .cover-num{display:none;}
+    .dots{display:none;}
+    .navbar{justify-content:space-between;}
+  }
+
+  /* ---------- popup navigasi bagian (FAB, pola W01/W02) ---------- */
+  .section-nav-fab{
+    position:fixed; right:1.5rem; bottom:5.4rem; z-index:120;
+    width:3rem; height:3rem; border-radius:50%;
+    background:var(--phosphor); color:#f7f5ef; border:none;
+    font-size:20px; line-height:1; cursor:pointer;
+    box-shadow:0 10px 24px -8px rgba(15,107,82,0.55);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .section-nav-fab:hover{transform:translateY(-2px);}
+  .section-nav-fab:focus-visible{outline:2px solid var(--phosphor); outline-offset:3px;}
+  .section-nav-overlay{
+    position:fixed; inset:0; z-index:130;
+    background:rgba(28,33,29,0.45);
+    display:flex; align-items:center; justify-content:center;
+    padding:1.5rem;
+  }
+  .section-nav-overlay[hidden]{display:none;}
+  .section-nav-dialog{
+    width:100%; max-width:26rem; max-height:80vh;
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.4);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .section-nav-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.1rem 1.3rem; border-bottom:1px solid var(--line-soft);
+  }
+  .section-nav-head h3{margin:0; font-size:var(--card-title-size);}
+  .section-nav-close{
+    background:none; border:1px solid var(--line); border-radius:8px;
+    width:2rem; height:2rem; color:var(--text-dim); cursor:pointer; font-size:var(--ui-size);
+  }
+  .section-nav-close:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  .section-nav-list{overflow-y:auto; padding:0.6rem;}
+  .section-nav-item{
+    display:block; width:100%; text-align:left;
+    background:none; border:1px solid transparent; border-radius:8px;
+    padding:0.6em 0.8em; margin-bottom:0.15rem;
+    font-family:var(--sans); font-size:var(--ui-size); color:var(--text-dim); cursor:pointer;
+  }
+  .section-nav-item:hover{color:var(--text);}
+  .section-nav-item.active{border-color:var(--phosphor); background:rgba(15,107,82,0.08); color:var(--phosphor);}
+  .section-nav-item:focus-visible{outline:2px solid var(--phosphor); outline-offset:2px;}
+  @media(max-width:640px){
+    .section-nav-dialog{max-height:100vh; border-radius:0;}
+    .section-nav-overlay{padding:0;}
+  }
+
+  /* ---------- info versi & teks pembaca layar ---------- */
+  .version-tag{margin-top:1.2rem; font-size:var(--meta-size); color:var(--text-dim); letter-spacing:0.03em; opacity:0.75;}
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  /* ---------- daftar istilah & simbol ---------- */
+  .gloss-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-top:1.4rem; align-items:start;}
+  .gloss-grid.single{grid-template-columns:1fr; max-width:72rem;}
+  .gloss-table{width:100%; border-collapse:collapse; margin:0; font-size:var(--table-size);}
+  .gloss-table th,.gloss-table td{border:1px solid var(--line); padding:0.55em 0.8em; text-align:left; vertical-align:top;}
+  .gloss-table th{background:var(--panel-2); color:var(--paper); font-family:var(--serif);}
+  .gloss-table td{color:var(--text-dim);}
+  .gloss-table td:first-child{color:var(--phosphor); white-space:normal;}
+  @media(max-width:900px){.gloss-grid{grid-template-columns:1fr;}}
+
+  /* ===== v04 alignment override (ported from W03 v02, appended last so it wins) ===== */
+  body,html.embedded body{font-family:var(--sans);font-size:var(--body-size);font-weight:var(--body-weight);line-height:1.5;}
+  h1,h2,h3,h4{font-family:var(--sans);font-weight:var(--heading-weight);line-height:1.2;}
+  h1.cover-title,#s0 .cover-title{font-size:var(--cover-title-size);}
+  h2{font-size:var(--section-title-size);}
+  h3{font-size:var(--subheading-size);}
+  .concept-card h4,.prop-card h4,.gcard h4{font-size:var(--card-title-size);font-weight:var(--heading-weight);line-height:1.25;}
+  .hook-q{font-family:var(--sans);font-size:var(--hook-question-size);font-weight:var(--hook-weight);font-style:normal;line-height:1.35;}
+  .lede{font-size:var(--lede-size);font-weight:var(--body-weight);color:var(--paper-dim);width:100%;max-width:none;}
+  .cover-sub{font-size:var(--body-size);font-weight:var(--body-weight);color:var(--text);width:100%;max-width:none;}
+  p{color:var(--text);width:100%;max-width:none;}
+  .body-copy,.card-copy,.solution-copy,.nav-note,.action-link{color:var(--text);width:100%;max-width:none;}
+  .cta-wrap .body-copy{width:100%;max-width:none;}
+  .concept-card .card-copy,.prop-card .card-copy{font-size:var(--card-body-size);}
+  .quiz-q{font-size:var(--body-size);font-weight:var(--body-weight);}
+  .quiz-opts .opt,.quiz-fb{font-size:var(--card-body-size);font-weight:var(--body-weight);}
+  .topbar{font-family:var(--sans);font-size:var(--small-size);}
+  .topbar .crumb b{font-weight:500;}
+  .topbar .sk-badge{font-size:var(--meta-size);}
+  .navbar button{font-family:var(--sans);font-size:var(--ui-size);font-weight:var(--ui-weight);}
+  .dots{display:flex;gap:var(--nav-pill-gap);flex:1;min-width:0;justify-content:center;flex-wrap:wrap;}
+  .navbar .dot{padding:0;flex-shrink:0;appearance:none;-webkit-appearance:none;width:8px;height:8px;border-radius:50%;}
+  @media(min-width:641px){
+    .navbar .dot{width:var(--nav-pill-width);height:var(--nav-pill-height);border-radius:var(--nav-pill-radius);}
+    .navbar .dot.active{width:var(--nav-pill-active-width);}
+  }
+  .count{font-size:var(--small-size);}
+  .plot-box .ptitle{flex-wrap:wrap;gap:0.35em;}
+  .plot-box .ptitle b{text-transform:none;}
+  .eyebrow,.version-tag,code,pre{font-family:var(--mono);font-weight:var(--mono-weight);}
+  .version-tag{font-size:var(--meta-size);}
+  .gloss-table{width:100%;border-collapse:collapse;margin-top:1.6rem;font-size:var(--table-size);table-layout:fixed;font-family:var(--sans);font-weight:var(--body-weight);}
+  .gloss-table th,.gloss-table td{border:1px solid var(--line);padding:0.55em 0.8em;text-align:left;vertical-align:top;}
+  .gloss-table th{background:var(--panel-2);font-size:var(--table-size);font-weight:var(--heading-weight);}
+  b,strong{font-weight:var(--strong-weight);}
+  ::selection{background:var(--phosphor-solid);color:#f7f5ef;}
+  code,pre{font-family:var(--mono);}
+  pre,.formula,.sim-formula,.katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;}
+  p,td,.cta-note,.opt{overflow-wrap:anywhere;}
+  .section-nav-fab{position:fixed;right:1.5rem;bottom:5.4rem;z-index:120;width:3rem;height:3rem;border-radius:50%;background:var(--phosphor-solid);color:#f7f5ef;border:none;font-size:20px;line-height:1;cursor:pointer;box-shadow:0 10px 24px -8px rgba(15,107,82,0.55);display:flex;align-items:center;justify-content:center;}
+  .section-nav-overlay{position:fixed;inset:0;z-index:130;background:rgba(28,33,29,0.45);display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+  .section-nav-overlay[hidden]{display:none;}
+  .section-nav-dialog{width:100%;max-width:26rem;max-height:80vh;background:var(--panel);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;}
+  .section-nav-head{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.3rem;border-bottom:1px solid var(--line-soft);}
+  .section-nav-head h3{font-size:var(--card-title-size);}
+  .section-nav-close{background:none;border:1px solid var(--line);border-radius:8px;width:2rem;height:2rem;cursor:pointer;font-size:var(--ui-size);}
+  .section-nav-list{overflow-y:auto;padding:0.6rem;}
+  .section-nav-item{display:block;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:8px;padding:0.6em 0.8em;margin-bottom:0.15rem;font-family:var(--sans);font-size:var(--ui-size);cursor:pointer;}
+  .section-nav-item.active{font-weight:500;}
+  html.embedded .section-nav-fab{bottom:1.5rem;}
+  @media(max-width:640px){
+    .section-nav-overlay{padding:0;}
+    .section-nav-dialog{max-width:100%;max-height:100%;height:100%;border-radius:0;}
+    .dots{display:none;}
+    .navbar{justify-content:space-between;}
+  }
+  @media(min-width:641px) and (max-width:900px){
+    .section-nav-fab{bottom:9rem;}
+  }
+
+  /* ===== v06: pola struktur dan aksesibilitas W03 v06 ===== */
+  h1,h2{color:var(--heading-primary);}
+  h3{color:var(--heading-secondary);}
+  .sentence-break{display:block;height:0;}
+  .sentence-flow .sentence-break{display:inline;}
+  .sentence-flow .sentence-break::after{content:' ';}
+  @media(max-width:900px){
+    .sentence-break{display:inline;}
+    .sentence-break::after{content:' ';}
+  }
+  .cover-objectives{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem 1.2rem;
+    width:100%;max-width:62rem;margin:1rem 0 0;padding:0;list-style:none;counter-reset:objective;
+  }
+  .cover-objectives li{
+    position:relative;padding:.65rem .8rem .65rem 2.5rem;border:1px solid var(--line);
+    border-radius:9px;background:var(--panel);color:var(--text);font-size:var(--card-body-size);
+  }
+  .cover-objectives li::before{
+    counter-increment:objective;content:counter(objective,decimal-leading-zero);
+    position:absolute;left:.75rem;top:.68rem;color:var(--attention);font-family:var(--mono);font-size:var(--meta-size);
+  }
+  .cover-meta-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:1rem 2rem;width:100%;}
+  .cover-meta-row .cpmk-strip{margin-top:1.2rem;}
+  .cover-author{margin-top:1.2rem;text-align:right;color:var(--text-dim);font-size:var(--small-size);line-height:1.45;}
+  .cover-author-name{color:var(--text);font-size:var(--ui-size);font-weight:var(--heading-weight);}
+  .waveform-divider{height:var(--cover-wave-height);}
+  #s0 .version-tag{margin:.75rem 0 0;opacity:1;}
+
+  .weeknav{
+    margin-top:2rem;padding-top:1.4rem;border-top:1px dashed var(--line);
+    display:none;gap:.8rem;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  }
+  html.local-file:not(.embedded) .weeknav{display:flex;}
+  .weeknav-link{
+    display:inline-flex;align-items:center;gap:.5em;border:1px solid var(--line);background:var(--panel);
+    color:var(--phosphor);font-family:var(--sans);font-size:var(--ui-size);font-weight:var(--ui-weight);
+    text-decoration:none;padding:.55em 1.1em;border-radius:8px;transition:all .15s ease;
+  }
+  .weeknav-link:hover{background:var(--phosphor-solid);color:#f7f5ef;border-color:var(--phosphor-solid);}
+  .weeknav-link:focus-visible{outline:2px solid var(--phosphor);outline-offset:2px;}
+  .weeknav-top{width:100%;margin:0 0 1.5rem;padding:0 0 1rem;border-top:0;border-bottom:1px dashed var(--line);position:relative;z-index:1;}
+  html.local-file #s0 .cover-num{top:32%;}
+
+  .concept-cols.two{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .concept-cols.single{grid-template-columns:minmax(0,1fr);max-width:68ch;margin:1.2rem auto;}
+  .concept-note{font-size:var(--concept-note-size);color:var(--text);margin-top:.7rem;}
+  .bridge-flow{display:flex;align-items:stretch;justify-content:center;gap:.7rem;flex-wrap:wrap;margin:1.2rem 0;}
+  .bnode{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.9rem 1.2rem;text-align:center;min-width:96px;}
+  .bnode.sys{border-color:var(--phosphor);background:rgba(15,107,82,.06);}
+  .bnode b{display:block;font-family:var(--sans);font-size:var(--card-title-size);font-weight:500;color:var(--phosphor);}
+  .bnode span{display:block;font-size:var(--small-size);color:var(--text-dim);margin-top:.2rem;}
+  .barrow{align-self:center;color:var(--amber);font-size:22px;font-weight:600;}
+  .merged-section .concept-cols,.merged-section .prop-grid{margin-top:1rem;}
+  .merged-section .sim-wrap{padding:1rem 1.2rem;margin-top:1rem;}
+  .merged-section .soal-card{padding:1rem 1.3rem;margin-top:.8rem;}
+  .merged-section .gloss-table{margin-top:1rem;}
+  .merged-section .cta-wrap{padding:1.2rem 1.6rem;margin-top:1rem;}
+  .merged-section .cta-wrap .body-copy{margin:.5rem 0 1rem;}
+  .merged-section .cta-meta,.merged-section .recap{margin-top:1rem;}
+  .merged-section .weeknav{margin-top:1rem;padding-top:.8rem;}
+  .merged-section .version-tag{margin-top:.7rem;}
+  .opt{width:100%;text-align:left;background:var(--panel);font-family:var(--sans);}
+  .opt:focus-visible,.navbar button:focus-visible,.ctrl select:focus-visible,.ctrl input:focus-visible{outline:2px solid var(--phosphor);outline-offset:2px;}
+  .quiz-fb[role="status"]{min-height:1.5em;}
+  #quizRoot1,#quizRoot2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.1rem;margin-top:1rem;align-items:start;}
+  #quizRoot1 .quiz-item,#quizRoot2 .quiz-item{margin-bottom:0;}
+  a:not(.cta-btn):not(.weeknav-link):not(.embed-popout){color:var(--accent);}
+  code{font-size:inherit;overflow-wrap:anywhere;}
+  .concept-cols,.prop-grid,.plot-cols,.hook-grid{min-width:0;}
+  .concept-card,.prop-card,.plot-box,.hook-grid>div{min-width:0;}
+  @media(max-width:900px){.concept-cols.two{grid-template-columns:1fr;}}
+  @media(max-width:900px){#quizRoot1,#quizRoot2{grid-template-columns:minmax(0,1fr);}}
+  @media(max-width:640px){
+    section{min-height:0;padding:7rem 6vw 4rem;}
+    .topbar{font-family:var(--sans);font-size:var(--small-size);gap:.4rem;padding-left:6vw;padding-right:6vw;}
+    .topbar{flex-wrap:wrap;row-gap:.45rem;}
+    .topbar .crumb{flex:1 1 100%;max-width:none;}
+    .topbar-tools{flex:1 1 100%;justify-content:flex-start;}
+    .navbar{padding-left:6vw;padding-right:6vw;gap:.4rem;}
+    .navbar button{padding:.5em .6em;}
+    .sim-wrap,.soal-card,.cta-wrap{padding:1.1rem;}
+    .ctrl{min-width:0;max-width:100%;}
+    .cover-objectives{grid-template-columns:minmax(0,1fr);}
+    .cover-meta-row{grid-template-columns:minmax(0,1fr);gap:.35rem;}
+    .cover-author{text-align:left;margin-top:.35rem;}
+  }
+  @media(min-width:901px) and (max-height:850px){
+    #s3,#s4,.merged-section,.example-section{padding-top:4rem;padding-bottom:4.5rem;}
+    #s4{padding-bottom:4.35rem;}
+    #s3 .sim-wrap,#s4 .sim-wrap{padding:1.2rem 1.3rem;margin-top:1rem;}
+    #s3 canvas.simcanvas,#s4 canvas.simcanvas{height:var(--plot-simulator-projector-height);}
+    .merged-section .gloss-table th,.merged-section .gloss-table td{padding:.28em .45em;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
+  }
+
+  /* ===== v07: sumbu, legenda HTML, token, dan komponen baru ===== */
+  .plot-legend{list-style:none;display:flex;flex-wrap:wrap;gap:.3rem 1.1rem;margin:.5rem 0 0;padding:0;font-family:var(--mono);font-size:var(--small-size);font-weight:var(--mono-weight);color:var(--text-secondary);}
+  .plot-legend li{display:inline-flex;align-items:center;gap:.4rem;}
+  .legend-swatch{width:22px;height:10px;flex:none;display:block;}
+  .plot-box .plot-legend{color:#59615a;}
+  .concept-card .plot-legend{gap:.2rem .7rem;margin:-.4rem 0 .6rem;}
+  .solusi .soalcanvas + .plot-legend{margin-bottom:.4rem;}
+  .derive-steps{margin:.4rem 0 0;padding-left:1.3rem;font-size:var(--card-body-size);}
+  .derive-steps li{margin:.25rem 0;}
+  .bridge-note{font-size:var(--concept-note-size);color:var(--text);border-left:3px solid var(--attention);padding:.2rem 0 .2rem .8rem;margin:.9rem 0 0;}
+  .cta-btn.is-disabled{background:var(--surface-secondary);color:var(--text-secondary);border:1px dashed var(--border);cursor:not-allowed;box-shadow:none;transform:none;}
+  .cta-rubric{font-size:var(--small-size);color:var(--text-dim);margin-top:1rem;}
+  .cta-rubric b{color:var(--paper);}
+  .gloss-table td sub,.gloss-table td sup{font-size:.75em;}
+  @media(min-width:901px) and (max-width:1199px){
+    .sim-wrap{padding:20px;}
+    .sim-controls{gap:16px 22px;}
+  }
+
+  /* ===== v09: pengaturan grid global mengikuti pola W05 v06 ===== */
+  .topbar-tools{display:flex;align-items:center;justify-content:flex-end;gap:.45rem;flex:none;}
+  .header-control{display:inline-flex;align-items:center;justify-content:center;gap:.4em;min-height:2rem;background:var(--panel-2);color:var(--text);border:1px solid var(--line);font-family:var(--sans);font-size:var(--small-size);font-weight:var(--ui-weight);padding:.38em .72em;border-radius:100px;cursor:pointer;white-space:nowrap;}
+  .header-control:hover{border-color:var(--phosphor-dim);color:var(--phosphor);}
+  .header-control:focus-visible{outline:2px solid var(--phosphor);outline-offset:2px;}
+  .graph-settings{position:relative;}
+  .graph-settings-state{font-family:var(--mono);font-size:var(--meta-size);color:var(--phosphor);letter-spacing:.02em;}
+  .graph-settings-panel{position:absolute;top:calc(100% + .45rem);right:0;z-index:140;width:max-content;min-width:190px;padding:.65rem;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 28px rgba(20,30,25,.18);}
+  .graph-settings-panel[hidden]{display:none;}
+  .graph-option{display:flex;align-items:center;gap:.55rem;padding:.42rem .5rem;border-radius:7px;color:var(--text);font-size:var(--small-size);letter-spacing:0;cursor:pointer;user-select:none;}
+  .graph-option:hover{background:var(--panel-2);}
+  .graph-option input{width:14px;height:14px;margin:0;accent-color:var(--phosphor-solid);cursor:pointer;}
+  .graph-option input:focus-visible{outline:2px solid var(--phosphor);outline-offset:2px;}
+  .grid-menu-swatch{display:inline-block;width:22px;height:10px;flex:none;background-repeat:no-repeat;opacity:.75;}
+  .grid-menu-swatch.x{background:repeating-linear-gradient(90deg,#9d9787 0 1px,transparent 1px 7px);}
+  .grid-menu-swatch.y{background:repeating-linear-gradient(0deg,#9d9787 0 1px,transparent 1px 4px);}
+  html.embedded .topbar{display:flex;background:none!important;backdrop-filter:none;padding:.55rem 6vw;justify-content:flex-end;pointer-events:none;}
+  html.embedded .topbar .crumb,html.embedded .topbar .sk-badge{display:none;}
+  html.embedded .topbar-tools{pointer-events:auto;}
+  @media(max-width:640px){
+    .header-control{font-size:var(--meta-size);padding:.32em .58em;}
+    .graph-settings-panel{right:auto;left:0;}
+  }
+  .legend-item label{display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none;}
+  .legend-item input[type="checkbox"]{margin:0;width:13px;height:13px;accent-color:var(--phosphor-solid);cursor:pointer;flex:none;}
+  .legend-item.is-off{opacity:.4;}
+  .legend-item.is-off .legend-swatch{opacity:.5;}
+  .legend-item:focus-within{opacity:1;}
+  .legend-item input:focus-visible{outline:2px solid var(--phosphor);outline-offset:3px;}
+  .legend-swatch{background:#fbf9f2;border-radius:2px;}
+  .conv-table-wrap{overflow-x:auto;margin:.6rem 0;}
+  .conv-table{border-collapse:collapse;font-size:var(--table-size);font-family:var(--sans);}
+  .conv-table th,.conv-table td{border:1px solid var(--line);padding:.35em .7em;text-align:center;}
+  .conv-table th{background:var(--panel-2);font-weight:var(--heading-weight);}
+  .conv-table td{font-weight:var(--strong-weight);color:var(--text);}
+  .conv-table .dn{display:block;font-family:var(--mono);font-size:var(--meta-size);font-weight:var(--mono-weight);color:var(--text-dim);}
+  .conv-table .d0{background:rgba(9,107,75,.05);} .conv-table .d1{background:rgba(9,107,75,.12);} .conv-table .d2{background:rgba(9,107,75,.2);} .conv-table .d3{background:rgba(9,107,75,.12);} .conv-table .d4{background:rgba(9,107,75,.05);}
+  .case-list{margin:.4rem 0 .6rem;padding-left:1.3rem;font-size:var(--card-body-size);color:var(--paper-dim);}
+  .case-list li{margin:.3rem 0;}
+  /* Contoh mikro: pengungkapan bertahap sebelum contoh hitung lengkap. */
+  .micro-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:.7rem;}
+  .micro-grid .soal-card{margin-top:0;padding:1.1rem 1.3rem;}
+  .micro-step{border-top:1px dashed var(--line);padding:.45rem 0;}
+  .micro-step summary{cursor:pointer;color:var(--accent);font-family:var(--sans);font-size:var(--card-body-size);}
+  .micro-step summary:focus-visible{outline:2px solid var(--phosphor);outline-offset:2px;}
+  .micro-step p{font-size:var(--card-body-size);margin:.45rem 0 .2rem;}
+  .micro-result{margin:.7rem 0 0;font-size:var(--card-body-size);}
+  @media(max-width:900px){.micro-grid{grid-template-columns:1fr;}}
+  .reading-list{margin:1rem 0 0;padding-left:1.3rem;font-size:var(--card-body-size);color:var(--text);max-width:72rem;}
+  .reading-list li{margin:.6rem 0;line-height:1.5;}
+  .props-table td:first-child{white-space:nowrap;}
+  @media(max-width:640px){.props-table td:first-child{white-space:normal;}}
+
+</style>
+</head>
+<body>
+
+<a class="embed-popout" id="popoutLink" target="_blank" rel="noopener">⤢ Buka mode presentasi penuh</a>
+
+<div class="topbar">
+  <div class="crumb">Isyarat dan Sistem <b>·</b> Minggu 04 / 16 <b>·</b> Labsheet-04</div>
+  <div class="topbar-tools">
+    <div class="graph-settings">
+      <button type="button" id="graphSettingsBtn" class="header-control" aria-expanded="false" aria-controls="graphSettingsPanel" aria-haspopup="true"><span aria-hidden="true">▦</span> Grafik <span class="graph-settings-state" id="graphSettingsState">XY</span></button>
+      <div class="graph-settings-panel" id="graphSettingsPanel" role="group" aria-label="Pengaturan seluruh grafik" hidden>
+        <label class="graph-option" for="globalGridX"><input type="checkbox" id="globalGridX" checked><span class="grid-menu-swatch x" aria-hidden="true"></span><span>Grid sumbu x</span></label>
+        <label class="graph-option" for="globalGridY"><input type="checkbox" id="globalGridY" checked><span class="grid-menu-swatch y" aria-hidden="true"></span><span>Grid sumbu y</span></label>
+      </div>
+    </div>
+    <button type="button" id="themeToggle" class="header-control theme-toggle" aria-pressed="false">☾ Gelap</button>
+    <div class="sk-badge">SK4 — CPMK1 — 4%</div>
+  </div>
+</div>
+
+<!-- ================= SECTION 0 — COVER ================= -->
+<section id="s0">
+  <nav class="weeknav weeknav-top" aria-label="Navigasi antarminggu — awal halaman">
+    <a class="weeknav-link" href="W03-klasifikasi-sistem_v06.html">◂ W03 · Klasifikasi Sistem</a>
+    <a class="weeknav-link" href="index.html">Daftar Isi</a>
+    <a class="weeknav-link" href="W05-deret-fourier-pengantar_v07.html">W05 · Deret Fourier ▸</a>
+  </nav>
+  <div class="cover-num">04</div>
+  <div class="eyebrow">Minggu 4 · Sub-CPMK 1.3</div>
+  <h1 class="cover-title">Konvolusi Sinyal Waktu Kontinu &amp; Diskrit</h1>
+  <p class="cover-sub">Menghitung dan menafsirkan respons keadaan-nol (<em>zero-state response</em>) sistem LTI:</p>
+  <ol class="cover-objectives" aria-label="Empat sasaran pembelajaran minggu 4">
+    <li>Menghitung konvolusi CT dan DT.</li>
+    <li>Menurunkan konvolusi dari sifat LTI dan menjelaskan proses balik–geser–kali–jumlahkan.</li>
+    <li>Menghubungkan respons impuls, respons langkah, dan sifat sistem LTI.</li>
+    <li>Mengenali representasi orde satu serta tapis (<em>filter</em>) FIR/IIR.</li>
+  </ol>
+  <svg class="waveform-divider" viewBox="0 0 800 52" preserveAspectRatio="none">
+    <path d="M0,26 L60,26 L90,6 L120,6 L120,26 L200,26 L230,6 L260,6 L260,26 L340,26 L370,6 L400,6 L400,26 L480,26 L510,6 L540,6 L540,26 L620,26 L650,6 L680,6 L680,26 L800,26" fill="none" stroke="#8fbfa9" stroke-width="1.5"/>
+  </svg>
+  <div class="cover-meta-row">
+    <div class="cpmk-strip">
+      <div class="chip">Respons LTI: <b>y = x ∗ h</b></div>
+      <div class="chip">CT: <b>integral</b> · DT: <b>penjumlahan</b></div>
+      <div class="chip">Penutup: <b>CPMK1</b></div>
+    </div>
+    <div class="cover-author" aria-label="Penyusun dan institusi">
+      <div class="cover-author-name">Ariadie Chandra Nugraha</div>
+      <div>Departemen Pendidikan Teknik Elektro</div>
+      <div>Universitas Negeri Yogyakarta</div>
+    </div>
+  </div>
+  <p class="version-tag">Versi v10 · Diperbarui 29-09-2026 21:44 WIB</p>
+</section>
+
+<!-- ================= SECTION 1 — HOOK ================= -->
+<section id="s1">
+  <div class="eyebrow">01 — Pemantik: Gema Aula</div>
+  <h2>Kenapa suara di aula menggema?</h2>
+  <div class="hook-grid">
+    <div>
+      <p class="hook-q">“Satu tepukan di aula kosong terdengar berulang-ulang, makin lama makin lemah — dari mana datangnya bunyi kedua, ketiga, dan seterusnya?”</p>
+      <p class="body-copy">Setiap pantulan dinding adalah <b style="color:var(--phosphor)">salinan tertunda dan teredam</b> dari bunyi asli. Aula menjumlahkan semuanya: bunyi asli + salinan 0,2 detik kemudian + salinan 0,4 detik kemudian + …. Menjumlahkan salinan-salinan tertunda dan berbobot dari sebuah sinyal — itulah <b style="color:var(--phosphor)">konvolusi (<em>convolution</em>)</b>. Gema adalah konvolusi suara Anda dengan “karakter ruangan”, yaitu respons impulsnya.</p>
+      <p class="body-copy" style="margin-top:0.9rem;">Bagian 02 menurunkan rumusnya dari sifat LTI; simulator Bagian 03 memperlihatkan mekanisme balik–geser–kali–jumlahkan titik demi titik.</p>
+    </div>
+    <div class="voice-card">
+      <div class="label">Ilustrasi &middot; tepukan dan dua gema teredam</div>
+      <canvas id="hookCanvas" role="img" aria-label="Tepukan singkat x(t) dan keluaran aula y(t) berupa tepukan asli ditambah salinan 0,5 kali pada 0,2 detik dan 0,25 kali pada 0,4 detik"></canvas>
+      <ul class="plot-legend" id="hookLegend" aria-label="Legenda grafik pemantik"></ul>
+      <div class="clip-note">Model ilustratif (bukan rekaman): tepukan $x(t)$ berupa pulsa 0,06 s dan ruangan dengan $h(t)=\delta(t)+0{,}5\,\delta(t-0{,}2)+0{,}25\,\delta(t-0{,}4)$, sehingga $y(t)=x(t)+0{,}5\,x(t-0{,}2)+0{,}25\,x(t-0{,}4)$. Kedua kurva memakai skala amplitudo yang sama.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 2 — PENURUNAN KONVOLUSI ================= -->
+<section id="s2d" class="merged-section">
+  <div class="eyebrow">02 — Menurunkan Konvolusi dari Sifat LTI</div>
+  <h2>Dari impuls tergeser ke jumlah konvolusi</h2>
+  <p class="lede">Minggu 3 Bagian 08 baru memberi pratinjau: sistem LTI cukup dikenali dari respons impuls (<em>impulse response</em>) $h$. Kini kita turunkan rumusnya. Idenya: pecah masukan menjadi impuls-impuls tergeser yang berbobot, lalu manfaatkan linearitas dan invariansi waktu.</p>
+  <div class="concept-cols two">
+    <article class="concept-card" data-tag="DT">
+      <h4>Tiga langkah untuk sinyal diskrit</h4>
+      <ol class="derive-steps">
+        <li>Sifat penyaringan (<em>sifting property</em>): $x[n]=\sum_{k}x[k]\,\delta[n-k]$.</li>
+        <li>Invarian waktu: impuls tergeser $\delta[n-k]$ menghasilkan $h[n-k]$.</li>
+        <li>Linier: bobot $x[k]$ dan penjumlahan terbawa ke keluaran (superposisi, <em>superposition</em>).</li>
+      </ol>
+      <div class="formula">$$y[n]=\sum_{k=-\infty}^{\infty}x[k]\,h[n-k]$$</div>
+    </article>
+    <article class="concept-card" data-tag="CT">
+      <h4>Penjumlahan menjadi integral</h4>
+      <p class="card-copy">Hampiri $x(t)$ dengan pulsa sempit selebar $\Delta$ yang tingginya mengikuti $x(k\Delta)$. Tiap pulsa menghasilkan salinan $h$ yang tergeser dan berbobot; ketika $\Delta\to 0$, jumlahnya menjadi integral.</p>
+      <div class="formula">$$x(t)=\int_{-\infty}^{\infty}x(\tau)\,\delta(t-\tau)\,d\tau\;\Rightarrow\;y(t)=\int_{-\infty}^{\infty}x(\tau)\,h(t-\tau)\,d\tau$$</div>
+    </article>
+  </div>
+  <p class="bridge-note">Rumus ini adalah respons keadaan-nol: berlaku bila sistem mula-mula diam (kondisi awal nol). Linearitas dan invariansi waktu keduanya diperlukan — itulah sebabnya Minggu 3 menandai status LTI sebelum konvolusi dipakai.</p>
+</section>
+
+<!-- ================= SECTION 2A — DEFINISI ================= -->
+<section id="s2">
+  <div class="eyebrow">02A — Integral &amp; Jumlah Konvolusi</div>
+  <h2>Satu operasi, dua domain</h2>
+  <p class="lede">Hasil penurunan di atas ditulis ringkas sebagai <span id="f-convop"></span>. Untuk CT berupa integral, untuk DT berupa penjumlahan. Tiga kartu berikut merangkum definisi, versi diskrit, dan sifat-sifat yang menghemat perhitungan.</p>
+  <div class="concept-cols">
+    <div class="concept-card" data-tag="CT">
+      <canvas class="mini-plot" data-kind="ctconv" role="img" aria-label="Pulsa persegi lebar 2 dikonvolusikan dengan dirinya menghasilkan segitiga lebar 4 dengan puncak 2"></canvas>
+      <ul class="plot-legend" id="miniLegendCT" aria-label="Legenda grafik konvolusi CT"></ul>
+      <h4>Konvolusi CT (integral)</h4>
+      <div class="formula" id="f-ct"></div>
+      <p class="body-copy">Untuk tiap $t$: balik $h$, geser sejauh $t$, kalikan dengan $x$, lalu integralkan luasnya. Pulsa lebar 2 dengan dirinya sendiri menghasilkan segitiga lebar 4 berpuncak 2.</p>
+    </div>
+    <div class="concept-card" data-tag="DT">
+      <canvas class="mini-plot" data-kind="dtconv" role="img" aria-label="Konvolusi diskrit satu dua satu dengan satu satu satu menghasilkan satu tiga empat tiga satu pada n nol sampai empat"></canvas>
+      <ul class="plot-legend" id="miniLegendDT" aria-label="Legenda grafik konvolusi DT"></ul>
+      <h4>Konvolusi DT (penjumlahan)</h4>
+      <div class="formula" id="f-dt"></div>
+      <p class="body-copy">Versi diskrit: geser–kali–jumlahkan pada indeks $k$. Di Python cukup <code>numpy.convolve(x, h)</code>. Grafik: $[1,2,1] \ast [1,1,1] = [1,3,4,3,1]$.</p>
+    </div>
+    <div class="concept-card" data-tag="SIFAT">
+      <canvas class="mini-plot" data-kind="proplen" role="img" aria-label="Pulsa lebar 2 dikonvolusikan dengan pulsa lebar 1 menghasilkan trapesium lebar 3"></canvas>
+      <ul class="plot-legend" id="miniLegendLen" aria-label="Legenda grafik lebar dukungan"></ul>
+      <h4>Sifat &amp; panjang output</h4>
+      <div class="formula" id="f-props"></div>
+      <p class="body-copy">Komutatif, asosiatif, distributif — urutan dan pengelompokan boleh diubah. Panjang keluaran DT: $N_x+N_h-1$; jika dukungan (<em>support</em>) $x$ di $[a,b]$ dan $h$ di $[c,d]$, maka $y$ di $[a+c,\,b+d]$. Grafik: pulsa lebar 2 ∗ pulsa lebar 1 → trapesium lebar $2+1=3$. Tabel lengkap di Bagian 02B.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 2B — TABEL SIFAT KONVOLUSI ================= -->
+<section id="s2p" class="merged-section">
+  <div class="eyebrow">02B — Tabel Sifat Konvolusi</div>
+  <h2>Sifat yang menghemat perhitungan</h2>
+  <div class="gloss-grid single"><table class="gloss-table props-table"><caption class="sr-only">Sifat-sifat konvolusi, rumusnya, dan kegunaannya</caption><thead><tr><th scope="col">Sifat</th><th scope="col">Rumus (CT; DT analog)</th><th scope="col">Kegunaan</th></tr></thead><tbody>
+    <tr><td>Komutatif</td><td>$x\ast h=h\ast x$</td><td>Balik dan geser sinyal yang lebih sederhana</td></tr>
+    <tr><td>Asosiatif</td><td>$(x\ast h_1)\ast h_2=x\ast(h_1\ast h_2)$</td><td>Kaskade dua sistem LTI → $h_1\ast h_2$ (Bagian 05E)</td></tr>
+    <tr><td>Distributif</td><td>$x\ast(h_1+h_2)=x\ast h_1+x\ast h_2$</td><td>Paralel dua sistem LTI → $h_1+h_2$</td></tr>
+    <tr><td>Identitas</td><td>$x\ast\delta=x$</td><td>Impuls tidak mengubah sinyal; sistem identitas $h=\delta$</td></tr>
+    <tr><td>Pergeseran oleh impuls</td><td>$x(t)\ast\delta(t-t_0)=x(t-t_0)$; $\ x[n]\ast\delta[n-n_0]=x[n-n_0]$</td><td>Tunda murni; model gema pada pemantik</td></tr>
+    <tr><td>Geser kedua operand</td><td>$x(t-t_1)\ast h(t-t_2)=y(t-t_1-t_2)$</td><td>Hitung dulu tanpa geseran, lalu geser hasilnya</td></tr>
+    <tr><td>Konvolusi dengan undak</td><td>$x\ast u=\int_{-\infty}^{t}x(\tau)\,d\tau$; $\ \sum_{k\le n}x[k]$</td><td>Respons langkah $s=u\ast h$ (Bagian 05B, Contoh 4)</td></tr>
+    <tr><td>Lebar dan panjang</td><td>dukungan $[a+c,\,b+d]$; panjang $N_x+N_h-1$</td><td>Cek cepat hasil sebelum dan sesudah menghitung</td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- ================= SECTION 3 — SIMULATOR SLIDING ================= -->
+<section id="s3">
+  <div class="eyebrow">03 — Simulator Geser–Kali–Jumlahkan</div>
+  <h2>Geser – kali – jumlahkan, langkah demi langkah</h2>
+  <p class="lede">Pilih pasangan sinyal, lalu geser slider posisi. Panel kiri menunjukkan <b style="color:var(--paper)">satu langkah</b> konvolusi pada posisi tersebut: $h$ yang dibalik lalu digeser, serta daerah tumpang-tindih (<em>overlap</em>) yang luasnya menjadi nilai keluaran di titik itu. Panel kanan menunjukkan <b style="color:var(--paper)">hasil penuh</b> dengan penanda posisi Anda. Nilai di bawahnya dihitung numerik langsung di browser.</p>
+
+  <div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl">
+        <label for="pairSelect">Pasangan sinyal</label>
+        <select id="pairSelect">
+          <option value="A">A · pulsa × pulsa → segitiga (CT)</option>
+          <option value="B">B · eksponensial × undak (CT)</option>
+          <option value="C">C · [1,2,1] × [1,1,1] (DT)</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label for="shiftSlider">Posisi geser <span id="shiftVal">0</span></label>
+        <input type="range" id="shiftSlider" min="-3" max="3" step="0.05" value="0" aria-describedby="convReadout">
+      </div>
+    </div>
+
+    <div class="plot-cols">
+      <div class="plot-box">
+        <div class="ptitle">Langkah pada posisi ini <b id="stepLabel">t = 0</b></div>
+        <canvas class="simcanvas" id="stepPlot" role="img" aria-label="Langkah konvolusi pada posisi geser yang dipilih: sinyal masukan, respons impuls terbalik dan tergeser, serta daerah tumpang-tindih"></canvas>
+        <ul class="plot-legend" id="stepLegend" aria-label="Legenda panel langkah"></ul>
+      </div>
+      <div class="plot-box">
+        <div class="ptitle">Hasil penuh y <b>x ∗ h</b></div>
+        <canvas class="simcanvas" id="fullPlot" role="img" aria-label="Hasil konvolusi penuh dengan penanda pada posisi geser yang dipilih"></canvas>
+        <ul class="plot-legend" id="fullLegend" aria-label="Legenda panel hasil penuh"></ul>
+      </div>
+    </div>
+    <div class="sim-formula" id="pairFormula"></div>
+    <div class="sim-readout" id="convReadout"></div>
+  </div>
+</section>
+
+<!-- ================= SECTION 3A — JEMBATAN CONTOH DASAR ================= -->
+<section id="s3a" class="example-section">
+  <div class="eyebrow">03A — Dua Contoh Dasar Sebelum Menghitung Penuh</div>
+  <h2>Mulai dari satu geseran, lalu tiga nilai keluaran</h2>
+  <p class="lede">Sebelum contoh yang lebih panjang, periksa apa yang dilakukan satu impuls dan bagaimana dua deret pendek saling bertumpang-tindih. Tebak jawabannya sebelum membuka setiap langkah.</p>
+  <div class="micro-grid">
+    <div class="soal-card">
+      <span class="soal-num">Contoh mini A</span>
+      <div class="soal-body">
+        <p class="card-copy">Misalkan $x[0]=2$, $x[1]=1$, dan nol di indeks lain. Jika $h[n]=\delta[n-1]$, berapa $y=x\ast h$?</p>
+        <details class="micro-step"><summary>Periksa: apa akibat impuls di $n=1$?</summary>
+          <p>Konvolusi dengan impuls tergeser menunda seluruh sinyal satu sampel: $y[n]=x[n-1]$. Tidak ada perkalian antarsampel pada indeks yang sama.</p>
+        </details>
+        <details class="micro-step"><summary>Periksa nilai pada $n=0,1,2$</summary>
+          <p>$y[0]=x[-1]=0$, $y[1]=x[0]=2$, $y[2]=x[1]=1$. Jadi $y=[0,2,1]$ untuk indeks $0,1,2$.</p>
+        </details>
+      </div>
+    </div>
+    <div class="soal-card">
+      <span class="soal-num">Contoh mini B</span>
+      <div class="soal-body">
+        <p class="card-copy">Sekarang $x=h=[1,1]$, keduanya mulai di $n=0$. Panjang hasilnya $2+2-1=3$. Untuk setiap $n$, jumlahkan hanya pasangan dengan $k+m=n$.</p>
+        <details class="micro-step"><summary>$n=0$: pasangan mana yang bertumpang-tindih?</summary>
+          <p>Hanya $(k,m)=(0,0)$: $y[0]=x[0]h[0]=1$.</p>
+        </details>
+        <details class="micro-step"><summary>$n=1$: mengapa nilainya lebih besar?</summary>
+          <p>Dua pasangan, $(0,1)$ dan $(1,0)$: $y[1]=x[0]h[1]+x[1]h[0]=1+1=2$.</p>
+        </details>
+        <details class="micro-step"><summary>$n=2$: pasangan mana yang masih tersisa?</summary>
+          <p>Hanya $(1,1)$: $y[2]=x[1]h[1]=1$. Maka $y=[1,2,1]$.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+  <p class="bridge-note">Pola $1\to2\to1$ adalah banyaknya pasangan yang saling bertumpang-tindih. Coba jelaskan dengan cara <em>balik–geser–kali–jumlahkan</em> di simulator; Labsheet-04 menghitung contoh mini B dengan superposisi, loop, dan <code>numpy.convolve</code>.</p>
+</section>
+
+<!-- ================= SECTION 4 — CONTOH SOAL (setelah simulator) ================= -->
+<section id="s5">
+  <div class="eyebrow">04 — Contoh 1: Dua Pulsa CT</div>
+  <h2>Konvolusi dua pulsa persegi</h2>
+
+  <div class="soal-card">
+    <span class="soal-num">Contoh 1</span>
+    <div class="soal-body">
+      <p class="card-copy">Hitung $y(t) = x(t) \ast h(t)$ untuk $x(t) = h(t) = 1$ pada $|t| &lt; 1$ (nol di luarnya).</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p class="solution-copy">Tulis integralnya: $y(t) = \int_{-\infty}^{\infty} x(\tau)\,h(t-\tau)\,d\tau$. Di sini $x(\tau)=1$ tepat saat $|\tau|&lt;1$, dan $h(t-\tau)=1$ tepat saat $|t-\tau|&lt;1$, alias $\tau \in (t-1,\,t+1)$.</p>
+          <p class="solution-copy">Integran bernilai 1 hanya pada irisan $(-1,1) \cap (t-1,t+1)$, nol di luarnya — jadi $y(t)$ = panjang irisan itu. Amati lima posisi sederhana sebelum menulis rumus umumnya:</p>
+          <div class="conv-table-wrap"><table class="conv-table"><caption class="sr-only">Luas tumpang-tindih dua pulsa pada lima posisi geser</caption><thead><tr><th scope="col">$t$</th><th scope="col">$-2$</th><th scope="col">$-1$</th><th scope="col">$0$</th><th scope="col">$1$</th><th scope="col">$2$</th></tr></thead><tbody><tr><th scope="row">Panjang irisan = $y(t)$</th><td>0</td><td>1</td><td>2</td><td>1</td><td>0</td></tr></tbody></table></div>
+          <p class="solution-copy">Saat kedua pulsa mulai bertemu ($-2&lt;t&lt;0$), panjang irisan bertambah menjadi $t+2$; saat mulai berpisah ($0&lt;t&lt;2$), panjangnya berkurang menjadi $2-t$. Keduanya dapat ditulis $2-|t|$ untuk $|t|\le2$.</p>
+          <p class="solution-copy"><b>Maka:</b> $y(t) = (2-|t|)$ pada $|t|\le 2$, nol di luarnya — segitiga dengan puncak $y(0)=2$. Cek silang sifat lebar: dua sinyal lebar 2 → keluaran lebar 4. ✓</p>
+          <canvas class="soalcanvas" id="soal1canvas" role="img" aria-label="Dua pulsa persegi waktu-kontinu dan hasil konvolusinya berupa segitiga berpuncak 2 pada t sama dengan nol"></canvas>
+          <ul class="plot-legend" id="soal1Legend" aria-label="Legenda grafik jawaban Contoh 1"></ul>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="s5a" class="example-section">
+  <div class="eyebrow">04A — Contoh 2: Metode Tabel DT</div>
+  <h2>Konvolusi dua deret berhingga dengan tabel</h2>
+  <div class="soal-card">
+    <span class="soal-num">Contoh 2</span>
+    <div class="soal-body">
+      <p class="card-copy">Hitung $y[n] = x[n] \ast h[n]$ untuk $x = [1,2,1]$ dan $h = [1,1,1]$ (keduanya mulai di $n=0$), tanpa komputer dulu — lalu verifikasi dengan <code>numpy.convolve</code>. Bandingkan dengan contoh mini B: sebelum membuka solusi, prediksi apa yang berubah pada $y[1]$ ketika $x[1]$ naik dari 1 menjadi 2.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p class="solution-copy">Panjang keluaran: $N_x+N_h-1=3+3-1 = 5$, indeks $n = 0,\dots,4$. <b>Metode tabel:</b> tulis $x[k]$ sebagai baris dan $h[m]$ sebagai kolom, isi tiap sel dengan hasil kali $x[k]\,h[m]$. Sel itu menyumbang ke keluaran pada indeks $n=k+m$, sehingga $y[n]$ = jumlah sel pada satu diagonal miring.</p>
+          <div class="conv-table-wrap"><table class="conv-table"><caption class="sr-only">Tabel perkalian x[k] kali h[m] untuk konvolusi [1,2,1] dengan [1,1,1]; setiap sel diberi indeks n sama dengan k tambah m</caption>
+            <thead><tr><th scope="col">$x[k]\ \backslash\ h[m]$</th><th scope="col">$h[0]=1$</th><th scope="col">$h[1]=1$</th><th scope="col">$h[2]=1$</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">$x[0]=1$</th><td class="d0">1<span class="dn">n=0</span></td><td class="d1">1<span class="dn">n=1</span></td><td class="d2">1<span class="dn">n=2</span></td></tr>
+              <tr><th scope="row">$x[1]=2$</th><td class="d1">2<span class="dn">n=1</span></td><td class="d2">2<span class="dn">n=2</span></td><td class="d3">2<span class="dn">n=3</span></td></tr>
+              <tr><th scope="row">$x[2]=1$</th><td class="d2">1<span class="dn">n=2</span></td><td class="d3">1<span class="dn">n=3</span></td><td class="d4">1<span class="dn">n=4</span></td></tr>
+            </tbody></table></div>
+          <p class="solution-copy">Jumlah per diagonal: $y[0]=1$; $y[1]=1+2=3$; $y[2]=1+2+1=4$; $y[3]=2+1=3$; $y[4]=1$.</p>
+          <p class="solution-copy"><b>Maka:</b> $y = [1,3,4,3,1]$ — dan <code>numpy.convolve([1,2,1],[1,1,1])</code> menghasilkan vektor yang sama persis. Selang tak nol: $[0+0,\,2+2] = [0,4]$. ✓</p>
+          <canvas class="soalcanvas" id="soal2canvas" role="img" aria-label="Hasil konvolusi diskrit satu dua satu dengan satu satu satu berupa satu tiga empat tiga satu pada n nol sampai empat"></canvas>
+          <ul class="plot-legend" id="soal2Legend" aria-label="Legenda grafik jawaban Contoh 2"></ul>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="s5c" class="example-section">
+  <div class="eyebrow">04B — Contoh 3: CT per Selang</div>
+  <h2>Pulsa ∗ ramp terpotong: empat selang</h2>
+  <div class="soal-card">
+    <span class="soal-num">Contoh 3</span>
+    <div class="soal-body">
+      <p class="card-copy">Hitung $y(t)=x(t)\ast h(t)$ untuk pulsa $x(t)=1$ pada $0\le t&lt;1$ dan ramp terpotong $h(t)=t$ pada $0\le t&lt;1$ (keduanya nol di luar selang itu). Bagi perhitungan menurut posisi $h(t-\tau)$ terhadap $x(\tau)$.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p class="solution-copy">$y(t)=\int x(\tau)\,h(t-\tau)\,d\tau$. Integran tak nol bila $0\le\tau&lt;1$ (dari $x$) dan $0\le t-\tau&lt;1$, yaitu $t-1&lt;\tau\le t$ (dari $h$). Jadi batas integral adalah irisan $[\max(0,t-1),\ \min(1,t)]$, dan bentuk irisan itu berubah menurut $t$.</p>
+          <ul class="case-list">
+            <li><b>$t&lt;0$ atau $t\ge 2$:</b> kedua selang tidak beririsan, $y(t)=0$.</li>
+            <li><b>$0\le t&lt;1$ (mulai masuk):</b> $\tau\in[0,t]$, $y(t)=\int_0^t (t-\tau)\,d\tau=\dfrac{t^2}{2}$.</li>
+            <li><b>$1\le t&lt;2$ (mulai keluar):</b> $\tau\in[t-1,1]$, $y(t)=\int_{t-1}^{1}(t-\tau)\,d\tau=t-\dfrac{t^2}{2}$.</li>
+          </ul>
+          <p class="solution-copy"><b>Cek:</b> di $t=1$ kedua rumus bernilai $\tfrac12$, di $t=2$ bernilai 0 — keluaran kontinu, berpuncak $\tfrac12$ di $t=1$. Lebar dukungan $1+1=2$, sesuai sifat lebar di Bagian 02B. ✓</p>
+          <canvas class="soalcanvas" id="soal3canvas" role="img" aria-label="Pulsa satuan, ramp terpotong, dan hasil konvolusinya yang naik kuadratik dari t nol sampai satu lalu turun sampai t dua"></canvas>
+          <ul class="plot-legend" id="soal3Legend" aria-label="Legenda grafik jawaban Contoh 3"></ul>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="s5d" class="example-section">
+  <div class="eyebrow">04C — Contoh 4: DT dengan Deret Geometri</div>
+  <h2>Undak ∗ eksponensial diskrit</h2>
+  <div class="soal-card">
+    <span class="soal-num">Contoh 4</span>
+    <div class="soal-body">
+      <p class="card-copy">Hitung $y[n]=x[n]\ast h[n]$ untuk $x[n]=u[n]$ dan $h[n]=a^n u[n]$ dengan $0&lt;a&lt;1$. Kedua deret panjangnya tak berhingga, jadi tabel tidak cukup; gunakan rumus jumlah konvolusi.</p>
+      <details class="solusi">
+        <summary>▸ Lihat langkah penyelesaian</summary>
+        <div class="body">
+          <p class="solution-copy">$y[n]=\sum_k h[k]\,x[n-k]=\sum_k a^k u[k]\,u[n-k]$. Faktor $u[k]$ memaksa $k\ge 0$ dan $u[n-k]$ memaksa $k\le n$. Untuk $n&lt;0$ tidak ada suku, jadi $y[n]=0$.</p>
+          <p class="solution-copy">Untuk $n\ge 0$ pakai jumlah deret geometri: $y[n]=\sum_{k=0}^{n}a^k=\dfrac{1-a^{n+1}}{1-a}$.</p>
+          <p class="solution-copy"><b>Maka:</b> $y[n]=\dfrac{1-a^{n+1}}{1-a}\,u[n]$, yang naik menuju $\dfrac{1}{1-a}$. Grafik memakai $a=0{,}8$, sehingga batasnya 5. Karena $x=u$, hasil ini sekaligus respons langkah sistem $h[n]=a^n u[n]$ (Bagian 05B); Tugas 6 Labsheet-04 memeriksanya secara numerik.</p>
+          <canvas class="soalcanvas" id="soal4canvas" role="img" aria-label="Respons impuls a pangkat n untuk a nol koma delapan dan hasil konvolusi dengan undak yang naik menuju lima"></canvas>
+          <ul class="plot-legend" id="soal4Legend" aria-label="Legenda grafik jawaban Contoh 4"></ul>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 5 — FIR/IIR + DEKONVOLUSI ================= -->
+<section id="s4">
+  <div class="eyebrow">05 — Tapis Rata-rata Bergerak (MA)</div>
+  <h2>Dari konvolusi ke tapis FIR</h2>
+  <p class="lede">Tapis rata-rata bergerak (<em>moving average</em>, MA) adalah konvolusi dengan pulsa persegi ternormalisasi (tinggi $1/M$): keluaran tiap titik = rata-rata $M$ masukan terakhir. Tapis dengan $M$ tap (<em>tap</em>) ini berorde $M-1$. Geser panjang jendela $M$: derau (<em>noise</em>) makin teredam, tetapi transien makin panjang. Bagian 05A melanjutkan ke persamaan beda, FIR/IIR, dan dekonvolusi.</p>
+
+  <div class="sim-wrap">
+    <div class="sim-controls">
+      <div class="ctrl">
+        <label for="mSlider">Panjang jendela M <span id="mVal">3</span></label>
+        <input type="range" id="mSlider" min="1" max="8" step="1" value="3" aria-describedby="firReadout">
+      </div>
+    </div>
+    <div class="plot-cols">
+      <div class="plot-box">
+        <div class="ptitle">Sinyal berderau vs keluaran tapis <b>MA(M)</b></div>
+        <canvas class="simcanvas" id="firPlot" role="img" aria-label="Perbandingan sampel sinyal berderau dengan keluaran tapis rata-rata bergerak"></canvas>
+        <ul class="plot-legend" id="firLegend" aria-label="Legenda grafik tapis MA"></ul>
+      </div>
+      <div class="plot-box">
+        <div class="ptitle">Respons impuls tapis <b>h[n] = b<sub>n</sub></b></div>
+        <canvas class="simcanvas" id="firStem" role="img" aria-label="Respons impuls tapis rata-rata bergerak: M batang setinggi satu per M"></canvas>
+        <ul class="plot-legend" id="firStemLegend" aria-label="Legenda grafik respons impuls MA"></ul>
+      </div>
+    </div>
+    <div class="sim-formula" id="firFormula"></div>
+    <div class="sim-readout" id="firReadout"></div>
+  </div>
+</section>
+
+<section id="s4e" class="merged-section">
+  <div class="eyebrow">05A — FIR, IIR &amp; Dekonvolusi</div>
+  <h2>Dua keluarga tapis dan operasi invers</h2>
+  <div class="prop-grid">
+    <div class="prop-card">
+      <h4>FIR vs IIR</h4>
+      <div class="formula" id="f-firii"></div>
+      <p class="body-copy"><b style="color:var(--paper)">FIR</b> hanya memakai suku umpan-maju (<em>feedforward</em>) $b_k$ hingga orde $q$; tapis MA di atas memiliki $q=M-1$. Respons impulsnya berhingga, jadi jumlah absolutnya berhingga untuk koefisien berhingga. <b style="color:var(--paper)">IIR</b> juga memakai keluaran lalu melalui umpan balik (<em>feedback</em>) $a_k$ hingga orde $p$; respons impulsnya tak berhingga dan kestabilannya bergantung pada koefisien. Di Python keduanya dijalankan dengan <code>scipy.signal.lfilter(b, a, x)</code>.</p>
+    </div>
+    <div class="prop-card">
+      <h4>Dekonvolusi (operasi kebalikan)</h4>
+      <div class="formula" id="f-deconv"></div>
+      <p class="body-copy">Dekonvolusi (<em>deconvolution</em>) memulihkan masukan $x$ bila keluaran $y$ dan sistem $h$ diketahui — misalnya mengurangi gema aula untuk mendekati suara asli. Ini sisi numerik dari keterbalikan sistem di Minggu 3. Di Python: <code>scipy.signal.deconvolve(y, h)</code>; keluaran $y$ wajib menjadi argumen pertama.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 5B — RESPONS IMPULS, LANGKAH, REPRESENTASI ========== -->
+<section id="s4a" class="merged-section">
+  <div class="eyebrow">05B — Respons Impuls, Respons Langkah &amp; Representasi</div>
+  <h2>Satu sistem LTI, beberapa cara melihatnya</h2>
+  <p class="lede">Respons impuls $h$ mencirikan sistem LTI pada keadaan awal nol. Respons langkah (<em>step response</em>) $s$ adalah keluaran ketika masukannya undak satuan (<em>unit step</em>); keduanya saling terkait. Sistem yang sama juga dapat ditulis sebagai diagram blok atau persamaan orde satu.</p>
+  <div class="concept-cols two">
+    <article class="concept-card" data-tag="IMPULS ↔ LANGKAH">
+      <h4>Dari $h$ ke respons langkah $s$</h4>
+      <div class="formula">$$s(t)=u(t)\ast h(t)=\int_{-\infty}^{t}h(\tau)\,d\tau,\qquad s[n]=\sum_{k=-\infty}^{n}h[k]$$</div>
+      <p class="card-copy">Kebalikannya, $h(t)=\frac{d}{dt}s(t)$ bila turunan biasa berlaku, sedangkan $h[n]=s[n]-s[n-1]$. Contoh: pasangan B di simulator, karena komutatif, adalah respons langkah sistem $h(t)=e^{-t}u(t)$.</p>
+    </article>
+    <article class="concept-card" data-tag="ORDE SATU">
+      <h4>CT dan DT dalam persamaan</h4>
+      <div class="formula">$$a_1\frac{dy(t)}{dt}+a_0y(t)=b_0x(t)$$</div>
+      <div class="formula">$$y[n]+a_1y[n-1]=b_0x[n]+b_1x[n-1]$$</div>
+      <p class="card-copy">Persamaan diferensial (<em>differential equation</em>) linear menggambarkan sistem CT; persamaan beda (<em>difference equation</em>) linear menggambarkan sistem DT. Dengan kondisi awal nol, responsnya tetap dapat dihitung sebagai $y=x\ast h$.</p>
+    </article>
+  </div>
+  <div class="bridge-flow" role="img" aria-label="Diagram blok: masukan x masuk ke sistem LTI dengan respons impuls h dan menghasilkan keluaran y sama dengan x dikonvolusikan h">
+    <div class="bnode"><b>$x$</b><span>masukan</span></div><div class="barrow">→</div>
+    <div class="bnode sys"><b>LTI · $h$</b><span>sistem</span></div><div class="barrow">→</div>
+    <div class="bnode"><b>$y=x\ast h$</b><span>keluaran</span></div>
+  </div>
+</section>
+
+<!-- ========== SECTION 5C — KAUSALITAS DAN KESTABILAN DARI h ========== -->
+<section id="s4b" class="merged-section">
+  <div class="eyebrow">05C — Kausal &amp; Stabil dari Respons Impuls</div>
+  <h2>Kausalitas dan stabilitas tampak pada respons impuls</h2>
+  <p class="bridge-note">Minggu 3 (Bagian 03B–03C) menguji kedua sifat ini dari definisinya untuk setiap masukan. Untuk sistem LTI, cukup periksa satu sinyal: $h$.</p>
+  <div class="concept-cols two">
+    <article class="concept-card" data-tag="KAUSAL">
+      <h4>Tidak merespons sebelum impuls datang</h4>
+      <div class="formula">$$h(t)=0\ \text{untuk }t&lt;0,\qquad h[n]=0\ \text{untuk }n&lt;0$$</div>
+      <p class="card-copy">Ini adalah syarat perlu dan cukup bagi sistem LTI kausal. Dukungan $h$ tidak boleh berada di waktu negatif.</p>
+      <p class="concept-note"><b>Contoh:</b> $h[n]=0{,}5^n u[n]$ kausal; $h[n]=\delta[n+1]$ (memajukan satu sampel) nonkausal.</p>
+    </article>
+    <article class="concept-card" data-tag="STABIL BIBO">
+      <h4>Jumlah absolut $h$ harus terhingga</h4>
+      <div class="formula">$$\int_{-\infty}^{\infty}|h(t)|\,dt&lt;\infty,\qquad \sum_{n=-\infty}^{\infty}|h[n]|&lt;\infty$$</div>
+      <p class="card-copy">Kriteria ini perlu dan cukup untuk stabilitas BIBO (<em>bounded-input bounded-output</em>) sistem LTI. Status LTI saja tidak otomatis berarti stabil.</p>
+      <p class="concept-note"><b>Contoh:</b> $h[n]=0{,}5^n u[n]$ memberi $\sum|h|=2$ → stabil; akumulator $h[n]=u[n]$ memberi $\sum|h|=\infty$ → tidak stabil (Latihan 2 Minggu 3).</p>
+    </article>
+  </div>
+</section>
+
+<!-- ========== SECTION 5D — MEMORI DAN INVERS DARI h ========== -->
+<section id="s4c" class="merged-section">
+  <div class="eyebrow">05D — Memori &amp; Invers dari Respons Impuls</div>
+  <h2>Dua sifat lain juga punya uji konvolusi ringkas</h2>
+  <p class="bridge-note">Minggu 3 membahas memori (Bagian 02A) dan keterbalikan (Bagian 09–09D) dari definisi; untuk sistem LTI keduanya terbaca dari $h$.</p>
+  <div class="concept-cols two">
+    <article class="concept-card" data-tag="TANPA MEMORI">
+      <h4>$h$ hanya impuls di nol</h4>
+      <div class="formula">$$h(t)=K\delta(t),\qquad h[n]=K\delta[n]$$</div>
+      <p class="card-copy">Maka $y=Kx$: keluaran saat ini hanya bergantung pada masukan saat ini. Jika $h$ menyebar ke waktu lain, sistem memiliki memori.</p>
+      <p class="concept-note"><b>Contoh:</b> $h[n]=3\delta[n]$ tanpa memori; $h[n]=\delta[n-1]$ (tunda satu sampel) bermemori.</p>
+    </article>
+    <article class="concept-card" data-tag="INVERTIBEL">
+      <h4>Respons impuls invers memulihkan impuls</h4>
+      <div class="formula">$$h\ast h_{\mathrm{inv}}=\delta$$</div>
+      <p class="card-copy">Jika $y=x\ast h$ lalu dilewatkan ke sistem invers, diperoleh $x$. Dekonvolusi numerik mencoba melakukan pemulihan ini dan sensitif terhadap derau.</p>
+      <p class="concept-note"><b>Contoh:</b> selisih mundur $h=\delta[n]-\delta[n-1]$ dibalik oleh akumulator $h_{\mathrm{inv}}=u[n]$, karena $u[n]-u[n-1]=\delta[n]$.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ========== SECTION 5E — INTERKONEKSI LTI ========== -->
+<section id="s4d" class="merged-section">
+  <div class="eyebrow">05E — Interkoneksi Kaskade &amp; Paralel</div>
+  <h2>Gabungkan blok, gabungkan respons impulsnya</h2>
+  <p class="bridge-note">Minggu 3 Bagian 09E mengenalkan pola kaskade, paralel, dan umpan balik; kini respons impuls ekuivalen kaskade dan paralel dapat dihitung. Umpan balik menghasilkan sistem rekursif (IIR) yang dianalisis dengan transformasi Laplace dan Z.</p>
+  <div class="concept-cols two">
+    <article class="concept-card" data-tag="KASKADE">
+      <h4>Sistem disusun berurutan</h4>
+      <div class="formula">$$h_{\mathrm{eq}}=h_1\ast h_2$$</div>
+      <p class="card-copy">Karena konvolusi asosiatif dan komutatif, urutan dua blok LTI dalam kaskade tidak mengubah respons keadaan-nol ekuivalennya.</p>
+      <div class="bridge-flow" aria-hidden="true"><div class="bnode">$x$</div><div class="barrow">→</div><div class="bnode sys">$h_1$</div><div class="barrow">→</div><div class="bnode sys">$h_2$</div><div class="barrow">→</div><div class="bnode">$y$</div></div>
+    </article>
+    <article class="concept-card" data-tag="PARALEL">
+      <h4>Keluaran cabang dijumlahkan</h4>
+      <div class="formula">$$h_{\mathrm{eq}}=h_1+h_2$$</div>
+      <p class="card-copy">Masukan yang sama masuk ke kedua blok; karena keluarannya dijumlahkan, respons impuls ekuivalen adalah jumlah respons impuls tiap cabang.</p>
+      <p class="concept-note"><b>Contoh:</b> $h_1=[1,1,1]$ dan $h_2=[1,-1]$ memberi kaskade $h_1\ast h_2=[1,0,0,-1]$ dan paralel $h_1+h_2=[2,0,1]$ (Labsheet-04, sel penguatan).</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= SECTION 6 — LATIHAN MANDIRI ================= -->
+<section id="s6">
+  <div class="eyebrow">06 — Latihan 1: Konvolusi Analitik CT</div>
+  <h2>Coba kerjakan sendiri dulu</h2>
+  <p class="lede">Berbeda dari contoh di atas, tiga latihan (Bagian 06–06A) <b style="color:var(--paper)">tidak</b> disertai jawaban lengkap — kerjakan di kertas, lalu verifikasi secara numerik di Labsheet-04 (Tugas 1–4).</p>
+
+  <div class="soal-card">
+    <span class="soal-num latihan">Latihan 1</span>
+    <div class="soal-body">
+      <p class="card-copy">Hitung $y(t) = e^{-t}u(t) \ast u(t)$ secara analitik (pasangan B di simulator).</p>
+      <details class="solusi">
+        <summary>💡 Lihat petunjuk (bukan jawaban lengkap)</summary>
+        <div class="body"><p class="solution-copy">Tulis integral $\int x(\tau)\,h(t-\tau)\,d\tau$ dan tentukan dulu untuk $t&lt;0$ vs $t\ge 0$ di mana integrannya tak nol: $u(\tau)$ memaksa $\tau\ge 0$, $u(t-\tau)$ memaksa $\tau \le t$. Batas integralnya menjadi $0$ sampai $t$ — lalu integralkan eksponensialnya.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="s6a" class="merged-section">
+  <div class="eyebrow">06A — Latihan 2–3: Manual &amp; Tapis MA</div>
+  <h2>Hubungkan konvolusi dengan persamaan beda</h2>
+  <div class="soal-card">
+    <span class="soal-num latihan">Latihan 2</span>
+    <div class="soal-body">
+      <p class="card-copy">Hitung manual $y = [1,2,3] \ast [1,-1]$. Berapa panjangnya, dan pada indeks $n$ berapa saja ia tak nol?</p>
+      <details class="solusi">
+        <summary>💡 Lihat petunjuk (bukan jawaban lengkap)</summary>
+        <div class="body"><p class="solution-copy">Panjang = jumlah panjang dikurangi 1. Untuk tiap $n$, tulis $y[n] = x[n]\cdot 1 + x[n-1]\cdot(-1)$ (dengan $x$ di luar $0..2$ dianggap nol) — ini tidak lain selisih mundur (<em>backward difference</em>) dari $x$.</p></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="soal-card">
+    <span class="soal-num latihan">Latihan 3</span>
+    <div class="soal-body">
+      <p class="card-copy">Tapis rata-rata bergerak berjendela 3 tap (<code>b=[1/3,1/3,1/3]</code>, orde 2) diberi masukan undak $x[n]=u[n]$. Tuliskan persamaan bedanya dan empat nilai pertama keluarannya.</p>
+      <details class="solusi">
+        <summary>💡 Lihat petunjuk (bukan jawaban lengkap)</summary>
+        <div class="body"><p class="solution-copy">Dari tiga koefisien $b_0,b_1,b_2$, tulis satu suku masukan untuk setiap tap. Indeks masukan mana yang digunakan ketika keluaran berada di $n$? Untuk $n=0$, sampel berindeks negatif bernilai nol karena masukannya undak. Hitung $y[0]$ sampai $y[3]$ satu per satu, lalu cek dengan <code>scipy.signal.lfilter</code> di Labsheet-04.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION 7 — KUIS ================= -->
+<section id="s7">
+  <div class="eyebrow">07 — Kuis: Panjang Keluaran &amp; Syarat LTI</div>
+  <h2>Cek cepat sebelum lanjut ke labsheet</h2>
+  <p class="lede">Formatif — tidak dinilai (bobot 0%), tapi kalau ragu-ragu di sini, ulangi Bagian 02–05E dulu.</p>
+  <div id="quizRoot1"></div>
+</section>
+
+<section id="s7a" class="merged-section">
+  <div class="eyebrow">07A — Kuis: Kausalitas &amp; Interkoneksi</div>
+  <h2>Baca sifat dan gabungan sistem dari $h$</h2>
+  <div id="quizRoot2"></div>
+</section>
+
+<!-- ================= SECTION 8–8C — GLOSARIUM ================= -->
+<section id="s8a" class="merged-section">
+  <div class="eyebrow">08 — Istilah: A–D</div>
+  <h2>Daftar istilah Inggris–Indonesia (1/4)</h2>
+  <p class="lede">Istilah Inggris dicetak miring agar mudah dicocokkan dengan buku teks dan pencarian; singkatan dan simbol matematika tetap tegak. Baris diurutkan menurut abjad istilah Inggris.</p>
+  <div class="gloss-grid single"><table class="gloss-table"><caption class="sr-only">Daftar istilah A–D</caption><thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead><tbody>
+    <tr><td><em>associative</em>; <em>commutative</em>; <em>distributive</em></td><td>asosiatif; komutatif; distributif</td><td>Sifat konvolusi: pengelompokan dan urutan boleh diubah</td></tr>
+    <tr><td><em>backward difference</em></td><td>selisih mundur</td><td>$x[n]-x[n-1]$, yaitu $x\ast[1,-1]$</td></tr>
+    <tr><td><em>bounded-input bounded-output</em> (BIBO) <em>stability</em></td><td>stabilitas BIBO</td><td>Untuk LTI: $\sum|h[n]|&lt;\infty$ atau $\int|h(t)|\,dt&lt;\infty$</td></tr>
+    <tr><td><em>cascade interconnection</em></td><td>interkoneksi kaskade</td><td>Blok berurutan; $h_{\mathrm{eq}}=h_1\ast h_2$</td></tr>
+    <tr><td><em>causal</em></td><td>kausal</td><td>Keluaran kini tak bergantung masukan masa depan; LTI: $h=0$ untuk waktu negatif</td></tr>
+    <tr><td><em>continuous-time</em> (CT)</td><td>waktu-kontinu</td><td>Sinyal terdefinisi untuk setiap $t$ real; konvolusinya berupa integral</td></tr>
+    <tr><td><em>convolution</em></td><td>konvolusi</td><td>$y=x\ast h$ untuk respons keadaan-nol sistem LTI</td></tr>
+    <tr><td><em>deconvolution</em></td><td>dekonvolusi</td><td>Pemulihan $x$ dari $y$ ketika $h$ diketahui; peka derau</td></tr>
+    <tr><td><em>difference equation</em></td><td>persamaan beda</td><td>Hubungan keluaran DT dengan masukan dan keluaran terdahulu</td></tr>
+    <tr><td><em>differential equation</em></td><td>persamaan diferensial</td><td>Model sistem CT yang memuat turunan terhadap $t$</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="s8b" class="merged-section">
+  <div class="eyebrow">08A — Istilah: D–L</div>
+  <h2>Daftar istilah Inggris–Indonesia (2/4)</h2>
+  <div class="gloss-grid single"><table class="gloss-table"><caption class="sr-only">Daftar istilah D–L</caption><thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead><tbody>
+    <tr><td><em>discrete-time</em> (DT)</td><td>waktu-diskrit</td><td>Sinyal terdefinisi pada indeks bulat $n$; konvolusinya berupa penjumlahan</td></tr>
+    <tr><td><em>feedback</em></td><td>umpan balik</td><td>Keluaran lalu dimasukkan kembali; ciri tapis IIR</td></tr>
+    <tr><td><em>feedforward</em></td><td>umpan-maju</td><td>Hanya memakai masukan kini dan lalu; koefisien $b_k$</td></tr>
+    <tr><td><em>filter</em></td><td>tapis</td><td>Sistem yang meloloskan atau meredam komponen sinyal</td></tr>
+    <tr><td><em>finite impulse response</em> (FIR)</td><td>respons impuls berhingga</td><td>Hanya umpan-maju; stabil BIBO untuk koefisien berhingga</td></tr>
+    <tr><td><em>impulse response</em></td><td>respons impuls</td><td>Keluaran sistem LTI untuk masukan impuls satuan; dilambangkan $h$</td></tr>
+    <tr><td><em>infinite impulse response</em> (IIR)</td><td>respons impuls tak berhingga</td><td>Memakai umpan balik; kestabilannya bergantung pada koefisien</td></tr>
+    <tr><td><em>inverse system</em></td><td>sistem invers</td><td>$h_{\mathrm{inv}}$ memenuhi $h\ast h_{\mathrm{inv}}=\delta$</td></tr>
+    <tr><td><em>linear time-invariant</em> (LTI)</td><td>linier dan invarian waktu</td><td>Syarat berlakunya $y=x\ast h$</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="s8c" class="merged-section">
+  <div class="eyebrow">08B — Istilah: M–S</div>
+  <h2>Daftar istilah Inggris–Indonesia (3/4)</h2>
+  <div class="gloss-grid single"><table class="gloss-table"><caption class="sr-only">Daftar istilah M–S</caption><thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead><tbody>
+    <tr><td><em>memoryless system</em></td><td>sistem tanpa memori</td><td>Untuk LTI, $h$ berupa kelipatan impuls di nol</td></tr>
+    <tr><td><em>moving average</em> (MA)</td><td>rata-rata bergerak</td><td>Rata-rata $M$ masukan terakhir; tapis FIR sederhana</td></tr>
+    <tr><td><em>noise</em></td><td>derau</td><td>Komponen tak diinginkan pada sinyal</td></tr>
+    <tr><td><em>order</em></td><td>orde</td><td>Tundaan tertinggi; MA dengan $M$ tap berorde $M-1$</td></tr>
+    <tr><td><em>overlap</em></td><td>tumpang-tindih</td><td>Irisan $x(\tau)$ dan $h(t-\tau)$; luasnya memberi $y(t)$</td></tr>
+    <tr><td><em>parallel interconnection</em></td><td>interkoneksi paralel</td><td>Keluaran cabang dijumlahkan; $h_{\mathrm{eq}}=h_1+h_2$</td></tr>
+    <tr><td><em>pulse</em></td><td>pulsa</td><td>Dua pulsa sama lebar → segitiga; lebar berbeda → trapesium</td></tr>
+    <tr><td><em>response</em></td><td>respons</td><td>Keluaran sistem atas suatu masukan</td></tr>
+    <tr><td><em>sifting property</em></td><td>sifat penyaringan</td><td>$x[n]=\sum_k x[k]\,\delta[n-k]$; dasar penurunan konvolusi</td></tr>
+    <tr><td><em>sliding</em></td><td>penggeseran</td><td>Menggeser respons impuls yang telah dibalik</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="s8f" class="merged-section">
+  <div class="eyebrow">08C — Istilah: S–Z</div>
+  <h2>Daftar istilah Inggris–Indonesia (4/4)</h2>
+  <div class="gloss-grid single"><table class="gloss-table"><caption class="sr-only">Daftar istilah S–Z</caption><thead><tr><th scope="col"><em>English term</em></th><th scope="col">Istilah Indonesia</th><th scope="col">Catatan</th></tr></thead><tbody>
+    <tr><td><em>step response</em></td><td>respons langkah</td><td>Keluaran untuk masukan undak satuan; $s=u\ast h$</td></tr>
+    <tr><td><em>superposition</em></td><td>superposisi</td><td>Respons jumlah = jumlah respons (linearitas)</td></tr>
+    <tr><td><em>support</em></td><td>dukungan</td><td>Selang tempat sinyal tak nol; lebar dukungan $y$ = jumlah lebar $x$ dan $h$</td></tr>
+    <tr><td><em>tap</em></td><td>tap</td><td>Satu koefisien (satu tundaan) pada tapis FIR</td></tr>
+    <tr><td><em>time shift</em></td><td>pergeseran waktu</td><td>Menggeser sinyal sejauh $t_0$ atau $n_0$</td></tr>
+    <tr><td><em>transient</em></td><td>transien</td><td>Respons awal sebelum keadaan tunak</td></tr>
+    <tr><td><em>triangle</em></td><td>segitiga</td><td>Hasil konvolusi dua pulsa sama lebar</td></tr>
+    <tr><td><em>unit step</em></td><td>undak satuan</td><td>$u(t)$ atau $u[n]$; masukan untuk memperoleh respons langkah</td></tr>
+    <tr><td><em>zero-state response</em></td><td>respons keadaan-nol</td><td>Keluaran bila kondisi awal nol; untuk LTI sama dengan $x\ast h$</td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- ================= SECTION 8D–8E — DAFTAR SIMBOL ================= -->
+<section id="s8d" class="merged-section">
+  <div class="eyebrow">08D — Simbol Konvolusi</div>
+  <h2>Daftar simbol dasar</h2>
+  <div class="gloss-grid single"><table class="gloss-table"><caption class="sr-only">Daftar simbol dasar konvolusi</caption><thead><tr><th scope="col">Simbol</th><th scope="col">Nama simbol</th><th scope="col">Artinya</th></tr></thead><tbody>
+    <tr><td>x(t), x[n]</td><td>masukan</td><td>Sinyal CT dan DT yang masuk ke sistem</td></tr>
+    <tr><td>h(t), h[n]</td><td>respons impuls</td><td>Keluaran sistem LTI untuk impuls satuan</td></tr>
+    <tr><td>y(t), y[n]</td><td>keluaran</td><td>Untuk keadaan awal nol sistem LTI, y = x ∗ h</td></tr>
+    <tr><td>δ(t), δ[n]</td><td>impuls satuan</td><td>Identitas konvolusi: x ∗ δ = x</td></tr>
+    <tr><td>t, n</td><td>waktu kontinu, indeks diskrit</td><td>Variabel bebas pada domain CT dan DT</td></tr>
+    <tr><td>τ, k</td><td>variabel integrasi, indeks jumlah</td><td>Variabel boneka pada rumus konvolusi</td></tr>
+    <tr><td>∗</td><td>operator konvolusi</td><td>Bukan perkalian biasa</td></tr>
+    <tr><td>N<sub>x</sub>, N<sub>h</sub></td><td>panjang deret</td><td>Jumlah sampel x dan h; panjang y = N<sub>x</sub> + N<sub>h</sub> − 1</td></tr>
+    <tr><td>u(t), u[n]</td><td>undak satuan</td><td>Masukan untuk memperoleh respons langkah</td></tr>
+    <tr><td>s(t), s[n]</td><td>respons langkah</td><td>s = u ∗ h; h[n] = s[n] − s[n−1]</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="s8e" class="merged-section">
+  <div class="eyebrow">08E — Simbol Tapis &amp; Invers</div>
+  <h2>Koefisien, orde, dan sistem invers</h2>
+  <div class="gloss-grid single"><table class="gloss-table"><caption class="sr-only">Daftar simbol tapis dan sistem invers</caption><thead><tr><th scope="col">Simbol</th><th scope="col">Nama simbol</th><th scope="col">Artinya</th></tr></thead><tbody>
+    <tr><td>M</td><td>panjang jendela MA</td><td>Jumlah tap; tapisnya berorde M − 1</td></tr>
+    <tr><td>b<sub>k</sub></td><td>koefisien umpan-maju</td><td>Bobot masukan; MA memakai b<sub>k</sub> = 1/M</td></tr>
+    <tr><td>a<sub>k</sub></td><td>koefisien umpan-balik</td><td>Bobot keluaran lalu pada IIR; a<sub>0</sub> = 1 pada konvensi <code>lfilter</code></td></tr>
+    <tr><td>q, p</td><td>orde umpan-maju, orde umpan-balik</td><td>Batas atas penjumlahan b<sub>k</sub> dan a<sub>k</sub>; MA: q = M − 1, p = 0</td></tr>
+    <tr><td>K</td><td>konstanta penguatan</td><td>Sistem tanpa memori: h = Kδ</td></tr>
+    <tr><td>h<sub>inv</sub></td><td>respons impuls invers</td><td>Memenuhi h ∗ h<sub>inv</sub> = δ</td></tr>
+    <tr><td>h<sub>eq</sub></td><td>respons impuls ekuivalen</td><td>Kaskade: h<sub>1</sub> ∗ h<sub>2</sub>; paralel: h<sub>1</sub> + h<sub>2</sub></td></tr>
+    <tr><td>e<sup>−t</sup>u(t)</td><td>eksponensial turun</td><td>Masukan pasangan B di simulator</td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- ================= SECTION 8F — BACAAN PENDAMPING ================= -->
+<section id="s8r" class="merged-section">
+  <div class="eyebrow">08F — Bacaan Pendamping</div>
+  <h2>Rujukan buku untuk minggu ini</h2>
+  <p class="lede">Bacaan berikut mengikuti daftar referensi RPS. Nomor subbab mengacu pada edisi yang disebutkan.</p>
+  <ul class="reading-list">
+    <li><b>Oppenheim, Willsky &amp; Nawab (1997), <em>Signals &amp; Systems</em>, ed. 2.</b> §2.1 jumlah konvolusi DT (Bagian 02, Contoh 2 dan 4); §2.2 integral konvolusi CT (Contoh 1 dan 3); §2.3 sifat sistem LTI — komutatif, distributif, asosiatif, memori, invertibilitas, kausalitas, stabilitas, respons langkah (Bagian 02B, 05B–05E); §2.4 sistem kausal yang dinyatakan dengan persamaan diferensial dan persamaan beda (Bagian 05A–05B).</li>
+    <li><b>Lathi (2009), <em>Linear Systems and Signals</em>, ed. 2.</b> §2.4 respons keadaan-nol dan integral konvolusi CT, termasuk cara grafis; §3.8 respons keadaan-nol DT dan jumlah konvolusi, termasuk prosedur grafis dan sistem terinterkoneksi.</li>
+    <li><b>Yarman Vural &amp; Akbaş (2025), <em>Signals and Systems: Theory and Practical Explorations with Python</em>.</b> Bagian konvolusi CT/DT dan sistem LTI beserta notebook Jupyter resminya (repositori <code>eakbas/384book</code>, situs 384book.net) sebagai pembanding Labsheet-04.</li>
+    <li><b><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/resources/lecture-8-convolution/" target="_blank" rel="noopener">MIT OpenCourseWare, 6.003 Lecture 8: Convolution</a> (Dennis Freeman, 2011).</b> Urutan visual halaman 25–38 memperlihatkan satu contoh DT dihitung tahap demi tahap; contoh mini di Bagian 03A disusun ulang untuk tujuan serupa, bukan menyalin gambarnya.</li>
+  </ul>
+</section>
+
+<!-- ================= SECTION 9 — CTA LABSHEET ================= -->
+<section id="s8" class="merged-section">
+  <div class="eyebrow">09 — Praktik Labsheet · Penutup CPMK1</div>
+  <h2>Lanjutkan konvolusi di notebook</h2>
+  <div class="cta-wrap">
+    <h3>Lanjutkan di Labsheet-04</h3>
+    <p class="body-copy">Konsep di atas dipraktikkan langsung di notebook ini: konvolusi CT numerik (pulsa × pulsa, eksponensial × undak), konvolusi DT (<code>numpy.convolve</code>), tapis FIR rata-rata bergerak via <code>scipy.signal.lfilter</code>, dekonvolusi, serta respons impuls–respons langkah sistem IIR orde satu untuk membaca kausalitas dan stabilitas dari $h$. Dengan ini keempat SK CPMK1 (SK1–SK4) tuntas.</p>
+    <!-- Ganti span ini dengan <a class="cta-btn" href="https://colab.research.google.com/drive/ID_ASLI" target="_blank" rel="noopener"> setelah ID Drive tersedia. -->
+    <span class="cta-btn is-disabled" role="link" aria-disabled="true">▸ Labsheet-04 (tautan Colab menyusul)</span>
+    <div class="cta-note">Tautan Colab akan diaktifkan setelah notebook Labsheet-04 diunggah ke Drive. Sementara itu gunakan <code>Labsheet/L04_Konvolusi_CT_dan_DT_v07.ipynb</code>. Dua eksplorasi <code>ipywidgets</code> di dalamnya opsional dan tidak dinilai; grafik statis Matplotlib pada tugas tetap menjadi acuan penilaian.</div>
+    <div class="cta-meta">
+      <div class="m"><b>SK4</b>checkpoint partisipatif</div>
+      <div class="m"><b>4%</b>bobot nilai akhir</div>
+      <div class="m"><b>6</b>tugas inti</div>
+      <div class="m"><b>Sub-1.3</b>Sub-CPMK</div>
+    </div>
+    <p class="cta-rubric"><b>Rubrik SK4 (35/25/30/10):</b> ketepatan konsep &amp; hasil numerik · representasi &amp; interpretasi grafik · penalaran &amp; laporan · keterulangan &amp; kelengkapan dari lingkungan eksekusi bersih.</p>
+  </div>
+
+  <div class="recap">
+    <div class="r"><b>y = x ∗ h</b>respons LTI = konvolusi masukan &amp; respons impuls</div>
+    <div class="r"><b>N<sub>x</sub>+N<sub>h</sub>−1</b>panjang keluaran DT; dukungan CT melebar</div>
+    <div class="r"><b>FIR/IIR</b>tapis = konvolusi berjalan via <code>lfilter</code></div>
+    <div class="r"><b>CPMK1 ✓</b>selanjutnya Fourier (minggu 5) + UTS minggu 8</div>
+  </div>
+  <nav class="weeknav" aria-label="Navigasi antarminggu — akhir halaman">
+    <a class="weeknav-link" href="W03-klasifikasi-sistem_v06.html">◂ W03 · Klasifikasi Sistem</a>
+    <a class="weeknav-link" href="index.html">Daftar Isi</a>
+    <a class="weeknav-link" href="W05-deret-fourier-pengantar_v07.html">W05 · Deret Fourier ▸</a>
+  </nav>
+</section>
+
+<div class="navbar">
+  <button id="prevBtn">◂ Sebelumnya</button>
+  <div class="dots" id="dots"></div>
+  <span class="count" id="count">1 / 28</span>
+  <button id="nextBtn">Berikutnya ▸</button>
+</div>
+
+<!-- Popup navigasi bagian: aktif di mode presentasi MAUPUN embed (mode embed mematikan
+     dot/Sebelumnya/Berikutnya, jadi popup ini satu-satunya cara lompat cepat saat itu). -->
+<button type="button" id="sectionNavBtn" class="section-nav-fab" aria-haspopup="dialog" aria-controls="sectionNavDialog" aria-label="Lompat ke bagian" title="Lompat ke bagian">☰</button>
+
+<div class="section-nav-overlay" id="sectionNavOverlay" hidden>
+  <div class="section-nav-dialog" role="dialog" aria-modal="true" aria-labelledby="sectionNavTitle" id="sectionNavDialog">
+    <div class="section-nav-head">
+      <h3 id="sectionNavTitle">Lompat ke bagian</h3>
+      <button type="button" class="section-nav-close" id="sectionNavClose" aria-label="Tutup daftar bagian">✕</button>
+    </div>
+    <div class="section-nav-list" id="sectionNavList"></div>
+  </div>
+</div>
+
+<script>
+/* ============ mode embed: popout link + matikan navigasi presentasi ============ */
+const isEmbedded = document.documentElement.classList.contains('embedded');
+const popoutLink = document.getElementById('popoutLink');
+if(popoutLink) popoutLink.href = window.location.href;
+
+if(isEmbedded){
+  function postHeight(){
+    try{ window.parent.postMessage({type:'iframeResize', height: document.documentElement.scrollHeight}, '*'); }catch(e){}
+  }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
+  setTimeout(postHeight, 400);
+}
+
+/* ============ presentation-mode navigation (nonaktif dalam mode embed) ============ */
+const sections = Array.from(document.querySelectorAll('section'));
+
+function sectionLabel(s){
+  const eyebrowEl = s.querySelector('.eyebrow');
+  return eyebrowEl ? eyebrowEl.textContent.trim() : s.id;
+}
+
+if(!isEmbedded){
+  const dotsWrap = document.getElementById('dots');
+  const countEl = document.getElementById('count');
+  sections.forEach((s,i)=>{
+    const d = document.createElement('button');
+    d.type='button';
+    d.className='dot';
+    const label = sectionLabel(s);
+    d.title = label;
+    d.setAttribute('aria-label','Ke bagian: '+label);
+    d.addEventListener('click',()=>s.scrollIntoView({behavior:'smooth',block:'start'}));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  const currentIndex = ()=>{
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx=0;
+    sections.forEach((s,i)=>{ if(s.offsetTop <= y) idx=i; });
+    return idx;
+  };
+  const updateNav = ()=>{
+    const idx = currentIndex();
+    dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+    countEl.textContent = (idx+1)+' / '+sections.length;
+    document.getElementById('prevBtn').disabled = idx===0;
+    document.getElementById('nextBtn').disabled = idx===sections.length-1;
+  };
+  window.addEventListener('scroll', ()=>requestAnimationFrame(updateNav), {passive:true});
+  updateNav();
+
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    const idx = Math.min(currentIndex()+1, sections.length-1);
+    sections[idx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  document.getElementById('prevBtn').addEventListener('click',()=>{
+    const idx = Math.max(currentIndex()-1,0);
+    sections[idx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  window.addEventListener('keydown',(e)=>{
+    const navOverlay = document.getElementById('sectionNavOverlay');
+    if(navOverlay && !navOverlay.hidden) return;
+    const t = e.target;
+    const tag = (t && t.tagName || '').toLowerCase();
+    const inField = tag==='input' || tag==='select' || tag==='textarea' || tag==='button' || tag==='a' || (t && t.isContentEditable);
+    if(['ArrowRight','ArrowDown','PageDown'].includes(e.key)){
+      if(inField && e.key!=='PageDown') return;
+      e.preventDefault();
+      document.getElementById('nextBtn').click();
+    } else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){
+      if(inField && e.key!=='PageUp') return;
+      e.preventDefault();
+      document.getElementById('prevBtn').click();
+    }
+  });
+}
+
+/* ============ tombol ganti tema terang/gelap ============ */
+(function(){
+  const btn = document.getElementById('themeToggle');
+  if(!btn) return;
+  const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function effectiveTheme(){
+    const explicit = document.documentElement.getAttribute('data-theme');
+    if(explicit === 'dark' || explicit === 'light') return explicit;
+    return (mql && mql.matches) ? 'dark' : 'light';
+  }
+  function updateToggleUI(){
+    const dark = effectiveTheme() === 'dark';
+    btn.textContent = dark ? '☀ Terang' : '☾ Gelap';
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.setAttribute('aria-label', dark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap');
+  }
+  updateToggleUI();
+  btn.addEventListener('click', ()=>{
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try{ localStorage.setItem('w04-theme', next); }catch(e){}
+    updateToggleUI();
+  });
+  if(mql && mql.addEventListener){
+    mql.addEventListener('change', ()=>{
+      if(!document.documentElement.getAttribute('data-theme')) updateToggleUI();
+    });
+  }
+})();
+
+/* ============ popup navigasi bagian: aktif di mode presentasi MAUPUN embed ============ */
+(function(){
+  const fab = document.getElementById('sectionNavBtn');
+  const overlay = document.getElementById('sectionNavOverlay');
+  const closeBtn = document.getElementById('sectionNavClose');
+  const listEl = document.getElementById('sectionNavList');
+  if(!fab || !overlay || !closeBtn || !listEl) return;
+
+  sections.forEach((s,i)=>{
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'section-nav-item';
+    item.textContent = (i+1)+'. '+sectionLabel(s);
+    item.addEventListener('click',()=>{
+      s.scrollIntoView({behavior:'smooth', block:'start'});
+      closeDialog();
+    });
+    listEl.appendChild(item);
+  });
+  const items = Array.from(listEl.children);
+
+  function activeIndex(){
+    const y = window.scrollY + window.innerHeight*0.35;
+    let idx = 0;
+    sections.forEach((s,i)=>{ if(s.offsetTop <= y) idx = i; });
+    return idx;
+  }
+
+  let lastFocused = null;
+  function openDialog(){
+    lastFocused = document.activeElement;
+    items.forEach((it,i)=> it.classList.toggle('active', i===activeIndex()));
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+    document.addEventListener('keydown', onDialogKeydown);
+  }
+  function closeDialog(){
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onDialogKeydown);
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+  function onDialogKeydown(e){
+    if(e.key === 'Escape'){
+      e.preventDefault();
+      closeDialog();
+    } else if(e.key === 'Tab'){
+      const focusable = [closeBtn, ...items];
+      const first = focusable[0], last = focusable[focusable.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    }
+  }
+
+  fab.addEventListener('click', openDialog);
+  closeBtn.addEventListener('click', closeDialog);
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) closeDialog(); });
+})();
+
+/* ============ format angka Indonesia (koma desimal, minus tipografis) ============ */
+/* Format tampilan saja; rentang dan perhitungan numerik tetap presisi penuh. */
+function fmtNum(value, digits){
+  const v = Number(value);
+  if(!Number.isFinite(v)) return String(value);
+  let str = (digits===undefined) ? String(Number(v.toFixed(1))) : v.toFixed(digits);
+  if(/^-0(\.0+)?$/.test(str)) str = str.slice(1);
+  return str.replace('.', ',').replace('-', '−');
+}
+
+/* ============ preferensi grid global (menu "Grafik" di header; pola W05 v06) ============ */
+/* Grid-x = garis vertikal pada posisi domain x; grid-y = garis horizontal pada posisi nilai y.
+   Kunci bersama lintas minggu membuat pilihan pengguna konsisten pada seluruh materi. */
+function readGridPreference(axis){
+  try{ return localStorage.getItem('isys-plot-grid-'+axis)!=='off'; }
+  catch(e){ return true; }
+}
+const globalGridVisibility = {x:readGridPreference('x'),y:readGridPreference('y')};
+function isGridVisible(axis){
+  return globalGridVisibility[axis] !== false;
+}
+
+/* ============ legenda HTML interaktif di luar kanvas (pola W03 v06 / W05) ============ */
+const seriesVisibility = {}; /* {kunciSeri: [bool, ...]} — semua seri aktif secara default */
+function isSeriesVisible(key, idx){
+  const arr = seriesVisibility[key];
+  return !arr || arr[idx] !== false;
+}
+function legendSwatchSVG(it){
+  const c = it.color;
+  if(it.kind==='stem'){
+    return '<svg class="legend-swatch" viewBox="0 0 22 10" aria-hidden="true"><line x1="11" y1="10" x2="11" y2="3" stroke="'+c+'" stroke-width="2"'+(it.dashed?' stroke-dasharray="2,1.5"':'')+'/><circle cx="11" cy="3" r="2.4" fill="'+(it.hollow?'#fbf9f2':c)+'" stroke="'+c+'" stroke-width="1.2"/></svg>';
+  }
+  if(it.kind==='dot'){
+    const f = it.hollow ? '#fbf9f2' : c;
+    return '<svg class="legend-swatch" viewBox="0 0 22 10" aria-hidden="true"><circle cx="5" cy="5" r="2.2" fill="'+f+'" stroke="'+c+'" stroke-width="1.1"/><circle cx="11" cy="5" r="2.2" fill="'+f+'" stroke="'+c+'" stroke-width="1.1"/><circle cx="17" cy="5" r="2.2" fill="'+f+'" stroke="'+c+'" stroke-width="1.1"/></svg>';
+  }
+  if(it.kind==='area'){
+    return '<svg class="legend-swatch" viewBox="0 0 22 10" aria-hidden="true"><rect x="1" y="1" width="20" height="8" fill="'+c+'" fill-opacity="0.3" stroke="'+c+'" stroke-width="1"/></svg>';
+  }
+  const dash = it.dashed ? ' stroke-dasharray="4,3"' : (it.dotted ? ' stroke-dasharray="1.5,2.5"' : '');
+  return '<svg class="legend-swatch" viewBox="0 0 22 10" aria-hidden="true"><line x1="1" y1="5" x2="21" y2="5" stroke="'+c+'" stroke-width="2.2"'+dash+' stroke-linecap="round"/></svg>';
+}
+/* items: [{color, label, kind, dashed, dotted, hollow}]; onToggle menggambar ulang grafik terkait.
+   stateKey membedakan struktur seri (mis. mode CT vs DT) agar status tidak diterapkan keliru. */
+function setLegend(id, items, onToggle, stateKey){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const key = stateKey || id;
+  if(!seriesVisibility[key]) seriesVisibility[key] = items.map(function(){ return true; });
+  const state = seriesVisibility[key];
+  /* Legenda hanya mengatur seri; grid x/y diatur sekali secara global di header. */
+  const all = items.map(function(it, i){ return Object.assign({ckey:'s'+i}, it); });
+  /* Pertahankan node checkbox: redraw tidak boleh menghilangkan fokus keyboard. */
+  if(el.dataset.key !== key || el.children.length !== all.length){
+    const active = document.activeElement;
+    const focusKey = el.contains(active) ? active.dataset.key : undefined;
+    el.replaceChildren.apply(el, all.map(function(it){
+      const li = document.createElement('li');
+      li.className = 'legend-item';
+      li.innerHTML = '<label><input type="checkbox" data-key="'+it.ckey+'">'+
+        '<span class="legend-mark" aria-hidden="true"></span><span class="legend-text"></span></label>';
+      return li;
+    }));
+    el.dataset.key = key;
+    if(focusKey !== undefined){
+      const replacement = el.querySelector('input[data-key="'+focusKey+'"]') || el.querySelector('input');
+      if(replacement) replacement.focus({preventScroll:true});
+    }
+  }
+  all.forEach(function(it, i){
+    const li = el.children[i], cb = li.querySelector('input');
+    cb.checked = state[i] !== false;
+    li.classList.toggle('is-off', !cb.checked);
+    const mark = li.querySelector('.legend-mark'), sw = legendSwatchSVG(it);
+    if(mark.dataset.sw !== sw){ mark.innerHTML = sw; mark.dataset.sw = sw; }
+    const txt = li.querySelector('.legend-text');
+    if(txt.textContent !== it.label) txt.textContent = it.label;
+    cb.onchange = function(){
+      state[i] = cb.checked;
+      li.classList.toggle('is-off', !cb.checked);
+      if(onToggle) onToggle();
+    };
+    /* Space pada checkbox tidak boleh menggulir halaman presentasi. */
+    cb.onkeydown = function(e){
+      if(e.key===' ' || e.code==='Space'){
+        e.preventDefault();
+        cb.checked = !cb.checked;
+        cb.dispatchEvent(new Event('change', {bubbles:true}));
+      }
+    };
+  });
+}
+
+/* ============ kerangka grafik: grid, sumbu, label, batas ============ */
+const INK = '#182019';      /* label sumbu gelap untuk kertas grafik terang di kedua tema */
+const AXIS = '#798178';
+const GRIDC = '#d8d2bd';    /* grid netral lembut, lebih redup dari sumbu (#798178) dan seri data */
+const C_GRAY = '#59615a', C_GREEN = '#096b4b', C_ORANGE = '#b45309', C_BLUE = '#0f6fa3';
+function setupCanvas(cv){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = cv.getBoundingClientRect();
+  cv.width = Math.max(1, rect.width*dpr); cv.height = Math.max(1, rect.height*dpr);
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx, w:rect.width, h:rect.height};
+}
+function niceStep(range, target){
+  const raw = range/target;
+  const p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const m = raw/p;
+  return (m<1.5 ? 1 : m<3.5 ? 2 : m<7.5 ? 5 : 10) * p;
+}
+/* o = {tmin,tmax,vmin,vmax,xLabel,yLabel,font,xStep,yStep}.
+   Penempatan label sumbu x mengikuti W03: batas tmin/tmax tepat di bawah garis sumbu x,
+   nama variabel rata kanan satu baris di bawah batas tmax. */
+function makeFrame(cv, o){
+  const s = setupCanvas(cv);
+  const ctx = s.ctx, w = s.w, h = s.h;
+  ctx.clearRect(0,0,w,h);
+  const fs = o.font || 12;
+  const vzero = Math.min(Math.max(0,o.vmin),o.vmax);
+  const baseAtBottom = (vzero === o.vmin);
+  const L = fs*3.2 + 10, R = 10, T = fs*0.5 + 4;
+  const B = baseAtBottom ? (2*fs + 12) : 6;
+  const X = function(t){ return L + (t-o.tmin)/(o.tmax-o.tmin)*(w-L-R); };
+  const Y = function(v){ return T + (o.vmax-v)/(o.vmax-o.vmin)*(h-T-B); };
+  const F = {ctx:ctx, w:w, h:h, X:X, Y:Y, o:o, L:L, R:R, T:T, B:B};
+  /* Grid tipis digambar lebih dahulu (sebelum sumbu dan seri), pada kelipatan langkah bermakna. */
+  if(isGridVisible('x') || isGridVisible('y')){
+    ctx.save();
+    ctx.strokeStyle = GRIDC; ctx.lineWidth = 0.65;
+    ctx.beginPath();
+    if(isGridVisible('x')){
+      const sx = o.xStep || niceStep(o.tmax-o.tmin, 5);
+      for(let v=Math.ceil(o.tmin/sx-1e-9)*sx; v<=o.tmax+1e-9; v+=sx){
+        const px = X(v); ctx.moveTo(px, T); ctx.lineTo(px, h-B);
+      }
+    }
+    if(isGridVisible('y')){
+      const sy = o.yStep || niceStep(o.vmax-o.vmin, 4);
+      for(let v=Math.ceil(o.vmin/sy-1e-9)*sy; v<=o.vmax+1e-9; v+=sy){
+        const py = Y(v); ctx.moveTo(L, py); ctx.lineTo(w-R, py);
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+  const base = Y(vzero);
+  ctx.strokeStyle = AXIS; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(L, base); ctx.lineTo(w-R, base);
+  ctx.moveTo(L, T); ctx.lineTo(L, h-B);
+  ctx.stroke();
+  ctx.font = '600 '+fs+'px "JetBrains Mono", "Courier New", monospace';
+  ctx.fillStyle = INK;
+  const ly = base + fs + 4;
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'left';   ctx.fillText(fmtNum(o.tmin), L, ly);
+  ctx.textAlign = 'right';  ctx.fillText(fmtNum(o.tmax), w-R, ly);
+  if(o.xLabel){ ctx.textAlign = 'right'; ctx.fillText(o.xLabel, w-R, ly+fs+4); }
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'top';    ctx.fillText(fmtNum(o.vmax), L-4, T-2);
+  ctx.textBaseline = 'bottom'; ctx.fillText(fmtNum(o.vmin), L-4, h-B+2);
+  if(o.yLabel){
+    ctx.save();
+    ctx.translate(fs*0.6+1, (T+h-B)/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(o.yLabel, 0, 0);
+    ctx.restore();
+  }
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  return F;
+}
+function plotFn(F, fn, style){
+  const ctx = F.ctx, o = F.o, N = 500;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(F.L, 0, F.w-F.L-F.R+1, F.h); ctx.clip();
+  ctx.strokeStyle = style.color; ctx.lineWidth = style.lw || 2.2;
+  ctx.setLineDash(style.dashed ? [5,4] : (style.dotted ? [1.5,3] : []));
+  ctx.beginPath();
+  for(let i=0;i<=N;i++){
+    const t = o.tmin + (o.tmax-o.tmin)*i/N;
+    const px = F.X(t), py = F.Y(fn(t));
+    if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+function plotPath(F, ts, vs, style){
+  const ctx = F.ctx;
+  ctx.save();
+  ctx.strokeStyle = style.color; ctx.lineWidth = style.lw || 2.2;
+  ctx.setLineDash(style.dashed ? [5,4] : []);
+  ctx.beginPath();
+  for(let i=0;i<ts.length;i++){ const px=F.X(ts[i]), py=F.Y(vs[i]); if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py); }
+  ctx.stroke();
+  ctx.restore();
+}
+function fillArea(F, ts, vs, color){
+  const ctx = F.ctx, base = F.Y(0);
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(F.X(ts[0]), base);
+  for(let i=0;i<ts.length;i++) ctx.lineTo(F.X(ts[i]), F.Y(vs[i]));
+  ctx.lineTo(F.X(ts[ts.length-1]), base);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function plotStems(F, ns, vs, style){
+  const ctx = F.ctx, off = style.offset || 0, r = style.r || 3;
+  ctx.save();
+  for(let i=0;i<ns.length;i++){
+    if(vs[i]===0 && style.skipZero) continue;
+    const px = F.X(ns[i]+off), p0 = F.Y(0), p1 = F.Y(vs[i]);
+    const hi = (style.highlight!==undefined && ns[i]===style.highlight);
+    const col = hi ? (style.hiColor||C_ORANGE) : style.color;
+    ctx.strokeStyle = col; ctx.fillStyle = col;
+    ctx.lineWidth = style.lw || 2;
+    ctx.setLineDash(style.dashed ? [3,3] : []);
+    ctx.beginPath(); ctx.moveTo(px,p0); ctx.lineTo(px,p1); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(px,p1, hi ? r+1.5 : r, 0, 7);
+    if(style.hollow){ ctx.fillStyle='#fbf9f2'; ctx.fill(); ctx.lineWidth=1.4; ctx.stroke(); } else ctx.fill();
+  }
+  ctx.restore();
+}
+function plotDots(F, ns, vs, style){
+  const ctx = F.ctx;
+  ctx.save(); ctx.fillStyle = style.color; ctx.strokeStyle = style.color;
+  for(let i=0;i<ns.length;i++){
+    ctx.beginPath(); ctx.arc(F.X(ns[i]), F.Y(vs[i]), style.r || 2.4, 0, 7);
+    if(style.hollow){ ctx.lineWidth=1.3; ctx.stroke(); } else ctx.fill();
+  }
+  ctx.restore();
+}
+function plotHLine(F, v, style){
+  const ctx = F.ctx;
+  ctx.save(); ctx.strokeStyle = style.color; ctx.lineWidth = style.lw || 1.4; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(F.L, F.Y(v)); ctx.lineTo(F.w-F.R, F.Y(v)); ctx.stroke(); ctx.restore();
+}
+function renderTex(str){
+  try{ return katex.renderToString(str, {throwOnError:false}); }
+  catch(e){ return str; }
+}
+
+/* ============ pemantik: tepukan + dua gema teredam ============ */
+/* x(t): pulsa 0,06 s; h(t)=δ(t)+0,5δ(t−0,2)+0,25δ(t−0,4); y = x ∗ h. */
+function clapPulse(t){ return (t>=0 && t<0.06) ? 1 : 0; }
+function hallOutput(t){ return clapPulse(t) + 0.5*clapPulse(t-0.2) + 0.25*clapPulse(t-0.4); }
+function drawHook(){
+  const cv = document.getElementById('hookCanvas');
+  const L = 'hookLegend';
+  const F = makeFrame(cv, {legend:L, tmin:-0.1, tmax:0.6, vmin:0, vmax:1.2, xLabel:'t (s)', yLabel:'amplitudo', xStep:0.2, yStep:0.5});
+  if(isSeriesVisible(L,1)) plotFn(F, hallOutput, {color:C_ORANGE, lw:2.4});
+  if(isSeriesVisible(L,0)) plotFn(F, clapPulse, {color:C_GRAY, lw:1.6, dashed:true});
+  setLegend(L, [
+    {color:C_GRAY, dashed:true, label:'x(t): tepukan asli'},
+    {color:C_ORANGE, label:'y(t): tepukan + gema ×0,5 dan ×0,25'}
+  ], drawHook);
+}
+
+/* ============ Bagian 02A: grafik mini ============ */
+function rectOn(t, a, b){ return (t>=a && t<b) ? 1 : 0; }
+function drawMiniCT(){
+  const cv = document.querySelector('.mini-plot[data-kind="ctconv"]'); if(!cv) return;
+  const L = 'miniLegendCT';
+  const F = makeFrame(cv, {legend:L, tmin:-3, tmax:3, vmin:0, vmax:2.2, xLabel:'t', font:11, xStep:2, yStep:1});
+  if(isSeriesVisible(L,1)) plotFn(F, function(t){ return Math.abs(t)<2 ? 2-Math.abs(t) : 0; }, {color:C_GREEN});
+  if(isSeriesVisible(L,0)) plotFn(F, function(t){ return rectOn(t,-1,1); }, {color:C_GRAY, lw:1.6, dashed:true});
+  setLegend(L, [
+    {color:C_GRAY, dashed:true, label:'x = h: lebar 2'},
+    {color:C_GREEN, label:'y: lebar 4'}
+  ], drawMiniCT);
+}
+function drawMiniDT(){
+  const cv = document.querySelector('.mini-plot[data-kind="dtconv"]'); if(!cv) return;
+  const L = 'miniLegendDT';
+  const F = makeFrame(cv, {legend:L, tmin:-1, tmax:5, vmin:0, vmax:4.5, xLabel:'n', font:11, xStep:2, yStep:2});
+  if(isSeriesVisible(L,0)) plotStems(F, [0,1,2,3,4], [1,3,4,3,1], {color:C_GREEN, r:2.6});
+  setLegend(L, [
+    {color:C_GREEN, kind:'stem', label:'y[n] = [1, 3, 4, 3, 1]'}
+  ], drawMiniDT);
+}
+function drawMiniLen(){
+  const cv = document.querySelector('.mini-plot[data-kind="proplen"]'); if(!cv) return;
+  const L = 'miniLegendLen';
+  const F = makeFrame(cv, {legend:L, tmin:-2, tmax:3, vmin:0, vmax:1.3, xLabel:'t', font:11, xStep:1, yStep:0.5});
+  /* x: pulsa [−1,1), h: pulsa [0,1) → y: trapesium pada [−1,2]; tanpa penskalaan. */
+  if(isSeriesVisible(L,2)) plotFn(F, function(t){
+    if(t<-1 || t>2) return 0;
+    if(t<0) return t+1;
+    if(t<1) return 1;
+    return 2-t;
+  }, {color:C_GREEN});
+  if(isSeriesVisible(L,0)) plotFn(F, function(t){ return rectOn(t,-1,1); }, {color:C_GRAY, lw:1.6, dashed:true});
+  if(isSeriesVisible(L,1)) plotFn(F, function(t){ return rectOn(t,0,1); }, {color:C_BLUE, lw:1.8, dotted:true});
+  setLegend(L, [
+    {color:C_GRAY, dashed:true, label:'x: lebar 2'},
+    {color:C_BLUE, dotted:true, label:'h: lebar 1'},
+    {color:C_GREEN, label:'y: lebar 3'}
+  ], drawMiniLen);
+}
+function renderConceptPlots(){ drawMiniCT(); drawMiniDT(); drawMiniLen(); }
+
+/* ============ SIMULATOR KONVOLUSI (geser–kali–jumlahkan) ============ */
+const PAIRS = {
+  A: { kind:'CT', tex:'x(t)=h(t)=\\mathrm{rect}(t/2),\\quad y(t)=(2-|t|)\\cdot\\mathbf{1}_{|t|\\le 2}',
+       note:'Pulsa × pulsa → segitiga. Puncak y(0) = 2 = luas pulsa.',
+       tmin:-3, tmax:3, dt:0.02, vmax:2.2, xStep:1, yStep:0.5,
+       xFn:function(t){ return (Math.abs(t)<1?1:0); },
+       hFn:function(u){ return (Math.abs(u)<1?1:0); } },
+  B: { kind:'CT', tex:'x(t)=e^{-t}u(t),\\qquad h(t)=u(t)',
+       note:'Bentuk analitik y(t) dikerjakan pada Latihan 1 — bandingkan hasil Anda dengan kurva di panel kanan.',
+       tmin:-1, tmax:6, dt:0.02, vmax:1.2, xStep:1, yStep:0.25,
+       xFn:function(t){ return (t>=0?Math.exp(-t):0); },
+       hFn:function(u){ return (u>=0?1:0); } },
+  C: { kind:'DT', tex:'x=[1,2,1],\\quad h=[1,1,1],\\quad y=[1,3,4,3,1]',
+       note:'Jumlahkan x[k]·h[n−k] untuk tiap n. Panjang 3 + 3 − 1 = 5, indeks 0 sampai 4.',
+       x:[1,2,1], h:[1,1,1], nmin:-1, nmax:5, vmax:4.5, kmin:-3, kmax:6, stepVmax:2.2 }
+};
+const pairSelect = document.getElementById('pairSelect');
+const shiftSlider = document.getElementById('shiftSlider');
+
+/* Integral konvolusi dihitung dengan aturan titik tengah (midpoint): tepat untuk
+   pulsa persegi dan galat ~1e-5 untuk eksponensial pada dt = 0,02. */
+function ctIntegral(pair, shift){
+  const K = Math.round((pair.tmax-pair.tmin)/pair.dt);
+  let acc=0;
+  for(let i=0;i<K;i++){
+    const tau = pair.tmin + (i+0.5)*pair.dt;
+    acc += pair.xFn(tau)*pair.hFn(shift-tau)*pair.dt;
+  }
+  return acc;
+}
+function convCTNumeric(pair, shift){
+  const ts=[], prod=[];
+  const K = Math.round((pair.tmax-pair.tmin)/pair.dt);
+  for(let i=0;i<=K;i++){
+    const t = pair.tmin + i*pair.dt;
+    ts.push(t);
+    prod.push(pair.xFn(t)*pair.hFn(shift-t));
+  }
+  return {ts:ts, prod:prod, val:ctIntegral(pair, shift)};
+}
+const ctFullCache = {};
+function convCTFull(pair, key){
+  if(ctFullCache[key]) return ctFullCache[key];
+  const ss=[], ys=[];
+  const K = Math.round((pair.tmax-pair.tmin)/pair.dt);
+  for(let i=0;i<=K;i++){
+    const t = pair.tmin + i*pair.dt;
+    ss.push(t);
+    ys.push(ctIntegral(pair, t));
+  }
+  return (ctFullCache[key] = {ss:ss, ys:ys});
+}
+function seqAt(arr, i){ return (i>=0 && i<arr.length) ? arr[i] : 0; }
+function convDTAt(pair, n){
+  let acc=0;
+  const terms=[];
+  for(let k=0;k<pair.x.length;k++){
+    const hk = seqAt(pair.h, n-k);
+    terms.push({k:k, xk:pair.x[k], hk:hk});
+    acc += pair.x[k]*hk;
+  }
+  return {terms:terms, val:acc};
+}
+function convDTFull(pair){
+  const ns=[], ys=[];
+  for(let n=pair.nmin;n<=pair.nmax;n++){
+    ns.push(n);
+    ys.push(convDTAt(pair,n).val);
+  }
+  return {ns:ns, ys:ys};
+}
+
+function updateConvSim(){
+  const key = pairSelect.value;
+  const P = PAIRS[key];
+  let shift = parseFloat(shiftSlider.value);
+  document.getElementById('pairFormula').innerHTML = renderTex(P.tex);
+  const stepPlot = document.getElementById('stepPlot');
+  const fullPlot = document.getElementById('fullPlot');
+  const SL = 'stepLegend|'+P.kind, FL = 'fullLegend|'+P.kind;
+
+  if(P.kind==='CT'){
+    shift = Math.max(P.tmin, Math.min(P.tmax, shift));
+    document.getElementById('shiftVal').textContent = 't = '+fmtNum(shift,2);
+    document.getElementById('stepLabel').textContent = 't = ' + fmtNum(shift,2);
+    const r = convCTNumeric(P, shift);
+    /* panel kiri: x(τ), h(t−τ), dan luas tumpang-tindih */
+    const F = makeFrame(stepPlot, {legend:'stepLegend', tmin:P.tmin, tmax:P.tmax, vmin:0, vmax:P.vmax, xLabel:'τ', xStep:P.xStep, yStep:P.yStep});
+    if(isSeriesVisible(SL,2)) fillArea(F, r.ts, r.prod, 'rgba(180,83,9,0.28)');
+    if(isSeriesVisible(SL,1)) plotFn(F, function(t){ return P.hFn(shift-t); }, {color:C_GREEN});
+    if(isSeriesVisible(SL,0)) plotFn(F, P.xFn, {color:C_GRAY, lw:1.8, dashed:true});
+    setLegend('stepLegend', [
+      {color:C_GRAY, dashed:true, label:'x(τ)'},
+      {color:C_GREEN, label:'h(t−τ): dibalik lalu digeser'},
+      {color:C_ORANGE, kind:'area', label:'x(τ)·h(t−τ): luasnya = y(t)'}
+    ], updateConvSim, SL);
+    /* panel kanan: hasil penuh + penanda posisi */
+    const f = convCTFull(P, key);
+    const G = makeFrame(fullPlot, {legend:'fullLegend', tmin:P.tmin, tmax:P.tmax, vmin:0, vmax:P.vmax, xLabel:'t', xStep:P.xStep, yStep:P.yStep});
+    if(isSeriesVisible(FL,0)) plotPath(G, f.ss, f.ys, {color:C_GREEN});
+    const best = r.val;
+    if(isSeriesVisible(FL,1)){
+      const ctx = G.ctx, mx = G.X(shift);
+      ctx.save(); ctx.strokeStyle=C_ORANGE; ctx.lineWidth=1.4; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(mx,G.T); ctx.lineTo(mx,G.h-G.B); ctx.stroke(); ctx.restore();
+      ctx.fillStyle=C_ORANGE; ctx.beginPath(); ctx.arc(mx,G.Y(best),4.5,0,7); ctx.fill();
+    }
+    setLegend('fullLegend', [
+      {color:C_GREEN, label:'y(t) = (x ∗ h)(t)'},
+      {color:C_ORANGE, dashed:true, label:'posisi t saat ini'}
+    ], updateConvSim, FL);
+    document.getElementById('convReadout').innerHTML =
+      'y(t = '+fmtNum(shift,2)+') = luas tumpang-tindih = <b>'+fmtNum(best,3)+'</b><span class="readout-note">'+P.note+'</span>';
+  } else {
+    const n = Math.round(shift);
+    shiftSlider.value = n;
+    document.getElementById('shiftVal').textContent = 'n = '+fmtNum(n);
+    document.getElementById('stepLabel').textContent = 'n = ' + fmtNum(n);
+    const r = convDTAt(P, n);
+    /* panel kiri: x[k] dan h[n−k] di seluruh jendela k, bukan hanya pada dukungan x */
+    const ks=[], xs=[], hs=[];
+    for(let k=P.kmin;k<=P.kmax;k++){ ks.push(k); xs.push(seqAt(P.x,k)); hs.push(seqAt(P.h,n-k)); }
+    const F = makeFrame(stepPlot, {legend:'stepLegend', tmin:P.kmin-0.5, tmax:P.kmax+0.5, vmin:0, vmax:P.stepVmax, xLabel:'k', xStep:1, yStep:0.5});
+    if(isSeriesVisible(SL,0)) plotStems(F, ks, xs, {color:C_GRAY, dashed:true, lw:1.8, skipZero:true, hollow:true, offset:-0.12});
+    if(isSeriesVisible(SL,1)) plotStems(F, ks, hs, {color:C_GREEN, skipZero:true, offset:0.12, r:2.8});
+    setLegend('stepLegend', [
+      {color:C_GRAY, kind:'stem', dashed:true, hollow:true, label:'x[k]'},
+      {color:C_GREEN, kind:'stem', label:'h[n−k]: dibalik lalu digeser'}
+    ], updateConvSim, SL);
+    const f = convDTFull(P);
+    const G = makeFrame(fullPlot, {legend:'fullLegend', tmin:P.nmin-0.5, tmax:P.nmax+0.5, vmin:0, vmax:P.vmax, xLabel:'n', xStep:1, yStep:1});
+    const showY = isSeriesVisible(FL,0), showN = isSeriesVisible(FL,1);
+    if(showY) plotStems(G, f.ns, f.ys, {color:C_GREEN, highlight: showN ? n : undefined, hiColor:C_ORANGE});
+    else if(showN) plotStems(G, [n], [f.ys[f.ns.indexOf(n)]], {color:C_ORANGE, r:4.5});
+    setLegend('fullLegend', [
+      {color:C_GREEN, kind:'stem', label:'y[n] = (x ∗ h)[n]'},
+      {color:C_ORANGE, kind:'stem', label:'n saat ini'}
+    ], updateConvSim, FL);
+    const termsStr = r.terms.map(function(tm){return tm.xk+'×'+tm.hk;}).join(' + ');
+    document.getElementById('convReadout').innerHTML =
+      'y[n = '+fmtNum(n)+'] = '+termsStr+' = <b>'+fmtNum(r.val)+'</b><span class="readout-note">'+P.note+'</span>';
+  }
+}
+pairSelect.addEventListener('input',function(){
+  const P = PAIRS[pairSelect.value];
+  if(P.kind==='CT'){ shiftSlider.min=P.tmin; shiftSlider.max=P.tmax; shiftSlider.step=0.05; shiftSlider.value=0; }
+  else { shiftSlider.min=P.nmin; shiftSlider.max=P.nmax; shiftSlider.step=1; shiftSlider.value=2; }
+  updateConvSim();
+});
+shiftSlider.addEventListener('input',updateConvSim);
+
+/* ============ SIMULATOR tapis rata-rata bergerak ============ */
+const mSlider = document.getElementById('mSlider');
+function firSignal(){
+  const n=[], x=[];
+  for(let k=0;k<48;k++){
+    n.push(k);
+    const noise = (((k*37)%11)/11 - 0.5)*0.9;
+    x.push(Math.sin(2*Math.PI*3*k/48) + noise);
+  }
+  return {n:n, x:x};
+}
+function updateFIR(){
+  const M = parseInt(mSlider.value,10);
+  document.getElementById('mVal').textContent = M;
+  const s = firSignal();
+  const y = s.x.map(function(_,i){
+    let acc=0;
+    for(let j=0;j<M;j++){ acc += (i-j>=0 ? s.x[i-j] : 0); }
+    return acc/M;
+  });
+  /* kiri: sampel masukan dan keluaran (DT: titik, tanpa garis penghubung) */
+  const L1 = 'firLegend';
+  const F = makeFrame(document.getElementById('firPlot'), {legend:L1, tmin:0, tmax:47, vmin:-2, vmax:2, xLabel:'n', xStep:8, yStep:1});
+  if(isSeriesVisible(L1,0)) plotDots(F, s.n, s.x, {color:C_GRAY, r:2.4, hollow:true});
+  if(isSeriesVisible(L1,1)) plotDots(F, s.n, y, {color:C_GREEN, r:2.6});
+  setLegend(L1, [
+    {color:C_GRAY, kind:'dot', hollow:true, label:'x[n]: sinus + derau'},
+    {color:C_GREEN, kind:'dot', label:'y[n]: keluaran MA('+M+')'}
+  ], updateFIR);
+  /* kanan: respons impuls h[n] = b_n */
+  const L2 = 'firStemLegend';
+  const b=[]; for(let j=0;j<M;j++) b.push(1/M);
+  const G = makeFrame(document.getElementById('firStem'), {legend:L2, tmin:-1, tmax:Math.max(M,4), vmin:0, vmax:1.1, xLabel:'n', xStep:1, yStep:0.25});
+  if(isSeriesVisible(L2,0)) plotStems(G, b.map(function(_,j){return j;}), b, {color:C_BLUE});
+  setLegend(L2, [
+    {color:C_BLUE, kind:'stem', label:'h[n] = 1/'+M+' untuk n = 0 … '+(M-1)+' (orde '+(M-1)+')'}
+  ], updateFIR);
+  document.getElementById('firFormula').innerHTML = renderTex('y[n]=\\frac{1}{'+M+'}\\sum_{k=0}^{'+(M-1)+'}x[n-k],\\qquad b=['+b.map(function(v){return v.toFixed(2).replace('.','{,}');}).join(';\\ ')+']');
+  document.getElementById('firReadout').innerHTML =
+    'Makin besar <b>M</b>, derau makin halus, tetapi transien awal makin panjang dan keluaran makin tertunda. <span class="readout-note">Di Labsheet-04: <code>scipy.signal.lfilter(b, 1, x)</code> dan dekonvolusi sebagai verifikasi.</span>';
+}
+mSlider.addEventListener('input',updateFIR);
+
+/* ============ grafik jawaban contoh (di dalam details.solusi) ============ */
+function visibleCanvas(id){
+  const c = document.getElementById(id);
+  return (c && c.getBoundingClientRect().width>0) ? c : null;
+}
+function drawSoal1(){
+  const c = visibleCanvas('soal1canvas'); if(!c) return;
+  const L = 'soal1Legend';
+  const F = makeFrame(c, {legend:L, tmin:-3, tmax:3, vmin:0, vmax:2.2, xLabel:'t', xStep:1, yStep:0.5});
+  if(isSeriesVisible(L,1)) plotFn(F, function(t){ return Math.abs(t)<2 ? 2-Math.abs(t) : 0; }, {color:C_GREEN});
+  if(isSeriesVisible(L,0)) plotFn(F, function(t){ return rectOn(t,-1,1); }, {color:C_GRAY, lw:1.6, dashed:true});
+  setLegend(L, [
+    {color:C_GRAY, dashed:true, label:'x(t) = h(t): pulsa lebar 2'},
+    {color:C_GREEN, label:'y(t) = 2 − |t| pada |t| ≤ 2'}
+  ], drawSoal1);
+}
+function drawSoal2(){
+  const c = visibleCanvas('soal2canvas'); if(!c) return;
+  const L = 'soal2Legend';
+  const F = makeFrame(c, {legend:L, tmin:-1, tmax:5, vmin:0, vmax:4.5, xLabel:'n', xStep:1, yStep:1});
+  if(isSeriesVisible(L,0)) plotStems(F, [0,1,2,3,4], [1,3,4,3,1], {color:C_GREEN});
+  setLegend(L, [
+    {color:C_GREEN, kind:'stem', label:'y[n] = [1, 3, 4, 3, 1], n = 0 … 4'}
+  ], drawSoal2);
+}
+function contoh3Output(t){
+  if(t<0 || t>=2) return 0;
+  if(t<1) return t*t/2;
+  return t - t*t/2;
+}
+function drawSoal3(){
+  const c = visibleCanvas('soal3canvas'); if(!c) return;
+  const L = 'soal3Legend';
+  const F = makeFrame(c, {legend:L, tmin:-1, tmax:3, vmin:0, vmax:1.2, xLabel:'t', xStep:1, yStep:0.25});
+  if(isSeriesVisible(L,2)) plotFn(F, contoh3Output, {color:C_GREEN});
+  if(isSeriesVisible(L,0)) plotFn(F, function(t){ return rectOn(t,0,1); }, {color:C_GRAY, lw:1.6, dashed:true});
+  if(isSeriesVisible(L,1)) plotFn(F, function(t){ return (t>=0 && t<1) ? t : 0; }, {color:C_BLUE, lw:1.8, dotted:true});
+  setLegend(L, [
+    {color:C_GRAY, dashed:true, label:'x(t): pulsa pada 0 ≤ t < 1'},
+    {color:C_BLUE, dotted:true, label:'h(t) = t pada 0 ≤ t < 1'},
+    {color:C_GREEN, label:'y(t): t²/2, lalu t − t²/2'}
+  ], drawSoal3);
+}
+function drawSoal4(){
+  const c = visibleCanvas('soal4canvas'); if(!c) return;
+  const L = 'soal4Legend';
+  const a = 0.8, ns=[], hs=[], ys=[];
+  for(let n=-2;n<=20;n++){ ns.push(n); hs.push(n>=0 ? Math.pow(a,n) : 0); ys.push(n>=0 ? (1-Math.pow(a,n+1))/(1-a) : 0); }
+  const F = makeFrame(c, {legend:L, tmin:-2.5, tmax:20.5, vmin:0, vmax:5.5, xLabel:'n', xStep:5, yStep:1});
+  if(isSeriesVisible(L,2)) plotHLine(F, 1/(1-a), {color:C_ORANGE});
+  if(isSeriesVisible(L,0)) plotStems(F, ns, hs, {color:C_BLUE, r:2.4, hollow:true, offset:-0.15, skipZero:true});
+  if(isSeriesVisible(L,1)) plotStems(F, ns, ys, {color:C_GREEN, r:2.6, offset:0.15, skipZero:true});
+  setLegend(L, [
+    {color:C_BLUE, kind:'stem', hollow:true, label:'h[n] = 0,8ⁿ u[n]'},
+    {color:C_GREEN, kind:'stem', label:'y[n] = (1 − 0,8ⁿ⁺¹)/(1 − 0,8)'},
+    {color:C_ORANGE, dashed:true, label:'batas 1/(1 − a) = 5'}
+  ], drawSoal4);
+}
+function drawSoalCanvases(){ drawSoal1(); drawSoal2(); drawSoal3(); drawSoal4(); }
+document.querySelectorAll('details.solusi').forEach(function(d){
+  d.addEventListener('toggle', function(){ if(d.open) requestAnimationFrame(drawSoalCanvases); });
+});
+
+/* ============ gambar ulang semua grafik ============ */
+function redrawAllPlots(){
+  drawHook(); renderConceptPlots(); updateConvSim(); updateFIR(); drawSoalCanvases();
+}
+
+/* ============ menu "Grafik" di header: grid x / grid y global (pola W05 v06) ============ */
+function syncGraphSettings(){
+  const gx=document.getElementById('globalGridX');
+  const gy=document.getElementById('globalGridY');
+  const state=document.getElementById('graphSettingsState');
+  const btn=document.getElementById('graphSettingsBtn');
+  if(gx) gx.checked=globalGridVisibility.x;
+  if(gy) gy.checked=globalGridVisibility.y;
+  const summary=(globalGridVisibility.x?'X':'')+(globalGridVisibility.y?'Y':'')||'OFF';
+  if(state) state.textContent=summary;
+  if(btn) btn.setAttribute('aria-label','Pengaturan grafik; grid '+(summary==='OFF'?'nonaktif':summary+' aktif'));
+}
+(function initGraphSettings(){
+  const btn=document.getElementById('graphSettingsBtn');
+  const panel=document.getElementById('graphSettingsPanel');
+  const gx=document.getElementById('globalGridX');
+  const gy=document.getElementById('globalGridY');
+  if(!btn||!panel||!gx||!gy) return;
+  function setOpen(open,returnFocus){
+    panel.hidden=!open;
+    btn.setAttribute('aria-expanded',open?'true':'false');
+    if(returnFocus) btn.focus({preventScroll:true});
+  }
+  function apply(axis,checked){
+    globalGridVisibility[axis]=checked;
+    try{ localStorage.setItem('isys-plot-grid-'+axis,checked?'on':'off'); }catch(e){}
+    syncGraphSettings();
+    redrawAllPlots();
+  }
+  btn.addEventListener('click',function(){ setOpen(panel.hidden); });
+  btn.addEventListener('keydown',function(e){
+    if((e.key==='ArrowDown'||e.key==='Enter')&&panel.hidden){
+      e.preventDefault(); setOpen(true); gx.focus();
+    }
+  });
+  gx.addEventListener('change',function(){ apply('x',gx.checked); });
+  gy.addEventListener('change',function(){ apply('y',gy.checked); });
+  document.addEventListener('click',function(e){ if(!panel.hidden&&!e.target.closest('.graph-settings')) setOpen(false); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!panel.hidden){ e.preventDefault(); setOpen(false,true); } });
+  syncGraphSettings();
+})();
+
+/* ============ quiz ============ */
+const QUIZ = [
+  {
+    q:'x memiliki 4 sampel dan h memiliki 3 sampel. Berapa panjang y = x ∗ h?',
+    opts:['7','6','5','12'],
+    correct:1,
+    fb:'Benar — panjang keluaran = Nₓ + Nₕ − 1 = 4 + 3 − 1 = 6. Dukungan keluaran melebar sebesar jumlah lebar kedua dukungan.'
+  },
+  {
+    q:'Rumus y = x ∗ h untuk menghitung keluaran sistem hanya berlaku bila sistem tersebut ...',
+    opts:['Linier saja (boleh berubah terhadap waktu)','Invarian waktu saja (boleh nonlinier)','LTI: linier DAN invarian waktu','Kausal dan stabil saja'],
+    correct:2,
+    fb:'Benar — penurunan konvolusi memakai superposisi (perlu linearitas) atas respons impuls yang digeser (perlu invariansi waktu). Karena itu Minggu 3 menandai status LTI sebelum konvolusi dipakai.'
+  },
+  {
+    q:'Sistem LTI kausal memiliki respons impuls ...',
+    opts:['h = 0 untuk waktu negatif','h = 0 untuk waktu positif','h yang selalu genap','h dengan luas tepat satu'],
+    correct:0,
+    fb:'Benar — sistem LTI kausal tidak boleh merespons sebelum impuls diberikan, sehingga h(t) = 0 untuk t < 0 atau h[n] = 0 untuk n < 0.'
+  },
+  {
+    q:'Dua sistem LTI dengan respons impuls h₁ dan h₂ disusun kaskade. Respons impuls ekuivalennya adalah ...',
+    opts:['h₁ + h₂','h₁ − h₂','h₁ ∗ h₂','h₁ / h₂'],
+    correct:2,
+    fb:'Benar — pada kaskade, keluaran blok pertama menjadi masukan blok kedua, sehingga respons impuls ekuivalennya h₁ ∗ h₂. Untuk susunan paralel barulah h₁ + h₂.'
+  }
+];
+function renderQuiz(){
+  QUIZ.forEach(function(item,qi){
+    const root = document.getElementById('quizRoot'+(Math.floor(qi/2)+1));
+    if(!root) return;
+    const box = document.createElement('div');
+    box.className='quiz-item';
+    const q = document.createElement('div');
+    q.className='quiz-q';
+    q.id='quizQuestion'+(qi+1);
+    q.textContent = (qi+1)+'. '+item.q;
+    box.setAttribute('role','group');
+    box.setAttribute('aria-labelledby',q.id);
+    box.appendChild(q);
+    const opts = document.createElement('div');
+    opts.className='quiz-opts';
+    const fb = document.createElement('div');
+    fb.className='quiz-fb';
+    fb.setAttribute('role','status');
+    fb.setAttribute('aria-live','polite');
+    item.opts.forEach(function(optText,oi){
+      const o = document.createElement('button');
+      o.type='button';
+      o.className='opt';
+      o.setAttribute('aria-label','Pilihan '+String.fromCharCode(65+oi)+': '+optText);
+      o.innerHTML = '<span class="k">'+String.fromCharCode(65+oi)+'</span><span>'+optText+'</span>';
+      o.addEventListener('click',function(){
+        if(box.dataset.answered) return;
+        box.dataset.answered='1';
+        Array.from(opts.children).forEach(function(el,ei){
+          if(ei===item.correct) el.classList.add('correct');
+          else if(ei===oi) el.classList.add('wrong');
+        });
+        fb.textContent = (oi===item.correct? '✓ Tepat. ' : '✗ Belum tepat. ') + item.fb.replace(/^Benar — /,'Penjelasan: ');
+      });
+      opts.appendChild(o);
+    });
+    box.appendChild(opts);
+    box.appendChild(fb);
+    root.appendChild(box);
+  });
+}
+
+/* ============ pemisahan kalimat adaptif pada paragraf ============ */
+let sentenceLayoutFrame=0;
+function addSentenceBreaks(root){
+  root.querySelectorAll('p:not(.version-tag)').forEach(function(paragraph){
+    const walker=document.createTreeWalker(paragraph,NodeFilter.SHOW_TEXT,{
+      acceptNode:function(node){
+        if(node.parentElement.closest('.tex,.katex,code,pre,.sentence-break')) return NodeFilter.FILTER_REJECT;
+        return /[.!?…]\s+(?=[A-ZÀ-ÖØ-Þ0-9“"'])/u.test(node.data)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+      }
+    });
+    const nodes=[];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function(node){
+      const pieces=node.data.split(/(?<=[.!?…])\s+(?=[A-ZÀ-ÖØ-Þ0-9“"'])/u);
+      if(pieces.length<2) return;
+      const fragment=document.createDocumentFragment();
+      pieces.forEach(function(piece,index){
+        if(index){
+          const marker=document.createElement('span');
+          marker.className='sentence-break';
+          marker.setAttribute('aria-hidden','true');
+          fragment.appendChild(marker);
+        }
+        fragment.appendChild(document.createTextNode(piece));
+      });
+      node.replaceWith(fragment);
+    });
+  });
+}
+function fitSentenceBreaks(){
+  sections.forEach(function(section){section.classList.remove('sentence-flow');});
+  if(innerWidth<=900) return;
+  const heightLimit=innerHeight*1.1+1;
+  sections.forEach(function(section){
+    if(section.getBoundingClientRect().height>heightLimit) section.classList.add('sentence-flow');
+  });
+}
+function scheduleSentenceLayout(){
+  cancelAnimationFrame(sentenceLayoutFrame);
+  sentenceLayoutFrame=requestAnimationFrame(function(){
+    addSentenceBreaks(document);
+    sentenceLayoutFrame=requestAnimationFrame(fitSentenceBreaks);
+  });
+}
+const sentenceObserver=new MutationObserver(scheduleSentenceLayout);
+sentenceObserver.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['open']});
+
+/* ============ init ============ */
+drawHook();
+renderConceptPlots();
+updateConvSim();
+updateFIR();
+drawSoalCanvases();
+renderQuiz();
+scheduleSentenceLayout();
+
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(function(){
+    drawHook(); renderConceptPlots(); updateConvSim(); updateFIR(); drawSoalCanvases();
+    scheduleSentenceLayout();
+  });
+}
+
+window.addEventListener('resize', function(){
+  drawHook();
+  renderConceptPlots();
+  updateConvSim();
+  updateFIR();
+  drawSoalCanvases();
+  scheduleSentenceLayout();
+});
+
+window.addEventListener('load',function(){
+  document.getElementById('f-convop').innerHTML = renderTex('y = x \\ast h');
+  document.getElementById('f-ct').innerHTML = renderTex('y(t)=\\int_{-\\infty}^{\\infty} x(\\tau)\\,h(t-\\tau)\\,d\\tau');
+  document.getElementById('f-dt').innerHTML = renderTex('y[n]=\\sum_k x[k]\\,h[n-k]');
+  document.getElementById('f-props').innerHTML = renderTex('x\\ast h = h\\ast x,\\quad \\mathrm{len}(y) = N_x+N_h-1');
+  document.getElementById('f-firii').innerHTML = renderTex('y[n]=\\sum_{k=0}^{q} b_k\\,x[n-k] - \\sum_{k=1}^{p} a_k\\,y[n-k],\\quad a_0=1');
+  document.getElementById('f-deconv').innerHTML = renderTex('y = x \\ast h \\;\\Rightarrow\\; x = \\mathrm{deconv}(y,h)');
+
+  if(window.renderMathInElement){
+    renderMathInElement(document.body, {
+      delimiters:[
+        {left:'$$', right:'$$', display:true},
+        {left:'$', right:'$', display:false}
+      ]
+    });
+  } else {
+    /* Fallback: render manual elemen .tex via katex bila auto-render belum siap. */
+    document.querySelectorAll('.tex').forEach(function(el){
+      el.innerHTML = renderTex(el.textContent);
+    });
+  }
+});
+</script>
+
+</body>
+</html>
