@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materi: Strength, Keuletan, dan Sifat Mekanik Lain &mdash; Kuliah 22 Oktober 2026</title>
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --ink: #1f2328;
+    --muted: #57606a;
+    --accent: #b02a37;
+    --blue: #1a5fa8;
+    --line: #d8dee4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  header {
+    background: linear-gradient(135deg, #123a63, #1a5fa8);
+    color: #fff;
+    padding: 2rem 1.5rem 1.5rem;
+  }
+  header h1 { margin: 0 0 .35rem; font-size: 1.5rem; }
+  header p  { margin: 0; opacity: .92; font-size: .95rem; }
+  main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+  section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 1px 3px rgba(30,35,40,.06);
+  }
+  h2 {
+    margin-top: 0;
+    font-size: 1.15rem;
+    color: var(--blue);
+    border-bottom: 2px solid var(--blue);
+    padding-bottom: .35rem;
+  }
+  h3 { font-size: 1rem; margin-bottom: .25rem; }
+  figure { margin: 0; text-align: center; }
+  figure img, figure svg {
+    max-width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+  }
+  figcaption { font-size: .85rem; color: var(--muted); margin-top: .5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td {
+    text-align: left;
+    padding: .5rem .6rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th { background: #eef3f9; white-space: nowrap; }
+  ul { margin: .25rem 0 .5rem; }
+  .formula {
+    display: block;
+    text-align: center;
+    font-size: 1.05rem;
+    background: #f4f7fb;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: .6rem;
+    margin: .5rem 0;
+  }
+  .note {
+    background: #fff8e6;
+    border: 1px solid #e3c766;
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    font-size: .9rem;
+  }
+  .en { color: var(--muted); font-style: italic; }
+  code {
+    background: #eff1f3;
+    padding: .1rem .35rem;
+    border-radius: 4px;
+    font-size: .9em;
+  }
+  a { color: var(--blue); }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: .8rem;
+    padding: 1rem 0 2rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kekuatan (Strength), Keuletan, dan Sifat Mekanik Lain</h1>
+  <p>Rekonstruksi materi yang dijelaskan Bapak Mujiyono &bull; Kuliah daring S3 Ilmu Teknik &bull; Kamis, 22 Oktober 2026</p>
+</header>
+
+<main>
+
+<section>
+  <h2>1. Latar Belakang</h2>
+  <p>
+    Pada pertemuan tanggal 22 Oktober 2026, Bapak Mujiyono menjelaskan dengan
+    menggambar langsung di atas lembar Excel presensi menggunakan tinta digital
+    (lihat <a href="penjelasan_2026-10-22.html">penjelasan screenshot pertemuan</a>).
+    Goresan pada screenshot menunjukkan <strong>beberapa kurva yang digambar
+    saling tumpang tindih pada bidang yang sama</strong> &mdash; masing-masing naik dan
+    berakhir pada ketinggian serta panjang yang berbeda &mdash; disertai coretan
+    rumus <code>&sigma; = F/A</code> dan daftar sifat bernomor. Ini adalah ciri
+    khas penjelasan <strong>perbandingan kurva tegangan&ndash;regangan
+    (<span class="en">stress&ndash;strain curve</span>) untuk beberapa jenis
+    material</strong>, sebagai cara menjelaskan sifat-sifat mekanik sekaligus
+    membandingkannya.
+  </p>
+  <figure>
+    <img src="Cuplikan layar 2026-10-22 112050.png" alt="Screenshot kuliah: kurva dan anotasi tinta merah di atas Excel">
+    <figcaption>
+      Screenshot asli pertemuan &mdash; terlihat beberapa kurva digambar tangan
+      saling bertumpuk, serta ekspresi yang terbaca <code>F/A = &sigma;</code>
+      di bagian bawah kanan.
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>2. Kurva Tegangan&ndash;Regangan</h2>
+  <p>
+    Hasil uji tarik (<span class="en">tensile test</span>) dinyatakan sebagai
+    hubungan tegangan dan regangan:
+  </p>
+  <span class="formula">
+    Tegangan: &sigma; = F / A<sub>0</sub> &nbsp;&nbsp;(MPa)
+    &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+    Regangan: &epsilon; = &Delta;L / L<sub>0</sub> &nbsp;&nbsp;(tanpa satuan)
+  </span>
+  <span class="formula">
+    Daerah elastis mengikuti Hukum Hooke: &sigma; = E &middot; &epsilon;
+  </span>
+  <figure>
+    <svg viewBox="0 0 720 470" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+      <!-- Area under curve (toughness) -->
+      <path d="M 90 400 L 250 150 C 330 95 400 80 430 78 C 490 80 540 130 565 185 L 565 400 Z"
+            fill="#dbe9f7" opacity="0.55"/>
+      <!-- Axes -->
+      <line x1="90" y1="400" x2="700" y2="400" stroke="#1f2328" stroke-width="2"/>
+      <line x1="90" y1="400" x2="90" y2="15"  stroke="#1f2328" stroke-width="2"/>
+      <polygon points="700,400 690,395 690,405" fill="#1f2328"/>
+      <polygon points="90,15 85,25 95,25" fill="#1f2328"/>
+      <text x="655" y="425" font-size="15">Regangan &epsilon;</text>
+      <text x="30" y="30" font-size="15">Tegangan &sigma;</text>
+      <!-- Curve -->
+      <path d="M 90 400 L 250 150 C 330 95 400 80 430 78 C 490 80 540 130 565 185"
+            fill="none" stroke="#b02a37" stroke-width="3.5"/>
+      <!-- Elastic slope line (extrapolated) -->
+      <line x1="90" y1="400" x2="300" y2="110" stroke="#1a5fa8" stroke-width="1.5" stroke-dasharray="6,5"/>
+      <text x="150" y="260" font-size="14" fill="#1a5fa8" transform="rotate(-54 150 260)">E = &sigma;/&epsilon; (kekakuan)</text>
+      <!-- Points -->
+      <circle cx="250" cy="150" r="5" fill="#1a5fa8"/>
+      <text x="258" y="140" font-size="14" fill="#1a5fa8">Batas luluh &sigma;<tspan dy="3" font-size="10">y</tspan> (yield)</text>
+      <circle cx="430" cy="78" r="5" fill="#b02a37"/>
+      <text x="330" y="60" font-size="14" fill="#b02a37">Kekuatan tarik maksimum &sigma;<tspan dy="3" font-size="10">uts</tspan></text>
+      <circle cx="565" cy="185" r="5" fill="#333"/>
+      <text x="573" y="185" font-size="14">Titik patah (fracture)</text>
+      <!-- Region labels -->
+      <text x="115" y="435" font-size="13" fill="#57606a">daerah elastis</text>
+      <text x="300" y="435" font-size="13" fill="#57606a">daerah plastis</text>
+      <line x1="250" y1="415" x2="250" y2="400" stroke="#57606a"/>
+      <!-- Toughness label -->
+      <text x="370" y="330" font-size="13" fill="#1a5fa8">Luas di bawah kurva = ketangguhan</text>
+      <!-- Dashed projections -->
+      <line x1="430" y1="78" x2="430" y2="400" stroke="#b02a37" stroke-dasharray="4,4" opacity=".6"/>
+      <line x1="565" y1="185" x2="565" y2="400" stroke="#333" stroke-dasharray="4,4" opacity=".6"/>
+    </svg>
+    <figcaption>
+      Anatomi satu kurva tegangan&ndash;regangan standar &mdash; rujukan dasar
+      sebelum membandingkan kurva beberapa jenis material (bagian 3).
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>3. Perbandingan Kurva Beberapa Jenis Material</h2>
+  <p>
+    Inilah inti ilustrasi yang digambar Bapak Mujiyono di layar: beberapa kurva
+    tegangan&ndash;regangan ditumpuk pada satu bidang agar terlihat langsung
+    <strong>perbedaan karakter antarmaterial</strong>. Dari satu gambar saja bisa
+    dibaca sekaligus siapa yang paling kuat, paling kaku, paling ulet, dan paling
+    tangguh:
+  </p>
+  <figure>
+    <svg viewBox="0 0 760 480" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+      <!-- Axes -->
+      <line x1="80" y1="410" x2="740" y2="410" stroke="#1f2328" stroke-width="2"/>
+      <line x1="80" y1="410" x2="80" y2="15"  stroke="#1f2328" stroke-width="2"/>
+      <polygon points="740,410 730,405 730,415" fill="#1f2328"/>
+      <polygon points="80,15 75,25 85,25" fill="#1f2328"/>
+      <text x="700" y="438" font-size="15">Regangan &epsilon;</text>
+      <text x="18" y="30" font-size="15">Tegangan &sigma;</text>
+
+      <!-- 1. Baja (ductile, strong) -->
+      <path d="M 80 410 L 210 130 C 270 80 330 62 360 60 C 410 62 445 100 465 135"
+            fill="none" stroke="#b02a37" stroke-width="3.5"/>
+      <circle cx="465" cy="135" r="4.5" fill="#b02a37"/>
+      <text x="472" y="130" font-size="14" fill="#b02a37" font-weight="bold">Baja (kuat &amp; ulet)</text>
+      <text x="472" y="148" font-size="12" fill="#b02a37">puncak tinggi, kurva lebar &rarr; tangguh</text>
+
+      <!-- 2. Besi cor / keramik (getas) -->
+      <path d="M 80 410 L 250 150" fill="none" stroke="#444444" stroke-width="3.5"/>
+      <circle cx="250" cy="150" r="4.5" fill="#444444"/>
+      <text x="257" y="168" font-size="14" fill="#444444" font-weight="bold">Besi cor / keramik (getas)</text>
+      <text x="257" y="186" font-size="12" fill="#444444">cukup tinggi, tapi langsung patah (sangat pendek)</text>
+
+      <!-- 3. Aluminium / tembaga (ulet sedang) -->
+      <path d="M 80 410 L 300 250 C 420 205 540 190 620 185"
+            fill="none" stroke="#1a5fa8" stroke-width="3.5"/>
+      <circle cx="620" cy="185" r="4.5" fill="#1a5fa8"/>
+      <text x="520" y="165" font-size="14" fill="#1a5fa8" font-weight="bold">Aluminium / tembaga</text>
+      <text x="470" y="228" font-size="12" fill="#1a5fa8">kekuatan sedang, memulur panjang</text>
+
+      <!-- 4. Karet / elastomer -->
+      <path d="M 80 410 C 250 405 480 380 700 330"
+            fill="none" stroke="#2e7d32" stroke-width="3.5"/>
+      <circle cx="700" cy="330" r="4.5" fill="#2e7d32"/>
+      <text x="560" y="372" font-size="14" fill="#2e7d32" font-weight="bold">Karet / polimer (elastomer)</text>
+      <text x="560" y="390" font-size="12" fill="#2e7d32">tegangan rendah, regangan sangat besar</text>
+
+      <!-- Toughness shading under baja -->
+      <path d="M 80 410 L 210 130 C 270 80 330 62 360 60 C 410 62 445 100 465 135 L 465 410 Z"
+            fill="#b02a37" opacity="0.08"/>
+      <text x="290" y="300" font-size="13" fill="#b02a37" transform="rotate(-12 290 300)">luas ini = energi/ketangguhan</text>
+      <line x1="80" y1="455" x2="740" y2="455" stroke="none"/>
+      <text x="80" y="465" font-size="12" fill="#57606a">Skala kualitatif &mdash; yang dibandingkan adalah bentuk &amp; posisi relatif kurva, bukan angka.</text>
+    </svg>
+    <figcaption>
+      Rekonstruksi gambar perbandingan yang dibuat di layar: empat keluarga
+      material dengan bentuk kurva yang sangat berbeda.
+    </figcaption>
+  </figure>
+
+  <h3>3.1 Cara Membaca Perbandingannya</h3>
+  <table>
+    <tr><th>Apa yang dilihat</th><th>Makna</th><th>Pemenang contoh</th></tr>
+    <tr><td>Tinggi puncak kurva</td><td>Kekuatan (&sigma;<sub>y</sub>, &sigma;<sub>uts</sub>)</td><td>Baja</td></tr>
+    <tr><td>Kemiringan awal (gradien)</td><td>Kekakuan (modulus Young, E)</td><td>Besi cor/keramik &amp; baja (curam); karet paling landai</td></tr>
+    <tr><td>Panjang kurva ke kanan</td><td>Keuletan (regangan patah)</td><td>Karet, lalu aluminium/tembaga; besi cor/keramik paling pendek</td></tr>
+    <tr><td>Luas di bawah kurva</td><td>Ketangguhan = energi hingga patah</td><td>Baja (kombinasi tinggi &amp; panjang)</td></tr>
+    <tr><td>Ujung kurva: landai turun vs putus tegak</td><td>Patah ulet (ada peringatan) vs patah getas (mendadak)</td><td>Baja &amp; Al/Cu ulet; besi cor/keramik getas</td></tr>
+  </table>
+
+  <p>
+    <strong>Pesan dari perbandingan ini:</strong> tidak ada material yang unggul
+    di segala aspek. Keramik/besi cor kuat dan kaku tetapi getas (energi serapnya
+    kecil); karet sangat ulet tetapi lemah; baja menjadi favorit struktur karena
+    berada di posisi "tengah atas" hampir semua kriteria &mdash; kuat, cukup ulet,
+    dan karena itu <em>paling tangguh</em>. Pemilihan material adalah kompromi
+    sesuai kebutuhan desain.
+  </p>
+</section>
+
+<section>
+  <h2>4. Sifat-Sifat Mekanik yang Dijelaskan</h2>
+
+  <h3>4.1 Kekuatan <span class="en">(Strength)</span></h3>
+  <p>
+    Kemampuan material menahan beban tanpa rusak atau patah. Terbagi menjadi:
+  </p>
+  <ul>
+    <li><strong>Kekuatan luluh (&sigma;<sub>y</sub>, <span class="en">yield strength</span>)</strong>:
+      tegangan saat material mulai berdeformasi permanen (plastis). Di bawah titik
+      ini material masih kembali ke bentuk semula.</li>
+    <li><strong>Kekuatan tarik maksimum (&sigma;<sub>uts</sub>, <span class="en">ultimate tensile strength</span>)</strong>:
+      tegangan tertinggi pada kurva sebelum terjadi pengecilan penampang
+      (<span class="en">necking</span>).</li>
+  </ul>
+  <p>Pada gambar kuliah: titik puncak kurva dan titik luluh yang dilingkari pena merah.</p>
+
+  <h3>4.2 Keuletan <span class="en">(Ductility)</span></h3>
+  <p>
+    Kemampuan material mengalami <strong>deformasi plastik yang besar</strong>
+    (memanjang/mulur) sebelum patah. Diukur dari:
+  </p>
+  <ul>
+    <li>Persen perpanjangan: <code>%EL = (L<sub>f</sub> &minus; L<sub>0</sub>) / L<sub>0</sub> &times; 100%</code></li>
+    <li>Persen reduksi penampang: <code>%RA = (A<sub>0</sub> &minus; A<sub>f</sub>) / A<sub>0</sub> &times; 100%</code></li>
+  </ul>
+  <p>
+    Material ulet (baja lunak, tembaga, aluminium) &rarr; kurva panjang ke kanan.
+    Lawannya adalah <strong>kegetasan (brittleness)</strong>: patah hampir tanpa
+    deformasi plastis (besi cor, keramik, kaca).
+  </p>
+
+  <h3>4.3 Kekakuan <span class="en">(Stiffness)</span></h3>
+  <p>
+    Ketahanan terhadap deformasi <em>elastis</em>, dinyatakan dengan
+    <strong>modulus Young E</strong> &mdash; yaitu kemiringan (gradien) garis lurus
+    di daerah elastis. Pada gambar kuliah terlihat coretan <code>&sigma;/&epsilon;</code>
+    di sisi kurva &mdash; itulah E.
+  </p>
+
+  <h3>4.4 Ketangguhan <span class="en">(Toughness)</span></h3>
+  <p>
+    Energi yang dapat diserap material per satuan volume hingga patah, sama dengan
+    <strong>luas di bawah kurva</strong> tegangan&ndash;regangan. Material tangguh
+    membutuhkan kombinasi kekuatan <em>dan</em> keuletan yang baik.
+  </p>
+
+  <h3>4.5 Sifat Lain yang Terkait</h3>
+  <table>
+    <tr><th>Sifat</th><th>Artinya</th><th>Posisi di kurva / ukuran</th></tr>
+    <tr><td>Elastisitas</td><td>Kemampuan kembali ke bentuk semula setelah beban dilepas</td><td>Daerah garis lurus awal (batas elastis)</td></tr>
+    <tr><td>Plastisitas</td><td>Kemampuan berubah bentuk secara permanen tanpa patah</td><td>Daerah setelah titik luluh</td></tr>
+    <tr><td>Kegetasan <span class="en">(brittleness)</span></td><td>Patah tanpa deformasi plastis berarti</td><td>Kurva sangat pendek ke kanan</td></tr>
+    <tr><td>Kekerasan <span class="en">(hardness)</span></td><td>Ketahanan terhadap gores/penekanan lokal</td><td>Tidak dari kurva; uji Brinell/Rockwell/Vickers. Umumnya berbanding lurus dengan &sigma;<sub>uts</sub></td></tr>
+    <tr><td>Resiliensi</td><td>Energi elastis yang dapat diserap &amp; dilepaskan</td><td>Luas segitiga daerah elastis</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>5. Energi dalam Analisis Material</h2>
+  <p>
+    Poin penting yang ditekankan Bapak Mujiyono: kurva tegangan&ndash;regangan
+    bukan sekadar gambar kekuatan &mdash; <strong>luas di bawah kurva adalah
+    energi</strong>. Karena satuan tegangan adalah gaya per luas dan regangan
+    adalah perubahan panjang per panjang, perkalian keduanya menghasilkan
+    <strong>energi per satuan volume</strong> (J/m&sup3;):
+  </p>
+  <span class="formula">
+    Energi per volume: U = &int; &sigma; d&epsilon; &nbsp;&nbsp;(J/m&sup3;)
+  </span>
+  <p>Dari kurva tersebut dikenal tiga "kantong energi" berikut:</p>
+
+  <h3>5.1 Energi Regangan <span class="en">(Strain Energy)</span></h3>
+  <p>
+    Energi yang <em>tersimpan</em> di dalam material selama dibebani, seperti
+    pegas yang ditekan. Selama masih di daerah elastis, energi ini dikembalikan
+    saat beban dilepas. Inilah dasar kerja pegas, suspensi kendaraan, dan balok
+    lentur.
+  </p>
+
+  <h3>5.2 Modulus Resiliensi <span class="en">(Modulus of Resilience, U<sub>r</sub>)</span></h3>
+  <p>
+    Energi maksimum yang dapat diserap material <strong>tanpa rusak permanen</strong>
+    &mdash; yaitu luas segitiga di daerah elastis:
+  </p>
+  <span class="formula">
+    U<sub>r</sub> = &frac12; &middot; &sigma;<sub>y</sub> &middot; &epsilon;<sub>y</sub>
+    = &sigma;<sub>y</sub>&sup2; / 2E
+  </span>
+  <p>
+    Material untuk pegas dipilih yang resiliensinya tinggi: kuat luluh tinggi
+    tetapi kekakuan (E) tidak berlebihan.
+  </p>
+
+  <h3>5.3 Ketangguhan = Energi hingga Patah <span class="en">(Modulus of Toughness)</span></h3>
+  <p>
+    <strong>Seluruh luas di bawah kurva sampai titik patah</strong> adalah total
+    energi yang diserap material sebelum gagal:
+  </p>
+  <span class="formula">
+    U<sub>t</sub> &asymp; &frac12;&thinsp;(&sigma;<sub>y</sub> + &sigma;<sub>uts</sub>) &middot; &epsilon;<sub>f</sub>
+  </span>
+  <p>
+    Inilah arti penting ketangguhan dalam rekayasa: material boleh saja sangat
+    kuat, tetapi jika getas (kurva pendek), energi yang diserapnya kecil dan ia
+    <strong>patah mendadak tanpa peringatan</strong>. Sebaliknya material ulet
+    "memberi tanda" lebih dulu (melengkung/melendut) sambil menyerap banyak
+    energi &mdash; lebih aman untuk struktur.
+  </p>
+
+  <h3>5.4 Energi Impak <span class="en">(Impact Energy)</span></h3>
+  <p>
+    Ketangguhan pada pembebanan <em>mendadak/kejut</em> diukur terpisah dengan
+    uji impak <strong>Charpy</strong> atau <strong>Izod</strong>: bandul
+    diayunkan mematahkan benda uji ber takik, dan energi yang hilang (selisih
+    tinggi ayunan) dicatat dalam satuan Joule. Uji ini juga dipakai menentukan
+    <strong>suhu transisi ulet&ndash;getas</strong>, penting misalnya untuk baja
+    di lingkungan dingin (kasus klasik: patah getas kapal Liberty / Titanic).
+  </p>
+
+  <div class="note">
+    <strong>Inti pesannya:</strong> dalam menganalisis material jangan hanya
+    melihat angka kekuatan. Energi yang bisa diserap material sebelum patah
+    (ketangguhan &amp; energi impak) sering kali lebih menentukan keselamatan
+    struktur daripada kekuatan semata.
+  </div>
+</section>
+
+<section>
+  <h2>6. Relevansinya dalam Desain Penelitian</h2>
+  <p>
+    Dalam konteks mata kuliah desain penelitian, sifat-sifat di atas adalah contoh
+    klasik <strong>variabel terikat (<span class="en">dependent variables / response</span>)</strong>
+    pada penelitian rekayasa material:
+  </p>
+  <ul>
+    <li><strong>Variabel bebas</strong> (yang diubah peneliti): komposisi paduan,
+      suhu &amp; waktu perlakuan panas, parameter pengelasan, dsb.</li>
+    <li><strong>Variabel terikat</strong> (yang diukur): kekuatan tarik, kekuatan
+      luluh, keuletan (%EL), kekerasan, ketangguhan.</li>
+    <li>Uji statistik yang tercoret di layar (notasi <em>t</em> dan <em>F</em>)
+      dipakai untuk menguji apakah perubahan variabel bebas berpengaruh nyata
+      (signifikan) terhadap sifat mekanik tersebut.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>7. Ringkasan Satu Kalimat per Konsep</h2>
+  <table>
+    <tr><th>Kekuatan</th><td>Seberapa besar beban yang sanggup ditahan sebelum rusak</td></tr>
+    <tr><td colspan="2"></td></tr>
+    <tr><th>Keuletan</th><td>Seberapa banyak material dapat "memulur" sebelum patah</td></tr>
+    <tr><th>Kekakuan</th><td>Seberapa sulit material melentur secara elastis (E)</td></tr>
+    <tr><th>Ketangguhan</th><td>Seberapa banyak energi yang diserap sampai patah</td></tr>
+    <tr><th>Kekerasan</th><td>Seberapa tahan permukaan terhadap goresan/tekanan</td></tr>
+    <tr><th>Kegetasan</th><td>Kecenderungan patah tiba-tiba tanpa memulur</td></tr>
+    <tr><th>Resiliensi</th><td>Energi elastis yang diserap dan dikembalikan tanpa rusak permanen</td></tr>
+    <tr><th>Ketangguhan (energi)</th><td>Total energi yang diserap sampai patah = luas penuh di bawah kurva</td></tr>
+    <tr><th>Energi impak</th><td>Energi patah pada beban kejut, diukur dengan uji Charpy/Izod (Joule)</td></tr>
+  </table>
+  <div class="note" style="margin-top:.75rem">
+    <strong>Catatan:</strong> Rekonstruksi ini berdasarkan bentuk coretan yang
+    terlihat pada screenshot. Jika urutan isi daftar bernomor atau rumus tertentu
+    pada gambar asli berbeda, halaman ini dapat disesuaikan.
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Pendamping dokumentasi kuliah 22 Oktober 2026 &bull;
+  Lihat juga: <a href="penjelasan_2026-10-22.html">penjelasan screenshot pertemuan</a>
+</footer>
+
+</body>
+</html>
