@@ -6,3 +6,5 @@ qa-results/
 lighthouse-report/
 docs/
 statistika/ppt
+
+__pycache__/

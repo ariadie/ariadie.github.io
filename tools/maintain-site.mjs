@@ -6,6 +6,9 @@ const toolDir = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(toolDir, "..");
 const baseUrl = "https://ariadie.github.io/";
 const microsites = new Set(["ai", "control", "conv", "moo-mrpp", "pymoo", "signal"]);
+// Folder "tersembunyi tapi publik": dipelihara metadata/tautannya, tetapi tidak
+// ditautkan dari beranda dan tidak dimasukkan ke sitemap (keputusan pemilik, 2026-10-22).
+const hiddenDirs = new Set(["kuliah", "office", "signal2", "statistika"]);
 
 const descriptions = {
   "ai/index.html": "Panduan interaktif Kecerdasan Artifisial tentang agen, pencarian, permainan, constraint satisfaction, logika, dan topik AI lainnya dari beragam referensi.",
@@ -34,7 +37,12 @@ const descriptions = {
   "signal/chapter4a.html": "Filtering dan sampling waktu kontinu: frequency response, filter ideal, sampling theorem, dan hubungan domain waktu-frekuensi.",
   "signal/chapter4b.html": "Aliasing, rekonstruksi, dan pemrosesan diskrit untuk sinyal waktu kontinu, dilengkapi penjelasan dan visualisasi interaktif.",
   "signal/chapter5a.html": "DTFT, sampling pada domain diskrit, dan DFT: periodicity, frequency sampling, circular convolution, serta interpretasi spektrum.",
-  "signal/chapter5b.html": "z-Transform: region of convergence, pole-zero plot, inverse transform, sifat transformasi, dan analisis sistem LTI diskrit."
+  "signal/chapter5b.html": "z-Transform: region of convergence, pole-zero plot, inverse transform, sifat transformasi, dan analisis sistem LTI diskrit.",
+  "signal2/W01-sinyal-dasar_v03.html": "Minggu 1 Isyarat dan Sistem: sinyal-sinyal dasar, sinyal elementer, dan operasi dasar sinyal.",
+  "signal2/W02-sifat-transformasi_v03.html": "Minggu 2 Isyarat dan Sistem: sifat-sifat sinyal (periodisitas, genap-ganjil, energi/daya) dan transformasi variabel waktu.",
+  "signal2/W03-klasifikasi-sistem_v06.html": "Minggu 3 Isyarat dan Sistem: klasifikasi dan karakterisasi sistem (linearitas, invarians waktu, kausalitas, stabilitas, memori).",
+  "signal2/W04-konvolusi_v10.html": "Minggu 4 Isyarat dan Sistem: konvolusi waktu kontinu dan diskrit, sifat konvolusi, dan respons sistem LTI.",
+  "kuliah/2026-10-22/penjelasan_sifat_mekanik_2026-10-22.html": "Catatan kuliah 22 Oktober 2026: strength, keuletan, dan sifat mekanik material, dengan penjelasan screenshot pertemuan."
 };
 
 function walkHtml(dir) {
@@ -145,7 +153,7 @@ for (const file of htmlFiles) {
   html = injectManagedMetadata(html, relative);
   html = injectSiteShell(html, relative);
   fs.writeFileSync(file, html, "utf8");
-  if (relative !== "404.html") publicPages.push(relative);
+  if (relative !== "404.html" && !hiddenDirs.has(relative.split("/")[0])) publicPages.push(relative);
 }
 
 const sitemap = [
@@ -157,4 +165,4 @@ const sitemap = [
 ].join("\n");
 
 fs.writeFileSync(path.join(siteRoot, "sitemap.xml"), sitemap, "utf8");
-console.log(`Maintained ${publicPages.length} public HTML pages and rebuilt sitemap.xml.`);
+console.log(`Maintained ${htmlFiles.length} HTML pages (${publicPages.length} listed in sitemap) and rebuilt sitemap.xml.`);

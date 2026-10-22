@@ -6,6 +6,9 @@ const toolDir = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(toolDir, "..");
 const baseUrl = "https://ariadie.github.io/";
 const microsites = new Set(["ai", "control", "conv", "moo-mrpp", "pymoo", "signal"]);
+// Folder "tersembunyi tapi publik": tetap diaudit (metadata, tautan, hardening),
+// tetapi tidak diwajibkan ada di sitemap (keputusan pemilik, 2026-10-22).
+const hiddenDirs = new Set(["kuliah", "office", "signal2", "statistika"]);
 const errors = [];
 
 function walkFiles(dir) {
@@ -121,7 +124,9 @@ for (const file of contentPages) {
   }
 }
 
-const expectedUrls = contentPages.map((file) => canonicalFor(relative(file)));
+const expectedUrls = contentPages
+  .filter((file) => !hiddenDirs.has(relative(file).split("/")[0]))
+  .map((file) => canonicalFor(relative(file)));
 const sitemap = fs.readFileSync(path.join(siteRoot, "sitemap.xml"), "utf8");
 const sitemapUrls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]);
 if (JSON.stringify(sitemapUrls) !== JSON.stringify(expectedUrls)) errors.push("sitemap.xml tidak sama dengan daftar canonical halaman publik");
@@ -142,5 +147,6 @@ if (errors.length) {
   for (const error of errors) console.error(`- ${error}`);
   process.exitCode = 1;
 } else {
-  console.log(`Audit lulus: ${contentPages.length} halaman publik, ${microsites.size} microsite, ${sitemapUrls.length} URL sitemap, tanpa tautan lokal rusak.`);
+  const hiddenCount = contentPages.length - expectedUrls.length;
+  console.log(`Audit lulus: ${contentPages.length} halaman diaudit (${hiddenCount} tersembunyi), ${microsites.size} microsite, ${sitemapUrls.length} URL sitemap, tanpa tautan lokal rusak.`);
 }

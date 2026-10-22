@@ -5,6 +5,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Minggu 4 — Konvolusi CT &amp; DT | Isyarat dan Sistem</title>
+  <!-- Managed site metadata -->
+  <meta name="description" content="Minggu 4 Isyarat dan Sistem: konvolusi waktu kontinu dan diskrit, sifat konvolusi, dan respons sistem LTI.">
+  <link rel="canonical" href="https://ariadie.github.io/signal2/W04-konvolusi_v10.html">
+  <meta property="og:title" content="Minggu 4 — Konvolusi CT &amp; DT | Isyarat dan Sistem">
+  <meta property="og:description" content="Minggu 4 Isyarat dan Sistem: konvolusi waktu kontinu dan diskrit, sifat konvolusi, dan respons sistem LTI.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ariadie.github.io/signal2/W04-konvolusi_v10.html">
 <script>
   /* Deteksi apakah halaman ini dijalankan di dalam iframe (mis. embed di BeSmart/Moodle).
      Dijalankan sesinkron & sedini mungkin (sebelum CSS di-parse penuh) supaya tidak ada
@@ -808,7 +815,7 @@
 </head>
 <body>
 
-<a class="embed-popout" id="popoutLink" target="_blank" rel="noopener">⤢ Buka mode presentasi penuh</a>
+<a class="embed-popout" id="popoutLink" target="_blank" rel="noopener noreferrer">⤢ Buka mode presentasi penuh</a>
 
 <div class="topbar">
   <div class="crumb">Isyarat dan Sistem <b>·</b> Minggu 04 / 16 <b>·</b> Labsheet-04</div>
@@ -830,7 +837,7 @@
   <nav class="weeknav weeknav-top" aria-label="Navigasi antarminggu — awal halaman">
     <a class="weeknav-link" href="W03-klasifikasi-sistem_v06.html">◂ W03 · Klasifikasi Sistem</a>
     <a class="weeknav-link" href="index.html">Daftar Isi</a>
-    <a class="weeknav-link" href="W05-deret-fourier-pengantar_v07.html">W05 · Deret Fourier ▸</a>
+    <span class="weeknav-link" aria-disabled="true">W05 · Deret Fourier — segera hadir</span>
   </nav>
   <div class="cover-num">04</div>
   <div class="eyebrow">Minggu 4 · Sub-CPMK 1.3</div>
@@ -1427,7 +1434,7 @@
     <li><b>Oppenheim, Willsky &amp; Nawab (1997), <em>Signals &amp; Systems</em>, ed. 2.</b> §2.1 jumlah konvolusi DT (Bagian 02, Contoh 2 dan 4); §2.2 integral konvolusi CT (Contoh 1 dan 3); §2.3 sifat sistem LTI — komutatif, distributif, asosiatif, memori, invertibilitas, kausalitas, stabilitas, respons langkah (Bagian 02B, 05B–05E); §2.4 sistem kausal yang dinyatakan dengan persamaan diferensial dan persamaan beda (Bagian 05A–05B).</li>
     <li><b>Lathi (2009), <em>Linear Systems and Signals</em>, ed. 2.</b> §2.4 respons keadaan-nol dan integral konvolusi CT, termasuk cara grafis; §3.8 respons keadaan-nol DT dan jumlah konvolusi, termasuk prosedur grafis dan sistem terinterkoneksi.</li>
     <li><b>Yarman Vural &amp; Akbaş (2025), <em>Signals and Systems: Theory and Practical Explorations with Python</em>.</b> Bagian konvolusi CT/DT dan sistem LTI beserta notebook Jupyter resminya (repositori <code>eakbas/384book</code>, situs 384book.net) sebagai pembanding Labsheet-04.</li>
-    <li><b><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/resources/lecture-8-convolution/" target="_blank" rel="noopener">MIT OpenCourseWare, 6.003 Lecture 8: Convolution</a> (Dennis Freeman, 2011).</b> Urutan visual halaman 25–38 memperlihatkan satu contoh DT dihitung tahap demi tahap; contoh mini di Bagian 03A disusun ulang untuk tujuan serupa, bukan menyalin gambarnya.</li>
+    <li><b><a href="https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/resources/lecture-8-convolution/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare, 6.003 Lecture 8: Convolution</a> (Dennis Freeman, 2011).</b> Urutan visual halaman 25–38 memperlihatkan satu contoh DT dihitung tahap demi tahap; contoh mini di Bagian 03A disusun ulang untuk tujuan serupa, bukan menyalin gambarnya.</li>
   </ul>
 </section>
 
@@ -1438,7 +1445,7 @@
   <div class="cta-wrap">
     <h3>Lanjutkan di Labsheet-04</h3>
     <p class="body-copy">Konsep di atas dipraktikkan langsung di notebook ini: konvolusi CT numerik (pulsa × pulsa, eksponensial × undak), konvolusi DT (<code>numpy.convolve</code>), tapis FIR rata-rata bergerak via <code>scipy.signal.lfilter</code>, dekonvolusi, serta respons impuls–respons langkah sistem IIR orde satu untuk membaca kausalitas dan stabilitas dari $h$. Dengan ini keempat SK CPMK1 (SK1–SK4) tuntas.</p>
-    <!-- Ganti span ini dengan <a class="cta-btn" href="https://colab.research.google.com/drive/ID_ASLI" target="_blank" rel="noopener"> setelah ID Drive tersedia. -->
+    <!-- Ganti span ini dengan <a class="cta-btn" href="https://colab.research.google.com/drive/ID_ASLI" target="_blank" rel="noopener noreferrer"> setelah ID Drive tersedia. -->
     <span class="cta-btn is-disabled" role="link" aria-disabled="true">▸ Labsheet-04 (tautan Colab menyusul)</span>
     <div class="cta-note">Tautan Colab akan diaktifkan setelah notebook Labsheet-04 diunggah ke Drive. Sementara itu gunakan <code>Labsheet/L04_Konvolusi_CT_dan_DT_v07.ipynb</code>. Dua eksplorasi <code>ipywidgets</code> di dalamnya opsional dan tidak dinilai; grafik statis Matplotlib pada tugas tetap menjadi acuan penilaian.</div>
     <div class="cta-meta">
@@ -1459,7 +1466,7 @@
   <nav class="weeknav" aria-label="Navigasi antarminggu — akhir halaman">
     <a class="weeknav-link" href="W03-klasifikasi-sistem_v06.html">◂ W03 · Klasifikasi Sistem</a>
     <a class="weeknav-link" href="index.html">Daftar Isi</a>
-    <a class="weeknav-link" href="W05-deret-fourier-pengantar_v07.html">W05 · Deret Fourier ▸</a>
+    <span class="weeknav-link" aria-disabled="true">W05 · Deret Fourier — segera hadir</span>
   </nav>
 </section>
 

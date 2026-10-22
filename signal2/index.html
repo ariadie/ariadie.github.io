@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!-- Signal2 index | v01 | 22-10-2026 -->
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indeks — Isyarat dan Sistem (signal2)</title>
+  <!-- Managed site metadata -->
+  <link rel="canonical" href="https://ariadie.github.io/signal2/">
+  <meta property="og:title" content="Indeks — Isyarat dan Sistem (signal2)">
+  <meta property="og:description" content="Indeks materi Isyarat dan Sistem (versi kedua): minggu 1–4 mencakup sinyal dasar, sifat dan transformasi sinyal, klasifikasi sistem, dan konvolusi.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ariadie.github.io/signal2/">
+<meta name="description" content="Indeks materi Isyarat dan Sistem (versi kedua): minggu 1–4 mencakup sinyal dasar, sifat dan transformasi sinyal, klasifikasi sistem, dan konvolusi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f7f5ef; --panel:#ffffff; --line:#d9d2bb;
+    --text:#1c1a14; --muted:#5b564a;
+    --phosphor:#0f6b52; --phosphor-solid:#0f6b52;
+    --shadow: 0 10px 30px rgba(15, 107, 82, 0.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      color-scheme: dark;
+      --bg:#14160f; --panel:#1e2118; --line:#3a3f2e;
+      --text:#f2f1e6; --muted:#b9b5a3;
+      --phosphor:#5bbd9b; --phosphor-solid:#0f6b52;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.30);
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body{
+    margin:0; min-height:100vh;
+    font-family:"Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.65;
+  }
+  a { color:inherit; }
+  a:focus-visible { outline:2px solid var(--phosphor); outline-offset:2px; }
+  .wrap { width:min(960px, calc(100% - 32px)); margin:0 auto; padding:44px 0 60px; }
+  .eyebrow{
+    display:inline-block; padding:6px 12px; border-radius:999px;
+    border:1px solid var(--line); background:var(--panel);
+    color:var(--phosphor); font-size:.82rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.06em;
+  }
+  h1{ font-size:clamp(1.8rem, 4vw, 2.6rem); line-height:1.12; letter-spacing:-0.02em; margin:18px 0 10px; font-weight:800;}
+  .lede{ color:var(--muted); max-width:720px; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:16px; margin-top:24px; }
+  .card{
+    border:1px solid var(--line); border-radius:18px; background:var(--panel);
+    padding:22px; box-shadow:var(--shadow);
+  }
+  .card h2{ margin:.3rem 0 .4rem; font-size:1.08rem; }
+  .card h2 a{ color:inherit; text-decoration:none; }
+  .card h2 a:hover{ color:var(--phosphor); }
+  .card p{ margin:0; color:var(--muted); font-size:.95rem; }
+  .badge{
+    display:inline-block; font-size:.72rem; font-weight:700;
+    border:1px solid var(--line); border-radius:999px; padding:.25rem .7rem;
+    background:color-mix(in srgb, var(--phosphor) 10%, transparent); color:var(--phosphor);
+  }
+  footer{
+    width:min(960px, calc(100% - 32px)); margin:0 auto;
+    padding:36px 0 50px; color:var(--muted); text-align:center; font-size:.92rem;
+  }
+  footer a{ color:var(--phosphor); text-decoration:none; font-weight:700; }
+  @media print{
+    body{ background:white; color:black; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="eyebrow">Isyarat dan Sistem · versi kedua</span>
+  <h1>Indeks materi mingguan</h1>
+  <p class="lede">Materi perkuliahan Isyarat dan Sistem dalam format halaman interaktif. Halaman dalam microsite ini sengaja tidak ditautkan dari beranda situs; akses melalui tautan langsung atau indeks ini.</p>
+
+  <div class="grid">
+    <div class="card"><span class="badge">Minggu 1</span><h2><a href="W01-sinyal-dasar_v03.html">Sinyal-Sinyal Dasar</a></h2><p>Definisi sinyal, sinyal elementer, dan operasi dasar sinyal.</p></div>
+    <div class="card"><span class="badge">Minggu 2</span><h2><a href="W02-sifat-transformasi_v03.html">Sifat-sifat Sinyal dan Transformasinya</a></h2><p>Periodisitas, genap–ganjil, energi/daya, serta transformasi variabel waktu. Labsheet-02 di Colab.</p></div>
+    <div class="card"><span class="badge">Minggu 3</span><h2><a href="W03-klasifikasi-sistem_v06.html">Klasifikasi dan Karakterisasi Sistem</a></h2><p>Linearitas, invarians waktu, kausalitas, stabilitas, dan memori.</p></div>
+    <div class="card"><span class="badge">Minggu 4</span><h2><a href="W04-konvolusi_v10.html">Konvolusi CT &amp; DT</a></h2><p>Integral dan penjumlahan konvolusi, sifat-sifatnya, serta respons sistem LTI.</p></div>
+    <div class="card"><span class="badge">Minggu 5</span><h2>Deret Fourier — segera hadir</h2><p>Materi berikutnya belum dipublikasikan.</p></div>
+  </div>
+
+  <p class="version-tag" style="margin-top:22px;font-size:.8rem;color:var(--muted)">Versi v01 · dibuat 22-10-2026</p>
+</div>
+<footer>Isyarat dan Sistem (signal2) · Kembali ke <a href="../index.html">beranda situs</a></footer>
+</body>
+</html>
